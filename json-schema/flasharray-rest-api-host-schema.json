@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Host",
+  "description": "Host schema from FlashArray REST API",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-schema/flasharray-rest-api-host-schema.json",
+  "allOf": [
+    {
+      "description": "An ordinary (as opposed to built-in) resource that can be created, named,\nrenamed or deleted by the user. This might be a virtual resource (e.g., a\nvolume), or correspond to something in the environment, like a host or a\nserver.\n",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "A user-specified name.\nThe name must be locally unique and can be changed.\n",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReferenceWithType",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReferenceWithType"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "chap": {
+          "description": "Challenge-Handshake Authentication Protocol (CHAP).",
+          "type": "object",
+          "properties": {
+            "host_password": {
+              "description": "The host password for CHAP authentication.\nThe password must be between 12 and 255 characters (inclusive)\nand cannot be the same as the target password.\n",
+              "type": "string"
+            },
+            "host_user": {
+              "description": "The host username for CHAP authentication.",
+              "type": "string"
+            },
+            "target_password": {
+              "description": "The target password for CHAP authentication.\nThe password must be between 12 and 255 characters (inclusive)\nand cannot be the same as the host password.\n",
+              "type": "string"
+            },
+            "target_user": {
+              "description": "The target username for CHAP authentication.",
+              "type": "string"
+            }
+          }
+        },
+        "connection_count": {
+          "description": "The number of volumes connected to the specified host.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true,
+          "example": 3
+        },
+        "destroyed": {
+          "description": "Returns a value of `true` if the host has been destroyed\nwith its container realm and is pending eradication.\nThe `time_remaining` value displays the amount of time left\nuntil the destroyed host is permanently eradicated.\nBefore the `time_remaining` period has elapsed, the destroyed host\nwill be recovered if its container realm is recovered.\nOnce the `time_remaining` period has elapsed,\nthe host is permanently eradicated and can no longer be recovered.\n",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "host_group": {
+          "description": "The host group to which the host should be associated.",
+          "title": "ReferenceNoId",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_referenceNoId"
+            }
+          ]
+        },
+        "iqns": {
+          "description": "The iSCSI qualified name (IQN) associated with the host.\n",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "example": "iqn.2010-06.com.purestorage:linux.393d930077be2977"
+          }
+        },
+        "is_local": {
+          "description": "If set to `true`, the location reference is to the local array.\nIf set to `false`, the location reference is to a remote location,\nsuch as a remote array or offload target.\n",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "nqns": {
+          "description": "The NVMe Qualified Name (NQN) associated with the host.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "example": "nqn.2010-06.com.purestorage:flasharray.512f7bb185978505"
+          }
+        },
+        "nvme_stretch": {
+          "description": "The configuration that determines host behavior with stretched volumes,\napplicable only to `NVMe` hosts. Valid values include `disallow`,\n`allow`, and `allow-only-with-fleet`. Host operating systems\nsupporting `NVMe` `dispersed namespaces` typically use `allow`,\nwhile those without such support use `allow-only-with-fleet` within\na fleet or `disallow` otherwise. Changing to or from the\n`allow-only-with-fleet` mode triggers a disconnect of all `NVMe`\nconnections for the host. The default value is `disallow`.\n",
+          "type": "string"
+        },
+        "personality": {
+          "description": "Determines how the system tunes the array to ensure that it works optimally with the host.\nSet `personality` to the name of the host operating system or virtual memory system.\nValid values are `aix`, `esxi`, `hitachi-vsp`, `hpux`,\n`oracle-vm-server`, `solaris`, `vms`, `nutanix-mgmt` and `nutanix-cluster`.\nIf your system is not listed as one of the valid host personalities, do not set the option.\nBy default, the personality is not set.\n",
+          "type": "string"
+        },
+        "port_connectivity": {
+          "description": "The connectivity status between the host and the ports on each controller.\n",
+          "type": "object",
+          "properties": {
+            "details": {
+              "description": "The host connection status.\nValues include `Redundant`, `N/A`,\n`Redundant-Failover`, `Uneven`, `Unused Port`,\n`Single Controller`, `Single Controller-Failover`, and `None`.\n",
+              "type": "string",
+              "readOnly": true,
+              "example": "Redundant"
+            },
+            "status": {
+              "description": "The host connection health status.\nValues include `healthy`, `unhealthy`, and `critical`.\n",
+              "type": "string",
+              "readOnly": true,
+              "example": "healthy"
+            }
+          },
+          "x-readOnly": true
+        },
+        "preferred_arrays": {
+          "description": "For synchronous replication configurations, sets a host's preferred array to specify which\narray exposes active/optimized paths to that host.\nEnter multiple preferred arrays in comma-separated format.\nIf a preferred array is set for a host,\nthen the other arrays in the same pod will expose active/non-optimized paths to that host.\nIf the host is in a host group, `preferred_arrays` cannot be set because host groups\nhave their own preferred arrays.\nOn a preferred array of a certain host, all the paths on all the ports\n(for both the primary and secondary controllers) are set up as A/O (active/optimized) paths,\nwhile on a non-preferred array, all the paths are A/N (Active/Non-optimized) paths.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/_reference"
+          }
+        },
+        "qos": {
+          "description": "Displays QoS limit information.\n",
+          "title": "ContainerQosCeilings",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_containerQosCeilings"
+            }
+          ]
+        },
+        "space": {
+          "description": "Displays provisioned (virtual) size and physical storage consumption\ninformation for the sum of all volumes connected to the specified host.\n",
+          "title": "Space",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_space"
+            }
+          ]
+        },
+        "time_remaining": {
+          "description": "The amount of time left until the destroyed host is permanently eradicated,\nmeasured in milliseconds.\n",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "vlan": {
+          "description": "The VLAN ID that the host is associated with.\nIf set to `any`, the host can access any VLAN.\nIf set to `untagged`, the host can only access untagged VLANs.\nIf set to a number between `1` and `4094`,\nthe host can only access the specified VLAN with that number.\n",
+          "type": "string",
+          "example": "1"
+        },
+        "wwns": {
+          "description": "The Fibre Channel World Wide Name (WWN) associated with the host.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "example": "52:4A:93:70:4E:E5:68:00"
+          }
+        }
+      }
+    }
+  ]
+}

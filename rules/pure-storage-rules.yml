@@ -1,0 +1,292 @@
+# Pure Storage Spectral Ruleset
+#
+# Opinionated Spectral rules derived from the Pure Storage FlashArray, FlashBlade,
+# and Pure1 Public REST API OpenAPI specifications. These rules enforce the
+# patterns observed across the official specs and a few common-sense API quality
+# rules layered on top.
+#
+# Source specs:
+#   openapi/flasharray-rest-api-openapi.yml   (FA 2.52)
+#   openapi/flashblade-rest-api-openapi.yml   (FB 2.26)
+#   openapi/pure1-cloud-api-openapi.yml       (Pure1 1.5)
+
+extends: spectral:oas
+
+formats:
+  - oas3
+
+rules:
+
+  # ----------------------------------------------------------------------------
+  # INFO / METADATA
+  # ----------------------------------------------------------------------------
+
+  info-title-pure-storage-prefix:
+    description: API title should reflect the Pure Storage product family (e.g. "FlashArray REST API", "FlashBlade REST API", "Pure1 Public REST API").
+    message: "Title '{{value}}' should reference a Pure Storage product (FlashArray, FlashBlade, or Pure1)."
+    severity: warn
+    given: $.info.title
+    then:
+      function: pattern
+      functionOptions:
+        match: "(FlashArray|FlashBlade|Pure1|Pure Storage)"
+
+  info-description-required:
+    description: API info.description must be present and non-trivial.
+    severity: error
+    given: $.info
+    then:
+      field: description
+      function: truthy
+
+  info-version-semver-or-major-minor:
+    description: API version should be either semver or major.minor (e.g. 2.52, 1.5).
+    severity: warn
+    given: $.info.version
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+
+  # ----------------------------------------------------------------------------
+  # OPENAPI VERSION
+  # ----------------------------------------------------------------------------
+
+  openapi-version-3:
+    description: Pure Storage specs are OpenAPI 3.0.x.
+    severity: error
+    given: $.openapi
+    then:
+      function: pattern
+      functionOptions:
+        match: "^3\\.0\\."
+
+  # ----------------------------------------------------------------------------
+  # SERVERS
+  # ----------------------------------------------------------------------------
+
+  servers-defined:
+    description: At least one server must be defined.
+    severity: error
+    given: $
+    then:
+      field: servers
+      function: truthy
+
+  # ----------------------------------------------------------------------------
+  # PATHS — NAMING CONVENTIONS
+  # ----------------------------------------------------------------------------
+
+  paths-snake-case-segments:
+    description: Path segments use snake_case (matches Pure Storage convention; e.g. /api/2.52/active-directory, /arrays/cloud-provider-tags).
+    message: "Path segment in '{{value}}' should be snake_case or kebab-case (lowercase only)."
+    severity: warn
+    given: $.paths.*~
+    then:
+      function: pattern
+      functionOptions:
+        match: "^/([a-z0-9_./{}-]+)?$"
+
+  paths-version-prefix:
+    description: Resource paths should be version-prefixed (e.g. /api/2.52/, /1.5/, /oauth2/1.0/).
+    severity: warn
+    given: $.paths.*~
+    then:
+      function: pattern
+      functionOptions:
+        match: "^/(api/[0-9]+\\.[0-9]+|oauth2/[0-9]+\\.[0-9]+|[0-9]+\\.[0-9]+)/"
+
+  paths-no-trailing-slash:
+    description: Path entries must not have a trailing slash.
+    severity: error
+    given: $.paths.*~
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: "/$"
+
+  # ----------------------------------------------------------------------------
+  # OPERATIONS
+  # ----------------------------------------------------------------------------
+
+  operation-summary-required:
+    description: Every operation must have a summary.
+    severity: error
+    given: $.paths.*[get,post,put,patch,delete,head,options]
+    then:
+      field: summary
+      function: truthy
+
+  operation-summary-pure-storage-prefix:
+    description: Operation summaries should begin with "Pure Storage" to clearly identify the provider.
+    message: 'Summary "{{value}}" should start with "Pure Storage".'
+    severity: warn
+    given: $.paths.*[get,post,put,patch,delete,head,options].summary
+    then:
+      function: pattern
+      functionOptions:
+        match: "^Pure Storage "
+
+  operation-operationId-required:
+    description: Every operation must have an operationId.
+    severity: error
+    given: $.paths.*[get,post,put,patch,delete,head,options]
+    then:
+      field: operationId
+      function: truthy
+
+  operation-tags-required:
+    description: Every operation must include at least one tag.
+    severity: error
+    given: $.paths.*[get,post,put,patch,delete,head,options]
+    then:
+      field: tags
+      function: truthy
+
+  # ----------------------------------------------------------------------------
+  # TAGS
+  # ----------------------------------------------------------------------------
+
+  tags-defined-globally:
+    description: Tags should be declared at the document root with descriptions (Pure Storage specs declare 50+ resource tags globally).
+    severity: warn
+    given: $
+    then:
+      field: tags
+      function: truthy
+
+  tag-title-case:
+    description: Tag names should use Title Case (e.g. "Active Directory", "Alert Watchers", "API Clients").
+    message: 'Tag name "{{value}}" should use Title Case.'
+    severity: warn
+    given: $.tags[*].name
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[A-Z0-9][A-Za-z0-9 /+-]*$"
+
+  # ----------------------------------------------------------------------------
+  # PARAMETERS
+  # ----------------------------------------------------------------------------
+
+  parameter-snake-case:
+    description: Query and path parameter names should use snake_case (Pure Storage uses snake_case for filters, names, ids, etc.).
+    message: 'Parameter name "{{value}}" should be snake_case.'
+    severity: warn
+    given: $.paths.*[get,post,put,patch,delete,head,options].parameters[?(@.in=='query' || @.in=='path')].name
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[a-z][a-z0-9_]*$"
+
+  parameter-description-required:
+    description: All parameters must have a description.
+    severity: warn
+    given: $.paths.*[get,post,put,patch,delete,head,options].parameters[*]
+    then:
+      field: description
+      function: truthy
+
+  parameter-x-auth-token-header:
+    description: When session-based auth is used, FA/FB exposes 'x-auth-token' as the auth header.
+    severity: info
+    given: $.paths.*[get,post,put,patch,delete,head,options].parameters[?(@.in=='header' && @.name=='x-auth-token')]
+    then:
+      field: name
+      function: truthy
+
+  # ----------------------------------------------------------------------------
+  # RESPONSES
+  # ----------------------------------------------------------------------------
+
+  response-success-required:
+    description: Every operation must define at least one 2xx response.
+    severity: error
+    given: $.paths.*[get,post,put,patch,delete,head,options].responses
+    then:
+      function: truthy
+
+  response-400-recommended:
+    description: Mutating operations should document a 400 Bad Request response.
+    severity: info
+    given: $.paths.*[post,put,patch,delete].responses
+    then:
+      field: "400"
+      function: truthy
+
+  response-application-json:
+    description: Responses should serve application/json.
+    severity: warn
+    given: $.paths.*[get,post,put,patch,delete].responses.*.content
+    then:
+      field: "application/json"
+      function: truthy
+
+  # ----------------------------------------------------------------------------
+  # SCHEMAS — PROPERTY NAMING
+  # ----------------------------------------------------------------------------
+
+  schema-property-snake-case:
+    description: Schema property names should be snake_case (Pure Storage uses snake_case across FA/FB/Pure1 schemas).
+    message: 'Property name "{{property}}" should be snake_case.'
+    severity: warn
+    given: $.components.schemas.*.properties.*~
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[a-z][a-z0-9_]*$"
+
+  schema-id-property-string:
+    description: Object identifier 'id' should be a string (Pure Storage uses opaque string ids).
+    severity: info
+    given: $.components.schemas.*.properties.id
+    then:
+      field: type
+      function: enumeration
+      functionOptions:
+        values:
+          - string
+
+  schema-time-property-pattern:
+    description: Time-valued properties should be named '*_time' or '*_at' (e.g. created, updated).
+    severity: info
+    given: $.components.schemas.*.properties[?(@.format=='date-time')]~
+    then:
+      function: pattern
+      functionOptions:
+        match: "(_time|_at|created|updated|modified)$"
+
+  # ----------------------------------------------------------------------------
+  # SECURITY
+  # ----------------------------------------------------------------------------
+
+  security-defined:
+    description: Authentication mechanism should be documented (FA/FB use OAuth 2.0 token-exchange JWTs and a session 'x-auth-token' header; Pure1 uses OAuth 2.0 token exchange).
+    severity: warn
+    given: $
+    then:
+      field: security
+      function: truthy
+
+  # ----------------------------------------------------------------------------
+  # REQUEST BODY
+  # ----------------------------------------------------------------------------
+
+  request-body-application-json:
+    description: Request bodies should accept application/json.
+    severity: warn
+    given: $.paths.*[post,put,patch].requestBody.content
+    then:
+      field: "application/json"
+      function: truthy
+
+  # ----------------------------------------------------------------------------
+  # GENERAL QUALITY
+  # ----------------------------------------------------------------------------
+
+  no-empty-description:
+    description: Descriptions, when present, must not be empty strings.
+    severity: warn
+    given: $..description
+    then:
+      function: truthy

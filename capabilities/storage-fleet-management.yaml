@@ -1,0 +1,305 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "Pure Storage Fleet Management"
+  description: >-
+    Unified workflow that combines FlashArray, FlashBlade, and Pure1 APIs to give a storage administrator
+    a single REST and MCP surface for managing block, file, and object storage across the Pure Storage
+    fleet plus cross-array reporting and telemetry from Pure1. Used by storage administrators, platform
+    engineers, and SREs running Pure Storage at scale.
+  tags:
+    - Pure Storage
+    - Fleet Management
+    - Storage Administration
+    - FlashArray
+    - FlashBlade
+    - Pure1
+  created: "2026-05-05"
+  modified: "2026-05-05"
+
+binds:
+  - namespace: env
+    keys:
+      PURE_FA_API_TOKEN: PURE_FA_API_TOKEN
+      PURE_FB_API_TOKEN: PURE_FB_API_TOKEN
+      PURE1_API_TOKEN: PURE1_API_TOKEN
+
+capability:
+  consumes:
+    - import: flasharray-rest-api
+      location: ./shared/flasharray-rest-api.yaml
+    - import: flashblade-rest-api
+      location: ./shared/flashblade-rest-api.yaml
+    - import: pure1-cloud-api
+      location: ./shared/pure1-cloud-api.yaml
+
+  exposes:
+    - type: rest
+      port: 8080
+      namespace: pure-storage-fleet-rest
+      description: >-
+        Unified Spectral-compliant REST API for Pure Storage fleet management. Resources are organized by
+        workflow domain (arrays, volumes, file-systems, buckets, fleet) rather than by source product.
+      resources:
+        - path: /v1/arrays
+          name: arrays
+          description: List and inspect FlashArray, FlashBlade, and Pure1-tracked arrays.
+          operations:
+            - method: GET
+              name: list-flasharray-arrays
+              description: List FlashArray arrays.
+              call: flasharray-rest-api.get-arrays
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: GET
+              name: list-flashblade-arrays
+              description: List FlashBlade arrays.
+              call: flashblade-rest-api.get-arrays
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: GET
+              name: list-pure1-arrays
+              description: List arrays known to Pure1.
+              call: pure1-cloud-api.get-arrays
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+        - path: /v1/volumes
+          name: volumes
+          description: FlashArray volume operations.
+          operations:
+            - method: GET
+              name: list-volumes
+              description: List FlashArray volumes.
+              call: flasharray-rest-api.get-volumes
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+        - path: /v1/hosts
+          name: hosts
+          description: FlashArray host operations.
+          operations:
+            - method: GET
+              name: list-hosts
+              description: List FlashArray hosts.
+              call: flasharray-rest-api.get-hosts
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+        - path: /v1/file-systems
+          name: file-systems
+          description: FlashBlade file system operations.
+          operations:
+            - method: GET
+              name: list-file-systems
+              description: List FlashBlade file systems.
+              call: flashblade-rest-api.get-file-systems
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+        - path: /v1/buckets
+          name: buckets
+          description: FlashBlade S3 bucket operations.
+          operations:
+            - method: GET
+              name: list-buckets
+              description: List FlashBlade S3 buckets.
+              call: flashblade-rest-api.get-buckets
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+        - path: /v1/fleet/metrics
+          name: fleet-metrics
+          description: Cross-fleet telemetry from Pure1.
+          operations:
+            - method: GET
+              name: list-metrics
+              description: List Pure1 fleet metrics catalog.
+              call: pure1-cloud-api.get-metrics
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+        - path: /v1/fleet/alerts
+          name: fleet-alerts
+          description: Pure1 fleet-wide alert stream.
+          operations:
+            - method: GET
+              name: list-alerts
+              description: List Pure1 alerts across the fleet.
+              call: pure1-cloud-api.get-alerts
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+        - path: /v1/fleet/sustainability
+          name: fleet-sustainability
+          description: Pure1 sustainability and energy telemetry.
+          operations:
+            - method: GET
+              name: list-sustainability-metrics
+              description: List sustainability metrics for arrays.
+              call: pure1-cloud-api.get-arrays-sustainability
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9090
+      namespace: pure-storage-fleet-mcp
+      transport: http
+      description: >-
+        MCP server exposing Pure Storage fleet management tools to AI agents. Tool names are prefixed by
+        the source product (fa- for FlashArray, fb- for FlashBlade, pure1- for Pure1) so an agent can
+        disambiguate identically named operations across products.
+      tools:
+        - name: fa-list-arrays
+          description: List FlashArray arrays.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: flasharray-rest-api.get-arrays
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: fa-list-volumes
+          description: List FlashArray volumes.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: flasharray-rest-api.get-volumes
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: fa-list-hosts
+          description: List FlashArray hosts.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: flasharray-rest-api.get-hosts
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: fa-list-protection-groups
+          description: List FlashArray protection groups for replication and snapshots.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: flasharray-rest-api.get-protection-groups
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: fb-list-arrays
+          description: List FlashBlade arrays.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: flashblade-rest-api.get-arrays
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: fb-list-file-systems
+          description: List FlashBlade file systems.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: flashblade-rest-api.get-file-systems
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: fb-list-buckets
+          description: List FlashBlade S3 buckets.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: flashblade-rest-api.get-buckets
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: pure1-list-arrays
+          description: List arrays known to Pure1.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: pure1-cloud-api.get-arrays
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: pure1-list-alerts
+          description: List Pure1 fleet-wide alerts.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: pure1-cloud-api.get-alerts
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: pure1-list-metrics
+          description: List Pure1 fleet metrics catalog.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: pure1-cloud-api.get-metrics
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: pure1-list-sustainability
+          description: List Pure1 sustainability metrics for arrays.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: pure1-cloud-api.get-arrays-sustainability
+          outputParameters:
+            - type: object
+              mapping: "$."
+
+        - name: pure1-list-subscriptions
+          description: List Pure1 subscription information.
+          hints:
+            readOnly: true
+            destructive: false
+            idempotent: true
+            openWorld: true
+          call: pure1-cloud-api.get-subscriptions
+          outputParameters:
+            - type: object
+              mapping: "$."

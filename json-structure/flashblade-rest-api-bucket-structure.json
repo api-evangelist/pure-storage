@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-structure/flashblade-rest-api-bucket-structure.json",
+  "name": "Bucket",
+  "description": "Bucket schema from FlashBlade REST API",
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A non-modifiable, globally unique ID chosen by the system.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "description": "Name of the object (e.g., a file system or snapshot).",
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "account": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReferenceWithoutType"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "resource_type": {
+                  "description": "Type of the object (full name of the endpoint).\nValid values are the unique part of the resource's REST endpoint.\nFor example, a reference to a file system would have a\n`resource_type` of `file-systems`.\n",
+                  "type": "string",
+                  "readOnly": true
+                }
+              }
+            }
+          ]
+        },
+        "bucket_type": {
+          "description": "The bucket type for the bucket.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "created": {
+          "description": "Creation timestamp of the object.",
+          "type": "int64",
+          "readOnly": true
+        },
+        "destroyed": {
+          "description": "Is the bucket destroyed?\n",
+          "type": "boolean"
+        },
+        "eradication_config": {
+          "title": "BucketEradicationConfig",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_bucketEradicationConfig"
+            }
+          ]
+        },
+        "hard_limit_enabled": {
+          "description": "If set to `true`, the bucket's size, as defined by `quota_limit`,\nis used as a hard limit quota.\nIf set to `false`, a hard limit quota will not be applied to the\nbucket, but soft quota alerts will still be sent if the bucket has\na value set for `quota_limit`.\n",
+          "type": "boolean"
+        },
+        "object_count": {
+          "description": "The count of objects within the bucket.",
+          "type": "int64",
+          "readOnly": true
+        },
+        "object_lock_config": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_objectLockConfigBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "default_retention": {
+                  "description": "The retention period, in milliseconds, used to apply locks\non new objects if none is specified by the S3 client.\nValid values are any multiple of `86400000` (1 day), up to\n`3153600000000` (36500 days).\nIf there is no default, this value is `null`.\n",
+                  "type": "int64",
+                  "example": 86400000
+                }
+              }
+            }
+          ]
+        },
+        "public_access_config": {
+          "description": "Configuration settings related to public access.",
+          "type": "object",
+          "properties": {
+            "block_new_public_policies": {
+              "description": "If set to `true`, adding bucket policies that grant public access to a bucket is not allowed.\n",
+              "type": "boolean"
+            },
+            "block_public_access": {
+              "description": "If set to `true`, access to a bucket with a public policy is restricted to only authenticated\nusers within the account that bucket belongs to.\n",
+              "type": "boolean"
+            }
+          }
+        },
+        "public_status": {
+          "description": "Bucket's public status. Valid values include `bucket-and-objects-not-public`,\n`only-authorized-users-of-this-account` and `public`.\n",
+          "type": "string",
+          "readOnly": true,
+          "example": "bucket-and-objects-not-public"
+        },
+        "qos_policy": {
+          "description": "The QoS policy for the bucket defines the performance controls\nthat can be applied to the aggregate performance of all the clients\naccessing the bucket.\nIf no policy is configured for a bucket, then no performance\ncontrols are applied to it.\n",
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        },
+        "quota_limit": {
+          "description": "The effective quota limit applied against the size of the bucket, displayed in bytes.\nIf unset, the bucket is unlimited in size.\n",
+          "type": "int32"
+        },
+        "retention_lock": {
+          "description": "If set to `ratcheted`, then `object_lock_config.default_retention_mode`\ncannot be changed if set to `compliance`. In this case, the value of\n`object_lock_config.default_retention` can only be increased and\n`object_lock_config.default_retention_mode` cannot be changed once set\nto `compliance`.\nValid values are `unlocked` and `ratcheted`.\nContact Pure Technical Services to change `ratcheted` to `unlocked`.\n",
+          "type": "string",
+          "example": "unlocked"
+        },
+        "space": {
+          "description": "The space specification of the bucket.",
+          "title": "Space",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_space"
+            }
+          ]
+        },
+        "storage_class": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_referenceNameOnly"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "The status of the transition from the policy to the requested policy. If there is an ongoing transition, the status will be one of `In-Progress` or `Queued`. If there is no transition ongoing, this field will be null.",
+                  "type": "string",
+                  "readOnly": true
+                },
+                "status_details": {
+                  "description": "Additional details about the status of the transition. If there is no transition ongoing, this field will be null.",
+                  "type": "string",
+                  "readOnly": true
+                },
+                "tiering_policy": {
+                  "description": "The storage class tiering policy defines tiering for data within the container. If specified,\ndata is written to the container's `S500X-S` (speed) storage class by default, then tiered\nto `S500X-A` (archival) storage class based on the policy.\nIf not specified, all data in the container is written to the container's current storage class.\n",
+                  "title": "Reference",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/_reference"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "time_remaining": {
+          "description": "Time in milliseconds before the bucket is eradicated.\n`null` if not destroyed or legal hold was found or the remaining time\nuntil eradication is not known yet.\n",
+          "type": "int64",
+          "readOnly": true
+        },
+        "time_remaining_status": {
+          "description": "Status of the `time_remaining` field.\n`calculating` means the bucket is `retention-based`, has been destroyed and the\n`time_remaining` is being calculated by a background process\n`legal-hold` means the bucket is `retention-based`, has been destroyed and will never be\neradicated, because an object with legal hold status was found inside.\nnull otherwise, i.e. when either the bucket is not destroyed or it's destroyed and the\n`time_remaining` has been determined.\n",
+          "type": "string",
+          "readOnly": true,
+          "example": "calculating"
+        },
+        "versioning": {
+          "description": "The versioning state for objects within the bucket.\nValid values are `none`, `enabled`, and `suspended`.\n",
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

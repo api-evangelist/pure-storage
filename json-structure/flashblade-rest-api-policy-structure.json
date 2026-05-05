@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-structure/flashblade-rest-api-policy-structure.json",
+  "name": "Policy",
+  "description": "Policy schema from FlashBlade REST API",
+  "allOf": [
+    {
+      "allOf": [
+        {
+          "$ref": "#/components/schemas/PolicyBaseRenameable"
+        }
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "retention_lock": {
+          "description": "If retention lock is locked, then the the policy can not be removed\nfrom the associated file systems and the rules may not be changed.\nValid values are `locked` and `unlocked`.\nContact Pure Technical Services to change `locked` to `unlocked`.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/_policy_rule"
+          }
+        },
+        "workload": {
+          "description": "A reference to the workload that is managing this resource.\nThe `name` and `configuration` may show as the string \"(unknown)\" briefly after a failover.\n",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "configuration": {
+                  "description": "The name of the preset configuration object.\n",
+                  "type": "string",
+                  "readOnly": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

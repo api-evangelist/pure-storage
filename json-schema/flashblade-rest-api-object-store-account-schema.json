@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ObjectStoreAccount",
+  "description": "ObjectStoreAccount schema from FlashBlade REST API",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-schema/flashblade-rest-api-object-store-account-schema.json",
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A non-modifiable, globally unique ID chosen by the system.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "description": "Name of the object (e.g., a file system or snapshot).",
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "bucket_defaults": {
+          "description": "Default settings to be applied to newly created buckets associated with\nthis account. Values here will be used in bucket creation requests which\ndo not specify their own values for corresponding fields.\n",
+          "title": "BucketDefaultsReadonly",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_bucketDefaultsReadonly"
+            }
+          ]
+        },
+        "created": {
+          "description": "Creation timestamp of the object.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "hard_limit_enabled": {
+          "description": "If set to `true`, the account's size, as defined by `quota_limit`,\nis used as a hard limit quota.\nIf set to `false`, a hard limit quota will not be applied to the\naccount, but soft quota alerts will still be sent if the account has\na value set for `quota_limit`.\n",
+          "type": "boolean"
+        },
+        "object_count": {
+          "description": "The count of objects within the account.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "public_access_config": {
+          "description": "Configuration settings related to public access.",
+          "type": "object",
+          "properties": {
+            "block_new_public_policies": {
+              "description": "If set to `true`, adding bucket policies that grant public access to a bucket is not allowed.\n",
+              "type": "boolean"
+            },
+            "block_public_access": {
+              "description": "If set to `true`, access to a bucket with a public policy is restricted to only authenticated\nusers within the account that bucket belongs to.\n",
+              "type": "boolean"
+            }
+          }
+        },
+        "quota_limit": {
+          "description": "The effective quota limit applied against the size of the account, displayed in bytes.\nIf unset, the account is unlimited in size.\n",
+          "type": "integer"
+        },
+        "realms": {
+          "description": "The realms containing this account.\n",
+          "type": "array",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/components/schemas/_fixedReference"
+          }
+        },
+        "space": {
+          "description": "The space specification of the object store account.",
+          "title": "Space",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_space"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

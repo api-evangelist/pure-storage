@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProtectionGroup",
+  "description": "ProtectionGroup schema from FlashArray REST API",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-schema/flasharray-rest-api-protection-group-schema.json",
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReferenceWithType",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReferenceWithType"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "An ordinary (as opposed to built-in) resource that can be created, named,\nrenamed or deleted by the user. This might be a virtual resource (e.g., a\nfile system), or correspond to something in the environment, like a host or a\nserver.\n",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A globally unique, system-generated ID.\nThe ID cannot be modified and cannot refer to another resource.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "description": "A user-specified name.\nThe name must be locally unique and can be changed.\n",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "A protection group defines a set of either volumes, hosts, or host groups\n(called members) that are protected together through snapshots with\npoint-in-time consistency across the member volumes. The members within the\nprotection group have common data protection requirements and share the\nsame snapshot, replication, and retention schedules.\n",
+      "type": "object",
+      "properties": {
+        "destroyed": {
+          "description": "Has this protection group been destroyed?\nTo destroy a protection group, patch to `true`.\nTo recover a destroyed protection group, patch to `false`.\nIf not specified, defaults to `false`.\n",
+          "type": "boolean"
+        },
+        "eradication_config": {
+          "description": "The configuration of the eradication feature.",
+          "type": "object",
+          "properties": {
+            "manual_eradication": {
+              "description": "Manual eradication status of objects like protection group and\nprotection group snapshots.\nIf manual_eradication is `disabled`, you cannot eradicate objects.\nValues include `disabled` and `enabled`.\n",
+              "type": "string",
+              "readOnly": true,
+              "example": "enabled"
+            }
+          },
+          "x-readOnly": true
+        },
+        "host_count": {
+          "description": "Number of hosts in this protection group.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true,
+          "example": 3
+        },
+        "host_group_count": {
+          "description": "Number of host groups in this protection group.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true,
+          "example": 3
+        },
+        "is_local": {
+          "description": "If set to `true`, the protection group belongs to the local array.\nIf set to `false`, the protection group belongs to the remote array.\n",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "pod": {
+          "description": "The pod in which the protection group resides.",
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        },
+        "replication_schedule": {
+          "description": "The schedule settings for asynchronous replication.",
+          "title": "Replication_schedule",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_replication_schedule"
+            }
+          ]
+        },
+        "retention_lock": {
+          "description": "The valid values are `ratcheted` and `unlocked`.\nThe default value for a newly created protection group is `unlocked`.\nSet `retention_lock` to `ratcheted` to enable SafeMode restrictions on the protection group.\nContact Pure Technical Services to change `retention_lock` to `unlocked`.\n",
+          "type": "string",
+          "example": "unlocked"
+        },
+        "snapshot_schedule": {
+          "description": "The schedule settings for protection group snapshots.",
+          "title": "Snapshot_schedule",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_snapshot_schedule"
+            }
+          ]
+        },
+        "source": {
+          "description": "The array or pod on which the protection group was created.",
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        },
+        "source_retention": {
+          "description": "The retention policy for the source array of the protection group.\n",
+          "title": "RetentionPolicy",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_retentionPolicy"
+            }
+          ]
+        },
+        "space": {
+          "description": "Displays provisioned size and physical storage consumption data\nfor each protection group.\n",
+          "title": "Space",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_space"
+            }
+          ]
+        },
+        "target_count": {
+          "description": "The number of targets to where this protection group replicates.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true,
+          "example": 3
+        },
+        "target_retention": {
+          "description": "The retention policy for the target(s) of the protection group.\n",
+          "title": "RetentionPolicy",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_retentionPolicy"
+            }
+          ]
+        },
+        "time_remaining": {
+          "description": "The amount of time left until the destroyed protection group is permanently eradicated.\nMeasured in milliseconds.\nBefore the `time_remaining` period has elapsed, the destroyed protection group\ncan be recovered by setting `destroyed=false`.\n",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "volume_count": {
+          "description": "The number of volumes in the protection group.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true,
+          "example": 3
+        },
+        "workload": {
+          "description": "The reference to the workload managing the resource. The `name` and `configuration` values\nmay display as the string `(unknown)` briefly following a failover.\n",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReferenceWithType"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "configuration": {
+                  "description": "The name of the preset configuration object.\n",
+                  "type": "string",
+                  "readOnly": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

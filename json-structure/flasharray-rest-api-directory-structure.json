@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-structure/flasharray-rest-api-directory-structure.json",
+  "name": "Directory",
+  "description": "Directory schema from FlashArray REST API",
+  "allOf": [
+    {
+      "description": "An ordinary (as opposed to built-in) resource that can be created, named,\nrenamed or deleted by the user. This might be a virtual resource (e.g., a\nfile system), or correspond to something in the environment, like a host or a\nserver.\n",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A globally unique, system-generated ID.\nThe ID cannot be modified and cannot refer to another resource.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "description": "A user-specified name.\nThe name must be locally unique and can be changed.\n",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReferenceWithType",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReferenceWithType"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "created": {
+          "description": "The managed directory creation time, measured in milliseconds since the UNIX epoch.\n",
+          "type": "int64",
+          "readOnly": true
+        },
+        "destroyed": {
+          "description": "Returns a value of `true` if the managed directory has been destroyed and is pending\neradication.\nThe `time_remaining` value displays the amount of time left\nuntil the destroyed managed directory is permanently eradicated.\nOnce the `time_remaining` period has elapsed,\nthe managed directory is permanently eradicated and can no longer be recovered.\n",
+          "type": "boolean"
+        },
+        "directory_name": {
+          "description": "The managed directory name without the file system name prefix.\nA full managed directory name is constructed in the form of `FILE_SYSTEM:DIR` where\n`FILE_SYSTEM` is the file system name and `DIR` is the value of this field.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "file_system": {
+          "description": "The file system that this managed directory is in.\n",
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        },
+        "limited_by": {
+          "description": "The quota policy that is limiting usage on this managed directory.\nThis policy defines the total amount of space provisioned to this managed directory\nand its descendants. The returned value contains two parts&#58; the name of the policy\nand the managed directory to which the policy is attached.\n",
+          "title": "LimitedBy",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_limitedBy"
+            }
+          ]
+        },
+        "path": {
+          "description": "Absolute path of the managed directory in the file system.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "space": {
+          "description": "Displays size and space consumption details.\n",
+          "title": "Space",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_space"
+            }
+          ]
+        },
+        "time_remaining": {
+          "description": "The amount of time left, measured in milliseconds until the destroyed managed directory is\npermanently eradicated.\n",
+          "type": "int64",
+          "readOnly": true
+        },
+        "workload": {
+          "type": "object",
+          "description": "A reference to the workload that is managing this resource.\nThe `name` and `configuration` may show as the string \"(unknown)\" briefly after a failover.\n",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_referenceWithFixedType"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "configuration": {
+                  "description": "The name of the preset configuration object.\n",
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-structure/flashblade-rest-api-object-store-virtual-host-structure.json",
+  "name": "ObjectStoreVirtualHost",
+  "description": "ObjectStoreVirtualHost schema from FlashBlade REST API",
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A non-modifiable, globally unique ID chosen by the system.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "description": "Name of the object (e.g., a file system or snapshot).",
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "realms": {
+          "description": "Reference to the realms this resource belongs to.\nThe value is set to empty array when the resource\nlives outside of a realm.\n",
+          "type": "array",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/components/schemas/_fixedReference"
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "description": "Hostname configuration for virtual hosted-style S3 requests.\n",
+      "properties": {
+        "attached_servers": {
+          "description": "A list of servers which are allowed to use this virtual host.\nIf it is `null` or not specified and a default object store\nserver is configured, it will be automatically attached. If\nset to `[]`, no servers are attached.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/_reference"
+          }
+        },
+        "hostname": {
+          "description": "A hostname by which the array can be addressed for\nvirtual hosted-style S3 requests. A hostname cannot\nexceed 255 characters in length, it cannot be an IP\naddress, and supersets or subsets of existing hostnames\nwith the same root are not allowed.\n",
+          "type": "string",
+          "example": "s3.myarray.com"
+        }
+      }
+    }
+  ]
+}

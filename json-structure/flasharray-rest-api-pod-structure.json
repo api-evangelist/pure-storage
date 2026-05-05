@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-structure/flasharray-rest-api-pod-structure.json",
+  "name": "Pod",
+  "description": "Pod schema from FlashArray REST API",
+  "allOf": [
+    {
+      "description": "An ordinary (as opposed to built-in) resource that can be created, named,\nrenamed or deleted by the user. This might be a virtual resource (e.g., a\nfile system), or correspond to something in the environment, like a host or a\nserver.\n",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A globally unique, system-generated ID.\nThe ID cannot be modified and cannot refer to another resource.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "description": "A user-specified name.\nThe name must be locally unique and can be changed.\n",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReferenceWithType",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReferenceWithType"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "A pod is an administrative domain, a data container, and a namespace for\nvolumes and protection groups.\n",
+      "type": "object",
+      "properties": {
+        "array_count": {
+          "description": "The number of arrays a pod connects to.\n",
+          "type": "int32",
+          "example": 1
+        },
+        "arrays": {
+          "description": "A list of arrays over which the pod is stretched.\nIf there are two or more arrays in the stretched pod,\nall data in the pod is synchronously replicated between all of the arrays within the pod.\n",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/components/schemas/_pod_array_status"
+          }
+        },
+        "destroyed": {
+          "description": "Returns a value of `true` if the pod has been destroyed and is pending eradication.\nThe `time_remaining` value displays the amount of time left\nuntil the destroyed pod is permanently eradicated.\nBefore the `time_remaining` period has elapsed, the destroyed pod can be recovered\nby setting `destroyed=false`.\nOnce the `time_remaining` period has elapsed,\nthe pod is permanently eradicated and can no longer be recovered.\n",
+          "type": "boolean"
+        },
+        "eradication_config": {
+          "title": "ContainerEradicationConfig",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/ContainerEradicationConfig"
+            }
+          ]
+        },
+        "failover_preferences": {
+          "description": "Determines which array or realm within a stretched pod should be given priority to stay online\nshould the arrays or realms ever lose contact with each other. The current array/realm and\nany peer arrays/realms that are connected to the current array/ream for synchronous\nreplication can be added to a pod for failover preference.\nBy default, `failover_preferences=null`,\nmeaning no arrays or realms have been configured for failover preference.\n",
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/_reference"
+          }
+        },
+        "footprint": {
+          "description": "This field has been deprecated.\nUse the `space.footprint` field in the future, as it contains the same information.\nThe maximum amount of space the pod would take up on any array,\nignoring any data shared outside the pod.\nMeasured in bytes.\nThe footprint metric is mostly used for capacity planning.\n",
+          "type": "int64",
+          "minimum": 0
+        },
+        "link_source_count": {
+          "description": "The number of source pods that link to the pod.\n",
+          "type": "int32",
+          "example": 1
+        },
+        "link_target_count": {
+          "description": "The number of target pods that link to the pod.\n",
+          "type": "int32",
+          "example": 1
+        },
+        "mediator": {
+          "description": "The URL of the mediator for the pod.\nBy default, the Pure1 Cloud Mediator (`purestorage`) serves as the mediator.\n",
+          "type": "string",
+          "example": "https://mediator.cloud-support.purestorage.com"
+        },
+        "mediator_version": {
+          "description": "The mediator version.\n",
+          "type": "string",
+          "example": "1.0.0"
+        },
+        "members": {
+          "description": "A list of arrays or realms over which the pod is stretched.\nIf there are two or more members in the stretched pod,\nall data in the pod is synchronously replicated between all of the members within the pod.\n",
+          "type": "array",
+          "minItems": 1,
+          "readOnly": true,
+          "items": {
+            "$ref": "#/components/schemas/_referenceWithType"
+          }
+        },
+        "promotion_status": {
+          "description": "Current promotion status of a pod.\nValues include `promoted`, `demoted`, and `promoting`.\nThe `promoted` status indicates that the pod has been promoted. The pod takes writes from\nhosts instead of incorporating replicated data. This is the default mode for a pod when it\nis created.\nThe `demoted` status indicates that the pod has been demoted. The pod does not accept write\nrequests and is ready to be used as a link target.\nThe `promoting` status indicates that the pod is in an intermediate status between\n`demoted` and `promoted` while the promotion process is taking place.\n",
+          "type": "string"
+        },
+        "quota_limit": {
+          "description": "The logical quota limit of the pod, measured in bytes.\n",
+          "readOnly": true,
+          "title": "Quota_limit_type",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_quota_limit_type"
+            }
+          ]
+        },
+        "requested_promotion_state": {
+          "description": "Values include `promoted` and `demoted`.\nPatch `requested_promotion_state` to `demoted` to demote the pod so that it can be used as\na link target for continuous replication between pods.\nDemoted pods do not accept write requests, and a destroyed version of the pod with\n`undo-demote` appended to the pod name is created on the array with the state of the pod\nwhen it was in the promoted state.\nPatch `requested_promotion_state` to `promoted` to start the process of promoting the pod.\nThe `promotion_status` indicates when the pod has been successfully promoted.\nPromoted pods stop incorporating replicated data from the source pod and start accepting\nwrite requests.\nThe replication process does not stop as the source pod continues replicating data to the\npod.\nThe space consumed by the unique replicated data is tracked by the `space.journal` field of\nthe pod.\n",
+          "type": "string"
+        },
+        "source": {
+          "description": "The source pod from where data is cloned to create the new pod.\n",
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        },
+        "space": {
+          "description": "Displays provisioned size and physical storage consumption\ninformation for the sum of all volumes connected to the specified host.\n",
+          "title": "PodSpace",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_podSpace"
+            }
+          ]
+        },
+        "time_remaining": {
+          "description": "The amount of time left until the destroyed pod is permanently eradicated,\nmeasured in milliseconds.\nBefore the `time_remaining` period has elapsed, the destroyed pod can be recovered\nby setting `destroyed=false`.\n",
+          "type": "int64",
+          "readOnly": true
+        }
+      }
+    }
+  ]
+}

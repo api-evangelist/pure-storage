@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FileSystemSnapshot",
+  "description": "FileSystemSnapshot schema from FlashBlade REST API",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-schema/flashblade-rest-api-file-system-snapshot-schema.json",
+  "allOf": [
+    {
+      "description": "An ordinary (as opposed to built-in) resource that can be created, named,\nrenamed or deleted by the user. This might be a virtual resource (e.g., a\nfile system), or correspond to something in the environment, like a host or a\nserver.\n",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A globally unique, system-generated ID.\nThe ID cannot be modified and cannot refer to another resource.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "description": "A user-specified name.\nThe name must be locally unique and can be changed.\n",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "created": {
+          "description": "Creation timestamp of the object.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "destroyed": {
+          "description": "Is the file system snapshot destroyed? If not specified, defaults to\n`false`.\n",
+          "type": "boolean"
+        },
+        "owner": {
+          "description": "A reference to the file system that owns this snapshot.\nIf the owner is destroyed, this will be destroyed.\n",
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        },
+        "owner_destroyed": {
+          "description": "Is the owning file system destroyed?",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "policies": {
+          "description": "An array of references to the associated policies.",
+          "readOnly": true,
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/_fixedLocationReference"
+          }
+        },
+        "policy": {
+          "description": "A reference to the associated policy that drives the behavior of the\nsnapshot.\n",
+          "title": "FixedLocationReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedLocationReference"
+            }
+          ]
+        },
+        "source": {
+          "description": "A reference to the file system that was the source of the data in\nthis snapshot. Normally this is the same as the owner, but if\nthe snapshot is replicated, the source is the original file system.\n",
+          "title": "FixedLocationReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedLocationReference"
+            }
+          ]
+        },
+        "suffix": {
+          "description": "The suffix of the snapshot, e.g., `snap1`.",
+          "type": "string",
+          "readOnly": true,
+          "example": "snap1"
+        },
+        "time_remaining": {
+          "description": "Time in milliseconds before the file system snapshot is eradicated.\n`null` if not destroyed.\n",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    }
+  ]
+}

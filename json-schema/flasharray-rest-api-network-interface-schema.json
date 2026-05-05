@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NetworkInterface",
+  "description": "NetworkInterface schema from FlashArray REST API",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-schema/flasharray-rest-api-network-interface-schema.json",
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReferenceWithType",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReferenceWithType"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "A built-in resource. Many are singletons predefined by Purity (e.g., support\nsettings). Some correspond to a piece of software, like an app, or hardware,\nlike a controller. Others are created by the system in response to some event\n(e.g., alerts, audit records).\n\nTypically, a user can't create, delete or rename a built-in resource. A few\ncan be created or deleted, but not renamed because the names are meaningful\nto Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).\n",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "A locally unique, system-generated name. The name cannot be modified.\n",
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    {
+      "description": "An object that is server-aware and can be associated to a server.\n",
+      "type": "object",
+      "properties": {
+        "server": {
+          "description": "Reference to the server the object belongs to. When the value is empty or set to `null`\nit means the object lives outside of a server scope.\n",
+          "readOnly": true,
+          "title": "FixedReferenceWithType",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReferenceWithType"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "attached_servers": {
+          "description": "List of servers associated with the specified network interface for data ingress.\n",
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/components/schemas/_fixedReferenceWithType"
+          }
+        },
+        "enabled": {
+          "description": "Returns a value of `true` if the specified network interface or Fibre\nChannel port is enabled. Returns a value of `false` if the specified\nnetwork interface or Fibre Channel port is disabled.\n",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "eth": {
+          "description": "Ethernet network interface properties.",
+          "type": "object",
+          "properties": {
+            "address": {
+              "description": "The IPv4 or IPv6 address to be associated with the specified network\ninterface.\n",
+              "type": "string"
+            },
+            "gateway": {
+              "description": "The IPv4 or IPv6 address of the gateway through which the specified network interface\nis to communicate with the network.\n",
+              "type": "string"
+            },
+            "mac_address": {
+              "description": "The media access control address associated with the specified network interface.\n",
+              "type": "string",
+              "readOnly": true
+            },
+            "mtu": {
+              "description": "Maximum message transfer unit (packet) size for the network interface, in bytes.\nMTU setting cannot exceed the MTU of the corresponding physical interface.\n",
+              "type": "integer",
+              "format": "int32"
+            },
+            "netmask": {
+              "description": "Netmask of the specified network interface that, when combined with the address of the\ninterface, determines the network address of the interface.\n",
+              "type": "string"
+            },
+            "subinterfaces": {
+              "description": "List of network interfaces configured to be a subinterface of the specified network\ninterface.\n",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/_fixedReferenceNoId"
+              }
+            },
+            "subnet": {
+              "description": "Subnet that is associated with the specified network interface.\n",
+              "title": "ReferenceNoId",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/_referenceNoId"
+                }
+              ]
+            },
+            "subtype": {
+              "description": "The subtype of the specified network interface. Only interfaces of subtype\n`virtual` can be created. Configurable on POST only.\nValid values are `failover_bond`, `lacp_bond`, `physical`, and `virtual`.\n",
+              "type": "string"
+            },
+            "vlan": {
+              "description": "VLAN ID",
+              "type": "integer",
+              "format": "int32",
+              "readOnly": true
+            }
+          }
+        },
+        "fc": {
+          "description": "Fibre Channel port properties.",
+          "type": "object",
+          "properties": {
+            "wwn": {
+              "description": "World Wide Name of the specified Fibre Channel port.",
+              "type": "string",
+              "readOnly": true
+            }
+          }
+        },
+        "interface_type": {
+          "description": "The interface type. Valid values are `eth` and `fc`.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "services": {
+          "description": "The services provided by the specified network interface or Fibre Channel port.\n",
+          "type": "array",
+          "readOnly": true,
+          "items": {
+            "type": "string",
+            "description": "Valid values include `iscsi`, `management`, `nvme-fc`, `nvme-roce`,\n`nvme-tcp`, `offload`, `replication`, and `scsi-fc`.\n"
+          }
+        },
+        "speed": {
+          "description": "Configured speed of the specified network interface or Fibre Channel\nport (in Gb/s). Typically this is the maximum speed of the port or bond\nrepresented by the network interface.\n",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    }
+  ]
+}

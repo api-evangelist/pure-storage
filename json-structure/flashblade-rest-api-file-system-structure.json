@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-structure.org/meta/core/v0/#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pure-storage/refs/heads/main/json-structure/flashblade-rest-api-file-system-structure.json",
+  "name": "FileSystem",
+  "description": "FileSystem schema from FlashBlade REST API",
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A non-modifiable, globally unique ID chosen by the system.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "description": "Name of the object (e.g., a file system or snapshot).",
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context in which the operation was performed.\n\nValid values include a reference to any array which is a member of the same fleet\nor to the fleet itself.\n\nOther parameters provided with the request, such as names of volumes or snapshots,\nare resolved relative to the provided `context`.\n",
+          "readOnly": true,
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "realms": {
+          "description": "Reference to the realms this resource belongs to.\nThe value is set to empty array when the resource\nlives outside of a realm.\n",
+          "type": "array",
+          "readOnly": true,
+          "items": {
+            "$ref": "#/components/schemas/_fixedReference"
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "properties": {
+        "created": {
+          "description": "Creation timestamp of the file system.",
+          "type": "int64",
+          "readOnly": true
+        },
+        "default_group_quota": {
+          "description": "The default space quota for a group writing to this file system.",
+          "type": "int64"
+        },
+        "default_user_quota": {
+          "description": "The default space quota for a user writing to this file system.",
+          "type": "int64"
+        },
+        "destroyed": {
+          "description": "Returns a value of `true` if the file system has been destroyed and is pending eradication.\nThe file system cannot be modified while it is in the destroyed state.\nThe `time_remaining` value displays the amount of time left until the destroyed\nfile system is permanently eradicated. Once eradication has begun, the file system can no\nlonger be recovered. Before the `time_remaining` period has elapsed,\nthe destroyed file system can be recovered through the PATCH method\nby setting `destroyed=false`.\n",
+          "type": "boolean"
+        },
+        "eradication_config": {
+          "description": "Configuration settings related to file system eradication.",
+          "type": "object",
+          "properties": {
+            "eradication_mode": {
+              "description": "The eradication mode of the file system.\nIf it's `permission-based` the file system can be eradicated based\non user permissions.\nIf it's `retention-based` the file system can not be eradicated\nuntil no files/inodes are locked or retained.\nValid values are `permission-based` and `retention-based`.\n",
+              "type": "string",
+              "example": "permission-based"
+            },
+            "manual_eradication": {
+              "description": "The manual eradication status of the file system.\nIf `disabled`, the file system cannot be eradicated after it has been\ndestroyed, unless it is empty.\nIf `enabled`, the file system can be eradicated.\nValid values are `disabled` and `enabled`.\n",
+              "type": "string",
+              "readOnly": true,
+              "example": "enabled"
+            }
+          }
+        },
+        "fast_remove_directory_enabled": {
+          "description": "If set to `true`, the file system, when mounted, will contain a\ndirectory that can be used for fast removal of other directories.\nDirectories can be moved into the fast remove directory in order\nto have them deleted, and their space freed, more quickly than a\nnormal removal operation.\n",
+          "type": "boolean"
+        },
+        "group_ownership": {
+          "description": "The group ownership for new files and directories in a file system.\nPossible values are `creator` and `parent-directory`.\nIf `creator` is selected, the owning group of new files and directories\nis the primary group of the user who creates them.\nIf `parent-directory` is selected, the owning group is the parent\ndirectory group.\nNote: Existing files and directories are unaffected by this change.\n",
+          "type": "string"
+        },
+        "hard_limit_enabled": {
+          "description": "If set to `true`, the file system's size, as defined by `provisioned`,\nis used as a hard limit quota.\n",
+          "type": "boolean"
+        },
+        "http": {
+          "description": "HTTP configuration.",
+          "title": "Http",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_http"
+            }
+          ]
+        },
+        "multi_protocol": {
+          "description": "Multi-protocol configuration.",
+          "title": "MultiProtocol",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_multiProtocol"
+            }
+          ]
+        },
+        "nfs": {
+          "description": "NFS configuration.",
+          "title": "Nfs",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_nfs"
+            }
+          ]
+        },
+        "node_group": {
+          "description": "The nodes contains the data of the file system.\n",
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        },
+        "promotion_status": {
+          "description": "Possible values are `promoted`, `demoted` and `promoting`.\nThe current status of the file system with respect to replication and file system copy.\nChanges via `requested_promotion_state`. The default for new file systems is\n`promoted`. For file system copy, the file system promotion status will be set to `promoting`\nuntil the copy is complete.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "provisioned": {
+          "description": "The provisioned size of the file system, displayed in bytes. If set to an\nempty string (`\"\"`), the file system is unlimited in size.\n",
+          "type": "int64",
+          "example": 1048576
+        },
+        "qos_policy": {
+          "description": "The QoS policy for the File System defines the performance controls\nthat can be applied to the aggregate performance of all the clients\naccessing the file system.\nIf no policy is configured for a file system, then no performance\ncontrols are applied to it.\n",
+          "title": "FixedReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_fixedReference"
+            }
+          ]
+        },
+        "requested_promotion_state": {
+          "description": "Possible values are `promoted` and `demoted`.\nThe `demoted` state is used for replication targets and is only allowed to be set\nif the file system is in a replica-link relationship. The additional\nquery param `discard-non-snapshotted-data` must be set to `true`\nwhen demoting a file system. The default for new file systems is\n`promoted`.\n",
+          "type": "string"
+        },
+        "smb": {
+          "description": "SMB configuration.",
+          "title": "Smb",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_smb"
+            }
+          ]
+        },
+        "snapshot_directory_enabled": {
+          "description": "If set to `true`, a hidden .snapshot directory will be present in each\ndirectory of the file system when it is mounted.\nThe .snapshot directory allows clients read access to the contents of\nthe snapshots that have been taken of a directory.\nIf set to `false`, the .snapshot directory will not be present in any\ndirectories within a mounted file system.\n",
+          "type": "boolean"
+        },
+        "source": {
+          "description": "A reference to the source file system.",
+          "title": "LocationReference",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_locationReference"
+            }
+          ]
+        },
+        "space": {
+          "description": "The space usage of the file system.",
+          "title": "Space",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_space"
+            }
+          ]
+        },
+        "storage_class": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_referenceNameOnly"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "The status of the transition from the policy to the requested policy. If there is an ongoing transition, the status will be one of `In-Progress` or `Queued`. If there is no transition ongoing, this field will be null.",
+                  "type": "string",
+                  "readOnly": true
+                },
+                "status_details": {
+                  "description": "Additional details about the status of the transition. If there is no transition ongoing, this field will be null.",
+                  "type": "string",
+                  "readOnly": true
+                },
+                "tiering_policy": {
+                  "description": "The storage class tiering policy defines tiering for data within the container. If specified,\ndata is written to the container's `S500X-S` (speed) storage class by default, then tiered\nto `S500X-A` (archival) storage class based on the policy.\nIf not specified, all data in the container is written to the container's current storage class.\n",
+                  "title": "Reference",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/_reference"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "time_remaining": {
+          "description": "Time in milliseconds before the file system is eradicated.\n`null` if not destroyed.\n",
+          "type": "int64",
+          "readOnly": true
+        },
+        "workload": {
+          "type": "object",
+          "description": "A reference to the workload that is managing this resource.\nThe `name` and `configuration` may show as the string \"(unknown)\" briefly after a failover.\n",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/_reference"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "configuration": {
+                  "description": "The name of the preset configuration object.\n",
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "writable": {
+          "description": "Whether the file system is writable or not. If `false`, this overrides\nany protocol or file permission settings and prevents changes. If `true`, then\nthe protocol and file permission settings are evaluated.\nIf not specified, defaults to `true`. Modifiable.\n",
+          "type": "boolean"
+        }
+      }
+    }
+  ]
+}
