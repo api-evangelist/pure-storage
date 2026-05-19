@@ -1,0 +1,194 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Alert Watchers
+  description: 'FlashArray REST API — Alert Watchers. 5 operations. Lead operation: Pure Storage List Alert Watchers. Self-contained
+    Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Alert Watchers
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-alert-watchers
+    baseUri: ''
+    description: FlashArray REST API — Alert Watchers business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-alert-watchers
+      path: /api/2.52/alert-watchers
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Alert Watchers
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage Create Alert Watcher
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+      - name: delete
+        method: DELETE
+        description: Pure Storage Delete Alert Watcher
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage Modify Alert Watcher
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: api-2.52-alert-watchers-test
+      path: /api/2.52/alert-watchers/test
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Alert Watcher Test
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-alert-watchers-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Alert Watchers. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-52/alert-watchers
+      name: api-2-52-alert-watchers
+      description: REST surface for api-2.52-alert-watchers.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Alert Watchers
+        call: flasharray-rest-alert-watchers.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage Create Alert Watcher
+        call: flasharray-rest-alert-watchers.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage Delete Alert Watcher
+        call: flasharray-rest-alert-watchers.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage Modify Alert Watcher
+        call: flasharray-rest-alert-watchers.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/alert-watchers/test
+      name: api-2-52-alert-watchers-test
+      description: REST surface for api-2.52-alert-watchers-test.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Alert Watcher Test
+        call: flasharray-rest-alert-watchers.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-alert-watchers-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Alert Watchers. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-list-alert-watchers
+      description: Pure Storage List Alert Watchers
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alert-watchers.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-create-alert-watcher
+      description: Pure Storage Create Alert Watcher
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flasharray-rest-alert-watchers.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-alert-watcher
+      description: Pure Storage Delete Alert Watcher
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flasharray-rest-alert-watchers.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-modify-alert-watcher
+      description: Pure Storage Modify Alert Watcher
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alert-watchers.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-list-alert-watcher
+      description: Pure Storage List Alert Watcher Test
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alert-watchers.get
+      outputParameters:
+      - type: object
+        mapping: $.

@@ -1,0 +1,99 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Remote Realms
+  description: 'FlashArray REST API — Remote Realms. 2 operations. Lead operation: Pure Storage List Remote Realms. Self-contained
+    Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Remote Realms
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-remote-realms
+    baseUri: ''
+    description: FlashArray REST API — Remote Realms business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-remote-realms
+      path: /api/2.52/remote-realms
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Remote Realms
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-2.52-remote-realms-tags
+      path: /api/2.52/remote-realms/tags
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Tags
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-remote-realms-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Remote Realms. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-52/remote-realms
+      name: api-2-52-remote-realms
+      description: REST surface for api-2.52-remote-realms.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Remote Realms
+        call: flasharray-rest-remote-realms.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/remote-realms/tags
+      name: api-2-52-remote-realms-tags
+      description: REST surface for api-2.52-remote-realms-tags.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Tags
+        call: flasharray-rest-remote-realms.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-remote-realms-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Remote Realms. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-list-remote-realms
+      description: Pure Storage List Remote Realms
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-remote-realms.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-list-tags
+      description: Pure Storage List Tags
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-remote-realms.get
+      outputParameters:
+      - type: object
+        mapping: $.

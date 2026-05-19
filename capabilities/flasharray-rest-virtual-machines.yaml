@@ -1,0 +1,247 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Virtual Machines
+  description: 'FlashArray REST API — Virtual Machines. 5 operations. Lead operation: Pure Storage List Virtual Machine Snapshots.
+    Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Virtual Machines
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-virtual-machines
+    baseUri: ''
+    description: FlashArray REST API — Virtual Machines business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-virtual-machine-snapshots
+      path: /api/2.52/virtual-machine-snapshots
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Virtual Machine Snapshots
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: vm_ids
+          in: query
+          type: array
+          description: Performs the operation on the unique virtual machine IDs specified.
+        - name: vm_type
+          in: query
+          type: string
+          description: The type of virtual machine.
+    - name: api-2.52-virtual-machine-volume-snapshots
+      path: /api/2.52/virtual-machine-volume-snapshots
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Virtual Machine Volume Snapshots
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: vm_ids
+          in: query
+          type: array
+          description: Performs the operation on the unique virtual machine IDs specified.
+          required: true
+        - name: vm_type
+          in: query
+          type: string
+          description: The type of virtual machine.
+    - name: api-2.52-virtual-machines
+      path: /api/2.52/virtual-machines
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Virtual Machines
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: vm_ids
+          in: query
+          type: array
+          description: Performs the operation on the unique virtual machine IDs specified.
+        - name: vm_type
+          in: query
+          type: string
+          description: The type of virtual machine.
+      - name: post
+        method: POST
+        description: Pure Storage Create a Virtual Machine
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: patch
+        method: PATCH
+        description: Pure Storage Update a Virtual Machine
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-virtual-machines-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Virtual Machines. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-52/virtual-machine-snapshots
+      name: api-2-52-virtual-machine-snapshots
+      description: REST surface for api-2.52-virtual-machine-snapshots.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Virtual Machine Snapshots
+        call: flasharray-rest-virtual-machines.get
+        with:
+          vm_ids: rest.vm_ids
+          vm_type: rest.vm_type
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/virtual-machine-volume-snapshots
+      name: api-2-52-virtual-machine-volume-snapshots
+      description: REST surface for api-2.52-virtual-machine-volume-snapshots.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Virtual Machine Volume Snapshots
+        call: flasharray-rest-virtual-machines.get
+        with:
+          vm_ids: rest.vm_ids
+          vm_type: rest.vm_type
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/virtual-machines
+      name: api-2-52-virtual-machines
+      description: REST surface for api-2.52-virtual-machines.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Virtual Machines
+        call: flasharray-rest-virtual-machines.get
+        with:
+          vm_ids: rest.vm_ids
+          vm_type: rest.vm_type
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage Create a Virtual Machine
+        call: flasharray-rest-virtual-machines.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage Update a Virtual Machine
+        call: flasharray-rest-virtual-machines.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-virtual-machines-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Virtual Machines. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-list-virtual-machine
+      description: Pure Storage List Virtual Machine Snapshots
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-virtual-machines.get
+      with:
+        vm_ids: tools.vm_ids
+        vm_type: tools.vm_type
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-list-virtual-machine-2
+      description: Pure Storage List Virtual Machine Volume Snapshots
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-virtual-machines.get
+      with:
+        vm_ids: tools.vm_ids
+        vm_type: tools.vm_type
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-list-virtual-machines
+      description: Pure Storage List Virtual Machines
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-virtual-machines.get
+      with:
+        vm_ids: tools.vm_ids
+        vm_type: tools.vm_type
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-create-virtual-machine
+      description: Pure Storage Create a Virtual Machine
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flasharray-rest-virtual-machines.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-update-virtual-machine
+      description: Pure Storage Update a Virtual Machine
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-virtual-machines.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

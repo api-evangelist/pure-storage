@@ -1,0 +1,149 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Nodes
+  description: 'FlashBlade REST API — Nodes. 3 operations. Lead operation: Pure Storage GET Nodes. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Nodes
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-nodes
+    baseUri: http://[array]
+    description: FlashBlade REST API — Nodes business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-nodes
+      path: /api/2.26/nodes
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Nodes
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage PATCH Nodes
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+    - name: api-2.26-nodes-batch
+      path: /api/2.26/nodes/batch
+      operations:
+      - name: post
+        method: POST
+        description: Pure Storage POST Nodes/batch
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-nodes-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Nodes. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-26/nodes
+      name: api-2-26-nodes
+      description: REST surface for api-2.26-nodes.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Nodes
+        call: flashblade-rest-nodes.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage PATCH Nodes
+        call: flashblade-rest-nodes.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/nodes/batch
+      name: api-2-26-nodes-batch
+      description: REST surface for api-2.26-nodes-batch.
+      operations:
+      - method: POST
+        name: post
+        description: Pure Storage POST Nodes/batch
+        call: flashblade-rest-nodes.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-nodes-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Nodes. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-nodes
+      description: Pure Storage GET Nodes
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-nodes.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-patch-nodes
+      description: Pure Storage PATCH Nodes
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-nodes.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-nodes-batch
+      description: Pure Storage POST Nodes/batch
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-nodes.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

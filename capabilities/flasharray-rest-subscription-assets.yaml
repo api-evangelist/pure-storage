@@ -1,0 +1,67 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Subscription Assets
+  description: 'FlashArray REST API — Subscription Assets. 1 operations. Lead operation: Pure Storage List Subscription Assets.
+    Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Subscription Assets
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-subscription-assets
+    baseUri: ''
+    description: FlashArray REST API — Subscription Assets business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-subscription-assets
+      path: /api/2.52/subscription-assets
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Subscription Assets
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-subscription-assets-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Subscription Assets. One Spectral-compliant resource per consumed
+      operation, prefixed with /v1.
+    resources:
+    - path: /v1/api/2-52/subscription-assets
+      name: api-2-52-subscription-assets
+      description: REST surface for api-2.52-subscription-assets.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Subscription Assets
+        call: flasharray-rest-subscription-assets.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-subscription-assets-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Subscription Assets. One tool per consumed operation, routed inline
+      through this capability's consumes block.
+    tools:
+    - name: pure-storage-list-subscription-assets
+      description: Pure Storage List Subscription Assets
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-subscription-assets.get
+      outputParameters:
+      - type: object
+        mapping: $.

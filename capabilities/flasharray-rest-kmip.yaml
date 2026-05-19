@@ -1,0 +1,194 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — KMIP
+  description: 'FlashArray REST API — KMIP. 5 operations. Lead operation: Pure Storage List KMIP Server Objects. Self-contained
+    Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - KMIP
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-kmip
+    baseUri: ''
+    description: FlashArray REST API — KMIP business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-kmip
+      path: /api/2.52/kmip
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List KMIP Server Objects
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage Create KMIP Server Object
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: delete
+        method: DELETE
+        description: Pure Storage Delete KMIP Server Object
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage Modify KMIP Attributes
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: api-2.52-kmip-test
+      path: /api/2.52/kmip/test
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Lists KMIP Connection Tests
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-kmip-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — KMIP. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-52/kmip
+      name: api-2-52-kmip
+      description: REST surface for api-2.52-kmip.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List KMIP Server Objects
+        call: flasharray-rest-kmip.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage Create KMIP Server Object
+        call: flasharray-rest-kmip.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage Delete KMIP Server Object
+        call: flasharray-rest-kmip.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage Modify KMIP Attributes
+        call: flasharray-rest-kmip.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/kmip/test
+      name: api-2-52-kmip-test
+      description: REST surface for api-2.52-kmip-test.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Lists KMIP Connection Tests
+        call: flasharray-rest-kmip.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-kmip-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — KMIP. One tool per consumed operation, routed inline through this capability's
+      consumes block.
+    tools:
+    - name: pure-storage-list-kmip-server
+      description: Pure Storage List KMIP Server Objects
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-kmip.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-create-kmip-server
+      description: Pure Storage Create KMIP Server Object
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flasharray-rest-kmip.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-kmip-server
+      description: Pure Storage Delete KMIP Server Object
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flasharray-rest-kmip.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-modify-kmip-attributes
+      description: Pure Storage Modify KMIP Attributes
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-kmip.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-lists-kmip-connection
+      description: Pure Storage Lists KMIP Connection Tests
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-kmip.get
+      outputParameters:
+      - type: object
+        mapping: $.

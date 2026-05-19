@@ -1,0 +1,72 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Pure1 Public REST API — Buckets
+  description: 'Pure1 Public REST API — Buckets. 1 operations. Lead operation: Pure Storage Get Buckets. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Buckets
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: pure1-cloud-buckets
+    baseUri: https://api-staging.pure1.purestorage.com
+    description: Pure1 Public REST API — Buckets business capability. Self-contained, no shared references.
+    resources:
+    - name: api-1.5-buckets
+      path: /api/1.5/buckets
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Buckets
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: pure1-cloud-buckets-rest
+    port: 8080
+    description: REST adapter for Pure1 Public REST API — Buckets. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/1-5/buckets
+      name: api-1-5-buckets
+      description: REST surface for api-1.5-buckets.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Buckets
+        call: pure1-cloud-buckets.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: pure1-cloud-buckets-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Pure1 Public REST API — Buckets. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-buckets
+      description: Pure Storage Get Buckets
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-buckets.get
+      outputParameters:
+      - type: object
+        mapping: $.

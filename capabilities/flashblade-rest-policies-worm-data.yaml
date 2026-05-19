@@ -1,0 +1,199 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Policies - WORM Data
+  description: 'FlashBlade REST API — Policies - WORM Data. 5 operations. Lead operation: Pure Storage GET Worm-data-policies.
+    Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Policies - WORM Data
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-policies-worm-data
+    baseUri: http://[array]
+    description: FlashBlade REST API — Policies - WORM Data business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-worm-data-policies
+      path: /api/2.26/worm-data-policies
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Worm-data-policies
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage POST Worm-data-policies
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+      - name: delete
+        method: DELETE
+        description: Pure Storage DELETE Worm-data-policies
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage PATCH Worm-data-policies
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+    - name: api-2.26-worm-data-policies-members
+      path: /api/2.26/worm-data-policies/members
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Worm-data-policies/members
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-policies-worm-data-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Policies - WORM Data. One Spectral-compliant resource per consumed
+      operation, prefixed with /v1.
+    resources:
+    - path: /v1/api/2-26/worm-data-policies
+      name: api-2-26-worm-data-policies
+      description: REST surface for api-2.26-worm-data-policies.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Worm-data-policies
+        call: flashblade-rest-policies-worm-data.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage POST Worm-data-policies
+        call: flashblade-rest-policies-worm-data.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage DELETE Worm-data-policies
+        call: flashblade-rest-policies-worm-data.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage PATCH Worm-data-policies
+        call: flashblade-rest-policies-worm-data.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/worm-data-policies/members
+      name: api-2-26-worm-data-policies-members
+      description: REST surface for api-2.26-worm-data-policies-members.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Worm-data-policies/members
+        call: flashblade-rest-policies-worm-data.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-policies-worm-data-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Policies - WORM Data. One tool per consumed operation, routed inline
+      through this capability's consumes block.
+    tools:
+    - name: pure-storage-get-worm-data
+      description: Pure Storage GET Worm-data-policies
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-policies-worm-data.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-worm-data
+      description: Pure Storage POST Worm-data-policies
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-policies-worm-data.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-worm-data
+      description: Pure Storage DELETE Worm-data-policies
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flashblade-rest-policies-worm-data.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-patch-worm-data
+      description: Pure Storage PATCH Worm-data-policies
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-policies-worm-data.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-worm-data-2
+      description: Pure Storage GET Worm-data-policies/members
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-policies-worm-data.get
+      outputParameters:
+      - type: object
+        mapping: $.

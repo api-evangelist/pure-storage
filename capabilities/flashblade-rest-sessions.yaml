@@ -1,0 +1,72 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Sessions
+  description: 'FlashBlade REST API — Sessions. 1 operations. Lead operation: Pure Storage List Session Data. Self-contained
+    Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Sessions
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-sessions
+    baseUri: http://[array]
+    description: FlashBlade REST API — Sessions business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-sessions
+      path: /api/2.26/sessions
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Session Data
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-sessions-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Sessions. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-26/sessions
+      name: api-2-26-sessions
+      description: REST surface for api-2.26-sessions.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Session Data
+        call: flashblade-rest-sessions.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-sessions-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Sessions. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-list-session-data
+      description: Pure Storage List Session Data
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-sessions.get
+      outputParameters:
+      - type: object
+        mapping: $.

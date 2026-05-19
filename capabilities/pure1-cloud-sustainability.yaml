@@ -1,0 +1,104 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Pure1 Public REST API — Sustainability
+  description: 'Pure1 Public REST API — Sustainability. 2 operations. Lead operation: Pure Storage Get Appliance Sustainability
+    Information.. Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Sustainability
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: pure1-cloud-sustainability
+    baseUri: https://api-staging.pure1.purestorage.com
+    description: Pure1 Public REST API — Sustainability business capability. Self-contained, no shared references.
+    resources:
+    - name: api-1.5-assessment-sustainability-arrays
+      path: /api/1.5/assessment/sustainability/arrays
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Appliance Sustainability Information.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-1.5-assessment-sustainability-insights-arrays
+      path: /api/1.5/assessment/sustainability/insights/arrays
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Appliance Sustainability Insights Information.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: pure1-cloud-sustainability-rest
+    port: 8080
+    description: REST adapter for Pure1 Public REST API — Sustainability. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/1-5/assessment/sustainability/arrays
+      name: api-1-5-assessment-sustainability-arrays
+      description: REST surface for api-1.5-assessment-sustainability-arrays.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Appliance Sustainability Information.
+        call: pure1-cloud-sustainability.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/1-5/assessment/sustainability/insights/arrays
+      name: api-1-5-assessment-sustainability-insights-arrays
+      description: REST surface for api-1.5-assessment-sustainability-insights-arrays.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Appliance Sustainability Insights Information.
+        call: pure1-cloud-sustainability.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: pure1-cloud-sustainability-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Pure1 Public REST API — Sustainability. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-get-appliance-sustainability
+      description: Pure Storage Get Appliance Sustainability Information.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-sustainability.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-appliance-sustainability-2
+      description: Pure Storage Get Appliance Sustainability Insights Information.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-sustainability.get
+      outputParameters:
+      - type: object
+        mapping: $.

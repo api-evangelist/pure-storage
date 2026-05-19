@@ -1,0 +1,254 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Realm Connections
+  description: 'FlashArray REST API — Realm Connections. 7 operations. Lead operation: Pure Storage List Realm Connections..
+    Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Realm Connections
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-realm-connections
+    baseUri: ''
+    description: FlashArray REST API — Realm Connections business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-realm-connections
+      path: /api/2.52/realm-connections
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Realm Connections.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage Create Realm Connection.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: delete
+        method: DELETE
+        description: Pure Storage Delete Realm Connections.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage Modify Realm Connections.
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: api-2.52-realm-connections-connection-keys
+      path: /api/2.52/realm-connections/connection-keys
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Realm Connection Key Information
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage Create Realm Connection Key
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: delete
+        method: DELETE
+        description: Pure Storage Delete Realm Connection Keys
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-realm-connections-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Realm Connections. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-52/realm-connections
+      name: api-2-52-realm-connections
+      description: REST surface for api-2.52-realm-connections.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Realm Connections.
+        call: flasharray-rest-realm-connections.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage Create Realm Connection.
+        call: flasharray-rest-realm-connections.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage Delete Realm Connections.
+        call: flasharray-rest-realm-connections.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage Modify Realm Connections.
+        call: flasharray-rest-realm-connections.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/realm-connections/connection-keys
+      name: api-2-52-realm-connections-connection-keys
+      description: REST surface for api-2.52-realm-connections-connection-keys.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Realm Connection Key Information
+        call: flasharray-rest-realm-connections.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage Create Realm Connection Key
+        call: flasharray-rest-realm-connections.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage Delete Realm Connection Keys
+        call: flasharray-rest-realm-connections.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-realm-connections-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Realm Connections. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-list-realm-connections
+      description: Pure Storage List Realm Connections.
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-realm-connections.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-create-realm-connection
+      description: Pure Storage Create Realm Connection.
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flasharray-rest-realm-connections.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-realm-connections
+      description: Pure Storage Delete Realm Connections.
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flasharray-rest-realm-connections.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-modify-realm-connections
+      description: Pure Storage Modify Realm Connections.
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-realm-connections.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-realm-connection
+      description: Pure Storage Get Realm Connection Key Information
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-realm-connections.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-create-realm-connection-2
+      description: Pure Storage Create Realm Connection Key
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flasharray-rest-realm-connections.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-realm-connection
+      description: Pure Storage Delete Realm Connection Keys
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flasharray-rest-realm-connections.delete
+      outputParameters:
+      - type: object
+        mapping: $.

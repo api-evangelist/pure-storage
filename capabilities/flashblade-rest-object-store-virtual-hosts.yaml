@@ -1,0 +1,167 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Object Store Virtual Hosts
+  description: 'FlashBlade REST API — Object Store Virtual Hosts. 4 operations. Lead operation: Pure Storage GET Object-store-virtual-hosts.
+    Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Object Store Virtual Hosts
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-object-store-virtual-hosts
+    baseUri: http://[array]
+    description: FlashBlade REST API — Object Store Virtual Hosts business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-object-store-virtual-hosts
+      path: /api/2.26/object-store-virtual-hosts
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Object-store-virtual-hosts
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage POST Object-store-virtual-hosts
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+      - name: delete
+        method: DELETE
+        description: Pure Storage DELETE Object-store-virtual-hosts
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage PATCH Object-store-virtual-hosts
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-object-store-virtual-hosts-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Object Store Virtual Hosts. One Spectral-compliant resource per consumed
+      operation, prefixed with /v1.
+    resources:
+    - path: /v1/api/2-26/object-store-virtual-hosts
+      name: api-2-26-object-store-virtual-hosts
+      description: REST surface for api-2.26-object-store-virtual-hosts.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Object-store-virtual-hosts
+        call: flashblade-rest-object-store-virtual-hosts.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage POST Object-store-virtual-hosts
+        call: flashblade-rest-object-store-virtual-hosts.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage DELETE Object-store-virtual-hosts
+        call: flashblade-rest-object-store-virtual-hosts.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage PATCH Object-store-virtual-hosts
+        call: flashblade-rest-object-store-virtual-hosts.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-object-store-virtual-hosts-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Object Store Virtual Hosts. One tool per consumed operation, routed
+      inline through this capability's consumes block.
+    tools:
+    - name: pure-storage-get-object-store
+      description: Pure Storage GET Object-store-virtual-hosts
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-object-store-virtual-hosts.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-object-store
+      description: Pure Storage POST Object-store-virtual-hosts
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-object-store-virtual-hosts.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-object-store
+      description: Pure Storage DELETE Object-store-virtual-hosts
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flashblade-rest-object-store-virtual-hosts.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-patch-object-store
+      description: Pure Storage PATCH Object-store-virtual-hosts
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-object-store-virtual-hosts.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

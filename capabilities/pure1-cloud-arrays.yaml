@@ -1,0 +1,203 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Pure1 Public REST API — Arrays
+  description: 'Pure1 Public REST API — Arrays. 5 operations. Lead operation: Pure Storage Get Arrays. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Arrays
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: pure1-cloud-arrays
+    baseUri: https://api-staging.pure1.purestorage.com
+    description: Pure1 Public REST API — Arrays business capability. Self-contained, no shared references.
+    resources:
+    - name: api-1.5-arrays
+      path: /api/1.5/arrays
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Arrays
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-1.5-arrays-support-contracts
+      path: /api/1.5/arrays/support-contracts
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Array Support Contracts
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-1.5-arrays-tags
+      path: /api/1.5/arrays/tags
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Array Tags
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: delete
+        method: DELETE
+        description: Pure Storage Delete Array Tags
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-1.5-arrays-tags-batch
+      path: /api/1.5/arrays/tags/batch
+      operations:
+      - name: put
+        method: PUT
+        description: Pure Storage Create or Update Array Tags
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: pure1-cloud-arrays-rest
+    port: 8080
+    description: REST adapter for Pure1 Public REST API — Arrays. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/1-5/arrays
+      name: api-1-5-arrays
+      description: REST surface for api-1.5-arrays.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Arrays
+        call: pure1-cloud-arrays.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/1-5/arrays/support-contracts
+      name: api-1-5-arrays-support-contracts
+      description: REST surface for api-1.5-arrays-support-contracts.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Array Support Contracts
+        call: pure1-cloud-arrays.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/1-5/arrays/tags
+      name: api-1-5-arrays-tags
+      description: REST surface for api-1.5-arrays-tags.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Array Tags
+        call: pure1-cloud-arrays.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage Delete Array Tags
+        call: pure1-cloud-arrays.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/1-5/arrays/tags/batch
+      name: api-1-5-arrays-tags-batch
+      description: REST surface for api-1.5-arrays-tags-batch.
+      operations:
+      - method: PUT
+        name: put
+        description: Pure Storage Create or Update Array Tags
+        call: pure1-cloud-arrays.put
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: pure1-cloud-arrays-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Pure1 Public REST API — Arrays. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-arrays
+      description: Pure Storage Get Arrays
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-arrays.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-array-support
+      description: Pure Storage Get Array Support Contracts
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-arrays.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-array-tags
+      description: Pure Storage Get Array Tags
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-arrays.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-array-tags
+      description: Pure Storage Delete Array Tags
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: pure1-cloud-arrays.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-create-update-array
+      description: Pure Storage Create or Update Array Tags
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-arrays.put
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

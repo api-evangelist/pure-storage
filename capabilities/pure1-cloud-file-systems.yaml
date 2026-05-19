@@ -1,0 +1,104 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Pure1 Public REST API — File Systems
+  description: 'Pure1 Public REST API — File Systems. 2 operations. Lead operation: Pure Storage Get FlashArray and FlashBlade
+    File Systems. Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - File Systems
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: pure1-cloud-file-systems
+    baseUri: https://api-staging.pure1.purestorage.com
+    description: Pure1 Public REST API — File Systems business capability. Self-contained, no shared references.
+    resources:
+    - name: api-1.5-file-systems
+      path: /api/1.5/file-systems
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get FlashArray and FlashBlade File Systems
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-1.5-file-systems-policies
+      path: /api/1.5/file-systems/policies
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get FlashBlade File System / Policy Pairs
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: pure1-cloud-file-systems-rest
+    port: 8080
+    description: REST adapter for Pure1 Public REST API — File Systems. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/1-5/file-systems
+      name: api-1-5-file-systems
+      description: REST surface for api-1.5-file-systems.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get FlashArray and FlashBlade File Systems
+        call: pure1-cloud-file-systems.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/1-5/file-systems/policies
+      name: api-1-5-file-systems-policies
+      description: REST surface for api-1.5-file-systems-policies.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get FlashBlade File System / Policy Pairs
+        call: pure1-cloud-file-systems.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: pure1-cloud-file-systems-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Pure1 Public REST API — File Systems. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-get-flasharray-and
+      description: Pure Storage Get FlashArray and FlashBlade File Systems
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-file-systems.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-flashblade-file
+      description: Pure Storage Get FlashBlade File System / Policy Pairs
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-file-systems.get
+      outputParameters:
+      - type: object
+        mapping: $.

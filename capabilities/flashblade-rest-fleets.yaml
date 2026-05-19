@@ -1,0 +1,306 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Fleets
+  description: 'FlashBlade REST API — Fleets. 9 operations. Lead operation: Pure Storage GET Fleets. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Fleets
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-fleets
+    baseUri: http://[array]
+    description: FlashBlade REST API — Fleets business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-fleets
+      path: /api/2.26/fleets
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Fleets
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage POST Fleets
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: delete
+        method: DELETE
+        description: Pure Storage DELETE Fleets
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage PATCH Fleets
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: api-2.26-fleets-fleet-key
+      path: /api/2.26/fleets/fleet-key
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Fleet-key
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage POST Fleet-key
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-2.26-fleets-members
+      path: /api/2.26/fleets/members
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Fleet Members
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage POST Fleets
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+      - name: delete
+        method: DELETE
+        description: Pure Storage Remove Fleet Members
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-fleets-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Fleets. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-26/fleets
+      name: api-2-26-fleets
+      description: REST surface for api-2.26-fleets.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Fleets
+        call: flashblade-rest-fleets.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage POST Fleets
+        call: flashblade-rest-fleets.post
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage DELETE Fleets
+        call: flashblade-rest-fleets.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage PATCH Fleets
+        call: flashblade-rest-fleets.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/fleets/fleet-key
+      name: api-2-26-fleets-fleet-key
+      description: REST surface for api-2.26-fleets-fleet-key.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Fleet-key
+        call: flashblade-rest-fleets.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage POST Fleet-key
+        call: flashblade-rest-fleets.post
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/fleets/members
+      name: api-2-26-fleets-members
+      description: REST surface for api-2.26-fleets-members.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Fleet Members
+        call: flashblade-rest-fleets.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage POST Fleets
+        call: flashblade-rest-fleets.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage Remove Fleet Members
+        call: flashblade-rest-fleets.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-fleets-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Fleets. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-fleets
+      description: Pure Storage GET Fleets
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-fleets.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-fleets
+      description: Pure Storage POST Fleets
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-fleets.post
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-fleets
+      description: Pure Storage DELETE Fleets
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flashblade-rest-fleets.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-patch-fleets
+      description: Pure Storage PATCH Fleets
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-fleets.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-fleet-key
+      description: Pure Storage GET Fleet-key
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-fleets.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-fleet-key
+      description: Pure Storage POST Fleet-key
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-fleets.post
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-fleet-members
+      description: Pure Storage GET Fleet Members
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-fleets.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-fleets-2
+      description: Pure Storage POST Fleets
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-fleets.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-remove-fleet-members
+      description: Pure Storage Remove Fleet Members
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flashblade-rest-fleets.delete
+      outputParameters:
+      - type: object
+        mapping: $.

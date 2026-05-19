@@ -1,0 +1,72 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Pure1 Public REST API — Hardware
+  description: 'Pure1 Public REST API — Hardware. 1 operations. Lead operation: Pure Storage Get Hardware. Self-contained
+    Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Hardware
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: pure1-cloud-hardware
+    baseUri: https://api-staging.pure1.purestorage.com
+    description: Pure1 Public REST API — Hardware business capability. Self-contained, no shared references.
+    resources:
+    - name: api-1.5-hardware
+      path: /api/1.5/hardware
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Hardware
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: pure1-cloud-hardware-rest
+    port: 8080
+    description: REST adapter for Pure1 Public REST API — Hardware. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/1-5/hardware
+      name: api-1-5-hardware
+      description: REST surface for api-1.5-hardware.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Hardware
+        call: pure1-cloud-hardware.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: pure1-cloud-hardware-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Pure1 Public REST API — Hardware. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-get-hardware
+      description: Pure Storage Get Hardware
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-hardware.get
+      outputParameters:
+      - type: object
+        mapping: $.

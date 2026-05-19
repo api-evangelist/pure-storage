@@ -1,0 +1,72 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Pure1 Public REST API — Directories
+  description: 'Pure1 Public REST API — Directories. 1 operations. Lead operation: Pure Storage Get Managed Directories. Self-contained
+    Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Directories
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: pure1-cloud-directories
+    baseUri: https://api-staging.pure1.purestorage.com
+    description: Pure1 Public REST API — Directories business capability. Self-contained, no shared references.
+    resources:
+    - name: api-1.5-directories
+      path: /api/1.5/directories
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Managed Directories
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: pure1-cloud-directories-rest
+    port: 8080
+    description: REST adapter for Pure1 Public REST API — Directories. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/1-5/directories
+      name: api-1-5-directories
+      description: REST surface for api-1.5-directories.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Managed Directories
+        call: pure1-cloud-directories.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: pure1-cloud-directories-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Pure1 Public REST API — Directories. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-get-managed-directories
+      description: Pure Storage Get Managed Directories
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-directories.get
+      outputParameters:
+      - type: object
+        mapping: $.

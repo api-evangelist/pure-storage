@@ -1,0 +1,171 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Support
+  description: 'FlashBlade REST API — Support. 4 operations. Lead operation: Pure Storage GET Support. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Support
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-support
+    baseUri: http://[array]
+    description: FlashBlade REST API — Support business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-support
+      path: /api/2.26/support
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Support
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage PATCH Support
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: api-2.26-support-system-manifest
+      path: /api/2.26/support/system-manifest
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List the System Manifest
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-2.26-support-test
+      path: /api/2.26/support/test
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Support-test
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-support-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Support. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-26/support
+      name: api-2-26-support
+      description: REST surface for api-2.26-support.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Support
+        call: flashblade-rest-support.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage PATCH Support
+        call: flashblade-rest-support.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/support/system-manifest
+      name: api-2-26-support-system-manifest
+      description: REST surface for api-2.26-support-system-manifest.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List the System Manifest
+        call: flashblade-rest-support.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/support/test
+      name: api-2-26-support-test
+      description: REST surface for api-2.26-support-test.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Support-test
+        call: flashblade-rest-support.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-support-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Support. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-support
+      description: Pure Storage GET Support
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-support.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-patch-support
+      description: Pure Storage PATCH Support
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-support.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-list-system-manifest
+      description: Pure Storage List the System Manifest
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-support.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-support-test
+      description: Pure Storage GET Support-test
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-support.get
+      outputParameters:
+      - type: object
+        mapping: $.

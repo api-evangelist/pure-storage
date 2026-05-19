@@ -1,0 +1,206 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Keytabs
+  description: 'FlashBlade REST API — Keytabs. 5 operations. Lead operation: Pure Storage GET Keytabs. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Keytabs
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-keytabs
+    baseUri: http://[array]
+    description: FlashBlade REST API — Keytabs business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-keytabs
+      path: /api/2.26/keytabs
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Keytabs
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage POST Keytabs
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: delete
+        method: DELETE
+        description: Pure Storage DELETE Keytabs
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-2.26-keytabs-download
+      path: /api/2.26/keytabs/download
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Keytabs/download
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-2.26-keytabs-upload
+      path: /api/2.26/keytabs/upload
+      operations:
+      - name: post
+        method: POST
+        description: Pure Storage POST Keytabs/upload
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-keytabs-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Keytabs. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-26/keytabs
+      name: api-2-26-keytabs
+      description: REST surface for api-2.26-keytabs.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Keytabs
+        call: flashblade-rest-keytabs.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage POST Keytabs
+        call: flashblade-rest-keytabs.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage DELETE Keytabs
+        call: flashblade-rest-keytabs.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/keytabs/download
+      name: api-2-26-keytabs-download
+      description: REST surface for api-2.26-keytabs-download.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Keytabs/download
+        call: flashblade-rest-keytabs.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/keytabs/upload
+      name: api-2-26-keytabs-upload
+      description: REST surface for api-2.26-keytabs-upload.
+      operations:
+      - method: POST
+        name: post
+        description: Pure Storage POST Keytabs/upload
+        call: flashblade-rest-keytabs.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-keytabs-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Keytabs. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-keytabs
+      description: Pure Storage GET Keytabs
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-keytabs.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-keytabs
+      description: Pure Storage POST Keytabs
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-keytabs.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-keytabs
+      description: Pure Storage DELETE Keytabs
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flashblade-rest-keytabs.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-keytabs-download
+      description: Pure Storage GET Keytabs/download
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-keytabs.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-keytabs-upload
+      description: Pure Storage POST Keytabs/upload
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-keytabs.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

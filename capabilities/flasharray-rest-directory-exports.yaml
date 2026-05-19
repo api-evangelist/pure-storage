@@ -1,0 +1,162 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Directory Exports
+  description: 'FlashArray REST API — Directory Exports. 4 operations. Lead operation: Pure Storage List Directory Exports.
+    Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Directory Exports
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-directory-exports
+    baseUri: ''
+    description: FlashArray REST API — Directory Exports business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-directory-exports
+      path: /api/2.52/directory-exports
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Directory Exports
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage Create Directory Exports
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: delete
+        method: DELETE
+        description: Pure Storage Delete Directory Exports
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage Modify Directory Exports
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-directory-exports-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Directory Exports. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-52/directory-exports
+      name: api-2-52-directory-exports
+      description: REST surface for api-2.52-directory-exports.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Directory Exports
+        call: flasharray-rest-directory-exports.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage Create Directory Exports
+        call: flasharray-rest-directory-exports.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage Delete Directory Exports
+        call: flasharray-rest-directory-exports.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage Modify Directory Exports
+        call: flasharray-rest-directory-exports.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-directory-exports-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Directory Exports. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-list-directory-exports
+      description: Pure Storage List Directory Exports
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-directory-exports.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-create-directory-exports
+      description: Pure Storage Create Directory Exports
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flasharray-rest-directory-exports.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-directory-exports
+      description: Pure Storage Delete Directory Exports
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flasharray-rest-directory-exports.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-modify-directory-exports
+      description: Pure Storage Modify Directory Exports
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-directory-exports.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

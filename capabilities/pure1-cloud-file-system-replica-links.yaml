@@ -1,0 +1,104 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Pure1 Public REST API — File System Replica Links
+  description: 'Pure1 Public REST API — File System Replica Links. 2 operations. Lead operation: Pure Storage Get FlashBlade
+    File System Replica Links. Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - File System Replica Links
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: pure1-cloud-file-system-replica-links
+    baseUri: https://api-staging.pure1.purestorage.com
+    description: Pure1 Public REST API — File System Replica Links business capability. Self-contained, no shared references.
+    resources:
+    - name: api-1.5-file-system-replica-links
+      path: /api/1.5/file-system-replica-links
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get FlashBlade File System Replica Links
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-1.5-file-system-replica-links-policies
+      path: /api/1.5/file-system-replica-links/policies
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get FlashBlade File System Replica Link / Policy Pairs
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: pure1-cloud-file-system-replica-links-rest
+    port: 8080
+    description: REST adapter for Pure1 Public REST API — File System Replica Links. One Spectral-compliant resource per consumed
+      operation, prefixed with /v1.
+    resources:
+    - path: /v1/api/1-5/file-system-replica-links
+      name: api-1-5-file-system-replica-links
+      description: REST surface for api-1.5-file-system-replica-links.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get FlashBlade File System Replica Links
+        call: pure1-cloud-file-system-replica-links.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/1-5/file-system-replica-links/policies
+      name: api-1-5-file-system-replica-links-policies
+      description: REST surface for api-1.5-file-system-replica-links-policies.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get FlashBlade File System Replica Link / Policy Pairs
+        call: pure1-cloud-file-system-replica-links.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: pure1-cloud-file-system-replica-links-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Pure1 Public REST API — File System Replica Links. One tool per consumed operation, routed
+      inline through this capability's consumes block.
+    tools:
+    - name: pure-storage-get-flashblade-file
+      description: Pure Storage Get FlashBlade File System Replica Links
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-file-system-replica-links.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-flashblade-file-2
+      description: Pure Storage Get FlashBlade File System Replica Link / Policy Pairs
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-file-system-replica-links.get
+      outputParameters:
+      - type: object
+        mapping: $.

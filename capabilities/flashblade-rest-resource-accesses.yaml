@@ -1,0 +1,139 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Resource Accesses
+  description: 'FlashBlade REST API — Resource Accesses. 3 operations. Lead operation: Pure Storage GET Resource-accesses.
+    Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Resource Accesses
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-resource-accesses
+    baseUri: http://[array]
+    description: FlashBlade REST API — Resource Accesses business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-resource-accesses
+      path: /api/2.26/resource-accesses
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Resource-accesses
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: delete
+        method: DELETE
+        description: Pure Storage DELETE Resource-accesses
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-2.26-resource-accesses-batch
+      path: /api/2.26/resource-accesses/batch
+      operations:
+      - name: post
+        method: POST
+        description: Pure Storage POST Resource-accesses/batch
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-resource-accesses-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Resource Accesses. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-26/resource-accesses
+      name: api-2-26-resource-accesses
+      description: REST surface for api-2.26-resource-accesses.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Resource-accesses
+        call: flashblade-rest-resource-accesses.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage DELETE Resource-accesses
+        call: flashblade-rest-resource-accesses.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/resource-accesses/batch
+      name: api-2-26-resource-accesses-batch
+      description: REST surface for api-2.26-resource-accesses-batch.
+      operations:
+      - method: POST
+        name: post
+        description: Pure Storage POST Resource-accesses/batch
+        call: flashblade-rest-resource-accesses.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-resource-accesses-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Resource Accesses. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-get-resource-accesses
+      description: Pure Storage GET Resource-accesses
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-resource-accesses.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-resource-accesses
+      description: Pure Storage DELETE Resource-accesses
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flashblade-rest-resource-accesses.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-post-resource-accesses
+      description: Pure Storage POST Resource-accesses/batch
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flashblade-rest-resource-accesses.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

@@ -1,0 +1,72 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Pure1 Public REST API — Pods
+  description: 'Pure1 Public REST API — Pods. 1 operations. Lead operation: Pure Storage Get Pods. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Pods
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: pure1-cloud-pods
+    baseUri: https://api-staging.pure1.purestorage.com
+    description: Pure1 Public REST API — Pods business capability. Self-contained, no shared references.
+    resources:
+    - name: api-1.5-pods
+      path: /api/1.5/pods
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage Get Pods
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: pure1-cloud-pods-rest
+    port: 8080
+    description: REST adapter for Pure1 Public REST API — Pods. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/1-5/pods
+      name: api-1-5-pods
+      description: REST surface for api-1.5-pods.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage Get Pods
+        call: pure1-cloud-pods.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: pure1-cloud-pods-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Pure1 Public REST API — Pods. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-pods
+      description: Pure Storage Get Pods
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: pure1-cloud-pods.get
+      outputParameters:
+      - type: object
+        mapping: $.

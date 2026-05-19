@@ -1,0 +1,67 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Directory Quotas
+  description: 'FlashArray REST API — Directory Quotas. 1 operations. Lead operation: Pure Storage List Directories with Attached
+    Quota Policies. Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Directory Quotas
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-directory-quotas
+    baseUri: ''
+    description: FlashArray REST API — Directory Quotas business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-directory-quotas
+      path: /api/2.52/directory-quotas
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Directories with Attached Quota Policies
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-directory-quotas-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Directory Quotas. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-52/directory-quotas
+      name: api-2-52-directory-quotas
+      description: REST surface for api-2.52-directory-quotas.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Directories with Attached Quota Policies
+        call: flasharray-rest-directory-quotas.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-directory-quotas-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Directory Quotas. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-list-directories-attached
+      description: Pure Storage List Directories with Attached Quota Policies
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-directory-quotas.get
+      outputParameters:
+      - type: object
+        mapping: $.

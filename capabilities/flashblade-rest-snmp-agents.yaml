@@ -1,0 +1,139 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — SNMP Agents
+  description: 'FlashBlade REST API — SNMP Agents. 3 operations. Lead operation: Pure Storage GET Snmp-agents. Self-contained
+    Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - SNMP Agents
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-snmp-agents
+    baseUri: http://[array]
+    description: FlashBlade REST API — SNMP Agents business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-snmp-agents
+      path: /api/2.26/snmp-agents
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Snmp-agents
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage PATCH Snmp-agents
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: api-2.26-snmp-agents-mib
+      path: /api/2.26/snmp-agents/mib
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Snmp-agents-mib
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-snmp-agents-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — SNMP Agents. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-26/snmp-agents
+      name: api-2-26-snmp-agents
+      description: REST surface for api-2.26-snmp-agents.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Snmp-agents
+        call: flashblade-rest-snmp-agents.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage PATCH Snmp-agents
+        call: flashblade-rest-snmp-agents.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/snmp-agents/mib
+      name: api-2-26-snmp-agents-mib
+      description: REST surface for api-2.26-snmp-agents-mib.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Snmp-agents-mib
+        call: flashblade-rest-snmp-agents.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-snmp-agents-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — SNMP Agents. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-get-snmp-agents
+      description: Pure Storage GET Snmp-agents
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-snmp-agents.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-patch-snmp-agents
+      description: Pure Storage PATCH Snmp-agents
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-snmp-agents.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-snmp-agents-2
+      description: Pure Storage GET Snmp-agents-mib
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-snmp-agents.get
+      outputParameters:
+      - type: object
+        mapping: $.

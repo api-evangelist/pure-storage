@@ -1,0 +1,67 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Audits
+  description: 'FlashArray REST API — Audits. 1 operations. Lead operation: Pure Storage List Audits. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Audits
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-audits
+    baseUri: ''
+    description: FlashArray REST API — Audits business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-audits
+      path: /api/2.52/audits
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Audits
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-audits-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Audits. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-52/audits
+      name: api-2-52-audits
+      description: REST surface for api-2.52-audits.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Audits
+        call: flasharray-rest-audits.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-audits-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Audits. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-list-audits
+      description: Pure Storage List Audits
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-audits.get
+      outputParameters:
+      - type: object
+        mapping: $.

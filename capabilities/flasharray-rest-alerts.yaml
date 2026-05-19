@@ -1,0 +1,293 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Alerts
+  description: 'FlashArray REST API — Alerts. 8 operations. Lead operation: Pure Storage List Alerts. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Alerts
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-alerts
+    baseUri: ''
+    description: FlashArray REST API — Alerts business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-alerts
+      path: /api/2.52/alerts
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Alerts
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage Modify Flagged State
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: api-2.52-alerts-events
+      path: /api/2.52/alerts/events
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Alert Events
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-2.52-alerts-rules
+      path: /api/2.52/alerts/rules
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Custom Alert Rules
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: post
+        method: POST
+        description: Pure Storage Create a Custom Alert Rule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: delete
+        method: DELETE
+        description: Pure Storage Delete a Custom Alert Rule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage Modify a Custom Alert Rule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: api-2.52-alerts-rules-catalog
+      path: /api/2.52/alerts/rules/catalog
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Available Customizable Alert Codes
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-alerts-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Alerts. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-52/alerts
+      name: api-2-52-alerts
+      description: REST surface for api-2.52-alerts.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Alerts
+        call: flasharray-rest-alerts.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage Modify Flagged State
+        call: flasharray-rest-alerts.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/alerts/events
+      name: api-2-52-alerts-events
+      description: REST surface for api-2.52-alerts-events.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Alert Events
+        call: flasharray-rest-alerts.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/alerts/rules
+      name: api-2-52-alerts-rules
+      description: REST surface for api-2.52-alerts-rules.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Custom Alert Rules
+        call: flasharray-rest-alerts.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: post
+        description: Pure Storage Create a Custom Alert Rule
+        call: flasharray-rest-alerts.post
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: delete
+        description: Pure Storage Delete a Custom Alert Rule
+        call: flasharray-rest-alerts.delete
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage Modify a Custom Alert Rule
+        call: flasharray-rest-alerts.patch
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-52/alerts/rules/catalog
+      name: api-2-52-alerts-rules-catalog
+      description: REST surface for api-2.52-alerts-rules-catalog.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Available Customizable Alert Codes
+        call: flasharray-rest-alerts.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-alerts-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Alerts. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-list-alerts
+      description: Pure Storage List Alerts
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alerts.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-modify-flagged-state
+      description: Pure Storage Modify Flagged State
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alerts.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-list-alert-events
+      description: Pure Storage List Alert Events
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alerts.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-list-custom-alert
+      description: Pure Storage List Custom Alert Rules
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alerts.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-create-custom-alert
+      description: Pure Storage Create a Custom Alert Rule
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: flasharray-rest-alerts.post
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-delete-custom-alert
+      description: Pure Storage Delete a Custom Alert Rule
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: flasharray-rest-alerts.delete
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-modify-custom-alert
+      description: Pure Storage Modify a Custom Alert Rule
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alerts.patch
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-list-available-customizable
+      description: Pure Storage List Available Customizable Alert Codes
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-alerts.get
+      outputParameters:
+      - type: object
+        mapping: $.

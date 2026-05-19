@@ -1,0 +1,72 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Roles
+  description: 'FlashBlade REST API — Roles. 1 operations. Lead operation: Pure Storage GET Roles. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Roles
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-roles
+    baseUri: http://[array]
+    description: FlashBlade REST API — Roles business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-roles
+      path: /api/2.26/roles
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Roles
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-roles-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Roles. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-26/roles
+      name: api-2-26-roles
+      description: REST surface for api-2.26-roles.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Roles
+        call: flashblade-rest-roles.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-roles-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Roles. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-roles
+      description: Pure Storage GET Roles
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-roles.get
+      outputParameters:
+      - type: object
+        mapping: $.

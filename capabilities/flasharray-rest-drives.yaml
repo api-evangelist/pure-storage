@@ -1,0 +1,92 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashArray REST API — Drives
+  description: 'FlashArray REST API — Drives. 2 operations. Lead operation: Pure Storage List Flash, NVRAM, and Cache Modules.
+    Self-contained Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Drives
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flasharray-rest-drives
+    baseUri: ''
+    description: FlashArray REST API — Drives business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.52-drives
+      path: /api/2.52/drives
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage List Flash, NVRAM, and Cache Modules
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: patch
+        method: PATCH
+        description: Pure Storage Modify Flash and NVRAM Modules
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+  exposes:
+  - type: rest
+    namespace: flasharray-rest-drives-rest
+    port: 8080
+    description: REST adapter for FlashArray REST API — Drives. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-52/drives
+      name: api-2-52-drives
+      description: REST surface for api-2.52-drives.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage List Flash, NVRAM, and Cache Modules
+        call: flasharray-rest-drives.get
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PATCH
+        name: patch
+        description: Pure Storage Modify Flash and NVRAM Modules
+        call: flasharray-rest-drives.patch
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flasharray-rest-drives-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashArray REST API — Drives. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-list-flash-nvram
+      description: Pure Storage List Flash, NVRAM, and Cache Modules
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-drives.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-modify-flash-and
+      description: Pure Storage Modify Flash and NVRAM Modules
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: flasharray-rest-drives.patch
+      outputParameters:
+      - type: object
+        mapping: $.

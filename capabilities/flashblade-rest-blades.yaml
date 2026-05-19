@@ -1,0 +1,72 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Blades
+  description: 'FlashBlade REST API — Blades. 1 operations. Lead operation: Pure Storage GET Blades. Self-contained Naftiko
+    capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Blades
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-blades
+    baseUri: http://[array]
+    description: FlashBlade REST API — Blades business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-blades
+      path: /api/2.26/blades
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Blades
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-blades-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Blades. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/api/2-26/blades
+      name: api-2-26-blades
+      description: REST surface for api-2.26-blades.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Blades
+        call: flashblade-rest-blades.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-blades-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Blades. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: pure-storage-get-blades
+      description: Pure Storage GET Blades
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-blades.get
+      outputParameters:
+      - type: object
+        mapping: $.

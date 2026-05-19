@@ -1,0 +1,104 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: FlashBlade REST API — Policies (All)
+  description: 'FlashBlade REST API — Policies (All). 2 operations. Lead operation: Pure Storage GET Policies-all. Self-contained
+    Naftiko capability covering one Pure Storage business surface.'
+  tags:
+  - Pure Storage
+  - Policies (All)
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    PURE_STORAGE_API_KEY: PURE_STORAGE_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: flashblade-rest-policies-all
+    baseUri: http://[array]
+    description: FlashBlade REST API — Policies (All) business capability. Self-contained, no shared references.
+    resources:
+    - name: api-2.26-policies-all
+      path: /api/2.26/policies-all
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Policies-all
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: api-2.26-policies-all-members
+      path: /api/2.26/policies-all/members
+      operations:
+      - name: get
+        method: GET
+        description: Pure Storage GET Policies-all/members
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: x-auth-token
+      value: '{{env.PURE_STORAGE_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: flashblade-rest-policies-all-rest
+    port: 8080
+    description: REST adapter for FlashBlade REST API — Policies (All). One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/api/2-26/policies-all
+      name: api-2-26-policies-all
+      description: REST surface for api-2.26-policies-all.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Policies-all
+        call: flashblade-rest-policies-all.get
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/api/2-26/policies-all/members
+      name: api-2-26-policies-all-members
+      description: REST surface for api-2.26-policies-all-members.
+      operations:
+      - method: GET
+        name: get
+        description: Pure Storage GET Policies-all/members
+        call: flashblade-rest-policies-all.get
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: flashblade-rest-policies-all-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for FlashBlade REST API — Policies (All). One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: pure-storage-get-policies-all
+      description: Pure Storage GET Policies-all
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-policies-all.get
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pure-storage-get-policies-all-2
+      description: Pure Storage GET Policies-all/members
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: flashblade-rest-policies-all.get
+      outputParameters:
+      - type: object
+        mapping: $.
