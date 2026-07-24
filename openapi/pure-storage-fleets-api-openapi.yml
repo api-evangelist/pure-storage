@@ -1,0 +1,1187 @@
+openapi: 3.0.1
+info:
+  title: FlashArray REST Active Directory Fleets API
+  version: '2.52'
+  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+
+    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+
+    mapping identities across the NFS and SMB protocols by using LDAP queries.
+
+    '
+servers:
+- url: /
+tags:
+- name: Fleets
+  description: 'A fleet is a collection of Arrays.
+
+    '
+paths:
+  /api/2.52/fleets:
+    get:
+      tags:
+      - Fleets
+      summary: Pure Storage List Fleets
+      description: 'Displays information about the fleets known to the array.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names_single'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetGetResponse'
+    post:
+      tags:
+      - Fleets
+      summary: Pure Storage Create a Fleet
+      description: 'Creates a fleet and adds the current array as its first member.
+
+        Additional arrays can be added to the fleet with `POST /fleets/members`.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Names_single'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetResponse'
+    delete:
+      tags:
+      - Fleets
+      summary: Pure Storage Delete a Fleet
+      description: 'Deletes a fleet, permanently.
+
+        A fleet can only be deleted if the current array is the only array in the fleet.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids_single'
+      - $ref: '#/components/parameters/Names_single'
+      responses:
+        '200':
+          description: OK
+          content: {}
+    patch:
+      tags:
+      - Fleets
+      summary: Pure Storage Modify a Fleet
+      description: 'Modifies a fleet, changing its name by passing the old name in `name` query parameter, and the
+
+        new name in the `name` parameter in the request body.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids_single'
+      - $ref: '#/components/parameters/Names_single'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FleetPatch'
+        required: true
+        x-codegen-request-body-name: fleet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetResponse'
+      x-codegen-request-body-name: fleet
+  /api/2.52/fleets/fleet-key:
+    get:
+      tags:
+      - Fleets
+      summary: Pure Storage Get Fleet Key Information
+      description: 'Displays the time remaining on the fleet key.
+
+        Note, fleet key itself is not displayed, since that is only available at time of fleet key
+
+        creation.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetKeyGetResponse'
+    post:
+      tags:
+      - Fleets
+      summary: Pure Storage Create a Fleet Key
+      description: 'Creates a fleet key allowing an array to be added to a fleet.
+
+        This is the only time the fleet key is displayed, it cannot be retrieved subsequently.
+
+        Note, creation of a subsequent key invalidates all keys created earlier.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetKeyResponse'
+  /api/2.52/fleets/members:
+    get:
+      tags:
+      - Fleets
+      summary: Pure Storage List Fleet Members
+      description: 'Displays the members in the current fleet.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Fleet_ids'
+      - $ref: '#/components/parameters/Fleet_names'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetMemberGetResponse'
+    post:
+      tags:
+      - Fleets
+      summary: Pure Storage Add Members to a Fleet
+      description: 'Adds arrays to an existing fleet. This API needs to be run from the array that''s joining the
+
+        fleet.
+
+
+        To add the current array to the fleet, specify its own array `id` or `name`,
+
+        as well as the `fleet key` generated on any array already in the fleet.
+
+        `resource_type` is `remote-arrays`.
+
+        The array''s `ID` and `name` can be retrieved with a call to `GET /arrays` on the array.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Fleet_ids'
+      - $ref: '#/components/parameters/Fleet_names'
+      requestBody:
+        description: 'Info about the members being added to fleet.
+
+          '
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FleetMemberPost'
+        required: false
+        x-codegen-request-body-name: members
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetMemberResponse'
+      x-codegen-request-body-name: members
+    delete:
+      tags:
+      - Fleets
+      summary: Pure Storage Delete Fleet Members
+      description: 'Deletes the specified array(s) from the fleet.
+
+        Note that this will only succeed if the array(s) to be removed are not making use of any fleet
+
+        resources.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Unreachable'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.26/fleets:
+    get:
+      tags:
+      - Fleets
+      summary: Pure Storage GET Fleets
+      description: Displays information about the fleets known to the array.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids_single'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names_single'
+      - $ref: '#/components/parameters/Offset_2'
+      - $ref: '#/components/parameters/Sort_2'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetGetResponse'
+    post:
+      tags:
+      - Fleets
+      summary: Pure Storage POST Fleets
+      description: 'Creates a fleet and adds the current array as its first member.
+
+        Additional arrays can be added to the fleet with `POST /fleets/members`
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Names_single'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetResponse'
+    delete:
+      tags:
+      - Fleets
+      summary: Pure Storage DELETE Fleets
+      description: 'Permanently delete a fleet. A fleet can only be deleted if the current array is the only array
+
+        in the fleet.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids_single'
+      - $ref: '#/components/parameters/Names_single'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content: {}
+    patch:
+      tags:
+      - Fleets
+      summary: Pure Storage PATCH Fleets
+      description: 'Rename a fleet by passing the old name in `name` query parameter, and the new name in the
+
+        `name` parameter in the request body.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids_single'
+      - $ref: '#/components/parameters/Names_single'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FleetPatch'
+        required: true
+        x-codegen-request-body-name: fleet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetResponse'
+      x-codegen-request-body-name: fleet
+  /api/2.26/fleets/fleet-key:
+    get:
+      tags:
+      - Fleets
+      summary: Pure Storage GET Fleet-key
+      description: 'Displays the time remaining on the fleet key.
+
+        Note: fleet key itself is not displayed, since that is only available at the time of fleet key
+
+        creation.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset_2'
+      - $ref: '#/components/parameters/Sort_2'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetKeyGetResponse'
+    post:
+      tags:
+      - Fleets
+      summary: Pure Storage POST Fleet-key
+      description: 'Creates a fleet key allowing an array to be added to a fleet.
+
+        This is the only time the fleet key is displayed, it cannot be retrieved subsequently.
+
+        Note: Creation of a subsequent key invalidates all keys created earlier.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetKeyResponse'
+  /api/2.26/fleets/members:
+    get:
+      tags:
+      - Fleets
+      summary: Pure Storage GET Fleet Members
+      description: Displays the members in the current fleet.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Fleet_ids'
+      - $ref: '#/components/parameters/Fleet_names'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids_2'
+      - $ref: '#/components/parameters/Member_names_2'
+      - $ref: '#/components/parameters/Offset_2'
+      - $ref: '#/components/parameters/Sort_2'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetMemberGetResponse'
+    post:
+      tags:
+      - Fleets
+      summary: Pure Storage POST Fleets
+      description: 'Adds arrays to an existing fleet. This API needs to be run from the array that''s joining the
+
+        fleet.
+
+
+        To add the current array to the fleet, specify its own array id or name as well as the fleet
+
+        key generated on any array already in the fleet. `resource_type` is `remote-arrays`. The
+
+        array''s ID and name can be retrieved with a call to `GET /arrays` on the array.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Fleet_ids'
+      - $ref: '#/components/parameters/Fleet_names'
+      requestBody:
+        description: 'Info about the members being added to fleet.
+
+          '
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FleetMemberPost_2'
+        required: false
+        x-codegen-request-body-name: members
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetMemberResponse'
+      x-codegen-request-body-name: members
+    delete:
+      tags:
+      - Fleets
+      summary: Pure Storage Remove Fleet Members
+      description: 'Remove the specified array(s) from the fleet.
+
+        Note: that this will only succeed if the array(s) to be removed are not making use of any fleet
+
+        resources.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Member_ids_2'
+      - $ref: '#/components/parameters/Member_names_2'
+      - $ref: '#/components/parameters/Unreachable'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content: {}
+components:
+  schemas:
+    _fixedReferenceWithTypeAndLocation:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithType'
+      - $ref: '#/components/schemas/_referenceWithoutTypeWithIsLocal'
+      - type: object
+        properties:
+          resource_type:
+            description: "Type of the object (full name of the endpoint).\n  Valid values are the unique part of the resource's REST endpoint.\n  For example, a reference to a fleet would have a\n  `resource_type` of `fleets`.\n"
+            type: string
+      x-aliases:
+      - _fixedReferenceWithIsLocal
+    _newName:
+      type: object
+      properties:
+        name:
+          description: The new name for the resource.
+          type: string
+    _referenceWithoutTypeWithIsLocal:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          is_local:
+            description: 'If set to `true`, the location reference is to the local array.
+
+              If set to `false`, the location reference is to a remote location,
+
+              such as a remote array or offload target.
+
+              '
+            type: boolean
+            readOnly: true
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    FleetKeyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/FleetKeyResponse'
+    FleetMemberPost_2:
+      type: object
+      properties:
+        members:
+          description: 'Info about the members being added to fleet.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_fleetMemberPostMembers'
+    FleetResponse:
+      type: object
+      properties:
+        items:
+          description: 'Returns a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Fleet'
+    _fleetMemberPostMembersMember:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (e.g. remote-arrays)
+
+            '
+          type: string
+    FleetMemberPost:
+      type: object
+      properties:
+        members:
+          description: 'Info about the members being added to fleet.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_fleetmemberpostMembers'
+    FleetMemberResponse:
+      type: object
+      properties:
+        items:
+          description: 'Returns a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/FleetMember'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    Fleet:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - type: object
+        properties:
+          is_local:
+            description: 'If set to `true`, the current array is a member of the fleet.
+
+              '
+            type: boolean
+    _fleetmemberpostMembers:
+      type: object
+      properties:
+        key:
+          description: 'Provide the `fleet key` generated from any array in the fleet.
+
+            '
+          type: string
+        member:
+          $ref: '#/components/schemas/_fleetmemberpostMember'
+      x-aliases:
+      - _fleetMemberPostMembers
+    FleetPatch:
+      allOf:
+      - $ref: '#/components/schemas/_newName'
+      - type: object
+    _fleetmemberpostMember:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (e.g. remote-arrays)
+
+            '
+          type: string
+      x-aliases:
+      - _fleetMemberPostMembersMember
+    FleetMemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/FleetMemberResponse'
+    FleetGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/FleetResponse'
+      - $ref: '#/components/schemas/PageInfo'
+    _fleetMemberPostMembers:
+      type: object
+      properties:
+        key:
+          description: 'Provide the `fleet key` generated from any array in the fleet.
+
+            '
+          type: string
+        member:
+          $ref: '#/components/schemas/_fleetMemberPostMembersMember'
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    FleetKey:
+      type: object
+      properties:
+        created:
+          description: 'Creation time in milliseconds since UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1706850977
+        expires:
+          description: 'Expiration time in milliseconds since UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1706854577
+        fleet_key:
+          description: 'Fleet key, used for fleet connections.
+
+            After creation, listing will only show ****.
+
+            '
+          type: string
+          readOnly: true
+          example: CAUSJDljMGM3MGY3LWFhZDEtNDRkZC05ZDQ2LTZlOTA3YzY3Yzg1YxokOWMwYzcwZjctYWFkMS00NGRkLTlkND
+      x-readOnly: true
+    FleetKeyResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FleetKey'
+    FleetMember:
+      type: object
+      properties:
+        coordinator_of:
+          description: 'List of array groups that the member is the coordinator of.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_fixedReferenceWithType'
+        fleet:
+          $ref: '#/components/schemas/_fixedReferenceWithTypeAndLocation'
+        member:
+          $ref: '#/components/schemas/_fixedReferenceWithTypeAndLocation'
+        status:
+          description: 'Current fleet membership status
+
+            Valid values are one of `joining`, `joined`, or `removing`.
+
+            A status of `joining` indicates that the member is attempting to join the fleet.
+
+            A status of `joined` indicates that the member has joined the fleet.
+
+            A status of `removing` indicates that the member is being removed from the fleet.
+
+            '
+          type: string
+        status_details:
+          description: 'Describes the error, if any.
+
+            '
+          type: string
+          example: cannot reach array
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+  parameters:
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Unreachable:
+      name: unreachable
+      in: query
+      description: 'If set to `true`, allows a one-sided disconnect when the connection
+
+        status is `connecting` instead of `connected` or `partially connected`.
+
+        If set to `false`, it works just like normal coordinated disconnect.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'Performs the operation on the unique member IDs specified.
+
+        Enter multiple member IDs in comma-separated format.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids_single:
+      name: ids
+      in: query
+      description: 'Performs the operation on the unique resource IDs specified.
+
+        Only one value is supported.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        maxLength: 1
+        items:
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'Performs the operation on the unique member name specified.
+
+        Examples of members include volumes, hosts, host groups, and directories.
+
+        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Fleet_names:
+      name: fleet_names
+      in: query
+      description: 'Performs the operation on the unique Fleet names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        This query currently accepts only 1 name.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Member_ids_2:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `member_ids`, then an error is returned.
+
+        This cannot be provided together with the `member_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_single:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique resource names specified.
+
+        Only one value is supported.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        maxLength: 1
+        items:
+          type: string
+    Fleet_ids:
+      name: fleet_ids
+      in: query
+      description: 'Performs the operation on the unique Fleet IDs specified.
+
+        This query currently accepts only 1 ID.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_names_2:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string

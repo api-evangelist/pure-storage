@@ -1,0 +1,3880 @@
+openapi: 3.0.1
+info:
+  title: FlashArray REST Active Directory Pods API
+  version: '2.52'
+  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+
+    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+
+    mapping identities across the NFS and SMB protocols by using LDAP queries.
+
+    '
+servers:
+- url: /
+tags:
+- name: Pods
+  description: 'Synchronous replication is managed through pods. A pod representing a collection of protection
+
+    groups and volumes is created on one array and stretched to another array, resulting in fully
+
+    synchronized writes between the two arrays. A pod can contain a mix of volumes, and protection
+
+    groups with member volumes. Writes to the pod coming into either array are immediately
+
+    synchronized and seen on both arrays.
+
+    '
+paths:
+  /api/2.52/pods:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Pods
+      description: 'Displays a list of pods that are stretched to this array.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodGetResponse'
+    post:
+      tags:
+      - Pods
+      summary: Pure Storage Create a Pod
+      description: 'Creates a pod on the local array.
+
+        Each pod must be given a unique name across the arrays to which they are stretched.
+
+        A pod cannot be stretched to an array that already contains a pod with the same name.
+
+        After a pod has been created, add volumes and protection groups,
+
+        and then stretch the pod to another connected array or realm.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_throttle_operation'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PodPost'
+        required: true
+        x-codegen-request-body-name: pod
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodResponse'
+      x-codegen-request-body-name: pod
+    delete:
+      tags:
+      - Pods
+      summary: Pure Storage Delete a Pod
+      description: 'Deletes a pod that has been destroyed and is pending eradication.
+
+        Eradicated pods cannot be recovered. Pods are destroyed using the PATCH method.
+
+        The `ids` or `names` parameter is required, but they cannot be set together.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Eradicate_contents'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+    patch:
+      tags:
+      - Pods
+      summary: Pure Storage Modify a Pod
+      description: 'Modifies pod details.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Abort_quiesce'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Destroy_contents'
+      - $ref: '#/components/parameters/From_member_ids'
+      - $ref: '#/components/parameters/From_member_names'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Move_with_host_group_names'
+      - $ref: '#/components/parameters/Move_with_host_names'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Promote_from'
+      - $ref: '#/components/parameters/Quiesce'
+      - $ref: '#/components/parameters/Skip_quiesce'
+      - $ref: '#/components/parameters/To_member_ids'
+      - $ref: '#/components/parameters/To_member_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PodPatch'
+        required: true
+        x-codegen-request-body-name: pod
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodResponse'
+      x-codegen-request-body-name: pod
+  /api/2.52/pods/arrays:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Pods and Their the Array Members
+      description: 'Displays a list of pods and the local and remote arrays over which the pods are stretched.
+
+        Pods with realm members will not be returned.
+
+        The optional `group_names` parameter represents the name of the pod.
+
+        The optional `member_names` parameter
+
+        represents the name of the array over which the pod is stretched.
+
+        (Deprecated) Use pods/members instead.)
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Group_ids'
+      - $ref: '#/components/parameters/Group_names'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberGetResponse'
+    post:
+      tags:
+      - Pods
+      summary: Pure Storage Creates a Pod to Be Stretched to an Array
+      description: 'Creates a pod to be stretched to an array.
+
+        When a pod is stretched to an array,
+
+        the data in the arrays over which the pod is stretched is synchronously replicated.
+
+        The `group_names` parameter represents the name of the pod to be stretched.
+
+        The `member_names` parameter represents the name of the array over which the pod is
+
+        to be stretched.
+
+        The `group_names` and `member_names` parameters are required and must be set together.
+
+        (Deprecated) Use pods/members instead.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Group_ids'
+      - $ref: '#/components/parameters/Group_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberResponse'
+    delete:
+      tags:
+      - Pods
+      summary: Pure Storage Delete a Pod That Was Stretched to an Array
+      description: 'Deletes a pod that was stretchd to an array, collapsing the pod to a single array.
+
+        Unstretch a pod from an array when the volumes within the stretched pod
+
+        no longer need to be synchronously replicated between the two arrays.
+
+        After a pod has been unstretched, synchronous replication stops.
+
+        A destroyed version of the pod with ''restretch'' appended to the pod name
+
+        is created on the array that no longer has the pod.
+
+        The restretched pod represents a point-in-time snapshot of the pod,
+
+        just before it was unstretched.
+
+        The restretch pod enters an eradication pending period
+
+        starting from the time that the pod was unstretched.
+
+        A restretched pod can be cloned or destroyed, but it cannot be explicitly recovered.
+
+        The `group_names` parameter represents the name of the pod to be unstretched.
+
+        The `member_names` parameter represents the name of the array from which the pod is
+
+        to be unstretched.
+
+        The `group_names` and `member_names` parameters are required and must be set together.
+
+        (Deprecated) Use pods/members instead.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Group_ids'
+      - $ref: '#/components/parameters/Group_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/With_unknown'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/pods/members:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Pods and Their Members
+      description: 'Displays a list of pods and the local and remote members over which the pods are stretched.
+
+        Currently either array or realm is supported as member.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Pod_ids'
+      - $ref: '#/components/parameters/Pod_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodMemberGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodMemberGetResponse'
+    post:
+      tags:
+      - Pods
+      summary: Pure Storage Creates a Pod to Be Stretched to a Member
+      description: 'Creates a pod to be stretched to a member.
+
+        When a pod is stretched to an array or a realm on another array, the data in the arrays
+
+        or realms over which the pod is stretched is synchronously replicated.
+
+        The `member_names` or `member_ids` parameter represents the array or realm over which
+
+        the pod is to be stretched.
+
+        Both pod and member must be specified by name or ID.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Pod_ids'
+      - $ref: '#/components/parameters/Pod_names'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodMemberResponse'
+    delete:
+      tags:
+      - Pods
+      summary: Pure Storage Delete a Member from a Pod
+      description: 'Deletes a stretched pod from an array or realm, collapsing the pod to a member array
+
+        or realm. Unstretch a pod from an array or realm when the volumes within the stretched
+
+        podno longer need to be synchronously replicated between the two members.
+
+        After a pod has been unstretched, synchronous replication stops.
+
+        A destroyed version of the pod with ''restretch'' appended to the pod name
+
+        is created on the member that no longer has the pod.
+
+        The restretched pod represents a point-in-time snapshot of the pod,
+
+        just before it was unstretched.
+
+        The restretched pod enters an eradication pending period
+
+        starting from the time that the pod was unstretched.
+
+        A restretched pod can be cloned or destroyed, but it cannot be explicitly recovered.
+
+        The `member_names` parameter represents the name of the array or realm from which the
+
+        pod is to be unstretched.
+
+        Both pod and member must be specified by name or ID.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Pod_ids'
+      - $ref: '#/components/parameters/Pod_names'
+      - $ref: '#/components/parameters/With_unknown'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/pods/performance:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Pod Performance Data
+      description: 'Displays real-time and historical performance data, real-time latency data,
+
+        and average I/O sizes across all pods, displayed both by pod and as a total across all pods.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Perf_protocol_type'
+      - $ref: '#/components/parameters/Perf_protocol_group'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainerPerformanceGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainerPerformanceGetResponse'
+  /api/2.52/pods/performance/by-array:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Pod Performance Data by Array
+      description: 'Displays real-time and historical performance data, real-time latency data,
+
+        and average I/O size data.
+
+        The data is displayed as a total across all pods on the local array and by individual pod.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Perf_protocol_type'
+      - $ref: '#/components/parameters/Perf_protocol_group'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodPerformanceByArrayGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodPerformanceByArrayGetResponse'
+  /api/2.52/pods/performance/replication:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Pod Replication Performance Data
+      description: 'Displays pod replication performance data.
+
+        The data returned is the real-time and historical performance data for each replication type
+
+        at the pod level. Values include `continuous`, `periodic`, `resync`, and `sync`.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Historical_total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodPerformanceReplicationGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodPerformanceReplicationGetResponse'
+  /api/2.52/pods/performance/replication/by-array:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Pod Replication Performance Data by Array
+      description: 'Displays pod replication performance data, organized by array.
+
+        The data returned is the real-time and historical performance data for each replication type
+
+        at the pod level. Values include `continuous`, `periodic`, `resync`, and `sync`.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodPerformanceReplicationByArrayGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodPerformanceReplicationByArrayGetResponse'
+  /api/2.52/pods/space:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Pod Space Information
+      description: 'Displays provisioned size and physical storage consumption data for each pod on the
+
+        local array.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePodSpaceGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePodSpaceGetResponse'
+  /api/2.52/pods/tags:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage List Tags
+      description: Displays the list of tags.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Namespaces'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Resource_destroyed'
+      - $ref: '#/components/parameters/Resource_ids'
+      - $ref: '#/components/parameters/Resource_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagGetResponse'
+    delete:
+      tags:
+      - Pods
+      summary: Pure Storage Delete Tags
+      description: Deletes specified tags.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Keys'
+      - $ref: '#/components/parameters/Namespaces_delete'
+      - $ref: '#/components/parameters/Resource_ids'
+      - $ref: '#/components/parameters/Resource_names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/pods/tags/batch:
+    put:
+      tags:
+      - Pods
+      summary: Pure Storage Update Tags
+      description: Updates tags for all specified objects.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Resource_ids'
+      - $ref: '#/components/parameters/Resource_names'
+      requestBody:
+        description: A list of tags to be created or, if already existing, updated.
+        content:
+          application/json:
+            schema:
+              maxItems: 30
+              minItems: 1
+              uniqueItems: true
+              type: array
+              items:
+                $ref: '#/components/schemas/Tag'
+        required: true
+        x-codegen-request-body-name: tag
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagResponse'
+      x-codegen-request-body-name: tag
+  /api/2.52/pods/test:
+    post:
+      tags:
+      - Pods
+      summary: Pure Storage Create an Attempt to Clone a Pod
+      description: 'Creates an attempt to clone a pod on the local array without actually cloning it
+
+        to test whether the pod can be successfully cloned. This action does not suppport pod creation.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_throttle_operation'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PodPost'
+        required: true
+        x-codegen-request-body-name: pod
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResultWithResourceWithIdPostResponse'
+      x-codegen-request-body-name: pod
+  /api/1.5/pods:
+    get:
+      tags:
+      - Pods
+      summary: Pure Storage Get Pods
+      description: 'Retrieves information about pod objects.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization_2'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token_2'
+      - $ref: '#/components/parameters/Filter_2'
+      - $ref: '#/components/parameters/Ids_2'
+      - $ref: '#/components/parameters/Limit_2'
+      - $ref: '#/components/parameters/Names_2'
+      - $ref: '#/components/parameters/Offset_2'
+      - $ref: '#/components/parameters/Sort_2'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+            X-RateLimit-Remaining-second:
+              description: 'The number of requests remaining for the organization in that second.
+
+                '
+              schema:
+                type: integer
+            X-RateLimit-Remaining-minute:
+              description: 'The number of requests remaining for the organization in that minute.
+
+                '
+              schema:
+                type: integer
+            X-RateLimit-Limit-second:
+              description: The number of requests available per second.
+              schema:
+                type: integer
+            X-RateLimit-Limit-minute:
+              description: The number of requests available per minute.
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodGetResponse_2'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+components:
+  schemas:
+    ContainerPerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Performance data.
+
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ContainerPerformance'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              When applicable, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ContainerPerformance'
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    Tag:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          copyable:
+            description: 'Specifies whether or not to include the tag when copying the parent resource.
+
+              If set to `true`, the tag is included in resource copying.
+
+              If set to `false`, the tag is not included.
+
+              If not specified, defaults to `true`.
+
+              '
+            type: boolean
+            example: true
+          key:
+            description: 'Key of the tag. Supports up to 64 Unicode characters.
+
+              '
+            type: string
+            example: environment
+          namespace:
+            description: 'Optional namespace of the tag.
+
+              Namespace identifies the category of the tag. Omitting the namespace
+
+              defaults to the namespace `default`. The `pure&#42;` namespaces are
+
+              reserved for plugins and integration partners. It is recommended
+
+              that customers avoid using reserved namespaces.
+
+              '
+            type: string
+            example: default
+          resource:
+            $ref: '#/components/schemas/_fixedReference'
+          value:
+            description: 'Value of the tag. Supports up to 256 Unicode characters.
+
+              '
+            type: string
+            example: staging
+    _performance_others:
+      type: object
+      properties:
+        mirrored_others_per_sec:
+          description: The number of mirrored other requests processed per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        others_per_sec:
+          description: The number of other requests processed per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        usec_per_mirrored_other_op:
+          description: 'The average time it takes the array to process a mirrored I/O other request, measured in
+
+            microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        usec_per_other_op:
+          description: 'The average time it takes the array to process an I/O other request, measured in
+
+            microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    PodGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'The aggregate value of all items after filtering. When applicable, the average value is
+
+              displayed instead. The values are displayed for each field, if meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/Pod'
+    _pod_array_status:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          frozen_at:
+            description: 'The timestamp of when the data on the pod was frozen when the array went offline.
+
+              Measured in milliseconds since the UNIX epoch.
+
+              Also known as the recovery point.
+
+              If the pod is in sync, a value of `null` will be returned.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 1492662000
+          mediator_status:
+            description: 'The status of the mediator,
+
+              which determines whether it is available to mediate a high availability event.
+
+              Valid values are `flummoxed`, `online`, `unknown`, and `unreachable`.
+
+              Only mediators in the `online` status can mediate high availability events.
+
+              If set to `flummoxed`, the array can reach a mediator, but it is talking to the wrong one.
+
+              Verify that the DNS in the environment is properly configured.
+
+              This status might also appear if the pod has been offline on one array
+
+              for an extended period of time and the peer array is unreachable.
+
+              If set to `online`, the array is successfully communicating with the mediator,
+
+              and the mediator is available to mediate a high availability event.
+
+              If set to `unreachable`, the array cannot reach the mediator,
+
+              either due to network issues or because the mediator is down.
+
+              When a mediator is unreachable, synchronous replication continues to function
+
+              provided all arrays are healthy and communicating,
+
+              but a high availability event without mediator access can result in an outage.
+
+              '
+            type: string
+            readOnly: true
+          member:
+            description: 'A reference to the member associated with the pod''s array status.
+
+              '
+            title: ReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_referenceWithType'
+          pre_elected:
+            description: 'If set to `true`, the array has been pre-elected to remain online
+
+              in the rare event that the mediator is inaccessible on both arrays within the stretched pod,
+
+              and then later, the arrays within the stretched pod become disconnected from each other.
+
+              If set to `false`, either the array has been pre-elected to remain offline
+
+              while its peer array remains online, or pre-election is not in effect.
+
+              One and only one array within each pod is pre-elected at a given point in time,
+
+              so while a pre-elected array is keeping the pod online,
+
+              the pod on its non-elected peer array remains offline during the
+
+              communication failure. Users cannot pre-elect arrays.
+
+              '
+            type: boolean
+            readOnly: true
+          progress:
+            description: 'The percentage progress of the pod resyncing process for this array.
+
+              The percentage is displayed as a decimal value, starting at 0.00 and ending at 1.00.
+
+              '
+            type: number
+            format: float
+            readOnly: true
+            example: 0.66
+          status:
+            description: 'The status of the array within the stretched pod.
+
+              Valid values are `offline`, `online`, `resyncing`, `suspended`, and `unknown`.
+
+              If set to `offline`, the array is experiencing connection problems
+
+              and may not have the latest pod data.
+
+              The array cannot handle I/O to the pod and cannot take over
+
+              during a high availability event.
+
+              If set to `online`, the array is online and has the latest pod data.
+
+              The array can handle I/O to the pod and take over during a high availability event.
+
+              If set to `suspended`, the array is experiencing a short connection glitch of the pod.
+
+              This is a temporary status and would transition to either `online` or `offline` soon.
+
+              `suspended` is a new status that is exposed, starting from version 6.6.0.
+
+              If set to `resyncing`, the array is actively getting the latest pod data
+
+              so that it becomes fully synchronized with its peer array.
+
+              During the resyncing process, the array cannot handle I/O to the pod.
+
+              Once the arrays are fully synchronized, the array changes to `online` status.
+
+              If set to `unknown`, the status of the peer array is unknown
+
+              because this array is offline and cannot determine the state of the pod on the peer array.
+
+              Only the peer array can ever be in unknown status; this unknown status
+
+              is unique to the local array and will differ when viewed from its peer array.
+
+              '
+            type: string
+            readOnly: true
+            example: resyncing
+        x-readOnly: true
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    _space:
+      type: object
+      properties:
+        data_reduction:
+          description: 'The ratio of mapped sectors within a volume versus
+
+            the amount of physical space the data occupies after data compression and deduplication.
+
+            The data reduction ratio does not include thin provisioning savings.
+
+            For example, a data reduction ratio of 5:1 means that
+
+            for every 5 MB the host writes to the array, 1 MB is stored on the array''s flash modules.
+
+            '
+          type: number
+          format: float
+          readOnly: true
+        footprint:
+          description: 'The maximum amount of physical space the container consumes on an array,
+
+            ignoring any data shared outside the container, measured in bytes.
+
+            On Evergreen//One arrays, this is the maximum amount of effective used space.
+
+            The footprint metric is mostly used for capacity planning.
+
+            This field will be null in non-container contexts.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        shared:
+          description: 'The physical space occupied by deduplicated data, meaning that the space is shared with other
+
+            volumes and snapshots as a result of data deduplication.
+
+            Measured in bytes.
+
+            On Evergreen//One arrays, this is the effective space contributed by data that is not unique
+
+            to a specific volume, managed directory, or snapshot, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 111863360624
+        snapshots:
+          description: 'The physical space occupied by data unique to one or more snapshots.
+
+            Measured in bytes.
+
+            On Evergreen//One arrays, this is the effective space contributed by data unique to one or
+
+            more snapshots, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        system:
+          description: 'The physical space occupied by internal array metadata. Measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        thin_provisioning:
+          description: 'The percentage of volume sectors that do not contain host-written data
+
+            because the hosts have not written data to them or the sectors have been explicitly trimmed.
+
+            '
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          readOnly: true
+        total_physical:
+          description: 'This field has been deprecated.
+
+            Use the `total_used` field, as it contains the same information.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        total_provisioned:
+          description: 'The provisioned size of a volume for a single volume, host or host group,
+
+            protocol endpoint, managed directory, and containers can be infinite or measured in bytes.
+
+            Infinite is represented by `null`.
+
+            The provisioned size for a host or host group, includes all volumes
+
+            that are connected to the resource.
+
+            The provisioned size for a protocol endpoint is `null`.
+
+            The provisioned size for a managed directory is the quota limit if it
+
+            or its parent has a managed directory configured, otherwise it defaults to `null`.
+
+            The provisioned size for a container is the sum of the total_provisioned
+
+            of the object it contains, capped by the container''s quota limit
+
+            (or the container''s used_provisioned if current usage is above the quota limit), if any.
+
+            Provisioned size represents the storage capacity reported to hosts.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 19937690345472
+        total_reduction:
+          description: 'The ratio of provisioned sectors within a volume versus
+
+            the amount of physical space the data occupies
+
+            after reduction via data compression and deduplication
+
+            and with thin provisioning savings.
+
+            Total reduction is data reduction with thin provisioning savings.
+
+            For example, a total reduction ratio of 10&#58;1 means that
+
+            for every 10 MB of provisioned space,
+
+            1 MB is stored on the array''s flash modules.
+
+
+            '
+          type: number
+          format: float
+          readOnly: true
+        total_used:
+          description: 'The total space contributed by customer data, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        unique:
+          description: 'The unique physical space occupied by customer data.
+
+            Unique physical space does not include shared space, snapshots, and internal array metadata.
+
+            Measured in bytes.
+
+            On Evergreen//One arrays, this is the effective space contributed by unique customer data,
+
+            measured in bytes.
+
+            Unique data does not include shared space, snapshots, and internal array metadata.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        used_provisioned:
+          description: 'The amount of logical space a container has consumed,
+
+            compared against the quota limit if the container has one configured.
+
+            Used provisioned does not include destroyed objects inside the container.
+
+            Used provisioned can include destroyed objects for a destroyed container
+
+            and represents how much logical space it would take to recover the container.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 19937690345472
+        virtual:
+          description: 'The amount of logically written data that a volume or a snapshot references.
+
+            Measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+    PodPerformanceReplicationByArray:
+      allOf:
+      - $ref: '#/components/schemas/_podPerformanceReplication'
+      - type: object
+        properties:
+          array:
+            description: 'Array that shares this pod.
+
+              '
+            title: Resource
+            allOf:
+            - $ref: '#/components/schemas/_resource'
+          member:
+            description: 'The member that shares this pod.
+
+              '
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+    PodPerformanceReplicationByArrayGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodPerformanceReplicationByArrayResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PodPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_performance'
+      - $ref: '#/components/schemas/_performance_others'
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+    PodPatch:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - description: 'A pod is an administrative domain, a data container, and a namespace for
+
+          volumes and protection groups.
+
+          '
+        type: object
+        properties:
+          destroyed:
+            description: 'If set to `true`, the pod has been destroyed and is pending eradication.
+
+              The `time_remaining` value displays the amount of time left
+
+              until the destroyed pod is permanently eradicated.
+
+              A pod can only be destroyed if it is empty, so before destroying a pod,
+
+              ensure all volumes and protection groups inside the pod
+
+              have been either moved out of the pod or destroyed.
+
+              A stretched pod cannot be destroyed unless you unstretch it first.
+
+              Before the `time_remaining` period has elapsed, the destroyed pod can be recovered
+
+              by setting `destroyed=false`.
+
+              Once the `time_remaining` period has elapsed,
+
+              the pod is permanently eradicated and can no longer be recovered.
+
+              '
+            type: boolean
+          failover_preferences:
+            description: 'Determines which array within a stretched pod should be given priority to stay online
+
+              should the arrays ever lose contact with each other. The current array and
+
+              any peer arrays that are connected to the current array for synchronous replication can be
+
+              added to a pod for failover preference.
+
+              By default, `failover_preferences=null`,
+
+              meaning no arrays have been configured for failover preference.
+
+              Enter multiple arrays in comma-separated format.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_reference'
+          ignore_usage:
+            description: 'Set to `true` to set a `quota_limit` that is lower than the existing usage.
+
+              This ensures that no new volumes can be created until the existing usage
+
+              drops below the `quota_limit`.
+
+              If not specified, defaults to `false`.
+
+              '
+            type: boolean
+          mediator:
+            description: 'Sets the URL of the mediator for this pod, replacing the URL of the current mediator.
+
+              By default, the Pure1 Cloud Mediator (`purestorage`) serves as the mediator.
+
+              '
+            type: string
+            example: https://mediator.cloud-support.purestorage.com
+          requested_promotion_state:
+            description: 'Patch `requested_promotion_state` to `demoted` to demote the pod so that it can be used as
+
+              a link target for continuous replication between pods.
+
+              Demoted pods do not accept write requests, and a destroyed version of the pod with
+
+              `undo-demote` appended to the pod name is created on the array with the state of the pod
+
+              when it was in the promoted state.
+
+              Patch `requested_promotion_state` to `promoted` to start the process of promoting the pod.
+
+              The `promotion_status` indicates when the pod has been successfully promoted.
+
+              Promoted pods stop incorporating replicated data from the source pod and start accepting
+
+              write requests.
+
+              The replication process does not stop when the source pod continues replicating data to the
+
+              pod.
+
+              The space consumed by the unique replicated data is tracked by the `space.journal` field
+
+              of the pod.
+
+              '
+            type: string
+      - $ref: '#/components/schemas/_quota_limit_patch'
+    MemberResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            The values are displayed for each name where meaningful.
+
+            If `total_only=true`, the `items` list will be empty.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+    PodPerformanceReplicationResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod performance replication objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodPerformanceReplication'
+        total:
+          description: 'The aggregate value of all items after filtering.
+
+            For real-time performance, the values are aggregated for the latest timestamp.
+
+            For historical performance, the values are aggregated for each timestamp from
+
+            `start_time` to `end_time`. When applicable, the average value is displayed
+
+            instead. The values are displayed for each field if meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PodPerformanceReplication'
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    TagResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    PodMemberResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            The values are displayed for each name where meaningful.
+
+            If `total_only=true`, the `items` list will be empty.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PodMember'
+    MemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/MemberResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _quota_limit_type:
+      type: integer
+      format: int64
+      minimum: 1048576
+      maximum: 4503599627370496
+    ResourcePodSpaceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Displays a list of all items after filtering.
+
+              If applicable, the values are displayed for each name.
+
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePodSpace'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              When applicable, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePodSpace'
+    PodGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/PodResponse'
+    _limit_unset_value:
+      type: string
+      minLength: 0
+      maxLength: 0
+    _podPerformanceReplication:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          continuous_bytes_per_sec:
+            description: 'Total bytes transmitted or received per second for continuous replication.
+
+              The continuous replication feature is used for disaster recovery on FlashArray and provides a
+
+              recovery point objective (RPO) of significantly less than 30s.
+
+              '
+            title: ReplicationPerformanceWithTotal
+            allOf:
+            - $ref: '#/components/schemas/_replicationPerformanceWithTotal'
+          periodic_bytes_per_sec:
+            description: 'Total bytes transmitted or received per second for periodic replication.
+
+              '
+            title: ReplicationPerformanceWithTotal
+            allOf:
+            - $ref: '#/components/schemas/_replicationPerformanceWithTotal'
+          pod:
+            description: Reference to the pod that the performance data is associated with.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          resync_bytes_per_sec:
+            description: 'Total bytes transmitted or received per second during resync replication.
+
+              Resync replication is the mechanism to bring two arrays into sync.
+
+              This may occur during an initial pod stretch, or, in case of outage,
+
+              when two arrays reestablish connection. After the connection is restored,
+
+              the array that was online starts replicating pod data
+
+              to its peer array until the pod is once again in sync.
+
+              '
+            title: ReplicationPerformanceWithTotal
+            allOf:
+            - $ref: '#/components/schemas/_replicationPerformanceWithTotal'
+          sync_bytes_per_sec:
+            description: 'Total bytes transmitted or received per second for synchronous replication.
+
+              '
+            title: ReplicationPerformanceWithTotal
+            allOf:
+            - $ref: '#/components/schemas/_replicationPerformanceWithTotal'
+          time:
+            description: Sample time in milliseconds since the UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+          total_bytes_per_sec:
+            description: 'Total bytes transmitted and received per second for all types of replication.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+        x-readOnly: true
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    TagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TagResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    PodMember:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          member:
+            $ref: '#/components/schemas/_referenceWithType'
+          pod:
+            $ref: '#/components/schemas/_referenceWithType'
+    TestResult:
+      type: object
+      properties:
+        component_address:
+          description: Address of the component running the test.
+          type: string
+          example: 10.230.94.21
+        component_name:
+          description: Name of the component running the test.
+          type: string
+          example: CT0
+        description:
+          description: What the test is doing.
+          type: string
+          example: Testing phonehome connectivity
+        destination:
+          description: The URI of the target server being tested.
+          type: string
+          example: ra.cloud-support.purestorage.com
+        enabled:
+          description: 'Whether the object being tested is enabled or not.
+
+            Returns a value of `true` if the the service is enabled.
+
+            Returns a value of `false` if the service is disabled.
+
+            '
+          type: boolean
+          example: true
+        result_details:
+          description: Additional information about the test result.
+          type: string
+          example: Timeout connecting to phonehome endpoint
+        success:
+          description: 'Whether the object being tested passed the test or not.
+
+            Returns a value of `true` if the specified test has succeeded.
+
+            Returns a value of `false` if the specified test has failed.
+
+            '
+          type: boolean
+        test_type:
+          description: 'Displays the type of test being performed. The returned values are determined
+
+            by the `resource` being tested and its configuration.
+
+            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
+
+            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
+
+            `storage-admin-group-searching`, and `validate-ntp-configuration`.
+
+            '
+          type: string
+          example: phonehome
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    PodPerformanceByArrayGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Performance data, broken down by array.
+
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/PodPerformanceByArray'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              When applicable, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/PodPerformanceByArray'
+    _replicationPerformanceWithTotal:
+      type: object
+      properties:
+        from_remote_bytes_per_sec:
+          description: 'The number of bytes received per second from a remote array.
+
+            The number will be zero if the arrays are unable to communicate.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        to_remote_bytes_per_sec:
+          description: 'The number of bytes transmitted per second to a remote array.
+
+            The number will be zero if the arrays are unable to communicate.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        total_bytes_per_sec:
+          description: 'Total bytes transmitted and received per second.
+
+            The number will be zero if the arrays are unable to communicate.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    PodResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pod'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    PodPost:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - description: 'A pod is an administrative domain, a data container, and a namespace for
+
+          volumes and protection groups.
+
+          '
+        type: object
+        properties:
+          failover_preferences:
+            description: 'Determines which array or realm within a stretched pod should be given priority to stay
+
+              online should the arrays or realms ever lose contact with each other. The current array,
+
+              current realm, and any peer arrays or realms that are connected to the current array or
+
+              realm for synchronous replication can be added to a pod for failover preference.
+
+              meaning no arrays or realms have been configured for failover preference.
+
+              Enter multiple arrays or realms in comma-separated format.
+
+              To clear the list of failover preferences, set to an empty list [].
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_reference'
+          quota_limit:
+            description: 'The logical quota limit of the pod, measured in bytes. Must be a multiple of 512.
+
+              '
+            title: Quota_limit_type
+            allOf:
+            - $ref: '#/components/schemas/_quota_limit_type'
+          source:
+            description: The source pod from where data is cloned to create the new pod.
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          tags:
+            description: 'The list of tags to be upserted with the object.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/Tag'
+    TestResultWithResourceWithIdPostResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestResultWithResourceWithId'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
+    Pod:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+      - description: 'A pod is an administrative domain, a data container, and a namespace for
+
+          volumes and protection groups.
+
+          '
+        type: object
+        properties:
+          array_count:
+            description: 'The number of arrays a pod connects to.
+
+              '
+            type: integer
+            example: 1
+          arrays:
+            description: 'A list of arrays over which the pod is stretched.
+
+              If there are two or more arrays in the stretched pod,
+
+              all data in the pod is synchronously replicated between all of the arrays within the pod.
+
+              '
+            type: array
+            minItems: 1
+            items:
+              $ref: '#/components/schemas/_pod_array_status'
+          destroyed:
+            description: 'Returns a value of `true` if the pod has been destroyed and is pending eradication.
+
+              The `time_remaining` value displays the amount of time left
+
+              until the destroyed pod is permanently eradicated.
+
+              Before the `time_remaining` period has elapsed, the destroyed pod can be recovered
+
+              by setting `destroyed=false`.
+
+              Once the `time_remaining` period has elapsed,
+
+              the pod is permanently eradicated and can no longer be recovered.
+
+              '
+            type: boolean
+          eradication_config:
+            title: ContainerEradicationConfig
+            allOf:
+            - $ref: '#/components/schemas/ContainerEradicationConfig'
+          failover_preferences:
+            description: 'Determines which array or realm within a stretched pod should be given priority to stay online
+
+              should the arrays or realms ever lose contact with each other. The current array/realm and
+
+              any peer arrays/realms that are connected to the current array/ream for synchronous
+
+              replication can be added to a pod for failover preference.
+
+              By default, `failover_preferences=null`,
+
+              meaning no arrays or realms have been configured for failover preference.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_reference'
+          footprint:
+            description: 'This field has been deprecated.
+
+              Use the `space.footprint` field in the future, as it contains the same information.
+
+              The maximum amount of space the pod would take up on any array,
+
+              ignoring any data shared outside the pod.
+
+              Measured in bytes.
+
+              The footprint metric is mostly used for capacity planning.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+          link_source_count:
+            description: 'The number of source pods that link to the pod.
+
+              '
+            type: integer
+            example: 1
+          link_target_count:
+            description: 'The number of target pods that link to the pod.
+
+              '
+            type: integer
+            example: 1
+          mediator:
+            description: 'The URL of the mediator for the pod.
+
+              By default, the Pure1 Cloud Mediator (`purestorage`) serves as the mediator.
+
+              '
+            type: string
+            example: https://mediator.cloud-support.purestorage.com
+          mediator_version:
+            description: 'The mediator version.
+
+              '
+            type: string
+            example: 1.0.0
+          members:
+            description: 'A list of arrays or realms over which the pod is stretched.
+
+              If there are two or more members in the stretched pod,
+
+              all data in the pod is synchronously replicated between all of the members within the pod.
+
+              '
+            type: array
+            minItems: 1
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_referenceWithType'
+          promotion_status:
+            description: 'Current promotion status of a pod.
+
+              Values include `promoted`, `demoted`, and `promoting`.
+
+              The `promoted` status indicates that the pod has been promoted. The pod takes writes from
+
+              hosts instead of incorporating replicated data. This is the default mode for a pod when it
+
+              is created.
+
+              The `demoted` status indicates that the pod has been demoted. The pod does not accept write
+
+              requests and is ready to be used as a link target.
+
+              The `promoting` status indicates that the pod is in an intermediate status between
+
+              `demoted` and `promoted` while the promotion process is taking place.
+
+              '
+            type: string
+          quota_limit:
+            description: 'The logical quota limit of the pod, measured in bytes.
+
+              '
+            readOnly: true
+            title: Quota_limit_type
+            allOf:
+            - $ref: '#/components/schemas/_quota_limit_type'
+          requested_promotion_state:
+            description: 'Values include `promoted` and `demoted`.
+
+              Patch `requested_promotion_state` to `demoted` to demote the pod so that it can be used as
+
+              a link target for continuous replication between pods.
+
+              Demoted pods do not accept write requests, and a destroyed version of the pod with
+
+              `undo-demote` appended to the pod name is created on the array with the state of the pod
+
+              when it was in the promoted state.
+
+              Patch `requested_promotion_state` to `promoted` to start the process of promoting the pod.
+
+              The `promotion_status` indicates when the pod has been successfully promoted.
+
+              Promoted pods stop incorporating replicated data from the source pod and start accepting
+
+              write requests.
+
+              The replication process does not stop as the source pod continues replicating data to the
+
+              pod.
+
+              The space consumed by the unique replicated data is tracked by the `space.journal` field of
+
+              the pod.
+
+              '
+            type: string
+          source:
+            description: 'The source pod from where data is cloned to create the new pod.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          space:
+            description: 'Displays provisioned size and physical storage consumption
+
+              information for the sum of all volumes connected to the specified host.
+
+              '
+            title: PodSpace
+            allOf:
+            - $ref: '#/components/schemas/_podSpace'
+          time_remaining:
+            description: 'The amount of time left until the destroyed pod is permanently eradicated,
+
+              measured in milliseconds.
+
+              Before the `time_remaining` period has elapsed, the destroyed pod can be recovered
+
+              by setting `destroyed=false`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+    PodPerformanceByArray:
+      allOf:
+      - $ref: '#/components/schemas/PodPerformance'
+      - type: object
+        properties:
+          array:
+            description: 'The array on which the performance metrics were recorded.
+
+              '
+            title: Resource
+            allOf:
+            - $ref: '#/components/schemas/_resource'
+          member:
+            description: 'The member that shares this pod.
+
+              '
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+    Member:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          group:
+            $ref: '#/components/schemas/_reference'
+          member:
+            $ref: '#/components/schemas/_reference'
+    _podSpace:
+      allOf:
+      - $ref: '#/components/schemas/_space'
+      - type: object
+        properties:
+          replication:
+            description: 'The space consumed by unique data that has not been replicated to the
+
+              target pod, on source pods.
+
+              The space consumed by unique data that has been replicated to the target,
+
+              but not yet incorporated into the target pod, on target pods.
+
+              On Evergreen//One arrays, the effective space consumed by unique data that has
+
+              not been replicated to the target pod, on source pods.
+
+              The effective space consumed by unique data that has been replicated
+
+              to the target, but not yet incorporated into the target pod, on target pods.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+          replication_effective:
+            description: 'This field has been deprecated.
+
+              The effective space consumed by unique data that has not been
+
+              replicated to the target pod, on source pods.
+
+              The effective space consumed by unique data that has been replicated
+
+              to the target but not yet incorporated into the target pod, on target pods.
+
+              Please use the `replication` field in the future, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          shared_effective:
+            description: 'This field has been deprecated.
+
+              The effective space contributed by data that is not unique to a specific volume,
+
+              managed directory, or snapshot, measured in bytes.
+
+              Please use the `shared` field in the future, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+    PodMemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodMemberResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    ContainerEradicationConfig:
+      description: The status of the eradication functionality
+      type: object
+      properties:
+        manual_eradication:
+          description: 'The manual eradication status of the container.
+
+            If `all-enabled`, the container and its contents can be eradicated.
+
+            If `partially-disabled`, the container cannot be eradicated because the container
+
+            contains some some entities that are eradication disabled.
+
+            If `all-disabled`, the container and its contents cannot be eradicated.
+
+            Values include `all-disabled`, `all-enabled`, and `partially-disabled`.
+
+            '
+          type: string
+          readOnly: true
+          example: all-enabled
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    TestResultWithResourceWithId:
+      allOf:
+      - $ref: '#/components/schemas/TestResult'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          resource:
+            description: 'A reference to the object being tested.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+    PodPerformanceReplication:
+      allOf:
+      - $ref: '#/components/schemas/_podPerformanceReplication'
+    _quota_limit_patch:
+      type: object
+      properties:
+        quota_limit:
+          title: QuotaLimitPatch
+          description: 'The logical quota limit of the object, measured in `bytes`. Specifying
+
+            an empty string `""` unsets the quota limit.
+
+            '
+          oneOf:
+          - $ref: '#/components/schemas/_quota_limit_type'
+          - $ref: '#/components/schemas/_limit_unset_value'
+    PodPerformanceReplicationGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodPerformanceReplicationResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _performance:
+      type: object
+      properties:
+        bytes_per_mirrored_write:
+          description: 'The average I/O size per mirrored write, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        bytes_per_op:
+          description: 'The average I/O size for both read and write (all) operations.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        bytes_per_read:
+          description: 'The average I/O size per read, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        bytes_per_write:
+          description: 'The average I/O size per write, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        cached_read_bytes_per_sec:
+          description: The number of cached bytes read, measured in bytes per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        cached_reads_per_sec:
+          description: The number of cached read requests, measured in requests per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        mirrored_write_bytes_per_sec:
+          description: 'The number of mirrored bytes written per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        mirrored_writes_per_sec:
+          description: 'The number of mirrored writes per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        non_cached_read_bytes_per_sec:
+          description: The number of non-cached bytes read, measured in bytes per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        non_cached_reads_per_sec:
+          description: The number of non-cached read requests, measured in requests per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        qos_rate_limit_usec_per_mirrored_write_op:
+          description: 'The average time it takes the array to process a mirrored I/O write request,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        qos_rate_limit_usec_per_read_op:
+          description: 'The average time spent waiting due to QoS rate limiting for a read request,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        qos_rate_limit_usec_per_write_op:
+          description: 'The average time that a write I/O request spends waiting
+
+            as a result of the volume reaching its QoS bandwidth limit,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        qos_scheduling_usec_per_mirrored_write_op:
+          description: 'The average time that a mirrored write I/O gets delayed due to QoS scheduling,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        qos_scheduling_usec_per_read_op:
+          description: 'The average time that a read I/O gets delayed due to QoS scheduling,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        qos_scheduling_usec_per_write_op:
+          description: 'The average time that a write I/O gets delayed due to QoS scheduling,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        queue_usec_per_mirrored_write_op:
+          description: 'The average time that a mirrored write I/O request spends in the kernel waiting to be served,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        queue_usec_per_read_op:
+          description: 'The average time that a read I/O request spends in the kernel waiting to be served,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        queue_usec_per_write_op:
+          description: 'The average time that a write I/O request spends in the kernel waiting to be served,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        read_bytes_per_sec:
+          description: 'The number of bytes read per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        read_cache_hit_ratio:
+          description: The ratio of read requests served directly from the cache.
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          readOnly: true
+        reads_per_sec:
+          description: 'The number of read requests processed per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        san_usec_per_mirrored_write_op:
+          description: 'The average time required to transfer data
+
+            from the initiator to the array for a mirrored write request,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        san_usec_per_read_op:
+          description: 'The average time required to transfer data from the array
+
+            to the initiator for a read request, measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        san_usec_per_write_op:
+          description: 'The average time required to transfer data
+
+            from the initiator to the array for a write request,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        service_usec_per_mirrored_write_op:
+          description: 'The average time required for the array to service a mirrored write request,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        service_usec_per_read_op:
+          description: 'The average time required for the array to service a read request,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        service_usec_per_read_op_cache_reduction:
+          description: 'The percentage reduction in `service_usec_per_read_op` due to data cache
+
+            hits. For example, a value of 0.25 indicates that the value of
+
+            `service_usec_per_read_op` is 25&#37; lower than it would have been without
+
+            any data cache hits.
+
+            '
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        service_usec_per_read_op_cached:
+          description: 'The average time required for the array to service a read request that is satisfied by a cache
+
+            hit, measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        service_usec_per_read_op_non_cached:
+          description: 'The average time required for the array to service a read request that is not satisfied by a
+
+            cache hit, measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        service_usec_per_write_op:
+          description: 'The average time required for the array to service a write request,
+
+            measured in microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        time:
+          description: 'The time when the sample performance data was taken,
+
+            measured in milliseconds since the UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        usec_per_mirrored_write_op:
+          description: 'The average time it takes the array to process a mirrored I/O write request,
+
+            measured in microseconds.
+
+            Beginning in Purity 6.3.14 and 6.4.10 and later,
+
+            including later major versions (6.5.x, 6.6.x and beyond),
+
+            queue time is included.
+
+            The average time does not include SAN time or QoS rate limit time.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        usec_per_read_op:
+          description: 'The average time it takes the array to process an I/O read request,
+
+            measured in microseconds.
+
+            Beginning in Purity 6.3.14 and 6.4.10 and later,
+
+            including later major versions (6.5.x, 6.6.x and beyond),
+
+            queue time is included.
+
+            The average time does not include SAN time or QoS rate limit time.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        usec_per_write_op:
+          description: 'The average time it takes the array to process an I/O write request,
+
+            measured in microseconds.
+
+            Beginning in Purity 6.3.14 and 6.4.10 and later,
+
+            including later major versions (6.5.x, 6.6.x and beyond),
+
+            queue time is included.
+
+            The average time does not include SAN time or QoS rate limit time.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        write_bytes_per_sec:
+          description: The number of bytes written per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        writes_per_sec:
+          description: The number of write requests processed per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    ContainerPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_performance'
+      - $ref: '#/components/schemas/_performance_others'
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    ResourcePodSpace:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          space:
+            description: 'Displays size and space consumption information.
+
+              '
+            title: PodSpace
+            allOf:
+            - $ref: '#/components/schemas/_podSpace'
+          time:
+            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+        x-readOnly: true
+    PodPerformanceReplicationByArrayResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod performance replication objects, arranged by array.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodPerformanceReplicationByArray'
+        total:
+          description: 'The aggregate value of all items after filtering.
+
+            When applicable, the average value is displayed instead.
+
+            The values are displayed for each field if meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PodPerformanceReplicationByArray'
+  parameters:
+    To_member_ids:
+      name: to_member_ids
+      in: query
+      description: 'The resource will be moved to the specified local member realm or array.
+
+        Enter multiple IDs in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Resource_names:
+      name: resource_names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Move_with_host_group_names:
+      name: move_with_host_group_names
+      in: query
+      description: 'The host groups to be moved together with the pods to the specified local member realm or array.
+
+        All the hosts in the host groups will also be moved.
+
+        Enter multiple names in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    From_member_names:
+      name: from_member_names
+      in: query
+      description: 'Move the resource from the specified local member realm or array.
+
+        This should be a union of all local realms and arrays to be removed from the specified resource.
+
+        Enter multiple names in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    History_start_time:
+      name: start_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    To_member_names:
+      name: to_member_names
+      in: query
+      description: 'The resource will be moved to the specified local member realm or array.
+
+        Enter multiple names in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    From_member_ids:
+      name: from_member_ids
+      in: query
+      description: 'Move the resource from the specified local member realm or array.
+
+        This should be a union of all local realms and arrays from which the resource should be removed.
+
+        Enter multiple IDs in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Group_names:
+      name: group_names
+      in: query
+      description: 'Performs the operation on the unique group name specified.
+
+        Examples of groups include host groups, pods, protection groups, and volume groups.
+
+        Enter multiple names in comma-separated format. For example, `hgroup01,hgroup02`.
+
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    With_unknown:
+      name: with_unknown
+      in: query
+      description: 'If set to `true`, unstretches the specified pod from the specified array by force.
+
+        Use the `with_unknown` parameter in the following rare event&#58; the local array goes offline
+
+        while the pod is still stretched across two arrays,
+
+        the status of the remote array becomes unknown,
+
+        and there is no guarantee that the pod is online elsewhere.
+
+        '
+      schema:
+        type: boolean
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Namespaces_delete:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Historical_total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, only return the aggregate value of all items after filtering.
+
+        For real-time performance, the values are aggregated for the latest timestamp.
+
+        For historical performance, the values are aggregated for each timestamp from
+
+        `start_time` to `end_time`. Where it makes more sense, the average value is
+
+        displayed instead. The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Allow_throttle_operation:
+      name: allow_throttle
+      in: query
+      description: 'If set to `true`, allows operation to fail if array health is not optimal.
+
+        '
+      schema:
+        type: boolean
+    Member_names:
+      name: member_names
+      in: query
+      description: 'Performs the operation on the unique member name specified.
+
+        Examples of members include volumes, hosts, host groups, and directories.
+
+        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Destroy_contents:
+      name: destroy_contents
+      in: query
+      description: 'Set to `true` to destroy contents (e.g., volumes, protection groups, snapshots) and containers
+
+        (e.g., realms, pods, volume groups), including eradicating containers with content.
+
+        '
+      schema:
+        type: boolean
+    Promote_from:
+      name: promote_from
+      in: query
+      description: 'The `undo-demote` pod that should be used to promote the pod.
+
+        After the pod has been promoted, it will have the same data as the
+
+        `undo-demote` pod and the `undo-demote` pod will be eradicated.
+
+        '
+      schema:
+        type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Skip_quiesce:
+      name: skip_quiesce
+      in: query
+      description: 'Set to `true` to demote the pod without quiescing the `pod-replica-link` and allow the pod to
+
+        become a target of the remote pod.
+
+        This stops all pending replication to the remote pod.
+
+        '
+      schema:
+        type: boolean
+    Group_ids:
+      name: group_ids
+      in: query
+      description: 'A comma-separated list of group IDs.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    History_end_time:
+      name: end_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Quiesce:
+      name: quiesce
+      in: query
+      description: 'Set to `true` to demote the pod after the `pod-replica-link` goes into `quiesced` state and allow
+
+        the pod to become a target of the remote pod.
+
+        This ensures that all local data has been replicated to the remote pod before the pod is demoted.
+
+        '
+      schema:
+        type: boolean
+    Pod_names:
+      name: pod_names
+      in: query
+      description: 'Performs the operation on the unique pod name specified.
+
+        Enter multiple names in comma-separated format. For example, `pod01,pod02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Move_with_host_names:
+      name: move_with_host_names
+      in: query
+      description: 'The hosts to be moved together with the pods to the specified local member realm or array.
+
+        Enter multiple names in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Perf_protocol_type:
+      name: protocol
+      in: query
+      description: 'Protocol type. Valid values are `nfs`, `smb`, `s3`, and `all`.
+
+        '
+      schema:
+        type: string
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Namespaces:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Resource_destroyed:
+      name: resource_destroyed
+      in: query
+      description: 'If set to `true`, returns only objects from destroyed resources. Returns an error if
+
+        the name of a live resource is specified in the `resource_names` query parameter.
+
+        If set to `false`, returns only objects from live resources. Returns an error if the
+
+        name of a destroyed resource is specified in the `resource_names` query parameter.
+
+        '
+      schema:
+        type: boolean
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'Performs the operation on the unique member IDs specified.
+
+        Enter multiple member IDs in comma-separated format.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Abort_quiesce:
+      name: abort_quiesce
+      in: query
+      description: 'Set to `true` to promote the pod when the `pod-replica-link` is in the `quiescing` state and
+
+        abort when waiting for the `pod-replica-link` to complete the quiescing operation.
+
+        '
+      schema:
+        type: boolean
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Pod_ids:
+      name: pod_ids
+      in: query
+      description: 'A comma-separated list of pod IDs.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Keys:
+      name: keys
+      in: query
+      description: 'A comma-separated list of tag keys.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    History_resolution:
+      name: resolution
+      in: query
+      description: 'The number of milliseconds between samples of historical data.
+
+        For array-wide performance metrics (`/arrays/performance` endpoint),
+
+        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
+
+        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For performance metrics on storage objects (`<object name>/performance` endpoint),
+
+        such as volumes,
+
+        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
+
+        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For space metrics, (`<object name>/space` endpoint),
+
+        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
+
+        `28800000` (8 hours), and `86400000` (24 hours).
+
+        Include the `start_time` parameter to display the performance data
+
+        starting at the specified start time.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        Include the `end_time` parameter to display the performance data until the specified end time.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        If the `resolution` parameter is not specified
+
+        but either the `start_time` or `end_time` parameter is,
+
+        then `resolution` will default to the lowest valid resolution.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Perf_protocol_group:
+      name: protocol_group
+      in: query
+      description: 'Protocol group type. Valid values are `block`, `file`, `object-store`, and `all`.
+
+        '
+      schema:
+        type: string
+    Resource_ids:
+      name: resource_ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Eradicate_contents:
+      name: eradicate_contents
+      in: query
+      description: 'Set to `true` to eradicate contents (e.g., volumes, protection groups, snapshots) and containers
+
+        (e.g., realms, pods, volume groups). This enables you to eradicate containers with contents.
+
+        '
+      schema:
+        type: boolean
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
+  responses:
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
+    Error400:
+      description: BAD REQUEST
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error429:
+      description: TOO MANY REQUESTS
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
+    Error500:
+      description: INTERNAL SERVER ERROR
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

@@ -1,0 +1,2198 @@
+openapi: 3.0.1
+info:
+  title: FlashArray REST Active Directory Pod Replica Links API
+  version: '2.52'
+  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+
+    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+
+    mapping identities across the NFS and SMB protocols by using LDAP queries.
+
+    '
+servers:
+- url: /
+tags:
+- name: Pod Replica Links
+  description: 'Pod replica links are created by associating a source pod with a demoted pod, making
+
+    the demoted pod the target pod of the source pod. The direction of the replica link is from the
+
+    promoted source pod to the demoted target pod. Replica links can be created in either direction
+
+    between the same two FlashArrays. The target pod of a replica link cannot be on the same
+
+    FlashArray as the source pod.
+
+    '
+paths:
+  /api/2.52/pod-replica-links:
+    get:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage List Pod Replica Links
+      description: Displays the list of pod replica links that are configured between arrays.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Remote_array_or_realm_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkGetResponse'
+    post:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage Create Pod Replica Links
+      description: Creates pod replica links between two arrays. The `local_pod_names` and `remote_pod_names` are required. Valid values are `replicating`, `baselining`, `paused`, `unhealthy`, `quiescing`, and `quiesced`. A status of `replicating` indicates that the source array is replicating to the target array. A status of `baselining` indicates that the the initial version of the dataset is being sent. During this phase, you cannot promote the target pod. In addition, changing the link direction might trigger the `baselining` status to recur. A status of `paused ` indicates that data transfer between objects has stopped. A status of `unhealthy` indicates that the link is currently unhealthy and customers must perform some health checks to determine the cause. A status of `quiescing` indicates that the source pod is not accepting new write requests but the most recent changes to the source have not arrived on the target. A status of `quiesced` indicates that the source pod has been demoted and all changes have been replicated to the target pod.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Remote_array_or_realm_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkResponse'
+    delete:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage Delete Pod Replica Links
+      description: Deletes pod replica links. The `local_pod_names` and `remote_pod_names` are required. Valid values are `replicating`, `baselining`, `paused`, `unhealthy`, `quiescing`, and `quiesced`. A status of `replicating` indicates that the source array is replicating to the target array. A status of `baselining` indicates that the the initial version of the dataset is being sent. During this phase, you cannot promote the target pod. In addition, changing the link direction might trigger the `baselining` status to recur. A status of `paused ` indicates that data transfer between objects has stopped. A status of `unhealthy` indicates that the link is currently unhealthy and customers must perform some health checks to determine the cause. A status of `quiescing` indicates that the source pod is not accepting new write requests but the most recent changes to the source have not arrived on the target. A status of `quiesced` indicates that the source pod has been demoted and all changes have been replicated to the target pod.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+    patch:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage Modify Pod Replica Links
+      description: Modifies pod replica links. The `local_pod_names` and `remote_pod_names` are required. Valid values are `replicating`, `baselining`, `paused`, `unhealthy`, `quiescing`, and `quiesced`. A status of `replicating` indicates that the source array is replicating to the target array. A status of `baselining` indicates that the the initial version of the dataset is being sent. During this phase, you cannot promote the target pod. In addition, changing the link direction might trigger the `baselining` status to recur. A status of `paused ` indicates that data transfer between objects has stopped. A status of `unhealthy` indicates that the link is currently unhealthy and customers must perform some health checks to determine the cause. A status of `quiescing` indicates that the source pod is not accepting new write requests but the most recent changes to the source have not arrived on the target. A status of `quiesced` indicates that the source pod has been demoted and all changes have been replicated to the target pod.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Remote_array_or_realm_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PodReplicaLinkPatch'
+        required: true
+        x-codegen-request-body-name: pod-replica-link
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkResponse'
+      x-codegen-request-body-name: pod-replica-link
+  /api/2.52/pod-replica-links/lag:
+    get:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage List Pod Replica Link Lag
+      description: Displays the lag in milliseconds that the replication target is behind the source. This is the time difference between the current time and the recovery point.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Remote_array_or_realm_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkLagGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkLagGetResponse'
+  /api/2.52/pod-replica-links/performance/replication:
+    get:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage List Replica Link Performance Data
+      description: 'The monitoring interface or metric that provides the total
+
+        number of `bytes` of `replication` data transmitted and
+
+        received `per second`.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Remote_array_or_realm_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Historical_total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationGetResponse'
+  /api/2.52/pod-replica-links/performance/replication/by-array:
+    get:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage List Replica Link Performance Data with Array Details
+      description: 'The monitoring interface that provides the total number of `bytes`
+
+        of `replication` data transmitted and received `per second`.
+
+        This data is organized by `array` and further categorized by
+
+        the specific `replica link`, `source array`, and `target array`
+
+        to provide granular visibility into network throughput.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Remote_array_or_realm_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Historical_total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArrayGetResponse'
+        '207':
+          description: 'The status indicating a partial success. While some `resources`
+
+            were successfully returned, specific `errors` occurred during
+
+            the operation that may have prevented the full set of
+
+            requested data from being retrieved.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArrayGetResponse'
+  /api/2.52/pod-replica-links/mappings/policies:
+    get:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage List Policy Mappings
+      description: 'Displays a list of policy mappings.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Pod_replica_link_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkMappingPolicyGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkMappingPolicyGetResponse'
+    patch:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage Modify Policy Mappings
+      description: 'Modifies policy mappings of a replica link.
+
+        Valid `mapping` values are `connected` and `disconnected`. `connected` indicates that the
+
+        source policy and its attachments will be mirrored on the target pod.
+
+        `disconnected` indicates that the associated policy and its attachments are independent
+
+        from any policy on the remote. This operation can only be performed on
+
+        the target side of a pod replica link.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Local_pod_ids'
+      - $ref: '#/components/parameters/Local_pod_names'
+      - $ref: '#/components/parameters/Pod_replica_link_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_ids'
+      - $ref: '#/components/parameters/Remote_array_or_realm_names'
+      - $ref: '#/components/parameters/Remote_pod_ids'
+      - $ref: '#/components/parameters/Remote_pod_names'
+      - $ref: '#/components/parameters/Remote_policy_ids'
+      - $ref: '#/components/parameters/Remote_policy_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MappingPolicyPatch'
+        required: true
+        x-codegen-request-body-name: mapping
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkMappingPolicyResponse'
+      x-codegen-request-body-name: mapping
+  /api/1.5/pod-replica-links:
+    get:
+      tags:
+      - Pod Replica Links
+      summary: Pure Storage Get Pod Replica Links
+      description: 'Retrieves information about pod replica links.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization_2'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token_2'
+      - $ref: '#/components/parameters/Filter_2'
+      - $ref: '#/components/parameters/Ids_2'
+      - $ref: '#/components/parameters/Limit_2'
+      - $ref: '#/components/parameters/Member_ids_plus'
+      - $ref: '#/components/parameters/Member_names_plus'
+      - $ref: '#/components/parameters/Offset_2'
+      - $ref: '#/components/parameters/Sort_2'
+      - $ref: '#/components/parameters/Source_ids_plus'
+      - $ref: '#/components/parameters/Source_names_plus'
+      - $ref: '#/components/parameters/Target_ids_plus'
+      - $ref: '#/components/parameters/Target_names_plus'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+            X-RateLimit-Remaining-second:
+              description: 'The number of requests remaining for the organization in that second.
+
+                '
+              schema:
+                type: integer
+            X-RateLimit-Remaining-minute:
+              description: 'The number of requests remaining for the organization in that minute.
+
+                '
+              schema:
+                type: integer
+            X-RateLimit-Limit-second:
+              description: The number of requests available per second.
+              schema:
+                type: integer
+            X-RateLimit-Limit-minute:
+              description: The number of requests available per minute.
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PodReplicaLinkGetResponse_2'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+components:
+  schemas:
+    PodReplicaLinkResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod replica link objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLink'
+    _podArrayAndMember:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithType'
+      - type: object
+        properties:
+          member:
+            description: 'The reference to the member on the array.
+
+              '
+            title: ReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_referenceWithType'
+        x-readOnly: true
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    _replicaLinkPerformanceReplication:
+      allOf:
+      - $ref: '#/components/schemas/_replicaLinkPerformanceReplicationBase'
+      - type: object
+        properties:
+          remotes:
+            description: The reference to a `remote array`. This uniquely identifies the external or peered storage system involved in data replication, synchronization, or management operations.
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+      x-readOnly: true
+    _replicaLinkLag:
+      type: object
+      properties:
+        avg:
+          description: 'The average time difference between the current time and `recovery_point` for a period of
+
+            time.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        max:
+          description: 'The maximum time difference between the current time and `recovery_point` for a period of
+
+            time.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    PodReplicaLinkLagResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod replica link lag objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkLag'
+    PodReplicaLinkMappingPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkMappingPolicyResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PodReplicaLinkPerformanceReplication:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - $ref: '#/components/schemas/_replicaLinkPerformanceReplication'
+      - $ref: '#/components/schemas/_context'
+    PodReplicaLink:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          direction:
+            description: 'The direction of replication. Valid values include `inbound` and `outbound`.
+
+              '
+            type: string
+            readOnly: true
+          lag:
+            description: 'Duration in milliseconds that represents how far behind the replication target is from the
+
+              source. This is the time difference between current time and `recovery_point`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          local_pod:
+            description: Reference to a local pod.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          local_pod_members:
+            description: 'A list of arrays or realms that are members of the local pod.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+          paused:
+            description: 'Returns a value of `true` if the replica link is in a `paused` state.
+
+              Returns a value of `false` if the replica link is not in a `paused` state.
+
+              '
+            type: boolean
+          recovery_point:
+            description: 'Time when the last piece of data was replicated, in milliseconds since the UNIX epoch,
+
+              and the recovery point if the target pod is promoted.
+
+              If the pod is currently baselining, then the value is `null`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 1565034592494
+          remote_pod:
+            description: Reference to a remote pod.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          remotes:
+            description: A list of remote arrays or realms that share this pod.
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+          status:
+            description: 'Status of the replica-link. Valid values include `replicating`, `baselining`,
+
+              `paused`, `quiescing`, `quiesced`, `idle`, and `unhealthy`.
+
+              '
+            type: string
+            readOnly: true
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
+    PodReplicaLinkGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PodReplicaLink_2:
+      description: A replica link between two pods.
+      allOf:
+      - $ref: '#/components/schemas/_replicaLink'
+      - description: A replica link between two pods.
+        type: object
+        properties:
+          members:
+            description: The union of source and target pods in the replica link.
+            type: array
+            items:
+              $ref: '#/components/schemas/_resourceWithLocations'
+          recovery_point:
+            description: 'Time when the last piece of data was replicated, in milliseconds since
+
+              the UNIX epoch, and the recovery point if the target pod is promoted.
+
+              If the pod is currently baselining then the value is `null`.
+
+              '
+            type: integer
+          sources:
+            description: The source pods in the replica link.
+            type: array
+            items:
+              $ref: '#/components/schemas/_resourceWithLocations'
+          status:
+            description: 'Status of the replica link. Values include `replicating`, `idle`,
+
+              `baselining`, `paused`, `quiescing`, `quiesced`, and `unhealthy`.
+
+              '
+            type: string
+            example: replicating
+          targets:
+            description: The target pods in the replica link.
+            type: array
+            items:
+              $ref: '#/components/schemas/_resourceWithLocations'
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    _replicaLinkPerformanceReplicationArray:
+      allOf:
+      - $ref: '#/components/schemas/_replicaLinkPerformanceReplicationBase'
+      - type: object
+        properties:
+          local_pod_array:
+            description: 'The `local array` on which the performance metrics were recorded.
+
+              This acts as the source identifier for the collected data.
+
+              '
+            title: PodArrayAndMember
+            allOf:
+            - $ref: '#/components/schemas/_podArrayAndMember'
+          remote_pod_array:
+            description: 'The `remote array` on which the performance metrics were recorded.
+
+              This acts as the source identifier for data collected from a
+
+              replicated or peered system.
+
+              '
+            title: PodArrayAndMember
+            allOf:
+            - $ref: '#/components/schemas/_podArrayAndMember'
+    PodReplicaLinkPerformanceReplicationResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod replica link performance objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplication'
+        total:
+          description: 'The aggregate value of all items after filtering.
+
+            For real-time performance, the values are aggregated for the latest timestamp.
+
+            For historical performance, the values are aggregated for each timestamp from
+
+            `start_time` to `end_time`. Where it makes more sense, the average value is
+
+            displayed instead. The values are displayed for each field where meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplication'
+    _fixedReference_2:
+      type: object
+      properties:
+        id:
+          description: The opaque and unique id of this resource.
+          type: string
+          readOnly: true
+          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+        name:
+          description: The name of this resource.
+          type: string
+          readOnly: true
+          example: example_name
+        resource_type:
+          description: 'The type of this resource represented by the name of its REST endpoint.
+
+            For example, "arrays", "network-interfaces", and "metrics".
+
+            The value may be `null` if the resource is not represented.
+
+            '
+          type: string
+          readOnly: true
+          example: example_resource_type
+      x-readOnly: true
+    _builtInRelationship:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+    PodReplicaLinkPerformanceReplicationArray:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - $ref: '#/components/schemas/_replicaLinkPerformanceReplicationArray'
+      - $ref: '#/components/schemas/_context'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    PodReplicaLinkMappingPolicyResponse:
+      type: object
+      properties:
+        items:
+          description: 'A list of policy mappings.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/MappingPolicy'
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    PodReplicaLinkPerformanceReplicationArrayGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArrayResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _podReplicaLinkReference:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - type: object
+        properties:
+          local_pod:
+            description: 'Reference to a local pod.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          remote_pod:
+            description: 'Reference to a remote pod.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          remotes:
+            description: 'Reference to remote arrays.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+    PodReplicaLinkLagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkLagResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    PodReplicaLinkPerformanceReplicationGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PodReplicaLinkResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLink_2'
+    PodReplicaLinkLag:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          direction:
+            description: 'The direction of replication. Valid values include `inbound` and `outbound`.
+
+              '
+            type: string
+            readOnly: true
+          lag:
+            description: 'Duration in milliseconds that indicates how far behind the replication target is from the
+
+              source.
+
+              '
+            title: ReplicaLinkLag
+            allOf:
+            - $ref: '#/components/schemas/_replicaLinkLag'
+          local_pod:
+            description: Reference to a local pod.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          local_pod_members:
+            description: 'A list of arrays or realms that are members of the local pod.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+          recovery_point:
+            description: 'Time when the last piece of data was replicated, in milliseconds since the UNIX epoch, and
+
+              the recovery point if the pod is promoted. If the pod is baselining then the value is
+
+              `null`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 1565034592494
+          remote_pod:
+            description: Reference to a remote pod.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          remotes:
+            description: Reference to a remote array.
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+          status:
+            description: 'Status of the replica-link. Valid values include `replicating`, `baselining`,
+
+              `paused`, `quiescing`, `quiesced`, `idle`, and `unhealthy`.
+
+              '
+            type: string
+            readOnly: true
+          time:
+            description: Sample time in milliseconds since the UNIX epoch.
+            type: integer
+            format: int64
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
+    PodReplicaLinkPatch:
+      type: object
+      properties:
+        paused:
+          description: 'Returns a value of `true` if the replica link is to be created in a `paused` state.
+
+            Returns a value of `false` if the replica link is to be created not in a `paused` state.
+
+            If not specified, defaults to `false`.
+
+            '
+          type: boolean
+    PodReplicaLinkPerformanceReplicationArrayResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod replica link performance objects, arranged by array.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArray'
+        total:
+          description: 'The aggregate value of all items after filtering.
+
+            For real-time performance, the values are aggregated for the latest timestamp.
+
+            For historical performance, the values are aggregated for each timestamp from
+
+            `start_time` to `end_time`. Where it makes more sense, the average value is
+
+            displayed instead. The values are displayed for each field where meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArray'
+    _replicaLink:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoName'
+      - type: object
+        properties:
+          lag:
+            description: 'Duration, in milliseconds, which represents how far behind the
+
+              replication `target` is from the `source`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 1560
+          paused:
+            description: 'Returns `true` if the replica link is paused.
+
+              '
+            type: boolean
+            example: false
+          recovery_point:
+            description: 'Time when the last piece of data was replicated, measured in
+
+              milliseconds since the UNIX epoch, and the recovery point of the
+
+              resource.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 1565034592494
+          status:
+            description: 'Status of the replica link. Values include `replicating`, `idle`,
+
+              and `unhealthy`.
+
+              '
+            type: string
+            example: replicating
+    _replicaLinkPerformanceReplicationBase:
+      type: object
+      properties:
+        bytes_per_sec_from_remote:
+          description: The number of bytes received per second from a remote array.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        bytes_per_sec_to_remote:
+          description: The number of bytes transmitted per second to a remote array.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        bytes_per_sec_total:
+          description: Total bytes transmitted and received per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        direction:
+          description: The direction of replication relative to the local array. Valid values include `inbound`, indicating data being received, and `outbound`, indicating data being transmitted.
+          type: string
+          readOnly: true
+        local_pod:
+          description: The reference to a `local pod`. This uniquely identifies the container or grouping of resources within the local storage environment.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        remote_pod:
+          description: The reference to a `remote pod`. This uniquely identifies the container or grouping of resources located on a peered or external storage array.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        time:
+          description: The timestamp of the sample, measured in `milliseconds` since the `UNIX epoch`.
+          type: integer
+          format: int64
+          readOnly: true
+      x-readOnly: true
+    MappingPolicyPatch:
+      type: object
+      properties:
+        mapping:
+          description: 'The mapping to set on this policy mapping.
+
+            Valid values are `connected` and `disconnected`.
+
+            '
+          type: string
+    _resourceNoName:
+      description: 'An ordinary (as opposed to built-in) resource that can be created or deleted
+
+        by the user. This might be a virtual resource (e.g., a volume), or correspond
+
+        to something in the physical environment, like a host or a server.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    PodReplicaLinkGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/PodReplicaLinkResponse_2'
+    MappingPolicy:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          direction:
+            description: 'The direction of replication. Valid values include `inbound` and `outbound`.
+
+              '
+            type: string
+          local_policy:
+            description: 'Reference to a local policy.
+
+              '
+            title: ReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_referenceWithType'
+          mapping:
+            description: 'The mapping for this policy mapping.
+
+              Valid values are `connected` and `disconnected`.
+
+              '
+            type: string
+          pod_replica_link:
+            description: 'Reference to a pod replica link.
+
+              '
+            title: PodReplicaLinkReference
+            allOf:
+            - $ref: '#/components/schemas/_podReplicaLinkReference'
+          policy_type:
+            description: 'The type of policies involved in this policy mapping.
+
+              '
+            type: string
+          remote_policy:
+            description: 'Reference to a remote policy.
+
+              '
+            title: ReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_referenceWithType'
+    _resourceWithLocations:
+      description: 'A resource that may relate to multiple locations.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          locations:
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReferenceFqdn'
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+  parameters:
+    Member_names_plus:
+      name: member_names
+      in: query
+      description: 'A list of member names. Member names separated by a `+` indicate that both
+
+        members must be present in each element. Member names separated by a `,`
+
+        indicate that at least one member must be present in each element.
+
+        If there is not at least one resource that matches each `member_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of member names separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Source_ids_plus:
+      name: source_ids
+      in: query
+      description: 'A list of source IDs. Source IDs separated by a `+` indicate that both
+
+        sources must be present in each element. Source IDs separated by a `,`
+
+        indicate that at least one source must be present in each element.
+
+        If there is not at least one resource that matches each `source_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of source IDs separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Source_names_plus:
+      name: source_names
+      in: query
+      description: 'A list of source names. Source names separated by a `+` indicate that both
+
+        sources must be present in each element. Source names separated by a `,`
+
+        indicate that at least one source must be present in each element.
+
+        If there is not at least one resource that matches each `source_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of source names separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Target_ids_plus:
+      name: target_ids
+      in: query
+      description: 'A list of target IDs. Target IDs separated by a `+` indicate that both
+
+        targets must be present in each element. Target IDs separated by a `,`
+
+        indicate that at least one target must be present in each element.
+
+        If there is not at least one resource that matches each `target_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of target IDs separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    History_start_time:
+      name: start_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Remote_array_or_realm_names:
+      name: remote_names
+      in: query
+      description: 'The comma-separated list of remote array or realm names.
+
+        If, after filtering, there is not at least one resource
+
+        that matches each of the elements, an error is returned.
+
+        The remote_names and remote_ids parameters cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Remote_array_or_realm_ids:
+      name: remote_ids
+      in: query
+      description: 'The comma-separated list of remote array or realm IDs.
+
+        If, after filtering, there is not at least one resource
+
+        that matches each of the elements, an error is returned.
+
+        The remote_ids and remote_names parameters cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Historical_total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, only return the aggregate value of all items after filtering.
+
+        For real-time performance, the values are aggregated for the latest timestamp.
+
+        For historical performance, the values are aggregated for each timestamp from
+
+        `start_time` to `end_time`. Where it makes more sense, the average value is
+
+        displayed instead. The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Remote_pod_ids:
+      name: remote_pod_ids
+      in: query
+      description: 'A comma-separated list of remote pod IDs. If, after filtering, there is not at least one resource
+
+        that matches each of the elements, then an error is returned. This cannot be provided together
+
+        with the `remote_pod_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Local_pod_ids:
+      name: local_pod_ids
+      in: query
+      description: 'A comma-separated list of local pod IDs. If, after filtering, there is not at least one resource
+
+        that matches each of the elements, then an error is returned. This cannot be provided together
+
+        with the `local_pod_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    History_end_time:
+      name: end_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Target_names_plus:
+      name: target_names
+      in: query
+      description: 'A list of target names. Target names separated by a `+` indicate that both
+
+        targets must be present in each element. Target names separated by a `,`
+
+        indicate that at least one target must be present in each element.
+
+        If there is not at least one resource that matches each `target_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of target names separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Member_ids_plus:
+      name: member_ids
+      in: query
+      description: 'A list of member IDs. Member IDs separated by a `+` indicate that both
+
+        members must be present in each element. Member IDs separated by a `,`
+
+        indicate that at least one member must be present in each element.
+
+        If there is not at least one resource that matches each `member_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of member IDs separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    History_resolution:
+      name: resolution
+      in: query
+      description: 'The number of milliseconds between samples of historical data.
+
+        For array-wide performance metrics (`/arrays/performance` endpoint),
+
+        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
+
+        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For performance metrics on storage objects (`<object name>/performance` endpoint),
+
+        such as volumes,
+
+        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
+
+        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For space metrics, (`<object name>/space` endpoint),
+
+        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
+
+        `28800000` (8 hours), and `86400000` (24 hours).
+
+        Include the `start_time` parameter to display the performance data
+
+        starting at the specified start time.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        Include the `end_time` parameter to display the performance data until the specified end time.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        If the `resolution` parameter is not specified
+
+        but either the `start_time` or `end_time` parameter is,
+
+        then `resolution` will default to the lowest valid resolution.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Remote_policy_ids:
+      name: remote_policy_ids
+      in: query
+      description: 'A comma-separated list of remote policy IDs. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be
+
+        provided together with the `remote_policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Pod_replica_link_ids:
+      name: pod_replica_link_ids
+      in: query
+      description: 'A comma-separated list of pod replica link IDs.
+
+        If, after filtering, there is not at least one resource that matches each of the elements,
+
+        then an error is returned.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Remote_policy_names:
+      name: remote_policy_names
+      in: query
+      description: 'A comma-separated list of remote policy names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be
+
+        provided together with the `remote_policy_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Local_pod_names:
+      name: local_pod_names
+      in: query
+      description: 'A comma-separated list of local pod names. If, after filtering, there is not at least one resource
+
+        that matches each of the elements, then an error is returned. This cannot be provided together
+
+        with the `local_pod_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Remote_pod_names:
+      name: remote_pod_names
+      in: query
+      description: 'A comma-separated list of remote pod names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `remote_pod_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+  responses:
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
+    Error400:
+      description: BAD REQUEST
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error429:
+      description: TOO MANY REQUESTS
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
+    Error500:
+      description: INTERNAL SERVER ERROR
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

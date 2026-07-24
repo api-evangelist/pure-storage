@@ -1,0 +1,711 @@
+openapi: 3.0.1
+info:
+  title: FlashArray REST Active Directory Virtual Machines API
+  version: '2.52'
+  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+
+    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+
+    mapping identities across the NFS and SMB protocols by using LDAP queries.
+
+    '
+servers:
+- url: /
+tags:
+- name: Virtual Machines
+paths:
+  /api/2.52/virtual-machines:
+    get:
+      tags:
+      - Virtual Machines
+      summary: Pure Storage List Virtual Machines
+      description: 'Displays a list of virtual machines, including those pending eradication.
+
+        If `vm_type` is `vvol`, the `recovery_context` in the response will represent
+
+        the most recent snapshot of the config vVol. This must be used as the `source` in
+
+        the `PATCH` method when recovering a virtual machine from the destroyed state.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      - name: vm_ids
+        in: query
+        description: 'Performs the operation on the unique virtual machine IDs specified.
+
+          Enter multiple virtual machine IDs in a comma-separated format.
+
+          '
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: vm_type
+        in: query
+        description: 'The type of virtual machine.
+
+          The only valid value is `vvol`.
+
+          '
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VirtualMachineGetResponse'
+    post:
+      tags:
+      - Virtual Machines
+      summary: Pure Storage Create a Virtual Machine
+      description: 'Creates one or more virtual machines from a protection group snapshot.
+
+        If the virtual machine is of type `vvol`, the `source` property of the request body must
+
+        be a `recovery_context` value retrieved from the `GET /virtual-machine-snapshots` endpoint.
+
+        If `overwrite` is specified, an existing virtual machine will have its volumes overwritten by
+
+        the snapshot. Otherwise, a new virtual machine will be created from the snapshot.
+
+        If creating the new virtual machine will cause a conflict with an existing virtual machine, the
+
+        operation will fail.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Overwrite'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VirtualMachinePost'
+        required: true
+        x-codegen-request-body-name: virtual-machine
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VirtualMachineResponse'
+      x-codegen-request-body-name: virtual-machine
+    patch:
+      tags:
+      - Virtual Machines
+      summary: Pure Storage Update a Virtual Machine
+      description: 'Updates a virtual machine, recovering it from the destroyed state.
+
+        If the virtual machine is of type `vvol`, the `source` property of the request body must
+
+        be a `recovery_context` value retrieved from the `GET /virtual-machines` endpoint.
+
+        If recovering the virtual machine will cause a conflict with an existing virtual machine, the
+
+        operation will fail.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VirtualMachinePost'
+        required: true
+        x-codegen-request-body-name: virtual-machine
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VirtualMachineResponse'
+      x-codegen-request-body-name: virtual-machine
+  /api/2.52/virtual-machine-volume-snapshots:
+    get:
+      tags:
+      - Virtual Machines
+      summary: Pure Storage List Virtual Machine Volume Snapshots
+      description: 'Displays a list of virtual machine volume snapshots, including those pending eradication.
+
+        If `vm_type` is `vvol`, the `recover_context` in the response will represent
+
+        a protection group snapshot containing the virtual machine volume.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      - name: vm_ids
+        in: query
+        description: 'Performs the operation on the unique virtual machine IDs specified.
+
+          Enter multiple resource IDs in a comma-separated format.
+
+          '
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: vm_type
+        in: query
+        description: 'The type of virtual machine.
+
+          The only valid value is `vvol`.
+
+          '
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VirtualMachineVolumeSnapshotResponse'
+  /api/2.52/virtual-machine-snapshots:
+    get:
+      tags:
+      - Virtual Machines
+      summary: Pure Storage List Virtual Machine Snapshots
+      description: 'Displays a list of virtual machine snapshots, including those pending eradication.
+
+        If `vm_type` is `vvol`, the `recovery_context` in the response will represent
+
+        a protection group snapshot containing the virtual machine. This must be used as
+
+        the `source` in the `POST /virtual-machine` method when recovering or overwriting a
+
+        virtual machine from a snapshot.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      - name: vm_ids
+        in: query
+        description: 'Performs the operation on the unique virtual machine IDs specified.
+
+          Enter multiple resource IDs in a comma-separated format.
+
+          '
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: vm_type
+        in: query
+        description: 'The type of virtual machine.
+
+          The only valid value is `vvol`.
+
+          '
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VirtualMachineGetResponse'
+components:
+  schemas:
+    VirtualMachineVolumeSnapshot:
+      type: object
+      properties:
+        created:
+          description: 'The virtual machine volume snapshot creation time
+
+            measured in milliseconds since the UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        destroyed:
+          description: 'Returns a value of `true` if the virtual machine volume snapshot
+
+            has been destroyed and is pending eradication.
+
+            '
+          type: boolean
+          readOnly: true
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The name of the virtual machine volume snapshot.
+
+            '
+          type: string
+          readOnly: true
+        recover_context:
+          description: 'A reference to any additional entities needed to recover this virtual machine.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        time_remaining:
+          description: 'Specifies the amount of time left until the destroyed volume snapshot is
+
+            permanently eradicated, measured in milliseconds.
+
+            Once the `time_remaining` period has elapsed,
+
+            the volume snapshot is permanently eradicated and can no longer be recovered.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        vm_id:
+          description: 'The ID of the virtual machine, as assigned by the external system.
+
+            '
+          type: string
+          readOnly: true
+        vm_type:
+          description: 'The type of virtual machine.
+
+            The only valid value is `vvol`.
+
+            '
+          type: string
+          readOnly: true
+          example: vvol
+        vvol_name:
+          description: 'The name of the virtual machine volume.
+
+            '
+          type: string
+          readOnly: true
+        vvol_type:
+          description: 'The type of virtual machine volume. Values include `config` and `data`.
+
+            '
+          type: string
+          readOnly: true
+          example: config
+    VirtualMachineGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            description: 'Displays a list of all items after filtering.
+
+              The values are displayed for each name if meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/VirtualMachine'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    VirtualMachineVolumeSnapshotResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            description: 'Displays a list of all items after filtering.
+
+              The values are displayed for each name if meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/VirtualMachineVolumeSnapshot'
+    VirtualMachineResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            The values are displayed for each name if meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/VirtualMachine'
+    VirtualMachine:
+      type: object
+      properties:
+        created:
+          description: 'The virtual machine creation time, measured in milliseconds since the UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        destroyed:
+          description: 'Returns a value of `true` if the virtual machine has been destroyed and is pending
+
+            eradication.
+
+            '
+          type: boolean
+          readOnly: true
+        id:
+          description: 'The ID of the virtual machine to create or modify, as assigned by the external system.
+
+            `id` is deprecated. Use `vm_id` instead.
+
+            '
+          type: string
+        name:
+          description: 'The name of the virtual machine, as assigned by the external system
+
+            '
+          type: string
+          readOnly: true
+        recover_context:
+          description: 'A reference to any additional entities needed to recover this virtual machine.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        time_remaining:
+          description: 'The amount of time left until the destroyed volume is permanently eradicated,
+
+            measured in milliseconds.
+
+            Before the `time_remaining` period has elapsed, the destroyed volume can be recovered
+
+            by setting `destroyed=false`.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        vm_id:
+          description: 'The ID of the virtual machine, as assigned by the external system.
+
+            '
+          type: string
+          readOnly: true
+        vm_type:
+          description: 'The type of virtual machine.
+
+            The only valid value is `vvol`.
+
+            '
+          type: string
+          readOnly: true
+          example: vvol
+    VirtualMachinePost:
+      type: object
+      properties:
+        id:
+          description: 'The ID of the virtual machine to create or modify, as assigned by the external system.
+
+            `id` is deprecated. Use `vm_id` instead.
+
+            '
+          type: string
+        source:
+          description: 'The recovery context for the virtual machine or virtual machine snapshot
+
+            being modified.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+        vm_id:
+          description: 'The ID of the virtual machine to create or modify, as assigned by the external system.
+
+            '
+          type: string
+        vm_type:
+          description: 'The type of virtual machine.
+
+            The only valid value is `vvol`.
+
+            '
+          type: string
+          example: vvol
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+  parameters:
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Overwrite:
+      name: overwrite
+      in: query
+      description: 'If set to `true`,
+
+        overwrites an existing object during an object copy operation.
+
+        If set to `false` or not set at all and the target name is an existing object,
+
+        the copy operation fails.
+
+        Required if the `source` body parameter is set
+
+        and the source overwrites an existing object during the copy operation.
+
+        '
+      schema:
+        type: boolean
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string

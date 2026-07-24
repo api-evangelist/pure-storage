@@ -1,0 +1,384 @@
+openapi: 3.0.1
+info:
+  title: FlashArray REST Active Directory OIDC SSO API
+  version: '2.52'
+  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+
+    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+
+    mapping identities across the NFS and SMB protocols by using LDAP queries.
+
+    '
+servers:
+- url: /
+tags:
+- name: OIDC SSO
+  description: 'OIDC SSO allows customers to configure settings of OIDC service provider
+
+    and identity provider. It provides a multi-factor authentication (MFA)
+
+    mechanism for customers to log in to FlashBlade.
+
+    '
+paths:
+  /api/2.26/sso/oidc/idps:
+    get:
+      tags:
+      - OIDC SSO
+      summary: Pure Storage List OIDC SSO Configurations
+      description: Displays the OIDC SSO configuration settings in the array.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OidcSsoGetResponse'
+    post:
+      tags:
+      - OIDC SSO
+      summary: Pure Storage Create OIDC SSO Configuration
+      description: Create OIDC SSO configuration.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OidcSsoPost'
+        required: true
+        x-codegen-request-body-name: idp
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OidcSsoResponse'
+      x-codegen-request-body-name: idp
+    delete:
+      tags:
+      - OIDC SSO
+      summary: Pure Storage Delete OIDC SSO Configurations
+      description: Delete OIDC SSO configurations.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+    patch:
+      tags:
+      - OIDC SSO
+      summary: Pure Storage Modify OIDC SSO Configuration
+      description: Modify one or more attributes of OIDC SSO configuration.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OidcSsoPatch'
+        required: true
+        x-codegen-request-body-name: idp
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OidcSsoResponse'
+      x-codegen-request-body-name: idp
+components:
+  parameters:
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+  schemas:
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    OidcSsoPatch:
+      allOf:
+      - $ref: '#/components/schemas/OidcSsoPost'
+      - type: object
+        properties:
+          name:
+            description: A new name for the provider
+            type: string
+    _oidcSsoPostIdp:
+      description: Identity Provider
+      type: object
+      properties:
+        provider_url:
+          description: 'URL of the Identity Provider server
+
+            '
+          type: string
+        provider_url_ca_certificate:
+          description: 'CA certificate used to validate the authenticity of the configured
+
+            Identity Provider server.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+        provider_url_ca_certificate_group:
+          description: 'A certificate group containing CA certificates that can be used to
+
+            validate the authenticity of the configured Identity Provider server.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+    OidcSso:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/OidcSsoPost'
+    OidcSsoGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/OidcSsoResponse'
+    OidcSsoPost:
+      type: object
+      properties:
+        enabled:
+          description: If set to `true`, the OIDC SSO configuration is enabled.
+          type: boolean
+        idp:
+          $ref: '#/components/schemas/_oidcSsoPostIdp'
+        prn:
+          description: Pure Resource Name of the identity provider
+          type: string
+          readOnly: true
+          example: prn::iam:array-id/local::oidc-provider/myidp
+        services:
+          description: 'Services that the OIDC SSO authentication is used for.
+
+            Valid values: `object`.
+
+            '
+          type: array
+          items:
+            type: string
+    OidcSsoResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OidcSso'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32

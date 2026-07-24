@@ -1,0 +1,3727 @@
+openapi: 3.0.1
+info:
+  title: FlashArray REST Active Directory Directories API
+  version: '2.52'
+  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+
+    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+
+    mapping identities across the NFS and SMB protocols by using LDAP queries.
+
+    '
+servers:
+- url: /
+tags:
+- name: Directories
+  description: 'Important file system directories should be set up as managed directories. Managed directories
+
+    can have policies attached to them. Managed directories differ from standard directories in that
+
+    they provide space reporting and metrics.
+
+    '
+paths:
+  /api/2.52/directories:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Directories
+      description: 'Displays a list of directories, including those pending eradication.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/File_system_ids'
+      - $ref: '#/components/parameters/File_system_names'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Total_only'
+      - $ref: '#/components/parameters/Workload_ids'
+      - $ref: '#/components/parameters/Workload_names'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryGetResponse'
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create or Copy Directory
+      description: 'Creates a managed directory at the specified path.
+
+        The managed directory name must consist of a file system name prefix and a managed directory
+
+        name suffix (separated with ''&#58;''). The suffix must be between 1 and 63 characters
+
+        (alphanumeric and ''-'') in length and begin and end with a letter or number.
+
+        The suffix must include at least one letter or ''-''.
+
+        Set `names` to create a managed directory with the specified full managed directory name,
+
+        or set `file_system_names` or `file_system_ids` in the query parameters and `suffix` in
+
+        the body parameters to create a managed directory in the specified file system with the
+
+        specified suffix. These two options are exclusive.
+
+        The `add_to_policy_names` and `add_to_policy_ids` query parameters specify a list of policy
+
+        names or ids, respectively, that will be applied to the newly created managed directory.
+
+        These parameters are mutually exclusive.
+
+        The `with_default_protection` query parameter specifies whether to use the container
+
+        default protection configuration for the managed directory.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Add_to_policy_ids_directory'
+      - $ref: '#/components/parameters/Add_to_policy_names_directory'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/File_system_ids'
+      - $ref: '#/components/parameters/File_system_names'
+      - $ref: '#/components/parameters/Ignore_usage'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/With_default_protection_policy_directory'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPost'
+        required: true
+        x-codegen-request-body-name: directory
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryResponse'
+      x-codegen-request-body-name: directory
+    delete:
+      tags:
+      - Directories
+      summary: Pure Storage Delete Managed Directories
+      description: 'Deletes one or more managed directories.
+
+        To be deleted, a managed directory must be empty and not attached to any enabled export
+
+        policies. Deleted managed directories cannot be recovered.
+
+        The `ids` or `names` parameter is required, but cannot be set together.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+    patch:
+      tags:
+      - Directories
+      summary: Pure Storage Modify a Managed Directory
+      description: 'Modifies a managed directory.
+
+        To rename a managed directory, set `name` to the new name.
+
+        The `ids` or `names` parameter is required, but cannot be set together.
+
+        The `name` or `directory_name` parameter is required.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPatch'
+        required: true
+        x-codegen-request-body-name: directory
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryResponse'
+      x-codegen-request-body-name: directory
+  /api/2.52/directories/groups:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Group with Content in Directories
+      description: 'Displays a list of groups, that have content in specific directories.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/File_system_ids'
+      - $ref: '#/components/parameters/File_system_names'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Group_quota_gids'
+      - $ref: '#/components/parameters/Group_names'
+      - $ref: '#/components/parameters/Group_sids'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoriesGroupsGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoriesGroupsGetResponse'
+  /api/2.52/directories/locks/nlm-reclamations:
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create NLM Reclamation
+      description: 'Creates an NLM reclamation, which is a system-wide operation that affects all clients,
+
+        so only one may be in progress at a time. Attempting to initiate reclamation while one is in
+
+        progress will result in an error. When NLM reclamation is initiated, all NLM locks are deleted
+
+        and client applications are notified that they can reacquire their locks within a grace period.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryLockNlmReclamationResponse'
+  /api/2.52/directories/performance:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Directory Performance Data
+      description: 'Displays real-time and historical performance data, real-time latency data, and average I/O
+
+        sizes for each directory and as a total of all directories across the entire array.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Perf_protocol_type'
+      - $ref: '#/components/parameters/Perf_protocol_group'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryPerformanceGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryPerformanceGetResponse'
+  /api/2.52/directories/policies:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Policies
+      description: Displays a list of policies that are attached to directories.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+  /api/2.52/directories/policies/audit-file:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Audit Policies Attached to a Directory
+      description: 'Displays a list of audit policies that are attached to directories.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create a Membership Between a Directory and One or More Audit Policies
+      description: 'Creates a membership between a directory and one or more audit policies.
+
+        Either the `member_ids` or `member_names` parameter is required, but they cannot
+
+        be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPolicyPost'
+        required: true
+        x-codegen-request-body-name: policies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberResponse'
+      x-codegen-request-body-name: policies
+    delete:
+      tags:
+      - Directories
+      summary: Pure Storage Delete a Membership Between a Directory and One or More Audit Policies
+      description: 'Deletes a membership between a directory and one or more audit policies.
+
+        Either the `policy_ids` or `policy_names` parameter is required, but they cannot be
+
+        set together.
+
+        Either the `member_ids` or `member_names` parameter is required, but they cannot be
+
+        set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/directories/policies/autodir:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Auto Managed Directory Policies Attached to a Directory
+      description: 'Displays a list of auto managed directory policies that are attached to directories.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create a Membership Between a Directory with One or More Auto Managed Directory Policies
+      description: 'Creates a membership between a directory with one or more auto managed directory policies.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPolicyPost'
+        required: true
+        x-codegen-request-body-name: policies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberResponse'
+      x-codegen-request-body-name: policies
+    delete:
+      tags:
+      - Directories
+      summary: Pure Storage Delete a Membership Between a Directory and One or More Auto Managed Directory Policies
+      description: 'Deletes a membership between a directory with one or more auto managed directory policies.
+
+        The `policy_ids` or `policy_names` parameter is required, but they cannot be set together.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/directories/policies/nfs:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List NFS Policies Attached to a Directory
+      description: 'Displays a list of NFS policies that are attached to directories.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_fqnames'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberExportGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberExportGetResponse'
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create a Membership Between a Directory and One or More NFS Policies
+      description: 'Creates a membership between a directory and one or more NFS policies.
+
+        The `member_ids` or `member_names` parameter is required but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPolicyExportPost'
+        required: true
+        x-codegen-request-body-name: policies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberExportResponse'
+      x-codegen-request-body-name: policies
+    delete:
+      tags:
+      - Directories
+      summary: Pure Storage Delete a Membership Between a Directory and One or More NFS Policies
+      description: 'Deletes a membership between a directory and one or more NFS policies.
+
+        The `policy_ids` or `policy_names` parameter is required, but cannot be set together.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_fqnames'
+      - $ref: '#/components/parameters/Server_ids'
+      - $ref: '#/components/parameters/Server_fqnames'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/directories/policies/quota:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Quota Policies Attached to a Directory
+      description: Displays a list of quota policies that are attached to directories.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create a Membership Between a Directory and One or More Quota Policies
+      description: 'Creates a membership between a directory and one or more quota policies.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Ignore_usage'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPolicyPost'
+        required: true
+        x-codegen-request-body-name: policies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberResponse'
+      x-codegen-request-body-name: policies
+    delete:
+      tags:
+      - Directories
+      summary: Pure Storage Delete a Membership Between a Directory and One or More Quota Policies
+      description: 'Deletes a membership between a directory and one or more quota policies.
+
+        The `policy_ids` or `policy_names` parameter is required, but cannot be set together.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/directories/policies/smb:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List SMB Policies Attached to a Directory
+      description: Displays a list of SMB policies that are attached to directories.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_fqnames'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberExportGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberExportGetResponse'
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create a Membership Between a Directory and One or More SMB Policies
+      description: 'Creates a membership between a directory and one or more SMB policies.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPolicyExportPost'
+        required: true
+        x-codegen-request-body-name: policies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberExportResponse'
+      x-codegen-request-body-name: policies
+    delete:
+      tags:
+      - Directories
+      summary: Pure Storage Delete a Membership Between a Directory and One or More SMB Policies
+      description: 'Deletes a membership between a directory and one or more SMB policies.
+
+        The `policy_ids` or `policy_names` parameter is required, but cannot be set together.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_fqnames'
+      - $ref: '#/components/parameters/Server_ids'
+      - $ref: '#/components/parameters/Server_fqnames'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/directories/policies/snapshot:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Snapshot Policies Attached to a Directory
+      description: Displays a list of snapshot policies that are attached to directories.
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create a Membership Between a Directory with One or More Snapshot Policies
+      description: 'Creates a membership between a directory with one or more snapshot policies.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPolicyPost'
+        required: true
+        x-codegen-request-body-name: policies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberResponse'
+      x-codegen-request-body-name: policies
+    delete:
+      tags:
+      - Directories
+      summary: Pure Storage Delete a Membership Between a Directory and One or More Snapshot Policies
+      description: 'Deletes a membership between a directory and one or more snapshot policies.
+
+        The `policy_ids` or `policy_names` parameter is required, but cannot be set together.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/directories/policies/user-group-quota:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List User-group-quota Policies Attached to a Directory
+      description: 'Displays a list of user-group-quota policies that are attached to directories.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberGetResponse'
+    post:
+      tags:
+      - Directories
+      summary: Pure Storage Create a Membership Between a Directory and One or More User-group-quota Policies
+      description: 'Creates a membership between a directory and one or more user-group-quota policies.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Ignore_usageUserGroupQuota'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DirectoryPolicyPost'
+        required: true
+        x-codegen-request-body-name: policies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyMemberResponse'
+      x-codegen-request-body-name: policies
+    delete:
+      tags:
+      - Directories
+      summary: Pure Storage Delete a Membership Between a Directory and One or More User-group-quota Policies
+      description: 'Deletes a membership between a directory and one or more user-group-quota policies.
+
+        The `policy_ids` or `policy_names` parameter is required, but cannot be set together.
+
+        The `member_ids` or `member_names` parameter is required, but cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Context_names'
+      - $ref: '#/components/parameters/Ignore_usageUserGroupQuota'
+      - $ref: '#/components/parameters/Member_ids'
+      - $ref: '#/components/parameters/Member_names'
+      - $ref: '#/components/parameters/Policy_ids'
+      - $ref: '#/components/parameters/Policy_names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /api/2.52/directories/space:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Directory Space Information
+      description: 'Displays physical storage consumption data for each directory.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Destroyed'
+      - $ref: '#/components/parameters/History_end_time'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/History_resolution'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/History_start_time'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/Total_only'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceDirectorySpaceGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceDirectorySpaceGetResponse'
+  /api/2.52/directories/users:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage List Users with Content in Directories
+      description: 'Displays a list of users that have content in specific directories.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Allow_errors'
+      - $ref: '#/components/parameters/Context_names_get'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/File_system_ids'
+      - $ref: '#/components/parameters/File_system_names'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      - $ref: '#/components/parameters/User_quota_uids'
+      - $ref: '#/components/parameters/User_names'
+      - $ref: '#/components/parameters/User_sids'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoriesUsersGetResponse'
+        '207':
+          description: 'Partial success. Some resources were returned, but there
+
+            were also errors possibly preventing some resources from
+
+            being returned.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoriesUsersGetResponse'
+  /api/1.5/directories:
+    get:
+      tags:
+      - Directories
+      summary: Pure Storage Get Managed Directories
+      description: 'Retrieves information about FlashArray managed directory objects.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization_2'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token_2'
+      - $ref: '#/components/parameters/File_system_ids_2'
+      - $ref: '#/components/parameters/File_system_names_2'
+      - $ref: '#/components/parameters/Filter_2'
+      - $ref: '#/components/parameters/Ids_2'
+      - $ref: '#/components/parameters/Limit_2'
+      - $ref: '#/components/parameters/Names_2'
+      - $ref: '#/components/parameters/Offset_2'
+      - $ref: '#/components/parameters/Sort_2'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+            X-RateLimit-Remaining-second:
+              description: 'The number of requests remaining for the organization in that second.
+
+                '
+              schema:
+                type: integer
+            X-RateLimit-Remaining-minute:
+              description: 'The number of requests remaining for the organization in that minute.
+
+                '
+              schema:
+                type: integer
+            X-RateLimit-Limit-second:
+              description: The number of requests available per second.
+              schema:
+                type: integer
+            X-RateLimit-Limit-minute:
+              description: The number of requests available per minute.
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryGetResponse_2'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+components:
+  schemas:
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    DirectoryPost:
+      type: object
+      properties:
+        directory_name:
+          description: 'The managed directory name without the file system name prefix.
+
+            A full managed directory name is constructed in the form of `FILE_SYSTEM:DIR` where
+
+            `FILE_SYSTEM` is the file system name and `DIR` is the value of this field.
+
+            `directory_name` is required if `file_system_names` or `file_system_ids` is set.
+
+            `directory_name` cannot be set if `names` is set.
+
+            '
+          type: string
+        path:
+          description: 'Path of the managed directory in the file system.
+
+            '
+          type: string
+        source:
+          description: 'A managed directory snapshot to be copied in order to create
+
+            a new managed directory.
+
+            If not specified, the newly created managed directory will be empty.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+        workload:
+          $ref: '#/components/schemas/_workloadConfigurationReferencePost'
+    _directorypolicyexportpostPolicies:
+      type: object
+      properties:
+        export_enabled:
+          description: 'If set to `true`, the export is enabled.
+
+            If not specified, defaults to `true`.
+
+            '
+          type: boolean
+          example: false
+        export_name:
+          description: 'The name of the export to create when applying the export policy to the directory.
+
+            '
+          type: string
+        policy:
+          description: 'Reference to the export policy to apply to the directory.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+        server:
+          description: 'Server to which the export policy is attached to.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+    ResourceDirectorySpace:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          space:
+            description: 'Displays size and space consumption information.
+
+              '
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space'
+          time:
+            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+        x-readOnly: true
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    UserGroup:
+      type: object
+      properties:
+        id:
+          description: 'The user or group id.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        name:
+          description: 'The name of the user or group.
+
+            '
+          type: string
+          readOnly: true
+        sid:
+          description: 'The user or group Security Identifier (SID).
+
+            '
+          type: string
+          readOnly: true
+    _workloadConfigurationReferencePost:
+      type: object
+      description: 'The workload to which the resource is added.
+
+        Set one of `id` or `name`, and `configuration` to add the resource to the workload
+
+        and configure it based on the `configuration` from the preset revision the workload was
+
+        originally provisioned from.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithFixedType'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
+
+              '
+            type: string
+    UserGroupQuotaLimitedBy:
+      type: object
+      properties:
+        member:
+          description: 'Reference to the resource to which the effective user-group-quota
+
+            or quota policy is attached.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        policy:
+          description: 'Reference to the effective user-group-quota or quota policy.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+      x-readOnly: true
+    _builtInAsOf:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 01c2889a-4124-49ff-8cbd-c33405ede123
+          name:
+            description: A non-modifiable, locally unique name chosen by the system.
+            type: string
+            readOnly: true
+            example: example_name
+    DirectoryUser:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          directory_name:
+            description: 'The managed directory name without the file system name prefix.
+
+              A full managed directory name is constructed in the form of `FILE_SYSTEM:DIR` where
+
+              `FILE_SYSTEM` is the file system name and `DIR` is the value of this field.
+
+              '
+            type: string
+            readOnly: true
+          file_system:
+            description: 'The file system that the managed directory is in.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          limited_by:
+            description: 'The user-group-quota or quota policy that is limiting usage for this user in this
+
+              managed directory.
+
+              This policy defines the total amount of space allowed for this user or this managed
+
+              directory.
+
+              The returned value contains two parts&#58; the name of the policy and the managed directory
+
+              to which the policy is attached.
+
+              '
+            title: UserGroupQuotaLimitedBy
+            allOf:
+            - $ref: '#/components/schemas/UserGroupQuotaLimitedBy'
+          path:
+            description: 'Absolute path of the managed directory in the file system.
+
+              '
+            type: string
+            readOnly: true
+          space:
+            description: 'The logical space owned by the user.
+
+              '
+            title: UserGroupSpace
+            allOf:
+            - $ref: '#/components/schemas/UserGroupSpace'
+          user:
+            description: 'A user which has content in the managed directory.
+
+              '
+            title: UserGroup
+            allOf:
+            - $ref: '#/components/schemas/UserGroup'
+    _space:
+      type: object
+      properties:
+        data_reduction:
+          description: 'The ratio of mapped sectors within a volume versus
+
+            the amount of physical space the data occupies after data compression and deduplication.
+
+            The data reduction ratio does not include thin provisioning savings.
+
+            For example, a data reduction ratio of 5:1 means that
+
+            for every 5 MB the host writes to the array, 1 MB is stored on the array''s flash modules.
+
+            '
+          type: number
+          format: float
+          readOnly: true
+        footprint:
+          description: 'The maximum amount of physical space the container consumes on an array,
+
+            ignoring any data shared outside the container, measured in bytes.
+
+            On Evergreen//One arrays, this is the maximum amount of effective used space.
+
+            The footprint metric is mostly used for capacity planning.
+
+            This field will be null in non-container contexts.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        shared:
+          description: 'The physical space occupied by deduplicated data, meaning that the space is shared with other
+
+            volumes and snapshots as a result of data deduplication.
+
+            Measured in bytes.
+
+            On Evergreen//One arrays, this is the effective space contributed by data that is not unique
+
+            to a specific volume, managed directory, or snapshot, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 111863360624
+        snapshots:
+          description: 'The physical space occupied by data unique to one or more snapshots.
+
+            Measured in bytes.
+
+            On Evergreen//One arrays, this is the effective space contributed by data unique to one or
+
+            more snapshots, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        system:
+          description: 'The physical space occupied by internal array metadata. Measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        thin_provisioning:
+          description: 'The percentage of volume sectors that do not contain host-written data
+
+            because the hosts have not written data to them or the sectors have been explicitly trimmed.
+
+            '
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          readOnly: true
+        total_physical:
+          description: 'This field has been deprecated.
+
+            Use the `total_used` field, as it contains the same information.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        total_provisioned:
+          description: 'The provisioned size of a volume for a single volume, host or host group,
+
+            protocol endpoint, managed directory, and containers can be infinite or measured in bytes.
+
+            Infinite is represented by `null`.
+
+            The provisioned size for a host or host group, includes all volumes
+
+            that are connected to the resource.
+
+            The provisioned size for a protocol endpoint is `null`.
+
+            The provisioned size for a managed directory is the quota limit if it
+
+            or its parent has a managed directory configured, otherwise it defaults to `null`.
+
+            The provisioned size for a container is the sum of the total_provisioned
+
+            of the object it contains, capped by the container''s quota limit
+
+            (or the container''s used_provisioned if current usage is above the quota limit), if any.
+
+            Provisioned size represents the storage capacity reported to hosts.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 19937690345472
+        total_reduction:
+          description: 'The ratio of provisioned sectors within a volume versus
+
+            the amount of physical space the data occupies
+
+            after reduction via data compression and deduplication
+
+            and with thin provisioning savings.
+
+            Total reduction is data reduction with thin provisioning savings.
+
+            For example, a total reduction ratio of 10&#58;1 means that
+
+            for every 10 MB of provisioned space,
+
+            1 MB is stored on the array''s flash modules.
+
+
+            '
+          type: number
+          format: float
+          readOnly: true
+        total_used:
+          description: 'The total space contributed by customer data, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        unique:
+          description: 'The unique physical space occupied by customer data.
+
+            Unique physical space does not include shared space, snapshots, and internal array metadata.
+
+            Measured in bytes.
+
+            On Evergreen//One arrays, this is the effective space contributed by unique customer data,
+
+            measured in bytes.
+
+            Unique data does not include shared space, snapshots, and internal array metadata.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        used_provisioned:
+          description: 'The amount of logical space a container has consumed,
+
+            compared against the quota limit if the container has one configured.
+
+            Used provisioned does not include destroyed objects inside the container.
+
+            Used provisioned can include destroyed objects for a destroyed container
+
+            and represents how much logical space it would take to recover the container.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 19937690345472
+        virtual:
+          description: 'The amount of logically written data that a volume or a snapshot references.
+
+            Measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+    PolicyMember:
+      allOf:
+      - $ref: '#/components/schemas/_policy_member_base'
+      - type: object
+        properties:
+          destroyed:
+            description: 'Returns a value of `true` if the member is destroyed.
+
+              '
+            type: boolean
+            readOnly: true
+          enabled:
+            description: 'Returns a value of `true` if the policy is enabled.
+
+              '
+            type: boolean
+            readOnly: true
+          time_remaining:
+            description: 'The amount of time left, in milliseconds, until the destroyed policy member is
+
+              permanently eradicated.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+    Directory:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          created:
+            description: 'The managed directory creation time, measured in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          destroyed:
+            description: 'Returns a value of `true` if the managed directory has been destroyed and is pending
+
+              eradication.
+
+              The `time_remaining` value displays the amount of time left
+
+              until the destroyed managed directory is permanently eradicated.
+
+              Once the `time_remaining` period has elapsed,
+
+              the managed directory is permanently eradicated and can no longer be recovered.
+
+              '
+            type: boolean
+          directory_name:
+            description: 'The managed directory name without the file system name prefix.
+
+              A full managed directory name is constructed in the form of `FILE_SYSTEM:DIR` where
+
+              `FILE_SYSTEM` is the file system name and `DIR` is the value of this field.
+
+              '
+            type: string
+            readOnly: true
+          file_system:
+            description: 'The file system that this managed directory is in.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          limited_by:
+            description: 'The quota policy that is limiting usage on this managed directory.
+
+              This policy defines the total amount of space provisioned to this managed directory
+
+              and its descendants. The returned value contains two parts&#58; the name of the policy
+
+              and the managed directory to which the policy is attached.
+
+              '
+            title: LimitedBy
+            allOf:
+            - $ref: '#/components/schemas/_limitedBy'
+          path:
+            description: 'Absolute path of the managed directory in the file system.
+
+              '
+            type: string
+            readOnly: true
+          space:
+            description: 'Displays size and space consumption details.
+
+              '
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space'
+          time_remaining:
+            description: 'The amount of time left, measured in milliseconds until the destroyed managed directory is
+
+              permanently eradicated.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationReference'
+    ResourceDirectorySpaceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Displays a list of all items after filtering.
+
+              If applicable, the values are displayed for each name.
+
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceDirectorySpace'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              Where meaningful, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceDirectorySpace'
+    _newName:
+      type: object
+      properties:
+        name:
+          description: The new name for the resource.
+          type: string
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _arrays:
+      type: object
+      properties:
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
+    DirectoriesGroupsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/DirectoriesGroupsResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _arraysBuiltIn:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - $ref: '#/components/schemas/_arrays'
+    DirectoryPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          bytes_per_op:
+            description: 'The average I/O size for both read and write (all) operations.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          bytes_per_read:
+            description: The average I/O size per read, measured in bytes.
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          bytes_per_write:
+            description: The average I/O size per write, measured in bytes.
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          others_per_sec:
+            description: The number of other requests processed per second.
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          read_bytes_per_sec:
+            description: The number of bytes read per second.
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          reads_per_sec:
+            description: The number of read requests processed per second.
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          time:
+            description: 'The time when the sample performance data was taken.
+
+              Measured in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          usec_per_other_op:
+            description: 'The average time it takes the array to process an I/O other request, measured in
+
+              microseconds.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          usec_per_read_op:
+            description: 'The average time it takes the array to process an I/O read request, measured in
+
+              microseconds.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          usec_per_write_op:
+            description: 'The average time it takes the array to process an I/O write request, measured in
+
+              microseconds.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          write_bytes_per_sec:
+            description: The number of bytes written per second.
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          writes_per_sec:
+            description: The number of write requests processed per second.
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+        x-readOnly: true
+    Directory_2:
+      allOf:
+      - $ref: '#/components/schemas/_arraysBuiltIn'
+      - description: 'A managed directory on an array.
+
+          '
+        type: object
+        properties:
+          created:
+            description: Creation time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 1502729489760
+          destroyed:
+            description: 'Is the managed directory destroyed?
+
+              '
+            type: boolean
+            example: false
+          directory_name:
+            description: 'The managed directory name without the file system name prefix.
+
+              A managed directory full name is constructed in the form of `FILE_SYSTEM:DIR` where
+
+              `FILE_SYSTEM` is the file system name and `DIR` is the value of this field.
+
+              On FlashArray versions below `6.0.2`, the value is always `null`.
+
+              '
+            type: string
+            readOnly: true
+          file_system:
+            description: 'The file system that this managed directory is in.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          path:
+            description: 'Absolute path of the managed directory in the file system.
+
+              '
+            type: string
+            readOnly: true
+    DirectoryResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Directory'
+    DirectoriesUsersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/DirectoriesUsersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _policy_member_base:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          member:
+            description: The reference to the resource targeted by the policy.
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+          policy:
+            description: The reference to the policy.
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _serverReference:
+      description: 'An object that is server-aware and can be associated to a server.
+
+        '
+      type: object
+      properties:
+        server:
+          description: 'Reference to the server the object belongs to. When the value is empty or set to `null`
+
+            it means the object lives outside of a server scope.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    PolicyMemberResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            The values are displayed for each name, if meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMember'
+    PolicyMemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    DirectoryLockNlmReclamationResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DirectoryLockNlmReclamation'
+    _fixedReference_2:
+      type: object
+      properties:
+        id:
+          description: The opaque and unique id of this resource.
+          type: string
+          readOnly: true
+          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+        name:
+          description: The name of this resource.
+          type: string
+          readOnly: true
+          example: example_name
+        resource_type:
+          description: 'The type of this resource represented by the name of its REST endpoint.
+
+            For example, "arrays", "network-interfaces", and "metrics".
+
+            The value may be `null` if the resource is not represented.
+
+            '
+          type: string
+          readOnly: true
+          example: example_resource_type
+      x-readOnly: true
+    DirectoryLockNlmReclamation:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          end:
+            description: 'End time of the NLM reclamation in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          start:
+            description: 'Start time of the NLM reclamation in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+    PolicyMemberExportResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            The values are displayed for each name, if meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberExport'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    _referenceWithFixedType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+    DirectoryResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Directory_2'
+    PolicyMemberExport:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/ExportPolicyAttachmentMixin'
+      - $ref: '#/components/schemas/_serverReference'
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    ExportPolicyAttachmentMixin:
+      type: object
+      properties:
+        enabled:
+          description: 'Returns a value of `true` if and only if the export policy that manages this
+
+            export is enabled AND this export is enabled.
+
+            '
+          type: boolean
+          readOnly: true
+        export_name:
+          description: 'The export name for accessing this export.
+
+            '
+          type: string
+        status:
+          description: 'Explains why `enabled` is `false`, or whether there is a name conflict with
+
+            another export. Valid values include `policy_disabled`, `export_disabled`, and
+
+            `name_conflict`.
+
+            '
+          type: string
+          readOnly: true
+    _workloadConfigurationReferencePatch:
+      type: object
+      description: 'The instruction for removing the resource from the workload. Setting the `id` or `name` of the
+
+        workload to an empty string (`""`) removes the resource.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithFixedType'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _workloadConfigurationReference:
+      type: object
+      description: 'A reference to the workload that is managing this resource.
+
+        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithFixedType'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
+
+              '
+            type: string
+    DirectoryGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/DirectoryResponse_2'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    UserGroupSpace:
+      type: object
+      properties:
+        dynamic_limit:
+          description: The total logical space that usage can grow before it reaches an enforced user-group-quota or directory quota limit. This depends on all the policies impacting usage and potentially usage in ancestor and descendent directories. The limit is measured in bytes.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 10737418240
+        total_used:
+          description: 'The total logical space owned by the user or group in the managed directory and descendent
+
+            directories. The usage is measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+          example: 10737418240
+      x-readOnly: true
+    DirectoryGroup:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          directory_name:
+            description: 'The managed directory name without the file system name prefix.
+
+              A full managed directory name is constructed in the form of `FILE_SYSTEM:DIR` where
+
+              `FILE_SYSTEM` is the file system name and `DIR` is the value of this field.
+
+              '
+            type: string
+            readOnly: true
+          file_system:
+            description: 'The file system that the managed directory occupies.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          group:
+            description: 'A group which has content in the managed directory.
+
+              '
+            title: UserGroup
+            allOf:
+            - $ref: '#/components/schemas/UserGroup'
+          limited_by:
+            description: 'The user-group-quota or quota policy that is limiting usage for this group in this
+
+              managed directory.
+
+              This policy defines the total amount of space allowed for this group or this managed
+
+              directory.
+
+              The returned value contains two parts&#58; the name of the policy and the managed directory
+
+              to which the policy is attached.
+
+              '
+            title: UserGroupQuotaLimitedBy
+            allOf:
+            - $ref: '#/components/schemas/UserGroupQuotaLimitedBy'
+          path:
+            description: 'Absolute path of the managed directory in the file system.
+
+              '
+            type: string
+            readOnly: true
+          space:
+            description: 'The logical space owned by the group.
+
+              '
+            title: UserGroupSpace
+            allOf:
+            - $ref: '#/components/schemas/UserGroupSpace'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
+    PolicyMemberExportGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberExportResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    DirectoryPolicyPost:
+      type: object
+      properties:
+        policies:
+          description: 'A list of policies to apply to the resource.
+
+            The `id` or `name` field in each `policy` parameter is required,
+
+            but they cannot be set together.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_directorypolicypostPolicies'
+    DirectoriesGroupsResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/DirectoryGroup'
+    DirectoryGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/DirectoryResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              When applicable, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/Directory'
+    DirectoryPerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Performance data.
+
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/DirectoryPerformance'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              When it makes sense, the average value is displayed instead.
+
+              The values are displayed for each field if meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/DirectoryPerformance'
+    DirectoryPolicyExportPost:
+      type: object
+      properties:
+        policies:
+          description: 'A list of export policies to apply to the directory.
+
+            The `id` and `name` fields in each `policy` parameter are required,
+
+            but cannot be set together.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_directorypolicyexportpostPolicies'
+    DirectoriesUsersResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/DirectoryUser'
+    _limitedBy:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource to which the effective quota policy is attached.
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        policy:
+          description: Reference to the effective quota policy.
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+      x-readOnly: true
+    DirectoryPatch:
+      allOf:
+      - $ref: '#/components/schemas/_newName'
+      - type: object
+        properties:
+          directory_name:
+            description: 'The managed directory name without the file system name prefix.
+
+              A full managed directory name is constructed in the form of `FILE_SYSTEM:DIR` where
+
+              `FILE_SYSTEM` is the file system name and `DIR` is the value of this field.
+
+              '
+            type: string
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationReferencePatch'
+    _directorypolicypostPolicies:
+      type: object
+      properties:
+        policy:
+          description: Reference to the policy to apply to the resource.
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+  parameters:
+    User_names:
+      name: user_names
+      in: query
+      description: 'Performs the operation on the users that match the given list of user names.
+
+        Enter names in a comma-separated format, for example, `u1,u2`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    File_system_names:
+      name: file_system_names
+      in: query
+      description: 'Performs the operation on the file system name specified.
+
+        Enter multiple file system names in comma-separated format.
+
+        For example, `filesystem01,filesystem02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Workload_ids:
+      name: workload_ids
+      in: query
+      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `workload_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    History_start_time:
+      name: start_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Group_quota_gids:
+      name: group_ids
+      in: query
+      description: 'Performs the operation on the groups that match the given list of gids.
+
+        Enter names in a comma-separated format, e.g., `2001,2002`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int64
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    User_quota_uids:
+      name: user_ids
+      in: query
+      description: 'Performs the operation on the users that match the given list of uids.
+
+        Enter names in a comma-separated format, for example, `1001,1002`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int64
+    Group_names:
+      name: group_names
+      in: query
+      description: 'Performs the operation on the unique group name specified.
+
+        Examples of groups include host groups, pods, protection groups, and volume groups.
+
+        Enter multiple names in comma-separated format. For example, `hgroup01,hgroup02`.
+
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    User_sids:
+      name: user_sids
+      in: query
+      description: 'Performs the operation on the users that match the given list of user SIDs.
+
+        Enter SIDs in a comma-separated format, for example, `S-1-1-20-1000,S-1-1-20-2002`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'Performs the operation on the unique policy IDs specified.
+
+        Enter multiple policy IDs in comma-separated format.
+
+        The `policy_ids` or `policy_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Group_sids:
+      name: group_sids
+      in: query
+      description: 'Performs the operation on the specified group SID.
+
+        Enter multiple group SIDs in comma-separated format.
+
+        For example, `S-1-2-532-582374278-329482934,S-1-2-532-234235245-423425234`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Policy_fqnames:
+      name: policy_names
+      in: query
+      description: 'Performs the operation on the policy names specified.
+
+        Enter multiple policy names in comma-separated format.
+
+        The name is expected to be fully qualified, meaning if the object is contained in some context,
+
+        the corresponding name would provide complete information about the containment hierarchy.
+
+        For example, `policy01,pod01::policy01`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'Performs the operation on the unique member name specified.
+
+        Examples of members include volumes, hosts, host groups, and directories.
+
+        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Server_fqnames:
+      name: server_names
+      in: query
+      description: 'Server names providing the context for the operation.
+
+        Names are expected to be fully qualified, meaning if the object is contained in some context,
+
+        the corresponding name would provide complete information about the containment hierarchy.
+
+        For example, `server01,server02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Add_to_policy_names_directory:
+      name: add_to_policy_names
+      in: query
+      description: 'The managed directories will become members of the specified policies
+
+        along with creation.
+
+        Enter multiple names in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    File_system_ids:
+      name: file_system_ids
+      in: query
+      description: 'Performs the operation on the file system ID specified.
+
+        Enter multiple file system IDs in comma-separated format.
+
+        The `file_system_ids` or `file_system_names` parameter is required,
+
+        but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    File_system_names_2:
+      name: file_system_names
+      in: query
+      description: 'Performs the operation on the file system name specified.
+
+        Enter multiple file system names in comma-separated format.
+
+        For example, `filesystem1,filesystem2`.
+
+        The `file_system_ids` and `file_system_names` parameters cannot be provided together.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ignore_usage:
+      name: ignore_usage
+      in: query
+      description: 'Flag used to override checks for quota management operations.
+
+        If set to `true`, directory usage is not checked against the `quota_limits` that are set.
+
+        If set to `false`, the actual logical bytes in use are prevented from exceeding
+
+        the limits set on the directory. Client operations might be impacted.
+
+        If the limit exceeds the quota, the client operation is not allowed.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    History_end_time:
+      name: end_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'Performs the operation on the policy names specified.
+
+        Enter multiple policy names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Perf_protocol_type:
+      name: protocol
+      in: query
+      description: 'Protocol type. Valid values are `nfs`, `smb`, `s3`, and `all`.
+
+        '
+      schema:
+        type: string
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'Performs the operation on the unique member IDs specified.
+
+        Enter multiple member IDs in comma-separated format.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    With_default_protection_policy_directory:
+      name: with_default_protection
+      in: query
+      description: 'If specified as `true`, the initial protection of the newly created managed directories will be
+
+        the union of the container default protection policies thatare not already applied to any of
+
+        their ancestors, and either `add_to_policy_names` or `add_to_policy_ids`.
+
+        If specified as `false`, the default protection of the container will not be applied
+
+        automatically. The initial protection of the newly created managed directories will be configured
+
+        by either `add_to_policy_names` or `add_to_policy_ids`.
+
+        If not specified, defaults to `true`.
+
+        '
+      schema:
+        type: boolean
+    Workload_names:
+      name: workload_names
+      in: query
+      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `workload_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ignore_usageUserGroupQuota:
+      name: ignore_usage
+      in: query
+      description: 'Flag used to override checks for user-group-quota management operations.
+
+        If set to `true`, user/group usage is not checked against the `quota_limits` of
+
+        user-group-quota rules.
+
+        If set to `false`, the impact of the user-group-quota operation is checked against the
+
+        user/group usage in the managed directory and its ancestors and the operation is not
+
+        allowed if the user/group usage would exceed any enforced user-group-quota limits.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    History_resolution:
+      name: resolution
+      in: query
+      description: 'The number of milliseconds between samples of historical data.
+
+        For array-wide performance metrics (`/arrays/performance` endpoint),
+
+        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
+
+        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For performance metrics on storage objects (`<object name>/performance` endpoint),
+
+        such as volumes,
+
+        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
+
+        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For space metrics, (`<object name>/space` endpoint),
+
+        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
+
+        `28800000` (8 hours), and `86400000` (24 hours).
+
+        Include the `start_time` parameter to display the performance data
+
+        starting at the specified start time.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        Include the `end_time` parameter to display the performance data until the specified end time.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        If the `resolution` parameter is not specified
+
+        but either the `start_time` or `end_time` parameter is,
+
+        then `resolution` will default to the lowest valid resolution.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Perf_protocol_group:
+      name: protocol_group
+      in: query
+      description: 'Protocol group type. Valid values are `block`, `file`, `object-store`, and `all`.
+
+        '
+      schema:
+        type: string
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    File_system_ids_2:
+      name: file_system_ids
+      in: query
+      description: 'Performs the operation on the file system ID specified.
+
+        Enter multiple file system IDs in comma-separated format.
+
+        The `file_system_ids` and `file_system_names` parameters cannot be provided together.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Add_to_policy_ids_directory:
+      name: add_to_policy_ids
+      in: query
+      description: 'The managed directories will become members of the specified policies along with creation.
+
+        Enter multiple ids in comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Server_ids:
+      name: server_ids
+      in: query
+      description: 'A comma-separated list of server IDs.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
+  responses:
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
+    Error400:
+      description: BAD REQUEST
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error429:
+      description: TOO MANY REQUESTS
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
+    Error500:
+      description: INTERNAL SERVER ERROR
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

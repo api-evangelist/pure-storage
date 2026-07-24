@@ -1,0 +1,1122 @@
+openapi: 3.0.1
+info:
+  title: FlashArray REST Active Directory API Clients API
+  version: '2.52'
+  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+
+    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+
+    mapping identities across the NFS and SMB protocols by using LDAP queries.
+
+    '
+servers:
+- url: /
+tags:
+- name: API Clients
+  description: 'An API client represents an identity type. API clients are created on the array.
+
+    To create an API client, register and then enable it on the array.
+
+    After the API client has been created, the user name (`sub`) and identity tokens (`kid` and
+
+    `aud` tokens) that are issued by the API client are used as claims for the JSON Web Token
+
+    that you create to authenticate into the REST API.
+
+    '
+paths:
+  /api/2.52/api-clients:
+    get:
+      tags:
+      - API Clients
+      summary: Pure Storage List API Clients
+      description: 'Displays a list of API clients.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Total_item_count'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiClientGetResponse'
+    post:
+      tags:
+      - API Clients
+      summary: Pure Storage Create an API Client
+      description: 'Creates an API client. Newly created API clients are disabled by default.
+
+        Enable an API client through the `PATCH` method.
+
+        The `names`, `issuer`, and `public_key` parameters are required.
+
+        The `access_policies` or `max_role` parameter is required, but they cannot be set together.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiClientPost'
+        required: true
+        x-codegen-request-body-name: API clients
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiClientResponse'
+      x-codegen-request-body-name: API clients
+    delete:
+      tags:
+      - API Clients
+      summary: Pure Storage Delete an API Client
+      description: 'Deletes an API client.
+
+        The `ids` or `names` parameter is required, but they cannot be set together.
+
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Names'
+      responses:
+        '200':
+          description: OK
+          content: {}
+    patch:
+      tags:
+      - API Clients
+      summary: Pure Storage Manage an API Client
+      description: 'Enables or disables an API client.
+
+        The `ids` or `names` parameter is required, but they cannot be set together.
+
+        '
+      parameters:
+      - $ref: '#/components/parameters/Authorization'
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiClientPatch'
+        required: true
+        x-codegen-request-body-name: API clients
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiClientResponse'
+      x-codegen-request-body-name: API clients
+  /api/2.26/api-clients:
+    get:
+      tags:
+      - API Clients
+      summary: Pure Storage GET Api-clients
+      description: List an API client and its configuration attributes.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Continuation_token'
+      - $ref: '#/components/parameters/Filter'
+      - $ref: '#/components/parameters/Ids_2'
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Names'
+      - $ref: '#/components/parameters/Offset_2'
+      - $ref: '#/components/parameters/Sort_2'
+      responses:
+        '200':
+          description: 'Returns a list of API clients.
+
+            '
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiClientsResponse'
+    post:
+      tags:
+      - API Clients
+      summary: Pure Storage POST Api-clients
+      description: Create an API client to authorize Access Token or Bearer Tokens for use on the array. Required fields include `issuer`, `public_key`, and `access_token_ttl_in_ms`. After creating an API client, it can only be enabled by an authorized user.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiClientsPost'
+        required: true
+        x-codegen-request-body-name: api-client
+      responses:
+        '200':
+          description: 'Returns the new api-clients. All new api-clients are disabled.
+
+            An authorized party must patch the api-clients to be enabled, which signifies
+
+            the api-clients are now trusted and authorized to issue id tokens for this
+
+            array.
+
+            '
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiClientsResponse'
+      x-codegen-request-body-name: api-client
+    delete:
+      tags:
+      - API Clients
+      summary: Pure Storage DELETE Api-clients
+      description: Delete the API client.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids_2'
+      - $ref: '#/components/parameters/Names'
+      responses:
+        '200':
+          description: 'OK
+
+            '
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content: {}
+    patch:
+      tags:
+      - API Clients
+      summary: Pure Storage PATCH Api-clients
+      description: Modify an API client. Newly created API clients can be enabled by setting the `enabled` parameter to `true`.
+      parameters:
+      - $ref: '#/components/parameters/XRequestId'
+      - $ref: '#/components/parameters/Ids_2'
+      - $ref: '#/components/parameters/Names'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiClient_2'
+        required: true
+        x-codegen-request-body-name: api-clients
+      responses:
+        '200':
+          description: Returns the patched api-clients.
+          headers:
+            X-Request-ID:
+              description: Supplied by client during request or generated by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiClientsResponse'
+      x-codegen-request-body-name: api-clients
+components:
+  schemas:
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+    ApiClientPatch:
+      type: object
+      properties:
+        enabled:
+          description: 'Returns a value of `true` if the API client is permitted to exchange ID
+
+            tokens for access tokens.
+
+            API clients are disabled by default.
+
+            '
+          type: boolean
+          example: true
+    ApiClientPost:
+      type: object
+      properties:
+        access_policies:
+          description: 'The access policies allowed for ID Tokens issued by this API client.
+
+            The bearer of an access token will be authorized to perform actions
+
+            within the intersection of these policies and those of the array
+
+            user specified as the JWT `sub` (subject) claim.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWithType'
+        access_token_ttl_in_ms:
+          description: 'The TTL (Time To Live) length of time for the exchanged access token.
+
+            Measured in milliseconds. If not specified, defaults to `86400000`.
+
+            '
+          type: integer
+          format: int64
+          example: 15000
+          x-minimum: 1000
+          x-maximum: 86400000
+        issuer:
+          description: 'The name of the identity provider that will be issuing ID Tokens for this API client.
+
+            The `iss` claim in the JWT issued must match this string.
+
+            If not specified, defaults to the API client name.
+
+            '
+          type: string
+          example: https://purestorage.idp.okta.com
+        max_role:
+          description: 'Deprecated. The maximum Admin Access Policy (previously ''role'') allowed for ID
+
+            Tokens issued by this API client. The bearer of an access token will be
+
+            authorized to perform actions within the intersection of this policy and
+
+            that of the array user specified as the JWT `sub` (subject) claim.
+
+            `max_role` is deprecated in favor of `access_policies`, but remains for backwards
+
+            compatibility. If `max_role` is the name of a valid legacy role, it will be
+
+            interpreted as the corresponding access policy of the same name.
+
+            Otherwise, it''s invalid.
+
+            '
+          type: string
+          example: storage_admin
+        public_key:
+          description: 'The API client''s PEM formatted (Base64 encoded) RSA public key.
+
+            Include the `-----BEGIN PUBLIC KEY-----` and `-----END PUBLIC KEY-----` lines.
+
+            '
+          type: string
+          example: '-----BEGIN PUBLIC KEY-----
+
+            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArSe6chh1JzME9svOKjU0
+
+            eKTm8S23Ok3Vr2bWuPri/YHfLrlnRwWoCt+st0/BebKSJ+fQUWOaLlqpZQKpI8oR
+
+            gJ9sWmwGibVG8cTuz7XMkskx9bsm/bjIenuB4W+s3g0BCsi9930mfdKgJgFzY69O
+
+            nLh7d7hAFcmhSJa945PryQZpvJ/U4Ue5F4d+WXgEJ0SoSRaZ6bbeMPhcbMHTzTum
+
+            2ZrPBkK5cqPYitaso6BXeAlqNQPw4Kbu4Ugm0CTogrtImkwoonWDDP34XMOq+u7q
+
+            sNTbJSvDKMTM1RPPrTWCaLiuZkdLVEVesZ9/8+XUMIgBTElwQJDCAQer03MJzqRr
+
+            1eCZGgLfDuYqwMG2MFaAX7kgqBwwyqRTd6MxaQxt2nkdfwiXSY71llzEQ23g3T+1
+
+            64zjwAL5f+dtu8PkGF7IdU2T8P2Qk9bG9pckwZHWYkBK77BAk5jbmSzsKGZgRb2R
+
+            1E+TWDKIaveFhQp251j/C5wkZwMXgjOzN+BOPo+OiLBGUl+jRybWA9f7Vq1MEdf6
+
+            SEdLiqYrXcZERkYBMieLXAfdtaztAIb96cUu+OKMSLDk+D0GHkUfm7lEbDK3ew1+
+
+            D6z+BnxDyH6oqZzz4lS2kPLBLsc+6pdTGuKLf0S9YuLiqJe659AdwU8+X/3KtwNd
+
+            FVJSaxdFbWx0nj3hJqFkIO8CAwEAAQ==
+
+            -----END PUBLIC KEY-----
+
+            '
+    ApiClient:
+      type: object
+      properties:
+        access_policies:
+          description: 'The access policies allowed for ID Tokens issued by this API client.
+
+            The bearer of an access token will be authorized to perform actions
+
+            within the intersection of these policies and those of the array
+
+            user specified as the JWT `sub` (subject) claim.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReferenceWithType'
+        access_token_ttl_in_ms:
+          description: 'The requested TTL (Time To Live) length of time for the exchanged access token,
+
+            measured in milliseconds.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 15000
+          x-minimum: 1000
+          x-maximum: 86400000
+        enabled:
+          description: 'If `true`, the API client is permitted to exchange ID Tokens for access tokens.
+
+            API clients are disabled by default.
+
+            '
+          type: boolean
+          readOnly: true
+          example: true
+        id:
+          description: 'The unique identifier for the associated API client.
+
+            The ID represents the JWT `aud` (audience) claim in ID Tokens issued for this API client.
+
+            '
+          type: string
+          readOnly: true
+          example: 6207d123-d123-0b5c-5fa1-95fabc5c7123
+        issuer:
+          description: 'The name of the identity provider that will be issuing ID Tokens for this API client.
+
+            This string represents the JWT `iss` (issuer) claim in ID Tokens issued for this API client.
+
+            '
+          type: string
+          readOnly: true
+          example: https://purestorage.idp.okta.com
+        key_id:
+          description: 'The unique identifier for the associated public key of this API client.
+
+            This string must match the JWT `kid` (key ID) claim in ID Tokens issued for this API client.
+
+            '
+          type: string
+          readOnly: true
+          example: 6207d123-d123-0b5c-5fa1-95fabc5c7123
+        max_role:
+          description: 'This field has been deprecated.
+
+            The maximum Admin Access Policy (previously ''role'') allowed for ID
+
+            Tokens issued by this API client. The bearer of an access token will be
+
+            authorized to perform actions within the intersection of this policy and
+
+            that of the array user specified as the JWT `sub` (subject) claim.
+
+            `max_role` is deprecated in favor of `access_policies`, but remains for backwards
+
+            compatibility. If a client has exactly one access policy which corresponds to a
+
+            valid legacy role of the same name, `max_role` will be the name of that policy.
+
+            Otherwise, it will be null.
+
+            '
+          type: string
+          readOnly: true
+          example: storage_admin
+        name:
+          description: 'The API client name.
+
+            '
+          type: string
+          readOnly: true
+          example: NightlyStatsAggregationScript
+        public_key:
+          description: 'The API client''s PEM formatted (Base64 encoded) RSA public key.
+
+            '
+          type: string
+          readOnly: true
+          example: '-----BEGIN PUBLIC KEY-----
+
+            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArSe6chh1JzME9svOKjU0
+
+            eKTm8S23Ok3Vr2bWuPri/YHfLrlnRwWoCt+st0/BebKSJ+fQUWOaLlqpZQKpI8oR
+
+            gJ9sWmwGibVG8cTuz7XMkskx9bsm/bjIenuB4W+s3g0BCsi9930mfdKgJgFzY69O
+
+            nLh7d7hAFcmhSJa945PryQZpvJ/U4Ue5F4d+WXgEJ0SoSRaZ6bbeMPhcbMHTzTum
+
+            2ZrPBkK5cqPYitaso6BXeAlqNQPw4Kbu4Ugm0CTogrtImkwoonWDDP34XMOq+u7q
+
+            sNTbJSvDKMTM1RPPrTWCaLiuZkdLVEVesZ9/8+XUMIgBTElwQJDCAQer03MJzqRr
+
+            1eCZGgLfDuYqwMG2MFaAX7kgqBwwyqRTd6MxaQxt2nkdfwiXSY71llzEQ23g3T+1
+
+            64zjwAL5f+dtu8PkGF7IdU2T8P2Qk9bG9pckwZHWYkBK77BAk5jbmSzsKGZgRb2R
+
+            1E+TWDKIaveFhQp251j/C5wkZwMXgjOzN+BOPo+OiLBGUl+jRybWA9f7Vq1MEdf6
+
+            SEdLiqYrXcZERkYBMieLXAfdtaztAIb96cUu+OKMSLDk+D0GHkUfm7lEbDK3ew1+
+
+            D6z+BnxDyH6oqZzz4lS2kPLBLsc+6pdTGuKLf0S9YuLiqJe659AdwU8+X/3KtwNd
+
+            FVJSaxdFbWx0nj3hJqFkIO8CAwEAAQ==
+
+            -----END PUBLIC KEY-----
+
+            '
+      x-readOnly: true
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    ApiClient_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - description: 'API client used for OAuth.
+
+          '
+        type: object
+        properties:
+          access_policies:
+            description: 'The access policies allowed for ID Tokens issued by this API client.
+
+              The bearer of an access token will be authorized to perform actions
+
+              within the intersection of these policies and those of the array
+
+              user specified as the JWT `sub` (subject) claim.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReference_2'
+            readOnly: true
+          access_token_ttl_in_ms:
+            description: 'The TTL (Time To Live) duration for which the exchanged access token is valid.
+
+              Measured in milliseconds.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 15000
+            x-minimum: 1000
+            x-maximum: 86400000
+          enabled:
+            description: 'If `true`, the API client is permitted to exchange ID Tokens for access tokens.
+
+              API clients are disabled by default.
+
+              '
+            type: boolean
+            example: true
+          issuer:
+            description: 'The name of the identity provider that will be issuing ID Tokens for this API client.
+
+              This string represents the JWT `iss` (issuer) claim in ID Tokens issued for this API client.
+
+              '
+            type: string
+            readOnly: true
+            example: http://purestorage.idp.okta.com
+          key_id:
+            description: 'The unique identifier for the associated public key of this API client.
+
+              This string must match the JWT `kid` (key ID) claim in ID Tokens issued for this API client.
+
+              '
+            type: string
+            readOnly: true
+            example: 6207d123-d123-0b5c-5fa1-95fabc5c7123
+          max_role:
+            description: 'Deprecated. The maximum Admin Access Policy (previously ''role'') allowed for ID
+
+              Tokens issued by this API client. The bearer of an access token will be
+
+              authorized to perform actions within the intersection of this policy and
+
+              that of the array user specified as the JWT `sub` (subject) claim.
+
+              `max_role` is deprecated in favor of `access_policies`, but remains for backwards
+
+              compatibility. If a client has exactly one access policy which corresponds to a
+
+              valid legacy role of the same name, `max_role` will be a reference to that role.
+
+              Otherwise, it will be `null`.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          public_key:
+            description: 'The API client''s PEM formatted (Base64 encoded) RSA public key.
+
+              '
+            type: string
+            readOnly: true
+            example: '-----BEGIN PUBLIC KEY-----
+
+              MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArSe6chh1JzME9svOKjU0
+
+              eKTm8S23Ok3Vr2bWuPri/YHfLrlnRwWoCt+st0/BebKSJ+fQUWOaLlqpZQKpI8oR
+
+              gJ9sWmwGibVG8cTuz7XMkskx9bsm/bjIenuB4W+s3g0BCsi9930mfdKgJgFzY69O
+
+              nLh7d7hAFcmhSJa945PryQZpvJ/U4Ue5F4d+WXgEJ0SoSRaZ6bbeMPhcbMHTzTum
+
+              2ZrPBkK5cqPYitaso6BXeAlqNQPw4Kbu4Ugm0CTogrtImkwoonWDDP34XMOq+u7q
+
+              sNTbJSvDKMTM1RPPrTWCaLiuZkdLVEVesZ9/8+XUMIgBTElwQJDCAQer03MJzqRr
+
+              1eCZGgLfDuYqwMG2MFaAX7kgqBwwyqRTd6MxaQxt2nkdfwiXSY71llzEQ23g3T+1
+
+              64zjwAL5f+dtu8PkGF7IdU2T8P2Qk9bG9pckwZHWYkBK77BAk5jbmSzsKGZgRb2R
+
+              1E+TWDKIaveFhQp251j/C5wkZwMXgjOzN+BOPo+OiLBGUl+jRybWA9f7Vq1MEdf6
+
+              SEdLiqYrXcZERkYBMieLXAfdtaztAIb96cUu+OKMSLDk+D0GHkUfm7lEbDK3ew1+
+
+              D6z+BnxDyH6oqZzz4lS2kPLBLsc+6pdTGuKLf0S9YuLiqJe659AdwU8+X/3KtwNd
+
+              FVJSaxdFbWx0nj3hJqFkIO8CAwEAAQ==
+
+              -----END PUBLIC KEY-----
+
+              '
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    ApiClientsResponse:
+      type: object
+      properties:
+        items:
+          description: A list of API client objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiClient_2'
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    ApiClientsPost:
+      type: object
+      required:
+      - public_key
+      properties:
+        access_policies:
+          description: 'The access policies allowed for ID Tokens issued by this API client.
+
+            The bearer of an access token will be authorized to perform actions
+
+            within the intersection of these policies and those of the array
+
+            user specified as the JWT `sub` (subject) claim.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWritable'
+        access_token_ttl_in_ms:
+          description: 'The TTL (Time To Live) duration for which the exchanged access token is valid.
+
+            Measured in milliseconds. If not specified, defaults to `86400000`.
+
+            '
+          type: integer
+          format: int64
+          example: 15000
+          x-minimum: 1000
+          x-maximum: 86400000
+        issuer:
+          description: 'The name of the identity provider that will be issuing ID Tokens for this API client.
+
+            The `iss` claim in the JWT issued must match this string.
+
+            If not specified, defaults to the API client name.
+
+            '
+          type: string
+          example: https://purestorage.idp.okta.com
+        max_role:
+          description: 'Deprecated. The maximum Admin Access Policy (previously ''role'') allowed for ID
+
+            Tokens issued by this API client. The bearer of an access token will be
+
+            authorized to perform actions within the intersection of this policy and
+
+            that of the array user specified as the JWT `sub` (subject) claim.
+
+            `max_role` is deprecated in favor of `access_policies`, but remains for backwards
+
+            compatibility. If a client has exactly one access policy which corresponds to a
+
+            valid legacy role of the same name, `max_role` will be a reference to that role.
+
+            Otherwise, it will be `null`.
+
+            '
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
+        public_key:
+          description: 'The API client''s PEM formatted (Base64 encoded) RSA public key.
+
+            It must include the `-----BEGIN PUBLIC KEY-----` and `-----END PUBLIC KEY-----` lines.
+
+            '
+          type: string
+          example: '-----BEGIN PUBLIC KEY-----
+
+            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArSe6chh1JzME9svOKjU0
+
+            eKTm8S23Ok3Vr2bWuPri/YHfLrlnRwWoCt+st0/BebKSJ+fQUWOaLlqpZQKpI8oR
+
+            gJ9sWmwGibVG8cTuz7XMkskx9bsm/bjIenuB4W+s3g0BCsi9930mfdKgJgFzY69O
+
+            nLh7d7hAFcmhSJa945PryQZpvJ/U4Ue5F4d+WXgEJ0SoSRaZ6bbeMPhcbMHTzTum
+
+            2ZrPBkK5cqPYitaso6BXeAlqNQPw4Kbu4Ugm0CTogrtImkwoonWDDP34XMOq+u7q
+
+            sNTbJSvDKMTM1RPPrTWCaLiuZkdLVEVesZ9/8+XUMIgBTElwQJDCAQer03MJzqRr
+
+            1eCZGgLfDuYqwMG2MFaAX7kgqBwwyqRTd6MxaQxt2nkdfwiXSY71llzEQ23g3T+1
+
+            64zjwAL5f+dtu8PkGF7IdU2T8P2Qk9bG9pckwZHWYkBK77BAk5jbmSzsKGZgRb2R
+
+            1E+TWDKIaveFhQp251j/C5wkZwMXgjOzN+BOPo+OiLBGUl+jRybWA9f7Vq1MEdf6
+
+            SEdLiqYrXcZERkYBMieLXAfdtaztAIb96cUu+OKMSLDk+D0GHkUfm7lEbDK3ew1+
+
+            D6z+BnxDyH6oqZzz4lS2kPLBLsc+6pdTGuKLf0S9YuLiqJe659AdwU8+X/3KtwNd
+
+            FVJSaxdFbWx0nj3hJqFkIO8CAwEAAQ==
+
+            -----END PUBLIC KEY-----
+
+            '
+    ApiClientResponse:
+      type: object
+      properties:
+        items:
+          description: 'Returns a list of all items after filtering.
+
+            The values are displayed for each name, where meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiClient'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    ApiClientGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ApiClientResponse'
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+  parameters:
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
