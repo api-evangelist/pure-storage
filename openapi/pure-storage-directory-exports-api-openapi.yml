@@ -1,33 +1,24 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Directory Exports API
+  title: FlashArray REST Directory Exports API
   version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+  description: 'Managed directory exports are created by adding NFS or SMB export policies to managed
 
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+    directories.'
 servers:
 - url: /
 tags:
 - name: Directory Exports
   description: 'Managed directory exports are created by adding NFS or SMB export policies to managed
 
-    directories.
-
-    '
+    directories.'
 paths:
   /api/2.52/directory-exports:
     get:
       tags:
       - Directory Exports
       summary: Pure Storage List Directory Exports
-      description: 'Displays a list of directory exports.
-
-
-        '
+      description: Displays a list of directory exports.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -67,6 +58,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DirectoryExportGetResponse'
+      operationId: getApi252DirectoryExports
+      x-operation-id-source: derived
     post:
       tags:
       - Directory Exports
@@ -85,9 +78,7 @@ paths:
 
         parameters—specifically, the `server` and `export_name`. All identifying parameters must
 
-        always be provided, either explicitly or as part of the fully qualified name.
-
-        '
+        always be provided, either explicitly or as part of the fully qualified name.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -112,6 +103,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/DirectoryExportResponse'
       x-codegen-request-body-name: exports
+      operationId: postApi252DirectoryExports
+      x-operation-id-source: derived
     delete:
       tags:
       - Directory Exports
@@ -132,10 +125,7 @@ paths:
 
         identifying parameters must always be provided, either explicitly or as part of the
 
-        fully qualified name.
-
-
-        '
+        fully qualified name.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -152,6 +142,8 @@ paths:
         '200':
           description: OK
           content: {}
+      operationId: deleteApi252DirectoryExports
+      x-operation-id-source: derived
     patch:
       tags:
       - Directory Exports
@@ -170,10 +162,7 @@ paths:
 
         parameters—specifically, the `server` and `export_name`. All identifying parameters must
 
-        always be provided, either explicitly or as part of the fully qualified name.
-
-
-        '
+        always be provided, either explicitly or as part of the fully qualified name.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -201,45 +190,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/DirectoryExportResponse'
       x-codegen-request-body-name: export
+      operationId: patchApi252DirectoryExports
+      x-operation-id-source: derived
 components:
   parameters:
-    Export_names:
-      name: export_names
-      in: query
-      description: 'Performs the operation on the export names specified. Enter multiple names in comma-separated
-
-        format. For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Directory_export_fqnames:
       name: names
       in: query
@@ -260,27 +214,27 @@ components:
         type: array
         items:
           type: string
-    Allow_errors:
-      name: allow_errors
+    Sort:
+      name: sort
       in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
       schema:
-        type: boolean
-        default: false
-    Policy_ids:
-      name: policy_ids
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Server_fqnames:
+      name: server_names
       in: query
-      description: 'Performs the operation on the unique policy IDs specified.
+      description: 'Server names providing the context for the operation.
 
-        Enter multiple policy IDs in comma-separated format.
+        Names are expected to be fully qualified, meaning if the object is contained in some context,
 
-        The `policy_ids` or `policy_names` parameter is required, but they cannot be set together.
+        the corresponding name would provide complete information about the containment hierarchy.
+
+        For example, `server01,server02`.
 
         '
       style: form
@@ -289,6 +243,33 @@ components:
         type: array
         items:
           type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Continuation_token:
       name: continuation_token
       in: query
@@ -311,6 +292,189 @@ components:
         '
       schema:
         type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
+    Export_names:
+      name: export_names
+      in: query
+      description: 'Performs the operation on the export names specified. Enter multiple names in comma-separated
+
+        format. For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Workload_ids:
+      name: workload_ids
+      in: query
+      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `workload_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Directory_ids:
+      name: directory_ids
+      in: query
+      description: 'Performs the operation on the unique managed directory IDs specified.
+
+        Enter multiple managed directory IDs in comma-separated format.
+
+        The `directory_ids` or `directory_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Server_ids:
+      name: server_ids
+      in: query
+      description: 'A comma-separated list of server IDs.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Policy_fqnames:
+      name: policy_names
+      in: query
+      description: 'Performs the operation on the policy names specified.
+
+        Enter multiple policy names in comma-separated format.
+
+        The name is expected to be fully qualified, meaning if the object is contained in some context,
+
+        the corresponding name would provide complete information about the containment hierarchy.
+
+        For example, `policy01,pod01::policy01`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Directory_fqnames:
       name: directory_names
       in: query
@@ -355,155 +519,6 @@ components:
         type: array
         items:
           type: string
-    Workload_ids:
-      name: workload_ids
-      in: query
-      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `workload_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Directory_ids:
-      name: directory_ids
-      in: query
-      description: 'Performs the operation on the unique managed directory IDs specified.
-
-        Enter multiple managed directory IDs in comma-separated format.
-
-        The `directory_ids` or `directory_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Policy_fqnames:
-      name: policy_names
-      in: query
-      description: 'Performs the operation on the policy names specified.
-
-        Enter multiple policy names in comma-separated format.
-
-        The name is expected to be fully qualified, meaning if the object is contained in some context,
-
-        the corresponding name would provide complete information about the containment hierarchy.
-
-        For example, `policy01,pod01::policy01`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Server_ids:
-      name: server_ids
-      in: query
-      description: 'A comma-separated list of server IDs.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
     Workload_names:
       name: workload_names
       in: query
@@ -520,114 +535,52 @@ components:
         type: array
         items:
           type: string
-    Server_fqnames:
-      name: server_names
+    Allow_errors:
+      name: allow_errors
       in: query
-      description: 'Server names providing the context for the operation.
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
 
-        Names are expected to be fully qualified, meaning if the object is contained in some context,
+        Any errors will be returned in the `errors` field of the response.
 
-        the corresponding name would provide complete information about the containment hierarchy.
-
-        For example, `server01,server02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Destroyed:
-      name: destroyed
-      in: query
-      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
-
-        If set to `false`, lists only objects that are not destroyed.
-
-        If not set, lists both objects that are destroyed and those that are not destroyed.
-
-
-        For destroyed objects, the time remaining is displayed in milliseconds.
-
-
-        If object name(s) or id(s) are specified, then each object referenced must exist.
-
-        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
-
-        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
-
-        An error is returned if any of these conditions are not met.
+        If set to `false`, the operation will fail if there are any errors.
 
         '
       schema:
         type: boolean
-    Sort:
-      name: sort
+        default: false
+    Policy_ids:
+      name: policy_ids
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      description: 'Performs the operation on the unique policy IDs specified.
+
+        Enter multiple policy IDs in comma-separated format.
+
+        The `policy_ids` or `policy_names` parameter is required, but they cannot be set together.
+
+        '
       style: form
       explode: false
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
   schemas:
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    ExportPolicyAttachmentMixin:
-      type: object
-      properties:
-        enabled:
-          description: 'Returns a value of `true` if and only if the export policy that manages this
+    _workloadConfigurationFixedReference:
+      description: 'The reference to the workload managing the resource. The `name` and `configuration` values
 
-            export is enabled AND this export is enabled.
+        may display as the string `(unknown)` briefly following a failover.
 
-            '
-          type: boolean
-          readOnly: true
-        export_name:
-          description: 'The export name for accessing this export.
+        '
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithType'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
 
-            '
-          type: string
-        status:
-          description: 'Explains why `enabled` is `false`, or whether there is a name conflict with
-
-            another export. Valid values include `policy_disabled`, `export_disabled`, and
-
-            `name_conflict`.
-
-            '
-          type: string
-          readOnly: true
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
+              '
+            type: string
+            readOnly: true
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -661,91 +614,6 @@ components:
           example: Resource does not exist.
       x-aliases:
       - _errorContextResponseErrors
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    DirectoryExportPost:
-      type: object
-      properties:
-        export_enabled:
-          description: 'Indicates whether the export is enabled.
-
-            If set to `true`, the export is enabled.
-
-            If not specified, defaults to `true`.
-
-            '
-          type: boolean
-          example: false
-        export_name:
-          description: 'The name of the export to create.
-
-            Export names must be unique within the same protocol and server.
-
-            '
-          type: string
-        server:
-          description: 'Server to which the directory export is attached to.
-
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-    DirectoryExportPatch:
-      type: object
-      properties:
-        export_enabled:
-          description: 'If set to `true`, the export is enabled.
-
-            If not specified, defaults to `true`.
-
-            '
-          type: boolean
-          example: false
-        export_name:
-          description: 'The new name of the export.
-
-            Export names must be unique within the same protocol.
-
-            '
-          type: string
-    _serverReference:
-      description: 'An object that is server-aware and can be associated to a server.
-
-        '
-      type: object
-      properties:
-        server:
-          description: 'Reference to the server the object belongs to. When the value is empty or set to `null`
-
-            it means the object lives outside of a server scope.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    DirectoryExportGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/DirectoryExportResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
     DirectoryExportResponse:
       type: object
       properties:
@@ -817,28 +685,7 @@ components:
             - $ref: '#/components/schemas/_fixedReferenceWithType'
           workload:
             $ref: '#/components/schemas/_workloadConfigurationFixedReference'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _fixedReference:
+    _reference:
       type: object
       properties:
         id:
@@ -848,34 +695,15 @@ components:
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
+          description: 'The resource name, such as volume name, pod name,
 
             snapshot name, and so on.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
       x-aliases:
-      - _fixedReferenceWithoutType
-    _workloadConfigurationFixedReference:
-      description: 'The reference to the workload managing the resource. The `name` and `configuration` values
-
-        may display as the string `(unknown)` briefly following a failover.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithType'
-      - type: object
-        properties:
-          configuration:
-            description: 'The name of the preset configuration object.
-
-              '
-            type: string
-            readOnly: true
+      - _referenceWithoutType
     PageInfo:
       type: object
       properties:
@@ -918,3 +746,166 @@ components:
             '
           type: integer
           format: int32
+    DirectoryExportGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/DirectoryExportResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    ExportPolicyAttachmentMixin:
+      type: object
+      properties:
+        enabled:
+          description: 'Returns a value of `true` if and only if the export policy that manages this
+
+            export is enabled AND this export is enabled.
+
+            '
+          type: boolean
+          readOnly: true
+        export_name:
+          description: 'The export name for accessing this export.
+
+            '
+          type: string
+        status:
+          description: 'Explains why `enabled` is `false`, or whether there is a name conflict with
+
+            another export. Valid values include `policy_disabled`, `export_disabled`, and
+
+            `name_conflict`.
+
+            '
+          type: string
+          readOnly: true
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    DirectoryExportPatch:
+      type: object
+      properties:
+        export_enabled:
+          description: 'If set to `true`, the export is enabled.
+
+            If not specified, defaults to `true`.
+
+            '
+          type: boolean
+          example: false
+        export_name:
+          description: 'The new name of the export.
+
+            Export names must be unique within the same protocol.
+
+            '
+          type: string
+    DirectoryExportPost:
+      type: object
+      properties:
+        export_enabled:
+          description: 'Indicates whether the export is enabled.
+
+            If set to `true`, the export is enabled.
+
+            If not specified, defaults to `true`.
+
+            '
+          type: boolean
+          example: false
+        export_name:
+          description: 'The name of the export to create.
+
+            Export names must be unique within the same protocol and server.
+
+            '
+          type: string
+        server:
+          description: 'Server to which the directory export is attached to.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+    _serverReference:
+      description: 'An object that is server-aware and can be associated to a server.
+
+        '
+      type: object
+      properties:
+        server:
+          description: 'Reference to the server the object belongs to. When the value is empty or set to `null`
+
+            it means the object lives outside of a server scope.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'

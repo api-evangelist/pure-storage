@@ -1,16 +1,17 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Audit Log Target for Object Store API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: FlashBlade REST Audit Log Target for Object Store API
+  description: OpenAPI specification for FlashBlade REST API, developed by Pure Storage, Inc. (https://www.purestorage.com/).
+  version: '2.26'
+  x-pure-description-ref: ../custom_descriptions/FB-api-introduction.md
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-FA.txt
 servers:
-- url: /
+- url: http://[array]/
+- url: https://[array]/
+security:
+- AuthorizationHeader: []
 tags:
 - name: Audit Log Target for Object Store
   description: View and manage audit log targets for object store. These are buckets where audit logs will be stored, and they may be configured in audit policies.
@@ -61,6 +62,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogTargetsObjectStoreGetResponse'
+      operationId: getApi226LogTargetsObjectStore
+      x-operation-id-source: derived
     post:
       tags:
       - Audit Log Target for Object Store
@@ -90,6 +93,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/LogTargetsObjectStoreResponse'
       x-codegen-request-body-name: log-target-object-store
+      operationId: postApi226LogTargetsObjectStore
+      x-operation-id-source: derived
     delete:
       tags:
       - Audit Log Target for Object Store
@@ -109,6 +114,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226LogTargetsObjectStore
+      x-operation-id-source: derived
     patch:
       tags:
       - Audit Log Target for Object Store
@@ -139,11 +146,59 @@ paths:
               schema:
                 $ref: '#/components/schemas/LogTargetsObjectStoreResponse'
       x-codegen-request-body-name: log-target-object-store
+      operationId: patchApi226LogTargetsObjectStore
+      x-operation-id-source: derived
 components:
   schemas:
+    _auditLogRotate:
+      type: object
+      properties:
+        duration:
+          description: 'Time after which audit log objects will be rotated.
+
+            Measured in milliseconds.
+
+            Multiples of 60000 are supported.
+
+            '
+          type: integer
+          format: int64
+          minimum: 300000
+          maximum: 86400000
+          example: 300000
     LogTargetsObjectStoreWithContext:
       allOf:
       - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/LogTargetsObjectStore'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    LogTargetsObjectStorePost:
+      allOf:
       - $ref: '#/components/schemas/LogTargetsObjectStore'
     _errorContextResponseErrors:
       type: object
@@ -176,51 +231,6 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _auditLogNamePrefix:
-      type: object
-      properties:
-        prefix:
-          description: 'Prefix for the audit log object name.
-
-            '
-          type: string
-          example: s3auditlog
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
     _reference:
       type: object
       properties:
@@ -254,122 +264,15 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    _fixedReferenceWithoutType:
+    _auditLogNamePrefix:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
+        prefix:
+          description: 'Prefix for the audit log object name.
 
             '
           type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    LogTargetsObjectStore:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - type: object
-        properties:
-          bucket:
-            description: 'Reference to the bucket where audit logs will be stored.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          log_name_prefix:
-            description: 'The prefix of the audit log object.
-
-              '
-            title: AuditLogNamePrefix
-            allOf:
-            - $ref: '#/components/schemas/_auditLogNamePrefix'
-          log_rotate:
-            description: 'The threshold after which the audit log object will be rotated.
-
-              '
-            title: AuditLogRotate
-            allOf:
-            - $ref: '#/components/schemas/_auditLogRotate'
-    LogTargetsObjectStoreGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/LogTargetsObjectStoreResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _auditLogRotate:
-      type: object
-      properties:
-        duration:
-          description: 'Time after which audit log objects will be rotated.
-
-            Measured in milliseconds.
-
-            Multiples of 60000 are supported.
-
-            '
-          type: integer
-          format: int64
-          minimum: 300000
-          maximum: 86400000
-          example: 300000
-    LogTargetsObjectStorePost:
-      allOf:
-      - $ref: '#/components/schemas/LogTargetsObjectStore'
-    LogTargetsObjectStoreResponse:
-      type: object
-      properties:
-        items:
-          description: A list of log target objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/LogTargetsObjectStoreWithContext'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
+          example: s3auditlog
     PageInfo:
       type: object
       properties:
@@ -398,7 +301,140 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    LogTargetsObjectStore:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - type: object
+        properties:
+          bucket:
+            description: 'Reference to the bucket where audit logs will be stored.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          log_name_prefix:
+            description: 'The prefix of the audit log object.
+
+              '
+            title: AuditLogNamePrefix
+            allOf:
+            - $ref: '#/components/schemas/_auditLogNamePrefix'
+          log_rotate:
+            description: 'The threshold after which the audit log object will be rotated.
+
+              '
+            title: AuditLogRotate
+            allOf:
+            - $ref: '#/components/schemas/_auditLogRotate'
+    LogTargetsObjectStoreResponse:
+      type: object
+      properties:
+        items:
+          description: A list of log target objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/LogTargetsObjectStoreWithContext'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    LogTargetsObjectStoreGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/LogTargetsObjectStoreResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
   parameters:
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Filter:
       name: filter
       in: query
@@ -409,30 +445,6 @@ components:
         '
       schema:
         type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
     Continuation_token:
       name: continuation_token
       in: query
@@ -451,38 +463,6 @@ components:
         Pagination requires the `limit` and `continuation_token`
 
         query parameters.
-
-        '
-      schema:
-        type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
@@ -559,6 +539,67 @@ components:
         type: array
         items:
           type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
     Ids:
       name: ids
       in: query
@@ -577,35 +618,12 @@ components:
         type: array
         items:
           type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header

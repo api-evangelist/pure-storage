@@ -1,14 +1,14 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Offloads API
+  title: FlashArray REST Offloads API
   version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+  description: 'The offload feature enables system administrators to replicate point-in-time volume snapshots
 
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+    from the array to an external storage system for long-term retention.
 
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
+    Each offload target represents an external storage system, such as an Azure Blob container,
 
-    '
+    NFS device, or S3 bucket, to where Purity//FA volume snapshots can be replicated.'
 servers:
 - url: /
 tags:
@@ -19,18 +19,14 @@ tags:
 
     Each offload target represents an external storage system, such as an Azure Blob container,
 
-    NFS device, or S3 bucket, to where Purity//FA volume snapshots can be replicated.
-
-    '
+    NFS device, or S3 bucket, to where Purity//FA volume snapshots can be replicated.'
 paths:
   /api/2.52/offloads:
     get:
       tags:
       - Offloads
       summary: Pure Storage List Offload Targets
-      description: 'Displays a list of offload targets that are connected to the array.
-
-        '
+      description: Displays a list of offload targets that are connected to the array.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -62,6 +58,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OffloadGetResponse'
+      operationId: getApi252Offloads
+      x-operation-id-source: derived
     post:
       tags:
       - Offloads
@@ -70,9 +68,7 @@ paths:
 
         Before you can connect to, manage, and replicate to an offload target, the Purity Run app must
 
-        be installed.
-
-        '
+        be installed.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -94,13 +90,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/OffloadResponse'
       x-codegen-request-body-name: offload
+      operationId: postApi252Offloads
+      x-operation-id-source: derived
     delete:
       tags:
       - Offloads
       summary: Pure Storage Delete Offload Target
-      description: 'Deletes an offload target.
-
-        '
+      description: Deletes an offload target.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -110,13 +106,13 @@ paths:
         '200':
           description: OK
           content: {}
+      operationId: deleteApi252Offloads
+      x-operation-id-source: derived
     patch:
       tags:
       - Offloads
       summary: Pure Storage Patch Offload Target
-      description: 'Modifies an existing offload target. Usage includes rotating the client secret.
-
-        '
+      description: Modifies an existing offload target. Usage includes rotating the client secret.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -137,22 +133,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/OffloadResponse'
       x-codegen-request-body-name: offload
+      operationId: patchApi252Offloads
+      x-operation-id-source: derived
 components:
   parameters:
-    Total_only:
-      name: total_only
+    Initialize:
+      name: initialize
       in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+      description: 'If set to `true`, initializes the Amazon S3/Azure Blob container/Google Cloud Storage
 
-        Where it makes more sense, the average value is displayed instead.
+        in preparation for offloading. The parameter must be set to `true`
 
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
+        if this is the first time the array is connecting to the offload target.
 
         '
       schema:
         type: boolean
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Filter:
       name: filter
       in: query
@@ -163,32 +178,6 @@ components:
         '
       schema:
         type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
     Continuation_token:
       name: continuation_token
       in: query
@@ -211,67 +200,20 @@ components:
         '
       schema:
         type: string
-    Context_names:
-      name: context_names
+    Total_only:
+      name: total_only
       in: query
-      description: 'Performs the operation on the context specified.
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
 
+        Where it makes more sense, the average value is displayed instead.
 
-        If specified, the context names must be an array of size 1, and the single element
+        The values are displayed for each name where meaningful.
 
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
+        If `total_only=true`, the `items` list will be empty.
 
         '
       schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
+        type: boolean
     Names:
       name: names
       in: query
@@ -325,6 +267,74 @@ components:
         type: array
         items:
           type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Protocol:
+      name: protocol
+      in: query
+      description: 'Protocol type. Valid values are `azure`, `google-cloud`, `nfs`, and `s3`.
+
+        '
+      schema:
+        type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
     Total_item_count:
       name: total_item_count
       in: query
@@ -343,150 +353,44 @@ components:
         '
       schema:
         type: boolean
-    Initialize:
-      name: initialize
+    Limit:
+      name: limit
       in: query
-      description: 'If set to `true`, initializes the Amazon S3/Azure Blob container/Google Cloud Storage
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        in preparation for offloading. The parameter must be set to `true`
+        To return the total number of resources, set `limit=0`.
 
-        if this is the first time the array is connecting to the offload target.
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
       schema:
-        type: boolean
-    Protocol:
-      name: protocol
-      in: query
-      description: 'Protocol type. Valid values are `azure`, `google-cloud`, `nfs`, and `s3`.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
   schemas:
-    _errorContextResponse:
+    _offload_nfs:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    _offload_azure_patch:
-      type: object
-      properties:
-        client_secret:
-          description: 'Specifies the new Azure client secret key used to obtain the authentication token.
-
-            '
+        address:
+          description: The hostname or IP address of the NFS server to where the data will be offloaded. An array can be connected to one offload target at a time, while multiple arrays can be connected to the same offload target. If the protection group is in a stretched pod, for high availability, connect both arrays in the stretched pod to the offload target.
           type: string
-    _offload_s3:
-      type: object
-      properties:
-        access_key_id:
-          description: 'The access key ID of the AWS account used to create a connection between the array and
-
-            an Amazon S3 offload target.
-
-            The access key ID is 20 characters in length and is only accepted
-
-            when creating the connection between the array and the S3 offload target.
-
-            The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
-
-            '
+        mount_options:
+          description: The custom mount options on the NFS server. Enter multiple mount options in comma-separated format. Valid values include `port`, `rsize`, `wsize`, `nfsvers`, and `tcp` or `udp`. These mount options are common to all NFS file systems.
           type: string
-        auth_region:
-          description: 'The region that will be used for initial authentication request.
-
-            This parameter is optional and should be used only when region autodetection fails.
-
-            '
-          type: string
-        bucket:
-          description: 'The name of the Amazon S3 bucket to where the data will be offloaded.
-
-            Grant basic read and write ACL permissions to the bucket,
-
-            and enable default (server-side) encryption for the bucket.
-
-            Also verify that the bucket is empty of all objects and does not have any lifecycle policies.
-
-            The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
-
-            '
-          type: string
-        placement_strategy:
-          description: 'The storage placement strategy used for the dynamic placement of data
-
-            in an Amazon S3 offload target.
-
-            Valid values are `aws-intelligent-tiering`, `aws-standard-class`, and `retention-based`.
-
-            If set to `aws-intelligent-tiering`, data is stored in the
-
-            Amazon S3 INTELLIGENT_TIERING storage class regardless of the retention period.
-
-            If set to `aws-standard-access`, the data is stored in the
-
-            Amazon S3 STANDARD storage class regardless of the retention period.
-
-            If set to `retention-based`, the data for protection groups with longer retention periods
-
-            is placed in the Amazon S3 STANDARD_IA
-
-            (infrequently accessed, more cost-effective) storage class.
-
-            All other data is placed in the STANDARD storage class.
-
-            When the array is initially connected to an S3 offload target,
-
-            `placement_strategy` is automatically set to `retention-based`.
-
-            The `placement_strategy` or `uri` parameter is required, but they cannot be set together.
-
-            '
+        mount_point:
+          description: The mount point of the NFS export on the NFS server. For example, `/mnt`. The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
           type: string
         profile:
           description: 'The offload target profile that will be selected for this target. This option
 
             allows more granular configuration for the target on top of the `protocol`
 
-            parameter. Values include `s3-aws`, `s3-flashblade`, `s3-scality-ring`,
-
-            `s3-wasabi-pay-as-you-go`, `s3-wasabi-rcs`, and `s3-other`.
-
-            '
-          type: string
-        secret_access_key:
-          description: 'The secret access key that goes with the access key ID (`access_key_id`) of the AWS account.
-
-            The secret access key is 40 characters in length is only accepted
-
-            when creating the connection between the array and the S3 offload target.
-
-            The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
-
-            '
-          type: string
-        uri:
-          description: 'The URI used to create a connection between the array and a non-AWS S3 offload target.
-
-            Storage placement strategies are not supported for non-AWS S3 offload targets.
-
-            Both the HTTP and HTTPS protocols are allowed.
+            parameter. Values include `nfs`, and `nfs-flashblade`.
 
             '
           type: string
@@ -523,6 +427,13 @@ components:
           example: Resource does not exist.
       x-aliases:
       - _errorContextResponseErrors
+    OffloadResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Offload'
     _resourceNoId:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -542,304 +453,6 @@ components:
 
             '
           type: string
-    _offload_azure:
-      type: object
-      properties:
-        account_name:
-          description: 'The name of the existing Azure Blob storage account.
-
-            '
-          type: string
-        client_id:
-          description: 'Specifies the OAuth2 client ID used to identify the Offload application.
-
-            Grants access to both Blob and Storage Account operations, such as handling lifecycle policies.
-
-            Must be provided together with tenant_id and client_secret.
-
-            Cannot be used together with secret_access_key.
-
-            '
-          type: string
-        client_secret:
-          description: 'Specifies the OAuth2 client secret used to identify the Offload application.
-
-            Grants access to both Blob and Storage Account operations, such as handling lifecycle policies.
-
-            Must be provided together with tenant_id and client_id.
-
-            Cannot be used together with secret_access_key.
-
-            '
-          type: string
-        container_name:
-          description: 'The name of the container in the Azure Blob storage account
-
-            to where the data will be offloaded.
-
-            The name must be a valid DNS name. If not specified, defaults to `offload`.
-
-            '
-          type: string
-        placement_strategy:
-          description: 'Specifies the tier where data will be stored in a Microsoft Azure Blob Storage offload target.
-
-            Values include azure-hot and azure-archive.
-
-            If set to azure-hot, data is stored in the Hot access tier.
-
-            If set to azure-archive, the data is stored in the Archive access tier and the offload is
-
-            operating in archive mode.
-
-            All other metadata is placed in the Hot access tier.
-
-            If not specified, defaults to azure-hot when the array is initially connected to an Azure offload target.
-
-            The placement_strategy cannot be changed for Azure offload targets after initialization.
-
-            '
-          type: string
-        profile:
-          description: 'The offload target profile that will be selected for this target. This option
-
-            allows more granular configuration for the target on top of the `protocol`
-
-            parameter. Values include `azure`.
-
-            '
-          type: string
-        secret_access_key:
-          description: 'Specifies the authentication key used for direct access to the Azure Blob Storage Account account_name.
-
-            Grants authorization for blob operations only.
-
-            To add Storage Account operations, such as handling lifecycle policies, use OAuth2 Authentication instead.
-
-            Cannot be used together with the OAuth2 fields tenant_id, client_id, and client_secret.
-
-            '
-          type: string
-        tenant_id:
-          description: 'Azure tenant ID used to identify the Offload application, granting access to both Blob
-
-            and Storage Account operations (handling lifecycle policies, ...).
-
-            Must be provided together with `client_id` and `client_secret`.
-
-            Cannot be used together with `secret_access_key`.
-
-            '
-          type: string
-    OffloadGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/OffloadResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              Where meaningful, the average value is displayed instead.
-
-              If applicable, the values are displayed for each field.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/Offload'
-    OffloadPost:
-      type: object
-      properties:
-        azure:
-          description: 'Microsoft Azure Blob storage settings.
-
-            '
-          title: Offload_azure
-          allOf:
-          - $ref: '#/components/schemas/_offload_azure'
-        google-cloud:
-          description: 'Google Cloud Storage settings.
-
-            '
-          title: OffloadGoogleCloud
-          allOf:
-          - $ref: '#/components/schemas/_offloadGoogleCloud'
-        nfs:
-          description: 'NFS settings.
-
-            Deprecated from version 6.6.0 onwards - Contact support for additional information.'
-          title: Offload_nfs
-          allOf:
-          - $ref: '#/components/schemas/_offload_nfs'
-        s3:
-          description: 'S3 settings.
-
-            '
-          title: Offload_s3
-          allOf:
-          - $ref: '#/components/schemas/_offload_s3'
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _offload_nfs:
-      type: object
-      properties:
-        address:
-          description: The hostname or IP address of the NFS server to where the data will be offloaded. An array can be connected to one offload target at a time, while multiple arrays can be connected to the same offload target. If the protection group is in a stretched pod, for high availability, connect both arrays in the stretched pod to the offload target.
-          type: string
-        mount_options:
-          description: The custom mount options on the NFS server. Enter multiple mount options in comma-separated format. Valid values include `port`, `rsize`, `wsize`, `nfsvers`, and `tcp` or `udp`. These mount options are common to all NFS file systems.
-          type: string
-        mount_point:
-          description: The mount point of the NFS export on the NFS server. For example, `/mnt`. The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
-          type: string
-        profile:
-          description: 'The offload target profile that will be selected for this target. This option
-
-            allows more granular configuration for the target on top of the `protocol`
-
-            parameter. Values include `nfs`, and `nfs-flashblade`.
-
-            '
-          type: string
-    OffloadResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Offload'
-    _offloadGoogleCloud:
-      type: object
-      properties:
-        access_key_id:
-          description: The access key ID of the Google Cloud account used to create a connection between the array and a Google Cloud offload target. The access key ID is 24 characters in length and is only accepted when creating the connection between the array and the Google Cloud offload target. The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
-          type: string
-        bucket:
-          description: The name of the Google Cloud Storage bucket to which the data will be offloaded. Grant basic read and write access permissions to the bucket and verify that the bucket is empty of all objects. The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
-          type: string
-        profile:
-          description: 'The offload target profile that will be selected for this target. This option
-
-            allows more granular configuration for the target on top of the `protocol`
-
-            parameter. Values include `gcp`.
-
-            '
-          type: string
-        secret_access_key:
-          description: The secret access key that goes with the access key ID of the Google Cloud account. The secret access key is 40 characters in length is only accepted when creating the connection between the array and the Google Cloud offload target. The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
-          type: string
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    OffloadPatch:
-      type: object
-      properties:
-        azure:
-          description: 'Specifies the Microsoft Azure Blob patch settings.
-
-            '
-          title: Offload_azure_patch
-          allOf:
-          - $ref: '#/components/schemas/_offload_azure_patch'
-    Offload:
-      allOf:
-      - $ref: '#/components/schemas/OffloadPost'
-      - $ref: '#/components/schemas/_resourceNoId'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          protocol:
-            description: 'Type of offload.
-
-              Valid values include `azure`, `google-cloud`, `nfs`, and `s3`.
-
-              '
-            type: string
-            readOnly: true
-          space:
-            title: Space
-            allOf:
-            - $ref: '#/components/schemas/_space'
-          status:
-            description: 'Offload status.
-
-              Valid values are `connecting`, `connected`, `disconnecting`, `not connected`, and
-
-              `scanning`.
-
-              '
-            type: string
-            readOnly: true
-          target_id:
-            description: 'Unique ID for the offload target.
-
-              When multiple connections to one offload target are created, they each have distinct IDs
-
-              but share the same `target_id`.
-
-              '
-            type: string
-            readOnly: true
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
     _space:
       type: object
       properties:
@@ -1082,3 +695,388 @@ components:
             '
           type: integer
           format: int32
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    OffloadPost:
+      type: object
+      properties:
+        azure:
+          description: 'Microsoft Azure Blob storage settings.
+
+            '
+          title: Offload_azure
+          allOf:
+          - $ref: '#/components/schemas/_offload_azure'
+        google-cloud:
+          description: 'Google Cloud Storage settings.
+
+            '
+          title: OffloadGoogleCloud
+          allOf:
+          - $ref: '#/components/schemas/_offloadGoogleCloud'
+        nfs:
+          description: 'NFS settings.
+
+            Deprecated from version 6.6.0 onwards - Contact support for additional information.'
+          title: Offload_nfs
+          allOf:
+          - $ref: '#/components/schemas/_offload_nfs'
+        s3:
+          description: 'S3 settings.
+
+            '
+          title: Offload_s3
+          allOf:
+          - $ref: '#/components/schemas/_offload_s3'
+    OffloadPatch:
+      type: object
+      properties:
+        azure:
+          description: 'Specifies the Microsoft Azure Blob patch settings.
+
+            '
+          title: Offload_azure_patch
+          allOf:
+          - $ref: '#/components/schemas/_offload_azure_patch'
+    _offloadGoogleCloud:
+      type: object
+      properties:
+        access_key_id:
+          description: The access key ID of the Google Cloud account used to create a connection between the array and a Google Cloud offload target. The access key ID is 24 characters in length and is only accepted when creating the connection between the array and the Google Cloud offload target. The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
+          type: string
+        bucket:
+          description: The name of the Google Cloud Storage bucket to which the data will be offloaded. Grant basic read and write access permissions to the bucket and verify that the bucket is empty of all objects. The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
+          type: string
+        profile:
+          description: 'The offload target profile that will be selected for this target. This option
+
+            allows more granular configuration for the target on top of the `protocol`
+
+            parameter. Values include `gcp`.
+
+            '
+          type: string
+        secret_access_key:
+          description: The secret access key that goes with the access key ID of the Google Cloud account. The secret access key is 40 characters in length is only accepted when creating the connection between the array and the Google Cloud offload target. The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
+          type: string
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    Offload:
+      allOf:
+      - $ref: '#/components/schemas/OffloadPost'
+      - $ref: '#/components/schemas/_resourceNoId'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          protocol:
+            description: 'Type of offload.
+
+              Valid values include `azure`, `google-cloud`, `nfs`, and `s3`.
+
+              '
+            type: string
+            readOnly: true
+          space:
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space'
+          status:
+            description: 'Offload status.
+
+              Valid values are `connecting`, `connected`, `disconnecting`, `not connected`, and
+
+              `scanning`.
+
+              '
+            type: string
+            readOnly: true
+          target_id:
+            description: 'Unique ID for the offload target.
+
+              When multiple connections to one offload target are created, they each have distinct IDs
+
+              but share the same `target_id`.
+
+              '
+            type: string
+            readOnly: true
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _offload_azure:
+      type: object
+      properties:
+        account_name:
+          description: 'The name of the existing Azure Blob storage account.
+
+            '
+          type: string
+        client_id:
+          description: 'Specifies the OAuth2 client ID used to identify the Offload application.
+
+            Grants access to both Blob and Storage Account operations, such as handling lifecycle policies.
+
+            Must be provided together with tenant_id and client_secret.
+
+            Cannot be used together with secret_access_key.
+
+            '
+          type: string
+        client_secret:
+          description: 'Specifies the OAuth2 client secret used to identify the Offload application.
+
+            Grants access to both Blob and Storage Account operations, such as handling lifecycle policies.
+
+            Must be provided together with tenant_id and client_id.
+
+            Cannot be used together with secret_access_key.
+
+            '
+          type: string
+        container_name:
+          description: 'The name of the container in the Azure Blob storage account
+
+            to where the data will be offloaded.
+
+            The name must be a valid DNS name. If not specified, defaults to `offload`.
+
+            '
+          type: string
+        placement_strategy:
+          description: 'Specifies the tier where data will be stored in a Microsoft Azure Blob Storage offload target.
+
+            Values include azure-hot and azure-archive.
+
+            If set to azure-hot, data is stored in the Hot access tier.
+
+            If set to azure-archive, the data is stored in the Archive access tier and the offload is
+
+            operating in archive mode.
+
+            All other metadata is placed in the Hot access tier.
+
+            If not specified, defaults to azure-hot when the array is initially connected to an Azure offload target.
+
+            The placement_strategy cannot be changed for Azure offload targets after initialization.
+
+            '
+          type: string
+        profile:
+          description: 'The offload target profile that will be selected for this target. This option
+
+            allows more granular configuration for the target on top of the `protocol`
+
+            parameter. Values include `azure`.
+
+            '
+          type: string
+        secret_access_key:
+          description: 'Specifies the authentication key used for direct access to the Azure Blob Storage Account account_name.
+
+            Grants authorization for blob operations only.
+
+            To add Storage Account operations, such as handling lifecycle policies, use OAuth2 Authentication instead.
+
+            Cannot be used together with the OAuth2 fields tenant_id, client_id, and client_secret.
+
+            '
+          type: string
+        tenant_id:
+          description: 'Azure tenant ID used to identify the Offload application, granting access to both Blob
+
+            and Storage Account operations (handling lifecycle policies, ...).
+
+            Must be provided together with `client_id` and `client_secret`.
+
+            Cannot be used together with `secret_access_key`.
+
+            '
+          type: string
+    OffloadGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/OffloadResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              Where meaningful, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/Offload'
+    _offload_s3:
+      type: object
+      properties:
+        access_key_id:
+          description: 'The access key ID of the AWS account used to create a connection between the array and
+
+            an Amazon S3 offload target.
+
+            The access key ID is 20 characters in length and is only accepted
+
+            when creating the connection between the array and the S3 offload target.
+
+            The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
+
+            '
+          type: string
+        auth_region:
+          description: 'The region that will be used for initial authentication request.
+
+            This parameter is optional and should be used only when region autodetection fails.
+
+            '
+          type: string
+        bucket:
+          description: 'The name of the Amazon S3 bucket to where the data will be offloaded.
+
+            Grant basic read and write ACL permissions to the bucket,
+
+            and enable default (server-side) encryption for the bucket.
+
+            Also verify that the bucket is empty of all objects and does not have any lifecycle policies.
+
+            The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
+
+            '
+          type: string
+        placement_strategy:
+          description: 'The storage placement strategy used for the dynamic placement of data
+
+            in an Amazon S3 offload target.
+
+            Valid values are `aws-intelligent-tiering`, `aws-standard-class`, and `retention-based`.
+
+            If set to `aws-intelligent-tiering`, data is stored in the
+
+            Amazon S3 INTELLIGENT_TIERING storage class regardless of the retention period.
+
+            If set to `aws-standard-access`, the data is stored in the
+
+            Amazon S3 STANDARD storage class regardless of the retention period.
+
+            If set to `retention-based`, the data for protection groups with longer retention periods
+
+            is placed in the Amazon S3 STANDARD_IA
+
+            (infrequently accessed, more cost-effective) storage class.
+
+            All other data is placed in the STANDARD storage class.
+
+            When the array is initially connected to an S3 offload target,
+
+            `placement_strategy` is automatically set to `retention-based`.
+
+            The `placement_strategy` or `uri` parameter is required, but they cannot be set together.
+
+            '
+          type: string
+        profile:
+          description: 'The offload target profile that will be selected for this target. This option
+
+            allows more granular configuration for the target on top of the `protocol`
+
+            parameter. Values include `s3-aws`, `s3-flashblade`, `s3-scality-ring`,
+
+            `s3-wasabi-pay-as-you-go`, `s3-wasabi-rcs`, and `s3-other`.
+
+            '
+          type: string
+        secret_access_key:
+          description: 'The secret access key that goes with the access key ID (`access_key_id`) of the AWS account.
+
+            The secret access key is 40 characters in length is only accepted
+
+            when creating the connection between the array and the S3 offload target.
+
+            The `access_key_id`, `secret_access_key`, and `bucket` parameters must be set together.
+
+            '
+          type: string
+        uri:
+          description: 'The URI used to create a connection between the array and a non-AWS S3 offload target.
+
+            Storage placement strategies are not supported for non-AWS S3 offload targets.
+
+            Both the HTTP and HTTPS protocols are allowed.
+
+            '
+          type: string
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    _offload_azure_patch:
+      type: object
+      properties:
+        client_secret:
+          description: 'Specifies the new Azure client secret key used to obtain the authentication token.
+
+            '
+          type: string

@@ -1,14 +1,14 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Remote Protection Groups API
+  title: FlashArray REST Remote Protection Groups API
   version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+  description: 'A remote protection group represents a protection group that resides on an offload target with
 
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+    the source side of the remote protection group being another array that is connected to the
 
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
+    local array. The local array can only see the remote protection groups of other arrays if the
 
-    '
+    two arrays are connected.'
 servers:
 - url: /
 tags:
@@ -19,18 +19,14 @@ tags:
 
     local array. The local array can only see the remote protection groups of other arrays if the
 
-    two arrays are connected.
-
-    '
+    two arrays are connected.'
 paths:
   /api/2.52/remote-protection-groups:
     get:
       tags:
       - Remote Protection Groups
       summary: Pure Storage List Remote Protection Groups
-      description: 'Returns a list of remote protection groups.
-
-        '
+      description: Returns a list of remote protection groups.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -65,6 +61,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoteProtectionGroupGetResponse'
+      operationId: getApi252RemoteProtectionGroups
+      x-operation-id-source: derived
     delete:
       tags:
       - Remote Protection Groups
@@ -77,9 +75,7 @@ paths:
 
         The `on` parameter represents the name of the offload target.
 
-        The `ids` or `names` parameter and the `on` parameter are required and must be used together.
-
-        '
+        The `ids` or `names` parameter and the `on` parameter are required and must be used together.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -91,6 +87,8 @@ paths:
         '200':
           description: OK
           content: {}
+      operationId: deleteApi252RemoteProtectionGroups
+      x-operation-id-source: derived
     patch:
       tags:
       - Remote Protection Groups
@@ -105,9 +103,7 @@ paths:
 
         The `on` parameter represents the name of the offload target.
 
-        The `ids` or `names` parameter and the `on` parameter are required and must be used together.
-
-        '
+        The `ids` or `names` parameter and the `on` parameter are required and must be used together.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -130,6 +126,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/RemoteProtectionGroupResponse'
       x-codegen-request-body-name: remote-protection-group
+      operationId: patchApi252RemoteProtectionGroups
+      x-operation-id-source: derived
 components:
   parameters:
     On_:
@@ -148,88 +146,27 @@ components:
         type: array
         items:
           type: string
-    Filter:
-      name: filter
+    Sort:
+      name: sort
       in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    OnSingle:
+      name: 'on'
+      in: query
+      description: 'Performs the operation on the target name specified.
+
+        For example, `targetName01`.
+
+        '
+      schema:
+        type: string
     XRequestId:
       name: X-Request-ID
       in: header
@@ -257,26 +194,62 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    OnSingle:
-      name: 'on'
+    Continuation_token:
+      name: continuation_token
       in: query
-      description: 'Performs the operation on the target name specified.
+      description: 'A token used to retrieve the next page of data
 
-        For example, `targetName01`.
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
 
         '
       schema:
         type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
     Names:
       name: names
       in: query
@@ -330,10 +303,60 @@ components:
         type: array
         items:
           type: string
-    Ids:
-      name: ids
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
       in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
       style: form
       explode: false
       schema:
@@ -358,119 +381,17 @@ components:
         '
       schema:
         type: boolean
-    Destroyed:
-      name: destroyed
+    Ids:
+      name: ids
       in: query
-      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
-
-        If set to `false`, lists only objects that are not destroyed.
-
-        If not set, lists both objects that are destroyed and those that are not destroyed.
-
-
-        For destroyed objects, the time remaining is displayed in milliseconds.
-
-
-        If object name(s) or id(s) are specified, then each object referenced must exist.
-
-        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
-
-        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
-
-        An error is returned if any of these conditions are not met.
-
-        '
-      schema:
-        type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
   schemas:
-    RemoteProtectionGroup:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_context'
-      - description: 'A remote protection group represents a protection group that is replicated
-
-          to an offload target.
-
-          '
-        type: object
-        properties:
-          destroyed:
-            description: 'Returns a value of `true` if the remote protection group has been destroyed
-
-              and is pending eradication.
-
-              The `time_remaining` value displays the amount of time left
-
-              until the destroyed remote protection group is permanently eradicated.
-
-              Before the `time_remaining` period has elapsed,
-
-              the destroyed remote protection group can be recovered by setting `destroyed=false`.
-
-              Once the `time_remaining` period has elapsed,
-
-              the remote protection group is permanently eradicated and can no longer be recovered.
-
-              '
-            type: boolean
-          is_local:
-            description: 'If set to `true`, the location reference is to the local array.
-
-              If set to `false`, the location reference is to a remote location,
-
-              such as a remote array or offload target.
-
-              '
-            type: boolean
-            readOnly: true
-          remote:
-            description: 'The offload target that the remote protection group is on.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          source:
-            description: 'The array where the remote protection group is replicated from.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          target_retention:
-            description: The retention policy for the remote protection group.
-            title: RetentionPolicy
-            allOf:
-            - $ref: '#/components/schemas/_retentionPolicy'
-          time_remaining:
-            description: 'Milliseconds remaining until eradication, if remote protection group
-
-              has been destroyed.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -504,23 +425,48 @@ components:
           example: Resource does not exist.
       x-aliases:
       - _errorContextResponseErrors
-    RemoteProtectionGroupResponse:
+    PageInfo:
       type: object
       properties:
-        items:
-          description: 'Displays a list of all items after filtering.
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
 
-            The values are displayed for each name where meaningful.
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/RemoteProtectionGroup'
-    RemoteProtectionGroupGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/RemoteProtectionGroupResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
     _fixedReferenceWithType:
       allOf:
       - $ref: '#/components/schemas/_fixedReference'
@@ -636,27 +582,18 @@ components:
             '
           type: string
           readOnly: true
-    _context:
+    RemoteProtectionGroupResponse:
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
+        items:
+          description: 'Displays a list of all items after filtering.
 
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            The values are displayed for each name where meaningful.
 
             '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+          type: array
+          items:
+            $ref: '#/components/schemas/RemoteProtectionGroup'
     _fixedReference:
       type: object
       properties:
@@ -679,45 +616,106 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
-    PageInfo:
+    RemoteProtectionGroupGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/RemoteProtectionGroupResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _context:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
+        context:
+          description: 'The context in which the operation was performed.
 
-            query param to get the next page of data.
 
-            If you use the continuation token to page through data you
+            Valid values include a reference to any array which is a member of the same fleet
 
-            are guaranteed to get all items exactly once regardless of
+            or to the fleet itself.
 
-            how items are modified. If an item is added or deleted during
 
-            the pagination then it may or may not be returned.
+            Other parameters provided with the request, such as names of volumes or snapshots,
 
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
+            are resolved relative to the provided `context`.
 
             '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    RemoteProtectionGroup:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_context'
+      - description: 'A remote protection group represents a protection group that is replicated
 
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
+          to an offload target.
 
-            The `total_item_count` will be calculated if and only if the corresponding
+          '
+        type: object
+        properties:
+          destroyed:
+            description: 'Returns a value of `true` if the remote protection group has been destroyed
 
-            query parameter `total_item_count` is set to `true`. If this query parameter
+              and is pending eradication.
 
-            is not set or set to `false`, a value of `null` will be returned.
+              The `time_remaining` value displays the amount of time left
 
-            '
-          type: integer
-          format: int32
+              until the destroyed remote protection group is permanently eradicated.
+
+              Before the `time_remaining` period has elapsed,
+
+              the destroyed remote protection group can be recovered by setting `destroyed=false`.
+
+              Once the `time_remaining` period has elapsed,
+
+              the remote protection group is permanently eradicated and can no longer be recovered.
+
+              '
+            type: boolean
+          is_local:
+            description: 'If set to `true`, the location reference is to the local array.
+
+              If set to `false`, the location reference is to a remote location,
+
+              such as a remote array or offload target.
+
+              '
+            type: boolean
+            readOnly: true
+          remote:
+            description: 'The offload target that the remote protection group is on.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          source:
+            description: 'The array where the remote protection group is replicated from.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          target_retention:
+            description: The retention policy for the remote protection group.
+            title: RetentionPolicy
+            allOf:
+            - $ref: '#/components/schemas/_retentionPolicy'
+          time_remaining:
+            description: 'Milliseconds remaining until eradication, if remote protection group
+
+              has been destroyed.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true

@@ -1,14 +1,16 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Vchost Connections API
+  title: FlashArray REST Vchost Connections API
   version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
+  description: 'A vchost connection is between a protocol endpoint and vchost.
 
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
+    In the context of vchost-connection, the vchost represents a vCenter,
 
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
+    and the protocol endpoint is used to represent a storage container.
 
-    '
+    Creating a vchost connection gives the vCenter access to the storage container.
+
+    If `all_vchosts` is set to `true`, the container will be accessible to all vchosts.'
 servers:
 - url: /
 tags:
@@ -21,19 +23,14 @@ tags:
 
     Creating a vchost connection gives the vCenter access to the storage container.
 
-    If `all_vchosts` is set to `true`, the container will be accessible to all vchosts.
-
-    '
+    If `all_vchosts` is set to `true`, the container will be accessible to all vchosts.'
 paths:
   /api/2.52/vchost-connections:
     get:
       tags:
       - Vchost Connections
-      summary: Pure Storage List the Vchost-connections Between Protocol Endpoint and Vchost.
-      description: 'Displays a list of vchost-connections between the protocol endpoint and vchost.
-
-
-        '
+      summary: Pure Storage List the Vchost-connections Between Protocol Endpoint and Vchost
+      description: Displays a list of vchost-connections between the protocol endpoint and vchost.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -55,10 +52,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VchostConnectionGetResponse'
+      operationId: getApi252VchostConnections
+      x-operation-id-source: derived
     post:
       tags:
       - Vchost Connections
-      summary: Pure Storage Create a Vchost-connection Between Protocol Endpoint and Vchost.
+      summary: Pure Storage Create a Vchost-connection Between Protocol Endpoint and Vchost
       description: 'Creates a vchost-connection between protocol endpoint and vchost.
 
         Each vchost is associated with a vCenter. Each protocol endpoint
@@ -73,9 +72,7 @@ paths:
 
         or `vchost_ids` query parameters are required. But if `all_vchosts` is
 
-        set to `true`, `vchost_names` and `vchost_ids` should not be specified.
-
-        '
+        set to `true`, `vchost_names` and `vchost_ids` should not be specified.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -92,10 +89,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VchostConnectionResponse'
+      operationId: postApi252VchostConnections
+      x-operation-id-source: derived
     delete:
       tags:
       - Vchost Connections
-      summary: Pure Storage Delete the Vchost-connection Between a Protocol Endpoint and its Vchost
+      summary: Pure Storage Delete the Vchost-connection Between a Protocol Endpoint and its…
       description: 'Deletes the vchost-connection between a protocol endpoint and its vchost.
 
         The storage container represented by the protocol endpoint will no longer
@@ -108,10 +107,7 @@ paths:
 
         But if `all_vchosts` is set to `true`, `vchost_names` and `vchost_ids`
 
-        should not be specified.
-
-
-        '
+        should not be specified.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -124,27 +120,25 @@ paths:
         '200':
           description: OK
           content: {}
+      operationId: deleteApi252VchostConnections
+      x-operation-id-source: derived
 components:
   parameters:
-    Offset:
-      name: offset
+    Sort:
+      name: sort
       in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
@@ -171,6 +165,16 @@ components:
         type: array
         items:
           type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -193,6 +197,21 @@ components:
         '
       schema:
         type: string
+    Allow_stretched_multi_vchost:
+      name: allow_stretched_multi_vchost
+      in: query
+      description: 'If set to `true`, users are allowed to create a new
+
+        vchost-connection to a stretched container that already has
+
+        a vchost-connection. In principle, a stretched container can
+
+        only have one vchost-connection at a time.
+
+        '
+      schema:
+        type: boolean
+        default: false
     Protocol_endpoint_names_for_vchost_connections:
       name: protocol_endpoint_names
       in: query
@@ -215,33 +234,6 @@ components:
         type: array
         items:
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Protocol_endpoint_ids_for_vchost_connections:
       name: protocol_endpoint_ids
       in: query
@@ -274,6 +266,41 @@ components:
         '
       schema:
         type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Vchost_ids_for_vchost_connections:
+      name: vchost_ids
+      in: query
+      description: 'A comma-separated list of vchost IDs.
+
+        Performs the operation on the vchosts specified.
+
+        For example, `vchostid01,vchostid02`.
+
+        Cannot be used in conjunction with `vchost_names`.
+
+        If the list contains more than one value,
+
+        then `protocol_endpoint_ids` or `protocol_endpoint_names` must have exactly one value.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     All_vchosts:
       name: all_vchosts
       in: query
@@ -311,54 +338,25 @@ components:
         '
       schema:
         type: boolean
-    Allow_stretched_multi_vchost:
-      name: allow_stretched_multi_vchost
+    Limit:
+      name: limit
       in: query
-      description: 'If set to `true`, users are allowed to create a new
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        vchost-connection to a stretched container that already has
+        To return the total number of resources, set `limit=0`.
 
-        a vchost-connection. In principle, a stretched container can
+        The total number of resources is returned as a `total_item_count` value.
 
-        only have one vchost-connection at a time.
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
       schema:
-        type: boolean
-        default: false
-    Vchost_ids_for_vchost_connections:
-      name: vchost_ids
-      in: query
-      description: 'A comma-separated list of vchost IDs.
-
-        Performs the operation on the vchosts specified.
-
-        For example, `vchostid01,vchostid02`.
-
-        Cannot be used in conjunction with `vchost_names`.
-
-        If the list contains more than one value,
-
-        then `protocol_endpoint_ids` or `protocol_endpoint_names` must have exactly one value.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
   schemas:
     VchostConnectionResponse:
       type: object
@@ -367,69 +365,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/VchostConnection'
-    VchostConnection:
-      type: object
-      properties:
-        all_vchosts:
-          description: 'If set to `true`, the storage container represented by the protocol endpoint
-
-            is accessible to all vchosts. If set to `false`, the storage container
-
-            represented by the protocol endpoint is only accesible to the vchosts that
-
-            have explicit vchost-connections to this protocol endpoint. The default is `false`.
-
-            '
-          type: boolean
-          default: false
-        protocol_endpoint:
-          description: 'A reference to the protocol endpoint, representing a storage container that vCenter can use.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        vchost:
-          description: 'For vchost-connections, a vchost represents a vCenter.
-
-            By connecting to a protocol endpoint, the corresponding vCenter gets
-
-            the access to the storage container represented by this protocol endpoint.
-
-            The vchost name should be null if `all_vchosts` is set to `true`, which means
-
-            the storage container is accessible to all vchosts.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    VchostConnectionGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/VchostConnectionResponse'
     PageInfo:
       type: object
       properties:
@@ -472,3 +407,66 @@ components:
             '
           type: integer
           format: int32
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    VchostConnection:
+      type: object
+      properties:
+        all_vchosts:
+          description: 'If set to `true`, the storage container represented by the protocol endpoint
+
+            is accessible to all vchosts. If set to `false`, the storage container
+
+            represented by the protocol endpoint is only accesible to the vchosts that
+
+            have explicit vchost-connections to this protocol endpoint. The default is `false`.
+
+            '
+          type: boolean
+          default: false
+        protocol_endpoint:
+          description: 'A reference to the protocol endpoint, representing a storage container that vCenter can use.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        vchost:
+          description: 'For vchost-connections, a vchost represents a vCenter.
+
+            By connecting to a protocol endpoint, the corresponding vCenter gets
+
+            the access to the storage container represented by this protocol endpoint.
+
+            The vchost name should be null if `all_vchosts` is set to `true`, which means
+
+            the storage container is accessible to all vchosts.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    VchostConnectionGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/VchostConnectionResponse'

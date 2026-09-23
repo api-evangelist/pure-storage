@@ -1,16 +1,17 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Policies - Audit for File Systems API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: FlashBlade REST Policies - Audit for File Systems API
+  description: OpenAPI specification for FlashBlade REST API, developed by Pure Storage, Inc. (https://www.purestorage.com/).
+  version: '2.26'
+  x-pure-description-ref: ../custom_descriptions/FB-api-introduction.md
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-FA.txt
 servers:
-- url: /
+- url: http://[array]/
+- url: https://[array]/
+security:
+- AuthorizationHeader: []
 tags:
 - name: Policies - Audit for File Systems
   description: Manages audit policies for filesystems. These policies are composed of log target which contain the destination for audit logs.
@@ -61,6 +62,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditFileSystemsPoliciesGetResponse'
+      operationId: getApi226AuditFileSystemsPolicies
+      x-operation-id-source: derived
     post:
       tags:
       - Policies - Audit for File Systems
@@ -90,6 +93,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuditFileSystemsPoliciesResponse'
       x-codegen-request-body-name: policy
+      operationId: postApi226AuditFileSystemsPolicies
+      x-operation-id-source: derived
     delete:
       tags:
       - Policies - Audit for File Systems
@@ -109,6 +114,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226AuditFileSystemsPolicies
+      x-operation-id-source: derived
     patch:
       tags:
       - Policies - Audit for File Systems
@@ -139,6 +146,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuditFileSystemsPoliciesResponse'
       x-codegen-request-body-name: policy
+      operationId: patchApi226AuditFileSystemsPolicies
+      x-operation-id-source: derived
   /api/2.26/audit-file-systems-policies/members:
     get:
       tags:
@@ -187,6 +196,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditFileSystemsPoliciesMembersGetResponse'
+      operationId: getApi226AuditFileSystemsPoliciesMembers
+      x-operation-id-source: derived
     post:
       tags:
       - Policies - Audit for File Systems
@@ -211,6 +222,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditFileSystemsPoliciesMembersResponse'
+      operationId: postApi226AuditFileSystemsPoliciesMembers
+      x-operation-id-source: derived
     delete:
       tags:
       - Policies - Audit for File Systems
@@ -232,6 +245,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226AuditFileSystemsPoliciesMembers
+      x-operation-id-source: derived
   /api/2.26/audit-file-systems-policy-operations:
     get:
       tags:
@@ -241,10 +256,7 @@ paths:
 
         Each string is either a valid operation or our custom group of operations (`ReadOnly`, `WriteOnly`).
 
-        Each of the operations, when included in a rule, will audit the operation on the file system.
-
-
-        '
+        Each of the operations, when included in a rule, will audit the operation on the file system.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Allow_errors'
@@ -267,32 +279,117 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditFileSystemsPolicyOperationGetResponse'
+      operationId: getApi226AuditFileSystemsPolicyOperations
+      x-operation-id-source: derived
 components:
   schemas:
-    _referenceWithoutType:
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    AuditFileSystemsPolicy:
+      allOf:
+      - $ref: '#/components/schemas/AuditFileSystemsPolicyNoContext'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          control_type:
+            type: string
+            description: 'Specifies the evaluation mode for auditing in this policy.
+
+              Valid values are "policy", "sacl". If not specified, the default value is "sacl".
+
+              '
+          log_targets:
+            description: 'List of targets which will be utilized for audit log storage.
+
+              These may either be file system targets or remote syslog server targets.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_referenceWritable'
+          rules:
+            type: array
+            maxItems: 2
+            items:
+              $ref: '#/components/schemas/AuditFileSystemsPolicyRuleInPolicy'
+            description: 'All of the rules that are part of this policy.
+
+              '
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
       type: object
       properties:
         id:
           description: 'A globally unique, system-generated ID.
 
-            The ID cannot be modified.
+            The ID cannot be modified and cannot refer to another resource.
 
             '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    _builtInNoId:
-      type: object
-      properties:
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    PolicyMemberContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -324,55 +421,58 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    AuditFileSystemsPoliciesGetResponse:
+    AuditFileSystemsPoliciesPost:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AuditFileSystemsPoliciesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    AuditFileSystemsPoliciesResponse:
+      - $ref: '#/components/schemas/AuditFileSystemsPolicyNoContext'
+    AuditFileSystemsPoliciesMembersResponse:
       type: object
       properties:
         items:
-          description: A list of audit policy objects.
+          description: A list of members for audit policies.
           type: array
           items:
-            $ref: '#/components/schemas/AuditFileSystemsPolicy'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
+            $ref: '#/components/schemas/PolicyMemberContext'
+    AuditFileSystemsPolicyOperationResponse:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditFileSystemsPolicyOperation'
+    AuditFileSystemsPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/AuditFileSystemsPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    AuditFileSystemsPolicyNoContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+      - $ref: '#/components/schemas/_resource'
+      - properties:
+          control_type:
+            type: string
+            description: 'Specifies the evaluation mode for auditing in this policy.
 
-            The ID cannot be modified and cannot refer to another resource.
+              Valid values are "policy", "sacl". If not specified, the default value is "sacl".
 
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
+              '
+          log_targets:
+            description: 'List of targets which will be utilized for audit log storage.
 
-            The name must be locally unique and can be changed.
+              These may either be file system targets or remote syslog server targets.
 
-            '
-          type: string
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_reference'
+          rules:
+            type: array
+            maxItems: 2
+            items:
+              $ref: '#/components/schemas/AuditFileSystemsPolicyRuleInPolicy'
+            description: 'All of the rules that are part of this policy.
+
+              '
     _reference:
       type: object
       properties:
@@ -406,83 +506,6 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    AuditFileSystemsPolicyOperationResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AuditFileSystemsPolicyOperation'
-    AuditFileSystemsPolicyRuleInPolicy:
-      allOf:
-      - $ref: '#/components/schemas/AuditFileSystemsPolicyRuleBase'
-    AuditFileSystemsPolicyNoContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-      - $ref: '#/components/schemas/_resource'
-      - properties:
-          control_type:
-            type: string
-            description: 'Specifies the evaluation mode for auditing in this policy.
-
-              Valid values are "policy", "sacl". If not specified, the default value is "sacl".
-
-              '
-          log_targets:
-            description: 'List of targets which will be utilized for audit log storage.
-
-              These may either be file system targets or remote syslog server targets.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_reference'
-          rules:
-            type: array
-            maxItems: 2
-            items:
-              $ref: '#/components/schemas/AuditFileSystemsPolicyRuleInPolicy'
-            description: 'All of the rules that are part of this policy.
-
-              '
     AuditFileSystemsPolicyRuleBase:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -508,64 +531,51 @@ components:
             - read
             - write
             - getattr
-    AuditFileSystemsPoliciesMembersResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for audit policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-    AuditFileSystemsPolicyOperation:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - type: object
-        properties:
-          description:
-            type: string
-            readOnly: true
-            description: 'A description of the operation.
-
-              '
-            example: Configures auditing on read, write of files in a file system.
-    _builtIn:
+    _referenceWithoutType:
       type: object
       properties:
         id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
 
             '
           type: string
-          readOnly: true
         name:
-          description: Name of the object (e.g., a file system or snapshot).
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
           type: string
-          readOnly: true
-    AuditFileSystemsPolicyOperationGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AuditFileSystemsPolicyOperationResponse'
-    _context:
+    PageInfo:
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
 
+            param to get the next page of data.
 
-            Valid values include a reference to any array which is a member of the same fleet
+            If you use the `continuation_token` to page through data you
 
-            or to the fleet itself.
+            are guaranteed to get all items exactly once regardless of
 
+            how items are modified. If an item is added or deleted during
 
-            Other parameters provided with the request, such as names of volumes or snapshots,
+            the pagination then it may or may not be returned.
 
-            are resolved relative to the provided `context`.
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
 
             '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     PolicyBaseRenameable:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -598,10 +608,6 @@ components:
               '
             type: string
             readOnly: true
-    PolicyMemberContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context'
     AuditFileSystemsPoliciesPatch:
       allOf:
       - $ref: '#/components/schemas/AuditFileSystemsPolicyPatchBase'
@@ -627,9 +633,6 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/_reference'
-    AuditFileSystemsPoliciesPost:
-      allOf:
-      - $ref: '#/components/schemas/AuditFileSystemsPolicyNoContext'
     AuditFileSystemsPolicyPatchBase:
       allOf:
       - $ref: '#/components/schemas/PolicyBaseRenameable'
@@ -659,6 +662,26 @@ components:
             description: 'All of the rules that are part of this policy.
 
               '
+    AuditFileSystemsPolicyOperationGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/AuditFileSystemsPolicyOperationResponse'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    AuditFileSystemsPolicyRuleInPolicy:
+      allOf:
+      - $ref: '#/components/schemas/AuditFileSystemsPolicyRuleBase'
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -676,142 +699,99 @@ components:
               '
             type: string
             readOnly: true
-    _realmsReference:
+    AuditFileSystemsPoliciesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/AuditFileSystemsPoliciesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    AuditFileSystemsPolicyOperation:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - type: object
+        properties:
+          description:
+            type: string
+            readOnly: true
+            description: 'A description of the operation.
+
+              '
+            example: Configures auditing on read, write of files in a file system.
+    _fixedReferenceWithoutType:
       type: object
       properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
+            The ID cannot be modified.
 
             '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _builtInNoId:
+      type: object
+      properties:
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    AuditFileSystemsPoliciesResponse:
+      type: object
+      properties:
+        items:
+          description: A list of audit policy objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditFileSystemsPolicy'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/_fixedReference'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    AuditFileSystemsPolicy:
-      allOf:
-      - $ref: '#/components/schemas/AuditFileSystemsPolicyNoContext'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          control_type:
-            type: string
-            description: 'Specifies the evaluation mode for auditing in this policy.
-
-              Valid values are "policy", "sacl". If not specified, the default value is "sacl".
-
-              '
-          log_targets:
-            description: 'List of targets which will be utilized for audit log storage.
-
-              These may either be file system targets or remote syslog server targets.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_referenceWritable'
-          rules:
-            type: array
-            maxItems: 2
-            items:
-              $ref: '#/components/schemas/AuditFileSystemsPolicyRuleInPolicy'
-            description: 'All of the rules that are part of this policy.
-
-              '
-    AuditFileSystemsPoliciesMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AuditFileSystemsPoliciesMembersResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    PolicyMember:
-      type: object
-      properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
+            $ref: '#/components/schemas/_errorContextResponseErrors'
   parameters:
-    Filter:
-      name: filter
+    Sort:
+      name: sort
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        that satisfy the filter criteria.
+        is appended to the field name).
 
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
+        the response.
 
         '
       style: form
@@ -819,64 +799,7 @@ components:
       schema:
         type: array
         items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     XRequestId:
       name: X-Request-ID
@@ -905,6 +828,62 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Names:
       name: names
       in: query
@@ -958,6 +937,30 @@ components:
         type: array
         items:
           type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Member_ids:
       name: member_ids
       in: query
@@ -976,10 +979,22 @@ components:
         type: array
         items:
           type: string
-    Member_names:
-      name: member_names
+    Context_names:
+      name: context_names
       in: query
-      description: 'A comma-separated list of member names.
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -988,6 +1003,19 @@ components:
         type: array
         items:
           type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
     Ids:
       name: ids
       in: query
@@ -1006,16 +1034,16 @@ components:
         type: array
         items:
           type: string
-    Sort:
-      name: sort
+    Policy_ids:
+      name: policy_ids
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A comma-separated list of policy IDs.
 
-        is appended to the field name).
+        If after filtering, there is not at least one resource that matches
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        each of the elements of `policy_ids`, then an error is returned.
 
-        the response.
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -1023,18 +1051,13 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header

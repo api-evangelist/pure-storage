@@ -1,32 +1,29 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Metrics API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure1 Public REST Metrics API
+  description: Pure1 Public REST API, developed by Pure Storage, Inc.
+  version: '1.5'
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-P1.txt
+    backgroundColor: '#fff'
+    altText: Pure Storage logo
 servers:
-- url: /
+- url: https://api-staging.pure1.purestorage.com/
+security:
+- AuthorizationHeader: []
 tags:
 - name: Metrics
   description: 'Provides information about historical metrics for arrays, buckets, directories,
 
-    file systems, pods, subscription licenses, and volumes.
-
-    '
+    file systems, pods, subscription licenses, and volumes.'
 paths:
   /api/1.5/metrics:
     get:
       tags:
       - Metrics
       summary: Pure Storage Get Metrics
-      description: 'Retrieves information about metrics that can be queried for.
-
-        '
+      description: Retrieves information about metrics that can be queried for.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -80,6 +77,8 @@ paths:
           $ref: '#/components/responses/Error429'
         '500':
           $ref: '#/components/responses/Error500'
+      operationId: getApi15Metrics
+      x-operation-id-source: derived
   /api/1.5/metrics/history:
     get:
       tags:
@@ -97,9 +96,7 @@ paths:
 
         or a combination of both, multiple metrics for multiple resources,
 
-        (e.g., load and bandwidth for arrayA and arrayB - 4 time series).
-
-        '
+        (e.g., load and bandwidth for arrayA and arrayB - 4 time series).'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -153,35 +150,66 @@ paths:
           $ref: '#/components/responses/Error429'
         '500':
           $ref: '#/components/responses/Error500'
+      operationId: getApi15MetricsHistory
+      x-operation-id-source: derived
 components:
   schemas:
-    MetricGetResponse:
+    _fixedReferenceFqdn:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/MetricResponse'
-    Error:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered.
-          type: array
-          items:
-            $ref: '#/components/schemas/_errorErrors'
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
-    ErrorNoContext:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Something was wrong
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    Metric:
+      description: 'A type of measurement recorded on a resource.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - type: object
+        properties:
+          availabilities:
+            description: 'The available resolutions, aggregations and retentions of this metric.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_metricAvailability'
+          description:
+            description: The additional description for the the metric.
+            type: string
+            readOnly: true
+          resource_types:
+            description: 'The type of resource (as described by their endpoints) that this metric
+
+              is available at. NOTE that a metric could be available for a combination
+
+              of resource types, e.g. mirrored writes from "arrays" to "pods".
+
+              '
+            type: array
+            readOnly: true
+            items:
+              type: string
+              description: 'Valid values are `arrays`, `pods`, and `volumes`.
+
+                '
+              example: example_resource_type
+          unit:
+            description: The unit of the metric.
+            type: string
+            readOnly: true
+            example: B/s
+        x-readOnly: true
     _errorErrors:
       type: object
       properties:
@@ -191,6 +219,80 @@ components:
         message:
           type: string
           example: Something was wrong
+    MetricGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/MetricResponse'
+    MetricHistoryResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricHistory'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: The opaque and unique id of this resource.
+          type: string
+          readOnly: true
+          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+        name:
+          description: The name of this resource.
+          type: string
+          readOnly: true
+          example: example_name
+        resource_type:
+          description: 'The type of this resource represented by the name of its REST endpoint.
+
+            For example, "arrays", "network-interfaces", and "metrics".
+
+            The value may be `null` if the resource is not represented.
+
+            '
+          type: string
+          readOnly: true
+          example: example_resource_type
+      x-readOnly: true
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
     MetricResponse:
       type: object
       properties:
@@ -224,31 +326,6 @@ components:
           readOnly: true
           example: 2592000000
       x-readOnly: true
-    MetricHistoryResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/MetricHistory'
-    MetricHistoryGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/MetricHistoryResponse'
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
     _builtInAsOf:
       description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
 
@@ -343,135 +420,26 @@ components:
             readOnly: true
             example: B/s
         x-readOnly: true
-    Metric:
-      description: 'A type of measurement recorded on a resource.
-
-        '
+    MetricHistoryGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - type: object
-        properties:
-          availabilities:
-            description: 'The available resolutions, aggregations and retentions of this metric.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_metricAvailability'
-          description:
-            description: The additional description for the the metric.
-            type: string
-            readOnly: true
-          resource_types:
-            description: 'The type of resource (as described by their endpoints) that this metric
-
-              is available at. NOTE that a metric could be available for a combination
-
-              of resource types, e.g. mirrored writes from "arrays" to "pods".
-
-              '
-            type: array
-            readOnly: true
-            items:
-              type: string
-              description: 'Valid values are `arrays`, `pods`, and `volumes`.
-
-                '
-              example: example_resource_type
-          unit:
-            description: The unit of the metric.
-            type: string
-            readOnly: true
-            example: B/s
-        x-readOnly: true
-    _fixedReference:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/MetricHistoryResponse'
+    ErrorNoContext:
       type: object
       properties:
-        id:
-          description: The opaque and unique id of this resource.
+        message:
           type: string
-          readOnly: true
-          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-        name:
-          description: The name of this resource.
-          type: string
-          readOnly: true
-          example: example_name
-        resource_type:
-          description: 'The type of this resource represented by the name of its REST endpoint.
-
-            For example, "arrays", "network-interfaces", and "metrics".
-
-            The value may be `null` if the resource is not represented.
-
-            '
-          type: string
-          readOnly: true
-          example: example_resource_type
-      x-readOnly: true
-    PageInfo:
+          example: Something was wrong
+    _timeAware:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the continuation_token
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
-        total_item_count:
-          description: Total number of items after applying filter params.
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
           type: integer
-          format: int32
-          example: 1
+          format: int64
+          readOnly: true
+          example: 1502729489760
   responses:
-    Error404:
-      description: NOT FOUND
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Error500:
       description: INTERNAL SERVER ERROR
       headers:
@@ -503,17 +471,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error403:
-      description: FORBIDDEN
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorNoContext'
     Error400:
       description: BAD REQUEST
       headers:
@@ -576,7 +533,68 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     NamesRequired:
       name: names
       in: query
@@ -599,16 +617,36 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Offset:
-      name: offset
+    Resource_namesRequired:
+      name: resource_names
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'REQUIRED: either `resource_ids` or `resource_names`.
+
+        A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `resource_name`
+
+        element, an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
+        type: string
     Filter:
       name: filter
       in: query
@@ -635,35 +673,111 @@ components:
         type: string
         x-quoted: true
       x-quoted: true
-    XRequestId:
-      name: X-Request-ID
+    Start_timeRequired:
+      name: start_time
+      in: query
+      description: 'Timestamp of when the time window starts. Measured in milliseconds since the UNIX epoch.
+
+        '
+      required: true
+      schema:
+        type: integer
+        format: int64
+    AggregationRequired:
+      name: aggregation
+      in: query
+      description: 'Aggregation needed on the metric data.
+
+        Valid values are `avg` and `max`.
+
+        Single quotes are required around all strings.
+
+        Latency metrics averages are weighted by the IOPS.
+
+        '
+      required: true
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Names:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    End_timeRequired:
+      name: end_time
+      in: query
+      description: 'Timestamp of when the time window ends. Measured in milliseconds since the UNIX epoch.
+
+        '
+      required: true
+      schema:
+        type: integer
+        format: int64
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    ResolutionRequired:
+      name: resolution
+      in: query
+      description: 'The duration of time between individual data points, in milliseconds.
+
+        '
+      required: true
+      schema:
+        type: integer
+        format: int64
+    Authorization:
+      name: Authorization
       in: header
-      description: 'Supplied by client during request or generated by server.
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
 
         '
       schema:
         type: string
-    Limit:
-      name: limit
+    Offset:
+      name: offset
       in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
+      description: 'The offset of the first resource to return from a collection.
 
         '
       schema:
         type: integer
         format: int32
+        minimum: 0
     IdsRequired:
       name: ids
       in: query
@@ -708,34 +822,6 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
-    Names:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
     Resource_types:
       name: resource_types
       in: query
@@ -764,111 +850,29 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Resource_namesRequired:
-      name: resource_names
+    Limit:
+      name: limit
       in: query
-      description: 'REQUIRED: either `resource_ids` or `resource_names`.
+      description: 'Limit the size of the response to the specified number of resources.
 
-        A comma-separated list of resource names.
+        A limit of 0 can be used to get the number of resources without getting
 
-        If there is not at least one resource that matches each `resource_name`
+        all of the resources. It will be returned in the total_item_count field.
 
-        element, an error is returned.
+        If a client asks for a page size larger than the maximum number, the request
 
-        Single quotes are required around all strings.
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
 
         '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Start_timeRequired:
-      name: start_time
-      in: query
-      description: 'Timestamp of when the time window starts. Measured in milliseconds since the UNIX epoch.
-
-        '
-      required: true
       schema:
         type: integer
-        format: int64
-    ResolutionRequired:
-      name: resolution
-      in: query
-      description: 'The duration of time between individual data points, in milliseconds.
-
-        '
-      required: true
-      schema:
-        type: integer
-        format: int64
-    AggregationRequired:
-      name: aggregation
-      in: query
-      description: 'Aggregation needed on the metric data.
-
-        Valid values are `avg` and `max`.
-
-        Single quotes are required around all strings.
-
-        Latency metrics averages are weighted by the IOPS.
-
-        '
-      required: true
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    End_timeRequired:
-      name: end_time
-      in: query
-      description: 'Timestamp of when the time window ends. Measured in milliseconds since the UNIX epoch.
-
-        '
-      required: true
-      schema:
-        type: integer
-        format: int64
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        If you provide a sort you will not get a continuation token in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+        format: int32
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: Authorization
+      in: header

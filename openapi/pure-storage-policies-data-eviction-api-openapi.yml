@@ -1,16 +1,17 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Policies - Data Eviction API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: FlashBlade REST Policies - Data Eviction API
+  description: OpenAPI specification for FlashBlade REST API, developed by Pure Storage, Inc. (https://www.purestorage.com/).
+  version: '2.26'
+  x-pure-description-ref: ../custom_descriptions/FB-api-introduction.md
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-FA.txt
 servers:
-- url: /
+- url: http://[array]/
+- url: https://[array]/
+security:
+- AuthorizationHeader: []
 tags:
 - name: Policies - Data Eviction
   description: Manages file Data Eviction policies. These policies define controls that can be configured and attached to managed data lifecycle independently of the lifecycle of files.
@@ -61,6 +62,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DataEvictionPoliciesGetResponse'
+      operationId: getApi226DataEvictionPolicies
+      x-operation-id-source: derived
     post:
       tags:
       - Policies - Data Eviction
@@ -90,6 +93,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/DataEvictionPoliciesResponse'
       x-codegen-request-body-name: policy
+      operationId: postApi226DataEvictionPolicies
+      x-operation-id-source: derived
     delete:
       tags:
       - Policies - Data Eviction
@@ -109,6 +114,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226DataEvictionPolicies
+      x-operation-id-source: derived
     patch:
       tags:
       - Policies - Data Eviction
@@ -139,6 +146,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/DataEvictionPoliciesResponse'
       x-codegen-request-body-name: policy
+      operationId: patchApi226DataEvictionPolicies
+      x-operation-id-source: derived
   /api/2.26/data-eviction-policies/file-systems:
     get:
       summary: Pure Storage GET Data-eviction-policies/file-systems
@@ -187,6 +196,8 @@ paths:
                 $ref: '#/components/schemas/DataEvictionPoliciesMembersGetResponse'
       tags:
       - Policies - Data Eviction
+      operationId: getApi226DataEvictionPoliciesFileSystems
+      x-operation-id-source: derived
     post:
       summary: Pure Storage POST Data-eviction-policies/file-systems
       description: Maps a data eviction policy to a file system.
@@ -211,6 +222,8 @@ paths:
                 $ref: '#/components/schemas/DataEvictionPoliciesMembersResponse'
       tags:
       - Policies - Data Eviction
+      operationId: postApi226DataEvictionPoliciesFileSystems
+      x-operation-id-source: derived
     delete:
       summary: Pure Storage DELETE Data-eviction-policies/file-systems
       description: Removes the data eviction policy mapped to a file system.
@@ -231,6 +244,8 @@ paths:
                 type: string
       tags:
       - Policies - Data Eviction
+      operationId: deleteApi226DataEvictionPoliciesFileSystems
+      x-operation-id-source: derived
   /api/2.26/data-eviction-policies/members:
     get:
       tags:
@@ -279,16 +294,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DataEvictionPoliciesMembersGetResponse'
+      operationId: getApi226DataEvictionPoliciesMembers
+      x-operation-id-source: derived
 components:
   schemas:
-    DataEvictionPoliciesMembersResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-          description: A list of members for data eviction policies.
     PolicyMember:
       type: object
       properties:
@@ -302,57 +311,6 @@ components:
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference'
-    _errorContextResponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    DataEvictionPoliciesResponse:
-      type: object
-      properties:
-        items:
-          description: A list of Data Eviction policy objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/DataEvictionPolicy'
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -393,36 +351,9 @@ components:
               '
             type: integer
             format: int64
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    DataEvictionPoliciesGetResponse:
+    PolicyBase:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/DataEvictionPoliciesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    DataEvictionPoliciesMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/DataEvictionPoliciesMembersResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
     DataEvictionPolicy:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -437,27 +368,97 @@ components:
               '
             type: integer
             format: int64
-    _context:
+    DataEvictionPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/DataEvictionPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    PolicyMemberContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context'
+    _errorContextResponseErrors:
       type: object
       properties:
         context:
-          description: 'The context in which the operation was performed.
+          description: 'Contains information relating to the cause of this error,
 
+            or the name of the object that was being processed when the error was encountered.
 
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            This may be `null` for more general errors.
 
             '
-          readOnly: true
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+    DataEvictionPoliciesMembersResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
+          description: A list of members for data eviction policies.
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     PolicyBaseRenameable:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -490,21 +491,14 @@ components:
               '
             type: string
             readOnly: true
-    _realmsReference:
+    DataEvictionPoliciesResponse:
       type: object
       properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
+        items:
+          description: A list of Data Eviction policy objects.
           type: array
-          readOnly: true
           items:
-            $ref: '#/components/schemas/_fixedReference'
+            $ref: '#/components/schemas/DataEvictionPolicy'
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -522,83 +516,72 @@ components:
               '
             type: string
             readOnly: true
-    PolicyMemberContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context'
-    PageInfo:
+    _fixedReferenceWithoutType:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
+            The ID cannot be modified.
 
             '
           type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    DataEvictionPoliciesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/DataEvictionPoliciesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
   parameters:
-    Filter:
-      name: filter
+    Sort:
+      name: sort
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        that satisfy the filter criteria.
+        is appended to the field name).
 
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
+        the response.
 
         '
       style: form
@@ -606,77 +589,7 @@ components:
       schema:
         type: array
         items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     XRequestId:
       name: X-Request-ID
@@ -705,6 +618,62 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Names:
       name: names
       in: query
@@ -758,6 +727,30 @@ components:
         type: array
         items:
           type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Member_ids:
       name: member_ids
       in: query
@@ -776,10 +769,22 @@ components:
         type: array
         items:
           type: string
-    Member_names:
-      name: member_names
+    Context_names:
+      name: context_names
       in: query
-      description: 'A comma-separated list of member names.
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -788,6 +793,19 @@ components:
         type: array
         items:
           type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
     Ids:
       name: ids
       in: query
@@ -806,16 +824,16 @@ components:
         type: array
         items:
           type: string
-    Sort:
-      name: sort
+    Policy_ids:
+      name: policy_ids
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A comma-separated list of policy IDs.
 
-        is appended to the field name).
+        If after filtering, there is not at least one resource that matches
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        each of the elements of `policy_ids`, then an error is returned.
 
-        the response.
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -823,5 +841,13 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header

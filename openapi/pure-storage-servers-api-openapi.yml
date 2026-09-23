@@ -1,16 +1,15 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Servers API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure Storage Servers API
+  x-refined-note:
+  - x-logo differs across the merged source definitions and was not carried
+  - x-pure-description-ref differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged Servers across 2 of this provider''s published API definitions: flasharray-rest-api-openapi.yml, flashblade-rest-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
+- url: http://[array]/
+- url: https://[array]/
 tags:
 - name: Servers
 paths:
@@ -19,9 +18,7 @@ paths:
       tags:
       - Servers
       summary: Pure Storage List Servers
-      description: 'Displays a list of servers.
-
-        '
+      description: Displays a list of servers.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -42,15 +39,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerGetResponse'
+      operationId: getApi252Servers
+      x-operation-id-source: derived
     post:
       tags:
       - Servers
       summary: Pure Storage Create Server
       description: 'Creates a server on the local array.
 
-        The server must be given a unique name.
-
-        '
+        The server must be given a unique name.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -71,13 +68,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServerResponse'
       x-codegen-request-body-name: server
+      operationId: postApi252Servers
+      x-operation-id-source: derived
     delete:
       tags:
       - Servers
       summary: Pure Storage Delete Server
-      description: 'Deletes a server.
-
-        '
+      description: Deletes a server.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -88,13 +85,13 @@ paths:
         '200':
           description: OK
           content: {}
+      operationId: deleteApi252Servers
+      x-operation-id-source: derived
     patch:
       tags:
       - Servers
       summary: Pure Storage Modify Server
-      description: 'Modifies server details.
-
-        '
+      description: Modifies server details.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -115,6 +112,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServerResponse'
       x-codegen-request-body-name: server
+      operationId: patchApi252Servers
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.26/servers:
     get:
       tags:
@@ -161,6 +162,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerGetResponse_2'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226Servers
+      x-operation-id-source: derived
     post:
       tags:
       - Servers
@@ -191,6 +196,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServerResponse_2'
       x-codegen-request-body-name: server
+      security:
+      - AuthorizationHeader: []
+      operationId: postApi226Servers
+      x-operation-id-source: derived
     delete:
       tags:
       - Servers
@@ -210,6 +219,10 @@ paths:
               schema:
                 type: string
           content: {}
+      security:
+      - AuthorizationHeader: []
+      operationId: deleteApi226Servers
+      x-operation-id-source: derived
     patch:
       tags:
       - Servers
@@ -239,59 +252,42 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServerResponse_2'
       x-codegen-request-body-name: server
+      security:
+      - AuthorizationHeader: []
+      operationId: patchApi226Servers
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
 components:
   schemas:
-    ServerPatch_2:
-      allOf:
-      - $ref: '#/components/schemas/ServerPost_2'
-    ServerContext:
-      allOf:
-      - $ref: '#/components/schemas/Server_2'
-      - $ref: '#/components/schemas/_context_2'
-    ServerPatch:
-      allOf:
-      - $ref: '#/components/schemas/_newName'
-      - $ref: '#/components/schemas/ServerPost'
-    _errorContextResponseErrors:
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
       type: object
       properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
+            The ID cannot be modified and cannot refer to another resource.
 
             '
           type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
           readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
     ServerPost:
       type: object
       properties:
@@ -323,78 +319,6 @@ components:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/ServerResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
-    _newName:
-      type: object
-      properties:
-        name:
-          description: The new name for the resource.
-          type: string
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -428,15 +352,67 @@ components:
           example: Resource does not exist.
       x-aliases:
       - _errorContextResponseErrors
-    _errorContextResponse_2:
+    _reference:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
     _fixedReferenceWithType:
       allOf:
       - $ref: '#/components/schemas/_fixedReference'
@@ -456,58 +432,52 @@ components:
             readOnly: true
       x-aliases:
       - _fixedReference
-    ServerPost_2:
+    ServerPatch:
+      allOf:
+      - $ref: '#/components/schemas/_newName'
+      - $ref: '#/components/schemas/ServerPost'
+    _newName:
       type: object
       properties:
-        dns:
-          description: 'The DNS config to be used by this server.
+        name:
+          description: The new name for the resource.
+          type: string
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
 
             '
-          type: array
-          maxItems: 1
-          items:
-            $ref: '#/components/schemas/_reference_2'
-        local_directory_service:
-          description: 'The Local Directory Service to be associated to the server.
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
 
             '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference_2'
-    ServerResponse_2:
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    ServerResponse:
       type: object
       properties:
         items:
-          description: A list of server objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Server_2'
-    ServerGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/ServerResponseContext'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
+          description: 'The aggregate value of all items after filtering.
 
+            When applicable, the average value is displayed instead.
 
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            The values are displayed for each field, if meaningful.
 
             '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+          type: array
+          items:
+            $ref: '#/components/schemas/Server'
     Server:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -551,7 +521,7 @@ components:
             title: FixedReferenceWithType
             allOf:
             - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _context_2:
+    _context:
       type: object
       properties:
         context:
@@ -569,9 +539,22 @@ components:
 
             '
           readOnly: true
-          title: FixedReference
+          title: FixedReferenceWithType
           allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    ServerContext:
+      allOf:
+      - $ref: '#/components/schemas/Server_2'
+      - $ref: '#/components/schemas/_context_2'
     ServerResponseContext:
       type: object
       properties:
@@ -580,6 +563,60 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ServerContext'
+    ServerPost_2:
+      type: object
+      properties:
+        dns:
+          description: 'The DNS config to be used by this server.
+
+            '
+          type: array
+          maxItems: 1
+          items:
+            $ref: '#/components/schemas/_reference_2'
+        local_directory_service:
+          description: 'The Local Directory Service to be associated to the server.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference_2'
+    ServerGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/ServerResponseContext'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
     _reference_2:
       type: object
       properties:
@@ -613,23 +650,6 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
     PageInfo_2:
       type: object
       properties:
@@ -658,7 +678,27 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    _fixedReference:
+    ServerPatch_2:
+      allOf:
+      - $ref: '#/components/schemas/ServerPost_2'
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _fixedReferenceWithoutType:
       type: object
       properties:
         id:
@@ -678,22 +718,14 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    ServerResponse:
+    ServerResponse_2:
       type: object
       properties:
         items:
-          description: 'The aggregate value of all items after filtering.
-
-            When applicable, the average value is displayed instead.
-
-            The values are displayed for each field, if meaningful.
-
-            '
+          description: A list of server objects.
           type: array
           items:
-            $ref: '#/components/schemas/Server'
+            $ref: '#/components/schemas/Server_2'
     Server_2:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -722,87 +754,56 @@ components:
             readOnly: true
             items:
               $ref: '#/components/schemas/_fixedReference_2'
-    PageInfo:
+    _context_2:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
+        context:
+          description: 'The context in which the operation was performed.
 
-            query param to get the next page of data.
 
-            If you use the continuation token to page through data you
+            Valid values include a reference to any array which is a member of the same fleet
 
-            are guaranteed to get all items exactly once regardless of
+            or to the fleet itself.
 
-            how items are modified. If an item is added or deleted during
 
-            the pagination then it may or may not be returned.
+            Other parameters provided with the request, such as names of volumes or snapshots,
 
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
+            are resolved relative to the provided `context`.
 
             '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
   parameters:
-    Fqnames:
-      name: names
+    Sort:
+      name: sort
       in: query
-      description: 'Performs the operation on the unique name specified.
-
-        Enter multiple names in comma-separated format.
-
-        The name is expected to be fully qualified, meaning if the object is contained in some context,
-
-        the corresponding name would provide complete information about the containment hierarchy.
-
-        For example, `name01,pod01::name01`.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Cascade_delete_2:
-      name: cascade_delete
-      in: query
-      description: 'The resource types to delete when deleting this object. It will fail if the resources are
-
-        referenced by other objects.
-
-        Valid values include `directory-services`.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
-      required: true
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-      example: directory-services
+        type: string
     Filter:
       name: filter
       in: query
@@ -813,58 +814,6 @@ components:
         '
       schema:
         type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Create_local_directory_service:
-      name: create_local_directory_service
-      in: query
-      description: 'The name of the local directory service object to be created and associated to the server.
-
-        This parameter cannot be used together with `local_directory_service` property in the request
-
-        entity.
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
     Continuation_token:
       name: continuation_token
       in: query
@@ -887,89 +836,32 @@ components:
         '
       schema:
         type: string
-    Offset_2:
-      name: offset
+    Create_local_directory_service:
+      name: create_local_directory_service
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'The name of the local directory service object to be created and associated to the server.
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Create_ds:
-      name: create_ds
-      in: query
-      description: 'The name of the directory service object to create used for NFS access to this server.
+        This parameter cannot be used together with `local_directory_service` property in the request
 
-        The name must be the server `name` followed by _nfs.
-
-        '
-      required: true
-      schema:
-        type: string
-      example: server1_nfs
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
+        entity.
 
         '
       schema:
         type: string
-    Limit:
-      name: limit
+    Total_only:
+      name: total_only
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
 
-        To return the total number of resources, set `limit=0`.
+        Where it makes more sense, the average value is displayed instead.
 
-        The total number of resources is returned as a `total_item_count` value.
+        The values are displayed for each name where meaningful.
 
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+        If `total_only=true`, the `items` list will be empty.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+        type: boolean
     Context_names_get:
       name: context_names
       in: query
@@ -1000,6 +892,113 @@ components:
         type: array
         items:
           type: string
+    Cascade_delete:
+      name: cascade_delete
+      in: query
+      description: 'The resource types to delete when deleting the object.
+
+        It will fail if the resources are referenced by other objects.
+
+        Valid values include `directory-services`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      example: directory-services
+    Fqnames:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        Enter multiple names in comma-separated format.
+
+        The name is expected to be fully qualified, meaning if the object is contained in some context,
+
+        the corresponding name would provide complete information about the containment hierarchy.
+
+        For example, `name01,pod01::name01`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Sort_2:
       name: sort
       in: query
@@ -1019,16 +1018,96 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Ids:
-      name: ids
+    Create_ds:
+      name: create_ds
       in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      description: 'The name of the directory service object to create used for NFS access to this server.
+
+        The name must be the server `name` followed by _nfs.
+
+        '
+      required: true
+      schema:
+        type: string
+      example: server1_nfs
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
       style: form
       explode: false
       schema:
         type: array
         items:
           type: string
+    Cascade_delete_2:
+      name: cascade_delete
+      in: query
+      description: 'The resource types to delete when deleting this object. It will fail if the resources are
+
+        referenced by other objects.
+
+        Valid values include `directory-services`.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      example: directory-services
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
     Ids_2:
       name: ids
       in: query
@@ -1047,62 +1126,15 @@ components:
         type: array
         items:
           type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Cascade_delete:
-      name: cascade_delete
-      in: query
-      description: 'The resource types to delete when deleting the object.
-
-        It will fail if the resources are referenced by other objects.
-
-        Valid values include `directory-services`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-      example: directory-services
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header
+x-refined-from:
+- flasharray-rest-api-openapi.yml
+- flashblade-rest-api-openapi.yml

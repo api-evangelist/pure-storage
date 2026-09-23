@@ -1,16 +1,17 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Policies - TLS API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: FlashBlade REST Policies - TLS API
+  description: OpenAPI specification for FlashBlade REST API, developed by Pure Storage, Inc. (https://www.purestorage.com/).
+  version: '2.26'
+  x-pure-description-ref: ../custom_descriptions/FB-api-introduction.md
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-FA.txt
 servers:
-- url: /
+- url: http://[array]/
+- url: https://[array]/
+security:
+- AuthorizationHeader: []
 tags:
 - name: Policies - TLS
   description: A TLS policy manages the allowed TLS versions and ciphers for incoming network traffic to the system. These policies can be applied at the array level, or to individual network IPs.
@@ -44,6 +45,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PolicyMemberGetResponse'
+      operationId: getApi226NetworkInterfacesTlsPolicies
+      x-operation-id-source: derived
     post:
       tags:
       - Policies - TLS
@@ -67,6 +70,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PolicyMemberResponse'
+      operationId: postApi226NetworkInterfacesTlsPolicies
+      x-operation-id-source: derived
     delete:
       tags:
       - Policies - TLS
@@ -87,6 +92,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226NetworkInterfacesTlsPolicies
+      x-operation-id-source: derived
   /api/2.26/tls-policies:
     get:
       tags:
@@ -116,6 +123,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TlsPolicyGetResponse'
+      operationId: getApi226TlsPolicies
+      x-operation-id-source: derived
     post:
       tags:
       - Policies - TLS
@@ -144,6 +153,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/TlsPolicyResponse'
       x-codegen-request-body-name: policy
+      operationId: postApi226TlsPolicies
+      x-operation-id-source: derived
     delete:
       tags:
       - Policies - TLS
@@ -162,6 +173,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226TlsPolicies
+      x-operation-id-source: derived
     patch:
       tags:
       - Policies - TLS
@@ -191,6 +204,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/TlsPolicyResponse'
       x-codegen-request-body-name: policy
+      operationId: patchApi226TlsPolicies
+      x-operation-id-source: derived
   /api/2.26/tls-policies/members:
     get:
       tags:
@@ -220,6 +235,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PolicyMemberGetResponse'
+      operationId: getApi226TlsPoliciesMembers
+      x-operation-id-source: derived
   /api/2.26/tls-policies/network-interfaces:
     get:
       tags:
@@ -249,6 +266,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PolicyMemberGetResponse'
+      operationId: getApi226TlsPoliciesNetworkInterfaces
+      x-operation-id-source: derived
     post:
       tags:
       - Policies - TLS
@@ -272,6 +291,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PolicyMemberResponse'
+      operationId: postApi226TlsPoliciesNetworkInterfaces
+      x-operation-id-source: derived
     delete:
       tags:
       - Policies - TLS
@@ -292,29 +313,23 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226TlsPoliciesNetworkInterfaces
+      x-operation-id-source: derived
 components:
   schemas:
-    TlsPolicy:
-      allOf:
-      - $ref: '#/components/schemas/TlsPolicyPost'
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    _referenceWithoutType:
+    PolicyMember:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
     PolicyBase:
       allOf:
       - $ref: '#/components/schemas/PolicyBaseRenameable'
@@ -345,26 +360,6 @@ components:
 
             '
           type: string
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
     _referenceWritable:
       allOf:
       - $ref: '#/components/schemas/_referenceWithoutType'
@@ -383,14 +378,93 @@ components:
             type: string
       x-aliases:
       - _reference
-    TlsPolicyResponse:
+    PolicyMemberResponse:
       type: object
       properties:
         items:
-          description: A list of TLS policy objects.
+          description: A list of members for policies.
           type: array
           items:
-            $ref: '#/components/schemas/TlsPolicy'
+            $ref: '#/components/schemas/PolicyMember'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    PolicyMemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberResponse'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    PolicyBaseRenameable:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
+
+              '
+            type: string
+            readOnly: true
     TlsPolicyPost:
       allOf:
       - $ref: '#/components/schemas/PolicyBase'
@@ -549,69 +623,10 @@ components:
 
               '
             type: boolean
-    PolicyMemberResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMember'
-    PolicyMemberGetResponse:
+    TlsPolicy:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberResponse'
-    PolicyBaseRenameable:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
-
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    TlsPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TlsPolicyResponse'
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference'
+      - $ref: '#/components/schemas/TlsPolicyPost'
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -629,131 +644,66 @@ components:
               '
             type: string
             readOnly: true
-    PageInfo:
+    _fixedReferenceWithoutType:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
+            The ID cannot be modified.
 
             '
           type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    PolicyMember:
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    TlsPolicyResponse:
       type: object
       properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-  parameters:
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Purity_defined:
-      name: purity_defined
-      in: query
-      description: 'If `true`, then the results returned will be include the specification
-
-        for purity-defined values on the current purity version. These values
-
-        may be used in configurations in order to dynamically adopt new behavior
-
-        across upgrades, and this option allows the exact behavior for the current
-
-        version to be returned.
-
-        Defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
         items:
+          description: A list of TLS policy objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/TlsPolicy'
+    TlsPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TlsPolicyResponse'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
           type: string
-    Continuation_token:
-      name: continuation_token
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+  parameters:
+    Sort:
+      name: sort
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        with some consistency guaranteed.
+        is appended to the field name).
 
-        The token is a Base64 encoded value.
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
+        the response.
 
         '
       style: form
@@ -761,6 +711,7 @@ components:
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     XRequestId:
       name: X-Request-ID
@@ -789,6 +740,62 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Names:
       name: names
       in: query
@@ -804,54 +811,6 @@ components:
         each of the elements of `names`, then an error is returned,
 
         except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Effective_tls_policy:
-      name: effective
-      in: query
-      description: 'If `true`, then the TLS policies returned will be fully evaluated. This
-
-        involves expanding shortened TLS ciphers, removing disabled TLS ciphers from
-
-        the list of expanded enabled TLS ciphers, and converting values such as
-
-        `default` and `legacy` into concrete values, in order to return the discrete
-
-        effective TLS settings that the policies encode.
-
-        Defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'A comma-separated list of member IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `member_ids`, then an error is returned.
-
-        This cannot be provided together with the `member_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
 
         '
       style: form
@@ -878,25 +837,6 @@ components:
         type: array
         items:
           type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
     Names_required:
       name: names
       in: query
@@ -910,3 +850,95 @@ components:
         type: array
         items:
           type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Purity_defined:
+      name: purity_defined
+      in: query
+      description: 'If `true`, then the results returned will be include the specification
+
+        for purity-defined values on the current purity version. These values
+
+        may be used in configurations in order to dynamically adopt new behavior
+
+        across upgrades, and this option allows the exact behavior for the current
+
+        version to be returned.
+
+        Defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `member_ids`, then an error is returned.
+
+        This cannot be provided together with the `member_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Effective_tls_policy:
+      name: effective
+      in: query
+      description: 'If `true`, then the TLS policies returned will be fully evaluated. This
+
+        involves expanding shortened TLS ciphers, removing disabled TLS ciphers from
+
+        the list of expanded enabled TLS ciphers, and converting values such as
+
+        `default` and `legacy` into concrete values, in order to return the discrete
+
+        effective TLS settings that the policies encode.
+
+        Defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header

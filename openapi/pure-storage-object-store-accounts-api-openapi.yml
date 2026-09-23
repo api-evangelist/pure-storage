@@ -1,16 +1,16 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Object Store Accounts API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure Storage Object Store Accounts API
+  x-refined-note:
+  - x-logo differs across the merged source definitions and was not carried
+  - x-pure-description-ref differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged Object Store Accounts across 3 of this provider''s published API definitions: flasharray-rest-api-openapi.yml, flashblade-rest-api-openapi.yml, pure1-cloud-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
+- url: http://[array]/
+- url: https://[array]/
+- url: https://api-staging.pure1.purestorage.com/
 tags:
 - name: Object Store Accounts
   description: Manages object store accounts. Accounts contain buckets and users. Accounts must be created before an object store user or buckets can be created.
@@ -58,6 +58,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccountGetResponse'
+      operationId: getApi252ObjectStoreAccounts
+      x-operation-id-source: derived
     post:
       tags:
       - Object Store Accounts
@@ -80,6 +82,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccountResponse'
       x-codegen-request-body-name: object-store-account
+      operationId: postApi252ObjectStoreAccounts
+      x-operation-id-source: derived
     delete:
       tags:
       - Object Store Accounts
@@ -99,6 +103,10 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi252ObjectStoreAccounts
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.52/object-store-accounts/space:
     get:
       tags:
@@ -106,10 +114,7 @@ paths:
       summary: Pure Storage List Object Store Account Space Information
       description: 'The monitoring interface or dataset that provides `physical storage`
 
-        `consumption` data for each `object store account`.
-
-
-        '
+        `consumption` data for each `object store account`.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -148,6 +153,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResourceObjectStoreAccountSpaceGetResponse'
+      operationId: getApi252ObjectStoreAccountsSpace
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.26/object-store-accounts:
     get:
       tags:
@@ -195,13 +204,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccountGetResponse_2'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226ObjectStoreAccounts
+      x-operation-id-source: derived
     post:
       tags:
       - Object Store Accounts
       summary: Pure Storage POST Object-store-accounts
-      description: 'Create an object store account.
-
-        '
+      description: Create an object store account.
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Context_names'
@@ -226,6 +237,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccountResponse'
       x-codegen-request-body-name: object-store-account
+      security:
+      - AuthorizationHeader: []
+      operationId: postApi226ObjectStoreAccounts
+      x-operation-id-source: derived
     delete:
       tags:
       - Object Store Accounts
@@ -245,6 +260,10 @@ paths:
               schema:
                 type: string
           content: {}
+      security:
+      - AuthorizationHeader: []
+      operationId: deleteApi226ObjectStoreAccounts
+      x-operation-id-source: derived
     patch:
       tags:
       - Object Store Accounts
@@ -276,14 +295,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccountResponse'
       x-codegen-request-body-name: object-store-account
+      security:
+      - AuthorizationHeader: []
+      operationId: patchApi226ObjectStoreAccounts
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
   /api/1.5/object-store-accounts:
     get:
       tags:
       - Object Store Accounts
       summary: Pure Storage Get Object Store Accounts
-      description: 'Retrieves object store accounts.
-
-        '
+      description: Retrieves object store accounts.
       parameters:
       - $ref: '#/components/parameters/Authorization_2'
       - $ref: '#/components/parameters/XRequestId'
@@ -336,88 +360,66 @@ paths:
           $ref: '#/components/responses/Error429'
         '500':
           $ref: '#/components/responses/Error500'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi15ObjectStoreAccounts
+      x-operation-id-source: derived
+    servers:
+    - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
-    _builtIn_2:
+    ObjectStoreAccountResponse:
       type: object
       properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
-    ErrorNoContext:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Something was wrong
-    ObjectStoreAccountPost:
-      type: object
-      properties:
-        account_exports:
-          description: 'A list of exports to be created for the account.
-
-
-            If ommited or set to `null`, the default server for object store will be used.
-
-            Use `[]` to create an account without any export.
-
-            '
+        items:
+          description: A list of object store account objects.
           type: array
           items:
-            title: ServerForAccountExport
-            allOf:
-            - $ref: '#/components/schemas/_serverForAccountExport'
-        bucket_defaults:
-          description: 'Default settings to be applied to newly created buckets associated with
+            $ref: '#/components/schemas/ObjectStoreAccount'
+    ResourceObjectStoreAccountSpace:
+      allOf:
+      - $ref: '#/components/schemas/ResourceSpace'
+      - type: object
+        properties:
+          object_count:
+            description: The count of objects within the account.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 42
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
 
-            this account. Values here will be used in bucket creation requests which
+            or the name of the object that was being processed when the error was encountered.
 
-            do not specify their own values for corresponding fields.
-
-            '
-          title: BucketDefaults
-          allOf:
-          - $ref: '#/components/schemas/_bucketDefaults'
-        hard_limit_enabled:
-          description: 'If set to `true`, the account''s size, as defined by `quota_limit`,
-
-            is used as a hard limit quota.
-
-            If set to `false`, a hard limit quota will not be applied to the
-
-            account, but soft quota alerts will still be sent if the account has
-
-            a value set for `quota_limit`.
-
-            If not specified, defaults to `false`.
-
-            '
-          type: boolean
-        quota_limit:
-          description: 'The effective quota limit to be applied against the size of the account, displayed in bytes.
-
-            If set to an empty string (`""`), the account is unlimited in size. If not specified,
-
-            defaults to unlimited.
+            This may be `null` for more general errors.
 
             '
           type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
     ResourceObjectStoreAccountSpaceGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
@@ -446,175 +448,6 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/ResourceObjectStoreAccountSpace'
-    ObjectStoreAccountGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - $ref: '#/components/schemas/ObjectStoreAccountResponse'
-      - type: object
-        properties:
-          total:
-            description: 'If `total_only` query param is `true`, then this field will be a total of
-
-              all records after filtering and no items will be returned.
-
-              If `total_only` is `false`, then it will be a total of all records
-
-              on this page.
-
-              '
-            title: ObjectStoreAccount
-            allOf:
-            - $ref: '#/components/schemas/ObjectStoreAccount_2'
-    ObjectStoreAccount:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_objectStoreAccountBase'
-      - type: object
-        description: 'The object store account is a logical container for buckets, users, and other object store
-
-          entities and resources. It provides a namespace for storing and managing these objects, allowing
-
-          users to organize and access their data efficiently.
-
-          '
-        properties:
-          space:
-            description: 'The size and space consumption details.
-
-              '
-            title: Space
-            allOf:
-            - $ref: '#/components/schemas/_space'
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    ObjectStoreAccountGetResponse_3:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/ObjectStoreAccountResponse_2'
-    ObjectStoreAccount_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn_2'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          bucket_defaults:
-            description: 'Default settings to be applied to newly created buckets associated with
-
-              this account. Values here will be used in bucket creation requests which
-
-              do not specify their own values for corresponding fields.
-
-              '
-            title: BucketDefaultsReadonly
-            allOf:
-            - $ref: '#/components/schemas/_bucketDefaultsReadonly'
-          created:
-            description: Creation timestamp of the object.
-            type: integer
-            format: int64
-            readOnly: true
-          hard_limit_enabled:
-            description: 'If set to `true`, the account''s size, as defined by `quota_limit`,
-
-              is used as a hard limit quota.
-
-              If set to `false`, a hard limit quota will not be applied to the
-
-              account, but soft quota alerts will still be sent if the account has
-
-              a value set for `quota_limit`.
-
-              '
-            type: boolean
-          object_count:
-            description: The count of objects within the account.
-            type: integer
-            format: int64
-            readOnly: true
-          public_access_config:
-            $ref: '#/components/schemas/_publicAccessConfig'
-          quota_limit:
-            description: 'The effective quota limit applied against the size of the account, displayed in bytes.
-
-              If unset, the account is unlimited in size.
-
-              '
-            type: integer
-          realms:
-            description: 'The realms containing this account.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_fixedReference_2'
-          space:
-            description: The space specification of the object store account.
-            title: Space
-            allOf:
-            - $ref: '#/components/schemas/_space_2'
-    PageInfo_3:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the continuation_token
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
-        total_item_count:
-          description: Total number of items after applying filter params.
-          type: integer
-          format: int32
-          example: 1
     _space:
       type: object
       properties:
@@ -815,208 +648,6 @@ components:
           format: int64
           minimum: 0
           readOnly: true
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    ResourceObjectStoreAccountSpace:
-      allOf:
-      - $ref: '#/components/schemas/ResourceSpace'
-      - type: object
-        properties:
-          object_count:
-            description: The count of objects within the account.
-            type: integer
-            format: int64
-            readOnly: true
-            example: 42
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed, or deleted by the user. This might be a virtual resource (e.g.,
-
-        a volume), or correspond to something in the physical environment, like a
-
-        host or a server.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-          name:
-            description: A modifiable, locally unique name chosen by the user.
-            type: string
-            example: example_name
-    _arrays:
-      type: object
-      properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
-
-            some resources, such as pods, can be shared across multiple arrays.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
-    _bucketDefaultsReadonly:
-      type: object
-      properties:
-        hard_limit_enabled:
-          description: 'The value of this field will be used to configure the `hard_limit_enabled`
-
-            field of newly created buckets associated with this object store account,
-
-            if the bucket creation does not specify its own value. If not specified,
-
-            defaults to `false`.
-
-            '
-          type: boolean
-        quota_limit:
-          description: 'The value of this field will be used to configure the `quota_limit` field
-
-            of newly created buckets associated with this object store account, if the
-
-            bucket creation does not specify its own value. If unset, the bucket
-
-            default is unlimited in size.
-
-            '
-          type: integer
-    _bucketDefaults:
-      type: object
-      properties:
-        hard_limit_enabled:
-          description: 'The value of this field will be used to configure the `hard_limit_enabled`
-
-            field of newly created buckets associated with this object store account,
-
-            if the bucket creation does not specify its own value. If not specified,
-
-            defaults to `false`.
-
-            '
-          type: boolean
-        quota_limit:
-          description: 'The value of this field will be used to configure the `quota_limit` field
-
-            of newly created buckets associated with this object store account, if the
-
-            bucket creation does not specify its own value. If set to an empty string
-
-            (`""`), the bucket default is unlimited in size. If not specified,
-
-            defaults to unlimited.
-
-            '
-          type: string
-    ObjectStoreAccountResponse:
-      type: object
-      properties:
-        items:
-          description: A list of object store account objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectStoreAccount'
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_3'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
-    ObjectStoreAccountGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreAccountResponse'
-      - type: object
-        properties:
-          total:
-            description: 'If `total_only` query param is `true`, then this field will be a total of
-
-              all records after filtering and no items will be returned.
-
-              If `total_only` is `false`, then it will be a total of all records
-
-              on this page.
-
-              '
-            type: object
-            items:
-              $ref: '#/components/schemas/ObjectStoreAccount'
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _serverForAccountExport:
-      type: object
-      properties:
-        server:
-          description: 'The server to which the account will be exported.
-
-            '
-          title: ReferenceWithoutType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithoutType'
-    _arraysResource:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_arrays'
     PageInfo:
       type: object
       properties:
@@ -1059,40 +690,141 @@ components:
             '
           type: integer
           format: int32
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    ObjectStoreAccount_3:
+    _fixedReferenceWithType:
       allOf:
-      - $ref: '#/components/schemas/_arraysResource'
+      - $ref: '#/components/schemas/_fixedReference'
       - type: object
         properties:
-          created:
-            description: Creation timestamp of the object, in milliseconds since Unix epoch.
-            type: integer
-            format: int64
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
             readOnly: true
-            example: 1502729489760
-          object_count:
-            description: The number of objects within the account.
-            type: integer
-            format: int64
-            readOnly: true
-            example: 15
-    Error:
+      x-aliases:
+      - _fixedReference
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
       type: object
       properties:
-        errors:
-          description: The list of errors encountered.
-          type: array
-          items:
-            $ref: '#/components/schemas/_errorErrors'
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    ObjectStoreAccount:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_objectStoreAccountBase'
+      - type: object
+        description: 'The object store account is a logical container for buckets, users, and other object store
+
+          entities and resources. It provides a namespace for storing and managing these objects, allowing
+
+          users to organize and access their data efficiently.
+
+          '
+        properties:
+          space:
+            description: 'The size and space consumption details.
+
+              '
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space'
+    ObjectStoreAccountGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreAccountResponse'
+      - type: object
+        properties:
+          total:
+            description: 'If `total_only` query param is `true`, then this field will be a total of
+
+              all records after filtering and no items will be returned.
+
+              If `total_only` is `false`, then it will be a total of all records
+
+              on this page.
+
+              '
+            type: object
+            items:
+              $ref: '#/components/schemas/ObjectStoreAccount'
+    ResourceSpace:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          space:
+            description: 'Displays size and space consumption information.
+
+              '
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space'
+          time:
+            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+        x-readOnly: true
     _objectStoreAccountBase:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -1119,7 +851,141 @@ components:
             format: int64
             readOnly: true
             example: 42
-    _errorcontextresponseErrors:
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    ObjectStoreAccountPatch:
+      type: object
+      properties:
+        bucket_defaults:
+          description: 'Default settings to be applied to newly created buckets associated with
+
+            this account. Values here will be used in bucket creation requests which
+
+            do not specify their own values for corresponding fields.
+
+            '
+          title: BucketDefaults
+          allOf:
+          - $ref: '#/components/schemas/_bucketDefaults'
+        hard_limit_enabled:
+          description: 'If set to `true`, the account''s size, as defined by `quota_limit`,
+
+            is used as a hard limit quota.
+
+            If set to `false`, a hard limit quota will not be applied to the
+
+            account, but soft quota alerts will still be sent if the account has
+
+            a value set for `quota_limit`.
+
+            '
+          type: boolean
+        public_access_config:
+          $ref: '#/components/schemas/_publicAccessConfig'
+        quota_limit:
+          description: 'The effective quota limit to be applied against the size of the account, displayed in bytes.
+
+            If set to an empty string (`""`), the account is unlimited in size.
+
+            '
+          type: string
+    _publicAccessConfig:
+      description: Configuration settings related to public access.
+      type: object
+      properties:
+        block_new_public_policies:
+          description: 'If set to `true`, adding bucket policies that grant public access to a bucket is not allowed.
+
+            '
+          type: boolean
+        block_public_access:
+          description: 'If set to `true`, access to a bucket with a public policy is restricted to only authenticated
+
+            users within the account that bucket belongs to.
+
+            '
+          type: boolean
+    ObjectStoreAccountPost:
+      type: object
+      properties:
+        account_exports:
+          description: 'A list of exports to be created for the account.
+
+
+            If ommited or set to `null`, the default server for object store will be used.
+
+            Use `[]` to create an account without any export.
+
+            '
+          type: array
+          items:
+            title: ServerForAccountExport
+            allOf:
+            - $ref: '#/components/schemas/_serverForAccountExport'
+        bucket_defaults:
+          description: 'Default settings to be applied to newly created buckets associated with
+
+            this account. Values here will be used in bucket creation requests which
+
+            do not specify their own values for corresponding fields.
+
+            '
+          title: BucketDefaults
+          allOf:
+          - $ref: '#/components/schemas/_bucketDefaults'
+        hard_limit_enabled:
+          description: 'If set to `true`, the account''s size, as defined by `quota_limit`,
+
+            is used as a hard limit quota.
+
+            If set to `false`, a hard limit quota will not be applied to the
+
+            account, but soft quota alerts will still be sent if the account has
+
+            a value set for `quota_limit`.
+
+            If not specified, defaults to `false`.
+
+            '
+          type: boolean
+        quota_limit:
+          description: 'The effective quota limit to be applied against the size of the account, displayed in bytes.
+
+            If set to an empty string (`""`), the account is unlimited in size. If not specified,
+
+            defaults to unlimited.
+
+            '
+          type: string
+    _errorContextResponseErrors:
       type: object
       properties:
         context:
@@ -1143,24 +1009,13 @@ components:
             was provided with the request.
 
             '
-          title: FixedReferenceWithType
+          title: FixedReference
           allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+          - $ref: '#/components/schemas/_fixedReference_2'
         message:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
-    _errorContextResponse_2:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
     _space_2:
       type: object
       properties:
@@ -1304,91 +1159,6 @@ components:
           format: int64
           readOnly: true
           example: 19937690345472
-    _publicAccessConfig:
-      description: Configuration settings related to public access.
-      type: object
-      properties:
-        block_new_public_policies:
-          description: 'If set to `true`, adding bucket policies that grant public access to a bucket is not allowed.
-
-            '
-          type: boolean
-        block_public_access:
-          description: 'If set to `true`, access to a bucket with a public policy is restricted to only authenticated
-
-            users within the account that bucket belongs to.
-
-            '
-          type: boolean
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _context_2:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-    ObjectStoreAccountResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of object store accounts.
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectStoreAccount_3'
     PageInfo_2:
       type: object
       properties:
@@ -1417,6 +1187,361 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
+    _builtIn_2:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _bucketDefaultsReadonly:
+      type: object
+      properties:
+        hard_limit_enabled:
+          description: 'The value of this field will be used to configure the `hard_limit_enabled`
+
+            field of newly created buckets associated with this object store account,
+
+            if the bucket creation does not specify its own value. If not specified,
+
+            defaults to `false`.
+
+            '
+          type: boolean
+        quota_limit:
+          description: 'The value of this field will be used to configure the `quota_limit` field
+
+            of newly created buckets associated with this object store account, if the
+
+            bucket creation does not specify its own value. If unset, the bucket
+
+            default is unlimited in size.
+
+            '
+          type: integer
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    ObjectStoreAccount_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn_2'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          bucket_defaults:
+            description: 'Default settings to be applied to newly created buckets associated with
+
+              this account. Values here will be used in bucket creation requests which
+
+              do not specify their own values for corresponding fields.
+
+              '
+            title: BucketDefaultsReadonly
+            allOf:
+            - $ref: '#/components/schemas/_bucketDefaultsReadonly'
+          created:
+            description: Creation timestamp of the object.
+            type: integer
+            format: int64
+            readOnly: true
+          hard_limit_enabled:
+            description: 'If set to `true`, the account''s size, as defined by `quota_limit`,
+
+              is used as a hard limit quota.
+
+              If set to `false`, a hard limit quota will not be applied to the
+
+              account, but soft quota alerts will still be sent if the account has
+
+              a value set for `quota_limit`.
+
+              '
+            type: boolean
+          object_count:
+            description: The count of objects within the account.
+            type: integer
+            format: int64
+            readOnly: true
+          public_access_config:
+            $ref: '#/components/schemas/_publicAccessConfig'
+          quota_limit:
+            description: 'The effective quota limit applied against the size of the account, displayed in bytes.
+
+              If unset, the account is unlimited in size.
+
+              '
+            type: integer
+          realms:
+            description: 'The realms containing this account.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_fixedReference_2'
+          space:
+            description: The space specification of the object store account.
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space_2'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    ObjectStoreAccountGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - $ref: '#/components/schemas/ObjectStoreAccountResponse'
+      - type: object
+        properties:
+          total:
+            description: 'If `total_only` query param is `true`, then this field will be a total of
+
+              all records after filtering and no items will be returned.
+
+              If `total_only` is `false`, then it will be a total of all records
+
+              on this page.
+
+              '
+            title: ObjectStoreAccount
+            allOf:
+            - $ref: '#/components/schemas/ObjectStoreAccount_2'
+    _bucketDefaults:
+      type: object
+      properties:
+        hard_limit_enabled:
+          description: 'The value of this field will be used to configure the `hard_limit_enabled`
+
+            field of newly created buckets associated with this object store account,
+
+            if the bucket creation does not specify its own value. If not specified,
+
+            defaults to `false`.
+
+            '
+          type: boolean
+        quota_limit:
+          description: 'The value of this field will be used to configure the `quota_limit` field
+
+            of newly created buckets associated with this object store account, if the
+
+            bucket creation does not specify its own value. If set to an empty string
+
+            (`""`), the bucket default is unlimited in size. If not specified,
+
+            defaults to unlimited.
+
+            '
+          type: string
+    _serverForAccountExport:
+      type: object
+      properties:
+        server:
+          description: 'The server to which the account will be exported.
+
+            '
+          title: ReferenceWithoutType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithoutType'
+    _context_2:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed, or deleted by the user. This might be a virtual resource (e.g.,
+
+        a volume), or correspond to something in the physical environment, like a
+
+        host or a server.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+          name:
+            description: A modifiable, locally unique name chosen by the user.
+            type: string
+            example: example_name
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_3'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    ObjectStoreAccountResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of object store accounts.
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectStoreAccount_3'
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
+    _arraysResource:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_arrays'
+    _arrays:
+      type: object
+      properties:
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
+    PageInfo_3:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
     _fixedReference_3:
       type: object
       properties:
@@ -1442,148 +1567,638 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
-    _errorContextResponseErrors:
+    Error:
       type: object
       properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    ResourceSpace:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    ObjectStoreAccount_3:
       allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_arraysResource'
       - type: object
         properties:
-          space:
-            description: 'Displays size and space consumption information.
-
-              '
-            title: Space
-            allOf:
-            - $ref: '#/components/schemas/_space'
-          time:
-            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
-
-              '
+          created:
+            description: Creation timestamp of the object, in milliseconds since Unix epoch.
             type: integer
             format: int64
             readOnly: true
-        x-readOnly: true
-    ObjectStoreAccountPatch:
+            example: 1502729489760
+          object_count:
+            description: The number of objects within the account.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 15
+    ObjectStoreAccountGetResponse_3:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/ObjectStoreAccountResponse_2'
+    ErrorNoContext:
       type: object
       properties:
-        bucket_defaults:
-          description: 'Default settings to be applied to newly created buckets associated with
-
-            this account. Values here will be used in bucket creation requests which
-
-            do not specify their own values for corresponding fields.
-
-            '
-          title: BucketDefaults
-          allOf:
-          - $ref: '#/components/schemas/_bucketDefaults'
-        hard_limit_enabled:
-          description: 'If set to `true`, the account''s size, as defined by `quota_limit`,
-
-            is used as a hard limit quota.
-
-            If set to `false`, a hard limit quota will not be applied to the
-
-            account, but soft quota alerts will still be sent if the account has
-
-            a value set for `quota_limit`.
-
-            '
-          type: boolean
-        public_access_config:
-          $ref: '#/components/schemas/_publicAccessConfig'
-        quota_limit:
-          description: 'The effective quota limit to be applied against the size of the account, displayed in bytes.
-
-            If set to an empty string (`""`), the account is unlimited in size.
-
-            '
+        message:
           type: string
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
+          example: Something was wrong
+  parameters:
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
-            snapshot name, and so on.
+        '
+      schema:
+        type: string
+    History_resolution:
+      name: resolution
+      in: query
+      description: 'The number of milliseconds between samples of historical data.
 
-            '
+        For array-wide performance metrics (`/arrays/performance` endpoint),
+
+        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
+
+        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For performance metrics on storage objects (`<object name>/performance` endpoint),
+
+        such as volumes,
+
+        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
+
+        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For space metrics, (`<object name>/space` endpoint),
+
+        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
+
+        `28800000` (8 hours), and `86400000` (24 hours).
+
+        Include the `start_time` parameter to display the performance data
+
+        starting at the specified start time.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        Include the `end_time` parameter to display the performance data until the specified end time.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        If the `resolution` parameter is not specified
+
+        but either the `start_time` or `end_time` parameter is,
+
+        then `resolution` will default to the lowest valid resolution.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
+    History_start_time:
+      name: start_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    History_end_time:
+      name: end_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Names_required_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Ignore_usage:
+      name: ignore_usage
+      in: query
+      description: 'Allow update operations that lead to a `hard_limit_enabled` object store
+
+        account, bucket, or file system with usage over its limiting value.
+
+        For object store accounts and buckets, the limiting value is that of `quota_limit`,
+
+        and for file systems it is that of `provisioned`.
+
+        The operation can be setting `hard_limit_enabled` when usage is higher
+
+        than the limiting value, modifying the limiting value to a value under usage when
+
+        `hard_limit_enabled`, recovering a destroyed bucket of an object store account
+
+        that causes an account''s space usage to go over its hard `quota_limit`.
+
+        Also allows update operations that would cause usage of the requested
+
+        storage class to go over its warning threshold.
+
+        '
+      schema:
+        type: boolean
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_3:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Offset_3:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Ids_3:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
   responses:
-    Error403:
-      description: FORBIDDEN
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
           schema:
             type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorNoContext'
+            $ref: '#/components/schemas/Error'
     Error400:
       description: BAD REQUEST
       headers:
@@ -1646,37 +2261,17 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error403:
+      description: FORBIDDEN
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
           schema:
             type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorNoContext'
     Error404:
       description: NOT FOUND
       headers:
@@ -1708,568 +2303,16 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    History_start_time:
-      name: start_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Authorization_2:
-      name: Authorization
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
       in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Filter_2:
-      name: filter
-      in: query
-      description: 'Exclude resources that don''t match the specified criteria.
-
-        Single quotes are required around all strings inside the filters.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    XRequestId:
-      name: X-Request-ID
+    ApiToken:
+      type: apiKey
+      name: api-token
       in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique name specified.
-
-        For example, `name01`.
-
-        Enter multiple names in comma-separated format.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort_3:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        If you provide a sort you will not get a continuation token in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ignore_usage:
-      name: ignore_usage
-      in: query
-      description: 'Allow update operations that lead to a `hard_limit_enabled` object store
-
-        account, bucket, or file system with usage over its limiting value.
-
-        For object store accounts and buckets, the limiting value is that of `quota_limit`,
-
-        and for file systems it is that of `provisioned`.
-
-        The operation can be setting `hard_limit_enabled` when usage is higher
-
-        than the limiting value, modifying the limiting value to a value under usage when
-
-        `hard_limit_enabled`, recovering a destroyed bucket of an object store account
-
-        that causes an account''s space usage to go over its hard `quota_limit`.
-
-        Also allows update operations that would cause usage of the requested
-
-        storage class to go over its warning threshold.
-
-        '
-      schema:
-        type: boolean
-    History_end_time:
-      name: end_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token_2:
-      name: continuation_token
-      in: query
-      description: 'An opaque token used to iterate over a collection.
-
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Ids_3:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    History_resolution:
-      name: resolution
-      in: query
-      description: 'The number of milliseconds between samples of historical data.
-
-        For array-wide performance metrics (`/arrays/performance` endpoint),
-
-        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
-
-        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For performance metrics on storage objects (`<object name>/performance` endpoint),
-
-        such as volumes,
-
-        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
-
-        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For space metrics, (`<object name>/space` endpoint),
-
-        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
-
-        `28800000` (8 hours), and `86400000` (24 hours).
-
-        Include the `start_time` parameter to display the performance data
-
-        starting at the specified start time.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        Include the `end_time` parameter to display the performance data until the specified end time.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        If the `resolution` parameter is not specified
-
-        but either the `start_time` or `end_time` parameter is,
-
-        then `resolution` will default to the lowest valid resolution.
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Offset_3:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Names_required_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+x-refined-from:
+- flasharray-rest-api-openapi.yml
+- flashblade-rest-api-openapi.yml
+- pure1-cloud-api-openapi.yml

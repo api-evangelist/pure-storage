@@ -1,16 +1,17 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Policies - WORM Data API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: FlashBlade REST Policies - WORM Data API
+  description: OpenAPI specification for FlashBlade REST API, developed by Pure Storage, Inc. (https://www.purestorage.com/).
+  version: '2.26'
+  x-pure-description-ref: ../custom_descriptions/FB-api-introduction.md
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-FA.txt
 servers:
-- url: /
+- url: http://[array]/
+- url: https://[array]/
+security:
+- AuthorizationHeader: []
 tags:
 - name: Policies - WORM Data
   description: Manages WORM data for file systems. These policies are composed of retention periods, lock type, and auto-commit status.
@@ -61,6 +62,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WormDataPoliciesGetResponse'
+      operationId: getApi226WormDataPolicies
+      x-operation-id-source: derived
     post:
       tags:
       - Policies - WORM Data
@@ -90,15 +93,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/WormDataPoliciesResponse'
       x-codegen-request-body-name: policy
+      operationId: postApi226WormDataPolicies
+      x-operation-id-source: derived
     delete:
       tags:
       - Policies - WORM Data
       summary: Pure Storage DELETE Worm-data-policies
       description: 'Delete a WORM data policy.
 
-        Deletion is not allowed if the policy is attached to one or more file systems.
-
-        '
+        Deletion is not allowed if the policy is attached to one or more file systems.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Context_names'
@@ -113,6 +116,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226WormDataPolicies
+      x-operation-id-source: derived
     patch:
       tags:
       - Policies - WORM Data
@@ -143,6 +148,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/WormDataPoliciesResponse'
       x-codegen-request-body-name: policy
+      operationId: patchApi226WormDataPolicies
+      x-operation-id-source: derived
   /api/2.26/worm-data-policies/members:
     get:
       tags:
@@ -191,8 +198,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WormDataPoliciesMembersGetResponse'
+      operationId: getApi226WormDataPoliciesMembers
+      x-operation-id-source: derived
 components:
   schemas:
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    _resourceFixed:
+      description: 'A resource that can be created, named, or deleted by the user. This might
+
+        be a virtual resource (e.g., a file system), or correspond to something
+
+        in the environment, like a host or a server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    PolicyMemberContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -224,129 +291,6 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _resourceFixed:
-      description: 'A resource that can be created, named, or deleted by the user. This might
-
-        be a virtual resource (e.g., a file system), or correspond to something
-
-        in the environment, like a host or a server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    WormDataPoliciesMembersResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for worm data policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-    SnapshotWormDataPolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/_resourceFixed'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `snapshot` and `worm-data`.
-
-              '
-            type: string
-            readOnly: true
-    WormDataPoliciesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/WormDataPoliciesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    WormDataPoliciesResponse:
-      type: object
-      properties:
-        items:
-          description: A list of worm data policy objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/WormDataPolicy'
     _wormDataPolicyRetentionConfig:
       type: object
       properties:
@@ -391,66 +335,14 @@ components:
             '
           type: string
           example: unlocked
-    PolicyMemberContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context'
-    WormDataPoliciesMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/WormDataPoliciesMembersResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _realmsReference:
+    WormDataPoliciesMembersResponse:
       type: object
       properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
+        items:
+          description: A list of members for worm data policies.
           type: array
-          readOnly: true
           items:
-            $ref: '#/components/schemas/_fixedReference'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    WormDataPolicy:
-      allOf:
-      - $ref: '#/components/schemas/SnapshotWormDataPolicyBase'
-      - $ref: '#/components/schemas/_wormDataPolicyRetentionConfig'
-      - $ref: '#/components/schemas/_context'
-      - $ref: '#/components/schemas/_realmsReference'
-    PolicyMember:
-      type: object
-      properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
+            $ref: '#/components/schemas/PolicyMemberContext'
     PageInfo:
       type: object
       properties:
@@ -479,51 +371,134 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
+    SnapshotWormDataPolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/_resourceFixed'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `snapshot` and `worm-data`.
+
+              '
+            type: string
+            readOnly: true
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    WormDataPolicy:
+      allOf:
+      - $ref: '#/components/schemas/SnapshotWormDataPolicyBase'
+      - $ref: '#/components/schemas/_wormDataPolicyRetentionConfig'
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_realmsReference'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    WormDataPoliciesResponse:
+      type: object
+      properties:
+        items:
+          description: A list of worm data policy objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/WormDataPolicy'
+    WormDataPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/WormDataPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    WormDataPoliciesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/WormDataPoliciesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
   parameters:
-    Filter:
-      name: filter
+    Sort:
+      name: sort
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        that satisfy the filter criteria.
+        is appended to the field name).
 
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
+        the response.
 
         '
       style: form
@@ -531,77 +506,7 @@ components:
       schema:
         type: array
         items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     XRequestId:
       name: X-Request-ID
@@ -630,6 +535,62 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Names:
       name: names
       in: query
@@ -683,6 +644,30 @@ components:
         type: array
         items:
           type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Member_ids:
       name: member_ids
       in: query
@@ -701,10 +686,22 @@ components:
         type: array
         items:
           type: string
-    Member_names:
-      name: member_names
+    Context_names:
+      name: context_names
       in: query
-      description: 'A comma-separated list of member names.
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -713,6 +710,19 @@ components:
         type: array
         items:
           type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
     Ids:
       name: ids
       in: query
@@ -731,16 +741,16 @@ components:
         type: array
         items:
           type: string
-    Sort:
-      name: sort
+    Policy_ids:
+      name: policy_ids
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A comma-separated list of policy IDs.
 
-        is appended to the field name).
+        If after filtering, there is not at least one resource that matches
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        each of the elements of `policy_ids`, then an error is returned.
 
-        the response.
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -748,5 +758,13 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header

@@ -1,16 +1,17 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory RDL API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: FlashBlade REST RDL API
+  description: OpenAPI specification for FlashBlade REST API, developed by Pure Storage, Inc. (https://www.purestorage.com/).
+  version: '2.26'
+  x-pure-description-ref: ../custom_descriptions/FB-api-introduction.md
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-FA.txt
 servers:
-- url: /
+- url: http://[array]/
+- url: https://[array]/
+security:
+- AuthorizationHeader: []
 tags:
 - name: RDL
   description: Displays Rapid Data Locking (RDL) configuration and performs functionality tests of the associated Enterprise Key Management (EKM) servers.
@@ -19,10 +20,8 @@ paths:
     get:
       tags:
       - RDL
-      summary: Pure Storage Get the Status of the Rapid Data Locking Feature.
-      description: 'Displays the status of the Rapid Data Locking feature.
-
-        '
+      summary: Pure Storage Get the Status of the Rapid Data Locking Feature
+      description: Displays the status of the Rapid Data Locking feature.
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       responses:
@@ -37,17 +36,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RapidDataLockingResponse'
+      operationId: getApi226RapidDataLocking
+      x-operation-id-source: derived
     patch:
       tags:
       - RDL
-      summary: Pure Storage Modifies the Rapid Data Locking Feature.
+      summary: Pure Storage Modifies the Rapid Data Locking Feature
       description: 'Modifies the Rapid Data Locking feature. Note that the feature can only
 
         be enabled if there are no file systems nor buckets created on the array.
 
-        Once enabled, the feature cannot be modified.
-
-        '
+        Once enabled, the feature cannot be modified.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       requestBody:
@@ -70,14 +69,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/RapidDataLockingResponse'
       x-codegen-request-body-name: rapid-data-locking
+      operationId: patchApi226RapidDataLocking
+      x-operation-id-source: derived
   /api/2.26/rapid-data-locking/test:
     get:
       tags:
       - RDL
-      summary: Pure Storage Displays Rapid Data Locking Test Results.
-      description: 'Displays a detailed result of a Rapid Data Locking test.
-
-        '
+      summary: Pure Storage Displays Rapid Data Locking Test Results
+      description: Displays a detailed result of a Rapid Data Locking test.
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       responses:
@@ -92,14 +91,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestResultResponse'
+      operationId: getApi226RapidDataLockingTest
+      x-operation-id-source: derived
   /api/2.26/rapid-data-locking/rotate:
     post:
       tags:
       - RDL
-      summary: Pure Storage Rotates the External Keys on the Associated EKM Appliance.
-      description: 'Rotates the external keys on the associated EKM appliance.
-
-        '
+      summary: Pure Storage Rotates the External Keys on the Associated EKM Appliance
+      description: Rotates the external keys on the associated EKM appliance.
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       responses:
@@ -111,68 +110,17 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: postApi226RapidDataLockingRotate
+      x-operation-id-source: derived
 components:
   schemas:
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    RapidDataLockingResponse:
+    TestResultResponse:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/RapidDataLocking'
-    RapidDataLocking:
-      type: object
-      properties:
-        enabled:
-          description: '`True` if the Rapid Data Locking feature is enabled.
-
-            '
-          type: boolean
-          example: true
-        kmip_server:
-          description: 'The KMIP server configuration associated with RDL.
-
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
+            $ref: '#/components/schemas/TestResult'
     TestResult:
       type: object
       properties:
@@ -220,13 +168,23 @@ components:
             '
           type: string
           example: phonehome
-    TestResultResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TestResult'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
     _reference:
       type: object
       properties:
@@ -260,6 +218,49 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
+    RapidDataLocking:
+      type: object
+      properties:
+        enabled:
+          description: '`True` if the Rapid Data Locking feature is enabled.
+
+            '
+          type: boolean
+          example: true
+        kmip_server:
+          description: 'The KMIP server configuration associated with RDL.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+    RapidDataLockingResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RapidDataLocking'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
   parameters:
     XRequestId:
       name: X-Request-ID
@@ -269,3 +270,12 @@ components:
         '
       schema:
         type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header

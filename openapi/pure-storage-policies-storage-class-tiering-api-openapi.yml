@@ -1,16 +1,17 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Policies - Storage Class Tiering API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: FlashBlade REST Policies - Storage Class Tiering API
+  description: OpenAPI specification for FlashBlade REST API, developed by Pure Storage, Inc. (https://www.purestorage.com/).
+  version: '2.26'
+  x-pure-description-ref: ../custom_descriptions/FB-api-introduction.md
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-FA.txt
 servers:
-- url: /
+- url: http://[array]/
+- url: https://[array]/
+security:
+- AuthorizationHeader: []
 tags:
 - name: Policies - Storage Class Tiering
   description: A storage class tiering policy manages the criteria for tiering data within a filesystem from one storage class to another. These policies can be applied to one or more filesystems. Supported storage classes are `S500X-S` for speed, and `S500X-A` for archival.
@@ -42,6 +43,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StorageClassTieringPoliciesGetResponse'
+      operationId: getApi226StorageClassTieringPolicies
+      x-operation-id-source: derived
     post:
       tags:
       - Policies - Storage Class Tiering
@@ -70,15 +73,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/StorageClassTieringPoliciesResponse'
       x-codegen-request-body-name: policy
+      operationId: postApi226StorageClassTieringPolicies
+      x-operation-id-source: derived
     delete:
       tags:
       - Policies - Storage Class Tiering
       summary: Pure Storage DELETE Storage-class-tiering-policies
       description: 'Delete a storage class tiering policy.
 
-        Deletion is not allowed if the policy is attached to one or more file systems.
-
-        '
+        Deletion is not allowed if the policy is attached to one or more file systems.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Ids'
@@ -92,6 +95,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226StorageClassTieringPolicies
+      x-operation-id-source: derived
     patch:
       tags:
       - Policies - Storage Class Tiering
@@ -121,6 +126,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/StorageClassTieringPoliciesResponse'
       x-codegen-request-body-name: policy
+      operationId: patchApi226StorageClassTieringPolicies
+      x-operation-id-source: derived
   /api/2.26/storage-class-tiering-policies/members:
     get:
       tags:
@@ -169,8 +176,97 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StorageClassTieringPoliciesMembersGetResponse'
+      operationId: getApi226StorageClassTieringPoliciesMembers
+      x-operation-id-source: derived
 components:
   schemas:
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    StorageClassTieringPoliciesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StorageClassTieringPolicy'
+          description: A list of storage class tiering policy objects.
+    TieringPolicyArchivalRule:
+      type: object
+      properties:
+        target_storage_class:
+          description: The storage class to which the data is moved. Will always be `S500X-A` for archival rules.
+          type: string
+          example: S500X-A
+          readOnly: true
+        time:
+          description: The time at which this rule goes into effect, in milliseconds.
+          type: integer
+          format: int64
+          example: 86400000
+        type:
+          description: 'The type of the archival rule determining when to tier data to the target storage class.
+
+            Valid values are `LATEST_ACCESS` and `LATEST_MODIFICATION`.
+
+            '
+          type: string
+          example: LATEST_ACCESS
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -202,140 +298,34 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    _errorContextResponse:
+    PageInfo:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    StorageClassTieringPoliciesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/StorageClassTieringPoliciesResponse'
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
 
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
+            param to get the next page of data.
 
-        file system), or correspond to something in the environment, like a host or a
+            If you use the `continuation_token` to page through data you
 
-        server.
+            are guaranteed to get all items exactly once regardless of
 
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+            how items are modified. If an item is added or deleted during
 
-            The ID cannot be modified and cannot refer to another resource.
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
 
             '
           type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    StorageClassTieringPoliciesMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/StorageClassTieringPoliciesMembersResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    TieringPolicyArchivalRule:
-      type: object
-      properties:
-        target_storage_class:
-          description: The storage class to which the data is moved. Will always be `S500X-A` for archival rules.
-          type: string
-          example: S500X-A
-          readOnly: true
-        time:
-          description: The time at which this rule goes into effect, in milliseconds.
+        total_item_count:
+          description: Total number of items after applying `filter` params.
           type: integer
-          format: int64
-          example: 86400000
-        type:
-          description: 'The type of the archival rule determining when to tier data to the target storage class.
-
-            Valid values are `LATEST_ACCESS` and `LATEST_MODIFICATION`.
-
-            '
-          type: string
-          example: LATEST_ACCESS
-    StorageClassTieringPoliciesMembersResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for storage class tiering policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMember'
-    StorageClassTieringPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - type: object
-        properties:
-          archival_rules:
-            description: 'The list of archival rules for this policy.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/TieringPolicyArchivalRule'
-          retrieval_rules:
-            description: 'The list of retrieval rules for this policy.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/TieringPolicyRetrievalRule'
-    TieringPolicyRetrievalRule:
-      type: object
-      properties:
-        target_storage_class:
-          description: 'The storage class to which the data is moved. Will always be `S500X-S` for retrieval rules.
-
-            '
-          type: string
-          example: S500X-S
-          readOnly: true
-        type:
-          description: 'The type of the retrieval rule determining criteria to tier data to the target storage class.
-
-            Valid values are `ON_READ` and `ONLY_ON_WRITE`.
-
-            '
-          type: string
-          example: ON_READ
+          format: int32
     PolicyBaseRenameable:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -368,21 +358,28 @@ components:
               '
             type: string
             readOnly: true
-    _realmsReference:
+    StorageClassTieringPoliciesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/StorageClassTieringPoliciesResponse'
+    TieringPolicyRetrievalRule:
       type: object
       properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
+        target_storage_class:
+          description: 'The storage class to which the data is moved. Will always be `S500X-S` for retrieval rules.
 
             '
-          type: array
+          type: string
+          example: S500X-S
           readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference'
+        type:
+          description: 'The type of the retrieval rule determining criteria to tier data to the target storage class.
+
+            Valid values are `ON_READ` and `ONLY_ON_WRITE`.
+
+            '
+          type: string
+          example: ON_READ
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -400,100 +397,78 @@ components:
               '
             type: string
             readOnly: true
-    PageInfo:
+    _fixedReferenceWithoutType:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
+            The ID cannot be modified.
 
             '
           type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    StorageClassTieringPoliciesResponse:
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    StorageClassTieringPoliciesMembersResponse:
       type: object
       properties:
         items:
+          description: A list of members for storage class tiering policies.
           type: array
           items:
-            $ref: '#/components/schemas/StorageClassTieringPolicy'
-          description: A list of storage class tiering policy objects.
-    PolicyMember:
-      type: object
-      properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
+            $ref: '#/components/schemas/PolicyMember'
+    StorageClassTieringPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - type: object
+        properties:
+          archival_rules:
+            description: 'The list of archival rules for this policy.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/TieringPolicyArchivalRule'
+          retrieval_rules:
+            description: 'The list of retrieval rules for this policy.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/TieringPolicyRetrievalRule'
+    StorageClassTieringPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/StorageClassTieringPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
   parameters:
-    Filter:
-      name: filter
+    Sort:
+      name: sort
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        that satisfy the filter criteria.
+        is appended to the field name).
 
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
+        the response.
 
         '
       style: form
@@ -501,40 +476,7 @@ components:
       schema:
         type: array
         items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     XRequestId:
       name: X-Request-ID
@@ -563,6 +505,62 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Names:
       name: names
       in: query
@@ -616,6 +614,48 @@ components:
         type: array
         items:
           type: string
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Member_ids:
       name: member_ids
       in: query
@@ -634,18 +674,19 @@ components:
         type: array
         items:
           type: string
-    Member_names:
-      name: member_names
+    Allow_errors:
+      name: allow_errors
       in: query
-      description: 'A comma-separated list of member names.
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
+        type: boolean
+        default: false
     Ids:
       name: ids
       in: query
@@ -664,35 +705,12 @@ components:
         type: array
         items:
           type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header

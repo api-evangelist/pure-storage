@@ -1,21 +1,18 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Remote Arrays API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure Storage Remote Arrays API
+  x-refined-note:
+  - x-logo differs across the merged source definitions and was not carried
+  - x-pure-description-ref differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged Remote Arrays across 2 of this provider''s published API definitions: flasharray-rest-api-openapi.yml, flashblade-rest-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
+- url: http://[array]/
+- url: https://[array]/
 tags:
 - name: Remote Arrays
-  description: 'Remote arrays provide the ability to list and manage all the remote arrays known to an array.
-
-    '
+  description: Remote arrays provide the ability to list and manage all the remote arrays known to an array.
 paths:
   /api/2.52/remote-arrays:
     get:
@@ -24,10 +21,7 @@ paths:
       summary: Pure Storage List Remote Arrays
       description: 'Dispalys arrays in the current fleet, as well as arrays that the current array has existing
 
-        replication connections to.
-
-
-        '
+        replication connections to.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -55,6 +49,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoteArraysResponse'
+      operationId: getApi252RemoteArrays
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.26/remote-arrays:
     get:
       tags:
@@ -62,10 +60,7 @@ paths:
       summary: Pure Storage List Remote Arrays
       description: 'Lists arrays in the current fleet, as well as arrays that the current array has existing
 
-        replication connections to.
-
-
-        '
+        replication connections to.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Continuation_token'
@@ -97,6 +92,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoteArraysResponse'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226RemoteArrays
+      x-operation-id-source: derived
     patch:
       tags:
       - Remote Arrays
@@ -115,51 +114,254 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoteArrayResponse'
+      security:
+      - AuthorizationHeader: []
+      operationId: patchApi226RemoteArrays
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
 components:
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    To_topology_group_ids:
+      name: to_topology_group_ids
+      in: query
+      description: 'Moves selected remote array to the specified topology group by ID.
+
+        One of the `to_topology_group_ids` or `to_topology_group_names` parameters is required,
+
+        but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    To_topology_group_names:
+      name: to_topology_group_names
+      in: query
+      description: 'Moves selected remote array to the specified topology group by name.
+
+        One of the `to_topology_group_ids` or `to_topology_group_names` parameters is required,
+
+        but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
   schemas:
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    _remoteArrayFleet:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - type: object
-        properties:
-          is_local:
-            description: 'If set to `true`, the current array is a member of the fleet.
-
-              '
-            type: boolean
-            example: false
-    _referenceWithoutTypeWithIsLocal:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          is_local:
-            description: 'If set to `true`, the location reference is to the local array.
-
-              If set to `false`, the location reference is to a remote location,
-
-              such as a remote array or offload target.
-
-              '
-            type: boolean
-            readOnly: true
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -187,51 +389,6 @@ components:
 
             '
           type: string
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    RemoteArrayResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/RemoteArray_2'
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
     _api_versions:
       description: A list of supported API versions.
       type: array
@@ -257,15 +414,17 @@ components:
       - '1.16'
       - '1.17'
       - '2.0'
-    _fixedReferenceWithIsLocal:
+    _remoteArrayFleet:
       allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - $ref: '#/components/schemas/_referenceWithoutTypeWithIsLocal'
+      - $ref: '#/components/schemas/_resource'
       - type: object
         properties:
-          resource_type:
-            description: "Type of the object (full name of the endpoint).\n  Valid values are the unique part of the resource's REST endpoint.\n  For example, a reference to a fleet would have a\n  `resource_type` of `fleets`.\n"
-            type: string
+          is_local:
+            description: 'If set to `true`, the current array is a member of the fleet.
+
+              '
+            type: boolean
+            example: false
     RemoteArraysResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
@@ -280,88 +439,6 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/RemoteArray'
-    RemoteArray_2:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - type: object
-        properties:
-          api_versions:
-            $ref: '#/components/schemas/_api_versions'
-          fleet:
-            $ref: '#/components/schemas/_fixedReferenceWithIsLocal'
-          is_local:
-            description: If set to `true`, this array is the current array.
-            type: boolean
-            example: false
-          model:
-            description: Specifies the array model.
-            type: string
-            example: FlashBlade//S200
-          os:
-            description: 'Specifies the operating system. Valid values are `Purity`, `Purity//FA`, and `Purity//FB`.
-
-              '
-            type: string
-            example: Purity//FA
-          topology_group:
-            description: The topology group in which this array is a member.
-            title: ReferenceWritable
-            allOf:
-            - $ref: '#/components/schemas/_referenceWritable'
-          version:
-            description: Specifies the operating system version.
-            type: string
-            example: 4.4.99
-    RemoteArray:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - type: object
-        properties:
-          api_versions:
-            $ref: '#/components/schemas/_api_versions'
-          fleet:
-            $ref: '#/components/schemas/_remoteArrayFleet'
-          is_local:
-            description: 'If set to `true`, this array is the current array.
-
-              '
-            type: boolean
-            example: false
-          model:
-            description: 'Specifies the array model.
-
-              '
-            type: string
-            example: FA//X
-          os:
-            description: 'Specifies the operating system. Valid values are `Purity`, `Purity//FA`, and `Purity//FB`.
-
-              '
-            type: string
-            example: Purity//FA
-          version:
-            description: 'Specifies the operating system version.
-
-              '
-            type: string
-            example: 6.8.0
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
     PageInfo:
       type: object
       properties:
@@ -404,242 +481,211 @@ components:
             '
           type: integer
           format: int32
-  parameters:
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+    RemoteArray:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - type: object
+        properties:
+          api_versions:
+            $ref: '#/components/schemas/_api_versions'
+          fleet:
+            $ref: '#/components/schemas/_remoteArrayFleet'
+          is_local:
+            description: 'If set to `true`, this array is the current array.
 
-        Where it makes more sense, the average value is displayed instead.
+              '
+            type: boolean
+            example: false
+          model:
+            description: 'Specifies the array model.
 
-        The values are displayed for each name where meaningful.
+              '
+            type: string
+            example: FA//X
+          os:
+            description: 'Specifies the operating system. Valid values are `Purity`, `Purity//FA`, and `Purity//FB`.
 
-        If `total_only=true`, the `items` list will be empty.
+              '
+            type: string
+            example: Purity//FA
+          version:
+            description: 'Specifies the operating system version.
 
-        '
-      schema:
-        type: boolean
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
+              '
+            type: string
+            example: 6.8.0
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-        in relation to the full set of response objects returned.
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
 
-        that satisfy the filter criteria.
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
 
-        '
-      schema:
-        type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
+              '
+            type: string
+      x-aliases:
+      - _reference
+    RemoteArray_2:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - type: object
+        properties:
+          api_versions:
+            $ref: '#/components/schemas/_api_versions'
+          fleet:
+            $ref: '#/components/schemas/_fixedReferenceWithIsLocal'
+          is_local:
+            description: If set to `true`, this array is the current array.
+            type: boolean
+            example: false
+          model:
+            description: Specifies the array model.
+            type: string
+            example: FlashBlade//S200
+          os:
+            description: 'Specifies the operating system. Valid values are `Purity`, `Purity//FA`, and `Purity//FB`.
 
-        with some consistency guaranteed.
+              '
+            type: string
+            example: Purity//FA
+          topology_group:
+            description: The topology group in which this array is a member.
+            title: ReferenceWritable
+            allOf:
+            - $ref: '#/components/schemas/_referenceWritable'
+          version:
+            description: Specifies the operating system version.
+            type: string
+            example: 4.4.99
+    RemoteArrayResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RemoteArray_2'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
 
-        The token is a Base64 encoded value.
+            param to get the next page of data.
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+            If you use the `continuation_token` to page through data you
 
-        header field of the response.
+            are guaranteed to get all items exactly once regardless of
 
-        A query has reached its last page when the response does not include a token.
+            how items are modified. If an item is added or deleted during
 
-        Pagination requires the `limit` and `continuation_token`
+            the pagination then it may or may not be returned.
 
-        query parameters.
+            The `continuation_token` is generated if the `limit` is less
 
-        '
-      schema:
-        type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
+            than the remaining number of items, and the default sort is used
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    XRequestId:
-      name: X-Request-ID
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReferenceWithIsLocal:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - $ref: '#/components/schemas/_referenceWithoutTypeWithIsLocal'
+      - type: object
+        properties:
+          resource_type:
+            description: "Type of the object (full name of the endpoint).\n  Valid values are the unique part of the resource's REST endpoint.\n  For example, a reference to a fleet would have a\n  `resource_type` of `fleets`.\n"
+            type: string
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _referenceWithoutTypeWithIsLocal:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          is_local:
+            description: 'If set to `true`, the location reference is to the local array.
+
+              If set to `false`, the location reference is to a remote location,
+
+              such as a remote array or offload target.
+
+              '
+            type: boolean
+            readOnly: true
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
       in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    To_topology_group_ids:
-      name: to_topology_group_ids
-      in: query
-      description: 'Moves selected remote array to the specified topology group by ID.
-
-        One of the `to_topology_group_ids` or `to_topology_group_names` parameters is required,
-
-        but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Authorization:
-      name: Authorization
+    ApiToken:
+      type: apiKey
+      name: api-token
       in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    To_topology_group_names:
-      name: to_topology_group_names
-      in: query
-      description: 'Moves selected remote array to the specified topology group by name.
-
-        One of the `to_topology_group_ids` or `to_topology_group_names` parameters is required,
-
-        but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+x-refined-from:
+- flasharray-rest-api-openapi.yml
+- flashblade-rest-api-openapi.yml

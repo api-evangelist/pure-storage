@@ -1,21 +1,18 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory SNMP Managers API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure Storage SNMP Managers API
+  x-refined-note:
+  - x-logo differs across the merged source definitions and was not carried
+  - x-pure-description-ref differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged SNMP Managers across 2 of this provider''s published API definitions: flasharray-rest-api-openapi.yml, flashblade-rest-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
+- url: http://[array]/
+- url: https://[array]/
 tags:
 - name: SNMP Managers
-  description: 'Manages connections to Simple Network Management Protocol (SNMP) managers.
-
-    '
+  description: Manages connections to Simple Network Management Protocol (SNMP) managers.
 paths:
   /api/2.52/snmp-managers:
     get:
@@ -40,6 +37,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SnmpManagerGetResponse'
+      operationId: getApi252SnmpManagers
+      x-operation-id-source: derived
     post:
       tags:
       - SNMP Managers
@@ -48,9 +47,7 @@ paths:
 
         protocol attributes for communicating with it. Once a manager object is created, the
 
-        transmission of SNMP traps is immediately enabled.
-
-        '
+        transmission of SNMP traps is immediately enabled.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -70,13 +67,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/SnmpManagerResponse'
       x-codegen-request-body-name: snmp-manager
+      operationId: postApi252SnmpManagers
+      x-operation-id-source: derived
     delete:
       tags:
       - SNMP Managers
       summary: Pure Storage Delete SNMP Manager
-      description: 'Deletes the SNMP manager object and stops communication with specified managers.
-
-        '
+      description: Deletes the SNMP manager object and stops communication with specified managers.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -85,6 +82,8 @@ paths:
         '200':
           description: OK
           content: {}
+      operationId: deleteApi252SnmpManagers
+      x-operation-id-source: derived
     patch:
       tags:
       - SNMP Managers
@@ -109,6 +108,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/SnmpManagerResponse'
       x-codegen-request-body-name: snmp-manager
+      operationId: patchApi252SnmpManagers
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.52/snmp-managers/test:
     get:
       tags:
@@ -146,6 +149,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestResultWithResourceGetResponse'
+      operationId: getApi252SnmpManagersTest
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.26/snmp-managers:
     get:
       tags:
@@ -173,6 +180,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SnmpManagerGetResponse'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226SnmpManagers
+      x-operation-id-source: derived
     post:
       tags:
       - SNMP Managers
@@ -201,6 +212,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/SnmpManagerResponse'
       x-codegen-request-body-name: snmp-manager
+      security:
+      - AuthorizationHeader: []
+      operationId: postApi226SnmpManagers
+      x-operation-id-source: derived
     delete:
       tags:
       - SNMP Managers
@@ -219,6 +234,10 @@ paths:
               schema:
                 type: string
           content: {}
+      security:
+      - AuthorizationHeader: []
+      operationId: deleteApi226SnmpManagers
+      x-operation-id-source: derived
     patch:
       tags:
       - SNMP Managers
@@ -248,6 +267,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/SnmpManagerResponse'
       x-codegen-request-body-name: snmp-manager
+      security:
+      - AuthorizationHeader: []
+      operationId: patchApi226SnmpManagers
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
   /api/2.26/snmp-managers/test:
     get:
       tags:
@@ -275,30 +301,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestResultGetResponse'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226SnmpManagersTest
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
 components:
   schemas:
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    _snmp_v2c:
-      description: 'The v2c configurations of SNMP.
-
-        '
-      type: object
-      properties:
-        community:
-          description: 'Manager community ID under which Purity//FA is to communicate with the specified managers.
-
-            '
-          type: string
-          maxLength: 32
-          example: '****'
     SnmpManagerPatch:
       allOf:
       - $ref: '#/components/schemas/_resourceNoId'
@@ -332,116 +343,6 @@ components:
               '
             type: string
             example: v3
-    TestResult:
-      type: object
-      properties:
-        component_address:
-          description: Address of the component running the test.
-          type: string
-          example: 10.230.94.21
-        component_name:
-          description: Name of the component running the test.
-          type: string
-          example: CT0
-        description:
-          description: What the test is doing.
-          type: string
-          example: Testing phonehome connectivity
-        destination:
-          description: The URI of the target server being tested.
-          type: string
-          example: ra.cloud-support.purestorage.com
-        enabled:
-          description: 'Whether the object being tested is enabled or not.
-
-            Returns a value of `true` if the the service is enabled.
-
-            Returns a value of `false` if the service is disabled.
-
-            '
-          type: boolean
-          example: true
-        result_details:
-          description: Additional information about the test result.
-          type: string
-          example: Timeout connecting to phonehome endpoint
-        success:
-          description: 'Whether the object being tested passed the test or not.
-
-            Returns a value of `true` if the specified test has succeeded.
-
-            Returns a value of `false` if the specified test has failed.
-
-            '
-          type: boolean
-        test_type:
-          description: 'Displays the type of test being performed. The returned values are determined
-
-            by the `resource` being tested and its configuration.
-
-            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
-
-            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
-
-            `storage-admin-group-searching`, and `validate-ntp-configuration`.
-
-            '
-          type: string
-          example: phonehome
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    TestResultResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TestResult_2'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -505,326 +406,6 @@ components:
 
             '
           type: string
-    TestResultGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/TestResultResponse'
-      - type: object
-        properties:
-          total_item_count:
-            description: Total number of items after applying `filter` params.
-            type: integer
-            format: int32
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _snmp_v3_2:
-      description: 'The v3 configurations of SNMP.
-
-        '
-      type: object
-      properties:
-        auth_passphrase:
-          description: 'Passphrase used by Purity to authenticate the array with the
-
-            specified managers.
-
-            '
-          type: string
-          example: '****'
-        auth_protocol:
-          description: 'Hash algorithm used to validate the authentication passphrase.
-
-            Valid values are `MD5` and `SHA`.
-
-            '
-          type: string
-          example: MD5
-        privacy_passphrase:
-          description: Passphrase used to encrypt SNMP messages.
-          type: string
-          example: '****'
-        privacy_protocol:
-          description: 'Encryption protocol for SNMP messages.
-
-            Valid values are `AES` and `DES`.
-
-            '
-          type: string
-          example: DES
-        user:
-          description: 'User ID recognized by the specified SNMP managers which Purity
-
-            is to use in communications with them.
-
-            '
-          type: string
-          example: User1
-    _fixedReferenceNoId:
-      type: object
-      properties:
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    SnmpManagerResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SnmpManager'
-    _snmp_v3_post:
-      description: 'The v3 configurations of SNMP.
-
-        '
-      type: object
-      properties:
-        auth_passphrase:
-          description: 'Passphrase used by Purity//FA to authenticate the array with the specified managers.
-
-            '
-          type: string
-          maxLength: 32
-          example: '********'
-        auth_protocol:
-          description: 'Hash algorithm used to validate the authentication passphrase.
-
-            Valid values are `MD5` and `SHA`.
-
-            '
-          type: string
-          example: MD5
-        privacy_passphrase:
-          description: Passphrase used to encrypt SNMP messages.
-          type: string
-          minLength: 8
-          maxLength: 63
-          example: '********'
-        privacy_protocol:
-          description: 'Encryption protocol for SNMP messages.
-
-            Valid values are `AES` and `DES`.
-
-            '
-          type: string
-          example: DES
-        user:
-          description: 'User ID recognized by the specified SNMP managers which Purity//FA
-
-            is to use in communications with them.
-
-            '
-          type: string
-          example: User1
-    SnmpManagerPost:
-      type: object
-      properties:
-        host:
-          description: 'DNS hostname or IP address of a computer that hosts an SNMP manager
-
-            to which Purity//FA is to send trap messages when it generates alerts.
-
-            '
-          type: string
-          example: snmp.purestorage.com
-        notification:
-          description: 'The type of notification the agent will send.
-
-            Valid values are `inform` and `trap`.
-
-            '
-          type: string
-          example: trap
-        v2c:
-          $ref: '#/components/schemas/_snmp_v2c'
-        v3:
-          $ref: '#/components/schemas/_snmp_v3_post'
-        version:
-          description: 'Version of the SNMP protocol to be used by Purity//FA to communicate with the specified
-
-            manager. Valid values are `v2c` and `v3`.
-
-            '
-          type: string
-          example: v3
-    TestResultWithResourceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/TotalItemCountResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/TestResultWithResource'
-    SnmpManagerGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SnmpManagerResponse'
-    SnmpManager_2:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - type: object
-        properties:
-          host:
-            description: 'DNS hostname or IP address of a computer that hosts an SNMP manager
-
-              to which Purity is to send trap messages when it generates alerts.
-
-              '
-            type: string
-            example: snmp.purestorage.com
-          notification:
-            description: 'The type of notification the agent will send.
-
-              Valid values are `inform` and `trap`.
-
-              '
-            type: string
-            example: trap
-          v2c:
-            $ref: '#/components/schemas/_snmp_v2c_2'
-          v3:
-            $ref: '#/components/schemas/_snmp_v3_2'
-          version:
-            description: 'Version of the SNMP protocol to be used by Purity in communications
-
-              with the specified manager.
-
-              Valid values are `v2c` and `v3`.
-
-              '
-            type: string
-            example: v3
-    _snmp_v3:
-      description: 'The v3 configurations of SNMP.
-
-        '
-      type: object
-      properties:
-        auth_passphrase:
-          description: 'Passphrase used by Purity//FA to authenticate the array with the specified managers.
-
-            '
-          type: string
-          example: '****'
-        auth_protocol:
-          description: 'Hash algorithm used to validate the authentication passphrase.
-
-            Valid values are `MD5` and `SHA`.
-
-            '
-          type: string
-          example: MD5
-        privacy_passphrase:
-          description: Passphrase used to encrypt SNMP messages.
-          type: string
-          example: '****'
-        privacy_protocol:
-          description: 'Encryption protocol for SNMP messages.
-
-            Valid values are `AES` and `DES`.
-
-            '
-          type: string
-          example: DES
-        user:
-          description: 'User ID recognized by the specified SNMP managers which Purity//FA
-
-            is to use in communications with them.
-
-            '
-          type: string
-          example: User1
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _snmp_v2c_2:
-      description: 'The v2c configurations of SNMP.
-
-        '
-      type: object
-      properties:
-        community:
-          description: 'Manager community ID under which Purity is to communicate with
-
-            the specified managers.
-
-            '
-          type: string
-          maxLength: 32
-          example: '****'
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    TotalItemCountResponse:
-      type: object
-      properties:
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
     _snmp_v3_patch:
       description: 'The v3 configurations of SNMP.
 
@@ -868,13 +449,84 @@ components:
             '
           type: string
           example: User1
-    SnmpManagerPost_2:
+    TestResult:
+      type: object
+      properties:
+        component_address:
+          description: Address of the component running the test.
+          type: string
+          example: 10.230.94.21
+        component_name:
+          description: Name of the component running the test.
+          type: string
+          example: CT0
+        description:
+          description: What the test is doing.
+          type: string
+          example: Testing phonehome connectivity
+        destination:
+          description: The URI of the target server being tested.
+          type: string
+          example: ra.cloud-support.purestorage.com
+        enabled:
+          description: 'Whether the object being tested is enabled or not.
+
+            Returns a value of `true` if the the service is enabled.
+
+            Returns a value of `false` if the service is disabled.
+
+            '
+          type: boolean
+          example: true
+        result_details:
+          description: Additional information about the test result.
+          type: string
+          example: Timeout connecting to phonehome endpoint
+        success:
+          description: 'Whether the object being tested passed the test or not.
+
+            Returns a value of `true` if the specified test has succeeded.
+
+            Returns a value of `false` if the specified test has failed.
+
+            '
+          type: boolean
+        test_type:
+          description: 'Displays the type of test being performed. The returned values are determined
+
+            by the `resource` being tested and its configuration.
+
+            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
+
+            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
+
+            `storage-admin-group-searching`, and `validate-ntp-configuration`.
+
+            '
+          type: string
+          example: phonehome
+    TotalItemCountResponse:
+      type: object
+      properties:
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    SnmpManagerPost:
       type: object
       properties:
         host:
           description: 'DNS hostname or IP address of a computer that hosts an SNMP manager
 
-            to which Purity is to send trap messages when it generates alerts.
+            to which Purity//FA is to send trap messages when it generates alerts.
 
             '
           type: string
@@ -888,19 +540,167 @@ components:
           type: string
           example: trap
         v2c:
-          $ref: '#/components/schemas/_snmp_v2c_2'
+          $ref: '#/components/schemas/_snmp_v2c'
         v3:
-          $ref: '#/components/schemas/_snmp_v3_post_2'
+          $ref: '#/components/schemas/_snmp_v3_post'
         version:
-          description: 'Version of the SNMP protocol to be used by Purity in communications
+          description: 'Version of the SNMP protocol to be used by Purity//FA to communicate with the specified
 
-            with the specified manager.
-
-            Valid values are `v2c` and `v3`.
+            manager. Valid values are `v2c` and `v3`.
 
             '
           type: string
           example: v3
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    _snmp_v3_post:
+      description: 'The v3 configurations of SNMP.
+
+        '
+      type: object
+      properties:
+        auth_passphrase:
+          description: 'Passphrase used by Purity//FA to authenticate the array with the specified managers.
+
+            '
+          type: string
+          maxLength: 32
+          example: '********'
+        auth_protocol:
+          description: 'Hash algorithm used to validate the authentication passphrase.
+
+            Valid values are `MD5` and `SHA`.
+
+            '
+          type: string
+          example: MD5
+        privacy_passphrase:
+          description: Passphrase used to encrypt SNMP messages.
+          type: string
+          minLength: 8
+          maxLength: 63
+          example: '********'
+        privacy_protocol:
+          description: 'Encryption protocol for SNMP messages.
+
+            Valid values are `AES` and `DES`.
+
+            '
+          type: string
+          example: DES
+        user:
+          description: 'User ID recognized by the specified SNMP managers which Purity//FA
+
+            is to use in communications with them.
+
+            '
+          type: string
+          example: User1
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _snmp_v2c:
+      description: 'The v2c configurations of SNMP.
+
+        '
+      type: object
+      properties:
+        community:
+          description: 'Manager community ID under which Purity//FA is to communicate with the specified managers.
+
+            '
+          type: string
+          maxLength: 32
+          example: '****'
+    SnmpManager:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoId'
+      - type: object
+        properties:
+          host:
+            description: 'DNS hostname or IP address of a computer that hosts an SNMP manager
+
+              to which Purity//FA is to send trap messages when it generates alerts.
+
+              '
+            type: string
+            example: snmp.purestorage.com
+          notification:
+            description: 'The type of notification the agent will send.
+
+              Valid values are `inform` and `trap`.
+
+              '
+            type: string
+            example: trap
+          v2c:
+            $ref: '#/components/schemas/_snmp_v2c'
+          v3:
+            $ref: '#/components/schemas/_snmp_v3'
+          version:
+            description: 'Version of the SNMP protocol to be used by Purity//FA to communicate with the specified
+
+              manager. Valid values are `v2c` and `v3`.
+
+              '
+            type: string
+            example: v3
     _fixedReference:
       type: object
       properties:
@@ -923,6 +723,136 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
+    SnmpManagerResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnmpManager'
+    SnmpManagerGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SnmpManagerResponse'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _fixedReferenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    TestResultWithResourceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/TotalItemCountResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/TestResultWithResource'
+    _snmp_v3:
+      description: 'The v3 configurations of SNMP.
+
+        '
+      type: object
+      properties:
+        auth_passphrase:
+          description: 'Passphrase used by Purity//FA to authenticate the array with the specified managers.
+
+            '
+          type: string
+          example: '****'
+        auth_protocol:
+          description: 'Hash algorithm used to validate the authentication passphrase.
+
+            Valid values are `MD5` and `SHA`.
+
+            '
+          type: string
+          example: MD5
+        privacy_passphrase:
+          description: Passphrase used to encrypt SNMP messages.
+          type: string
+          example: '****'
+        privacy_protocol:
+          description: 'Encryption protocol for SNMP messages.
+
+            Valid values are `AES` and `DES`.
+
+            '
+          type: string
+          example: DES
+        user:
+          description: 'User ID recognized by the specified SNMP managers which Purity//FA
+
+            is to use in communications with them.
+
+            '
+          type: string
+          example: User1
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
     TestResult_2:
       type: object
       properties:
@@ -970,6 +900,67 @@ components:
             '
           type: string
           example: phonehome
+    SnmpManagerPost_2:
+      type: object
+      properties:
+        host:
+          description: 'DNS hostname or IP address of a computer that hosts an SNMP manager
+
+            to which Purity is to send trap messages when it generates alerts.
+
+            '
+          type: string
+          example: snmp.purestorage.com
+        notification:
+          description: 'The type of notification the agent will send.
+
+            Valid values are `inform` and `trap`.
+
+            '
+          type: string
+          example: trap
+        v2c:
+          $ref: '#/components/schemas/_snmp_v2c_2'
+        v3:
+          $ref: '#/components/schemas/_snmp_v3_post_2'
+        version:
+          description: 'Version of the SNMP protocol to be used by Purity in communications
+
+            with the specified manager.
+
+            Valid values are `v2c` and `v3`.
+
+            '
+          type: string
+          example: v3
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     _snmp_v3_post_2:
       description: 'The v3 configurations of SNMP.
 
@@ -1015,15 +1006,30 @@ components:
             '
           type: string
           example: User1
-    SnmpManager:
+    _snmp_v2c_2:
+      description: 'The v2c configurations of SNMP.
+
+        '
+      type: object
+      properties:
+        community:
+          description: 'Manager community ID under which Purity is to communicate with
+
+            the specified managers.
+
+            '
+          type: string
+          maxLength: 32
+          example: '****'
+    SnmpManager_2:
       allOf:
-      - $ref: '#/components/schemas/_resourceNoId'
+      - $ref: '#/components/schemas/_resource'
       - type: object
         properties:
           host:
             description: 'DNS hostname or IP address of a computer that hosts an SNMP manager
 
-              to which Purity//FA is to send trap messages when it generates alerts.
+              to which Purity is to send trap messages when it generates alerts.
 
               '
             type: string
@@ -1037,60 +1043,134 @@ components:
             type: string
             example: trap
           v2c:
-            $ref: '#/components/schemas/_snmp_v2c'
+            $ref: '#/components/schemas/_snmp_v2c_2'
           v3:
-            $ref: '#/components/schemas/_snmp_v3'
+            $ref: '#/components/schemas/_snmp_v3_2'
           version:
-            description: 'Version of the SNMP protocol to be used by Purity//FA to communicate with the specified
+            description: 'Version of the SNMP protocol to be used by Purity in communications
 
-              manager. Valid values are `v2c` and `v3`.
+              with the specified manager.
+
+              Valid values are `v2c` and `v3`.
 
               '
             type: string
             example: v3
-    PageInfo:
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    TestResultGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/TestResultResponse'
+      - type: object
+        properties:
+          total_item_count:
+            description: Total number of items after applying `filter` params.
+            type: integer
+            format: int32
+    _fixedReferenceWithoutType:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
+            The ID cannot be modified.
 
             '
           type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
 
             '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
+          type: string
+          readOnly: true
+      x-readOnly: true
+    TestResultResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestResult_2'
+    _snmp_v3_2:
+      description: 'The v3 configurations of SNMP.
 
-            The `total_item_count` will be calculated if and only if the corresponding
+        '
+      type: object
+      properties:
+        auth_passphrase:
+          description: 'Passphrase used by Purity to authenticate the array with the
 
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
+            specified managers.
 
             '
-          type: integer
-          format: int32
+          type: string
+          example: '****'
+        auth_protocol:
+          description: 'Hash algorithm used to validate the authentication passphrase.
+
+            Valid values are `MD5` and `SHA`.
+
+            '
+          type: string
+          example: MD5
+        privacy_passphrase:
+          description: Passphrase used to encrypt SNMP messages.
+          type: string
+          example: '****'
+        privacy_protocol:
+          description: 'Encryption protocol for SNMP messages.
+
+            Valid values are `AES` and `DES`.
+
+            '
+          type: string
+          example: DES
+        user:
+          description: 'User ID recognized by the specified SNMP managers which Purity
+
+            is to use in communications with them.
+
+            '
+          type: string
+          example: User1
   parameters:
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Filter:
       name: filter
       in: query
@@ -1101,32 +1181,6 @@ components:
         '
       schema:
         type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
     Continuation_token:
       name: continuation_token
       in: query
@@ -1145,67 +1199,6 @@ components:
         Pagination requires the `limit` and `continuation_token`
 
         query parameters.
-
-        '
-      schema:
-        type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
 
         '
       schema:
@@ -1263,6 +1256,79 @@ components:
         type: array
         items:
           type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Sort_2:
       name: sort
       in: query
@@ -1282,6 +1348,30 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Ids:
       name: ids
       in: query
@@ -1300,32 +1390,15 @@ components:
         type: array
         items:
           type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header
+x-refined-from:
+- flasharray-rest-api-openapi.yml
+- flashblade-rest-api-openapi.yml

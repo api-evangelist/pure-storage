@@ -1,16 +1,15 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Object Store Access Keys API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure Storage Object Store Access Keys API
+  x-refined-note:
+  - x-logo differs across the merged source definitions and was not carried
+  - x-pure-description-ref differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged Object Store Access Keys across 2 of this provider''s published API definitions: flasharray-rest-api-openapi.yml, flashblade-rest-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
+- url: http://[array]/
+- url: https://[array]/
 tags:
 - name: Object Store Access Keys
   description: Manages object store access keys. A maximum of two sets of keys can be created for each object store user. A set of keys consists of an access key ID and Secret Access Key.
@@ -56,15 +55,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccessKeyGetResponse'
+      operationId: getApi252ObjectStoreAccessKeys
+      x-operation-id-source: derived
     post:
       tags:
       - Object Store Access Keys
       summary: Pure Storage POST Object-store-access-keys
       description: 'The generation of object store access keys. This process produces a new `access key ID` and
 
-        `secret key` for the specified user.
-
-        '
+        `secret key` for the specified user.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Context_names'
@@ -88,6 +87,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccessKeyResponse'
       x-codegen-request-body-name: object-store-access-key
+      operationId: postApi252ObjectStoreAccessKeys
+      x-operation-id-source: derived
     delete:
       tags:
       - Object Store Access Keys
@@ -106,6 +107,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi252ObjectStoreAccessKeys
+      x-operation-id-source: derived
     patch:
       tags:
       - Object Store Access Keys
@@ -135,6 +138,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccessKeyResponse'
       x-codegen-request-body-name: object-store-access-key
+      operationId: patchApi252ObjectStoreAccessKeys
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.26/object-store-access-keys:
     get:
       tags:
@@ -180,6 +187,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccessKeyGetResponse'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226ObjectStoreAccessKeys
+      x-operation-id-source: derived
     post:
       tags:
       - Object Store Access Keys
@@ -192,9 +203,7 @@ paths:
 
         user in a realm, the value of `names` must be prefixed with the realm of the
 
-        user.
-
-        '
+        user.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Context_names'
@@ -219,6 +228,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccessKeyResponse'
       x-codegen-request-body-name: object-store-access-key
+      security:
+      - AuthorizationHeader: []
+      operationId: postApi226ObjectStoreAccessKeys
+      x-operation-id-source: derived
     delete:
       tags:
       - Object Store Access Keys
@@ -237,6 +250,10 @@ paths:
               schema:
                 type: string
           content: {}
+      security:
+      - AuthorizationHeader: []
+      operationId: deleteApi226ObjectStoreAccessKeys
+      x-operation-id-source: derived
     patch:
       tags:
       - Object Store Access Keys
@@ -266,445 +283,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/ObjectStoreAccessKeyResponse'
       x-codegen-request-body-name: object-store-access-key
+      security:
+      - AuthorizationHeader: []
+      operationId: patchApi226ObjectStoreAccessKeys
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
 components:
-  schemas:
-    ObjectStoreAccessKey_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          access_key_id:
-            description: 'The access key ID which can be used directly to
-
-              authorize S3 operations.
-
-              '
-            type: string
-            readOnly: true
-          created:
-            description: Creation timestamp of the object.
-            type: integer
-            format: int64
-            readOnly: true
-          enabled:
-            description: 'Is the access key enabled? If not specified, defaults to `false`.
-
-              '
-            type: boolean
-          secret_access_key:
-            description: 'The secret access key, only populated on creation if it is not
-
-              imported from another FlashBlade.
-
-              '
-            type: string
-            readOnly: true
-          user:
-            description: Reference of the associated user.
-            readOnly: true
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-    ObjectStoreAccessKeyResponse:
-      type: object
-      properties:
-        items:
-          description: A list of object store access key objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectStoreAccessKey'
-    _builtInNoId:
-      type: object
-      properties:
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    ObjectStoreAccessKeyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreAccessKeyResponse'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    _referenceWithFixedType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
-
-            '
-          type: string
-          readOnly: true
-    ObjectStoreAccessKey:
-      allOf:
-      - $ref: '#/components/schemas/_builtInResourceNoId'
-      - $ref: '#/components/schemas/_objectStoreAccessKeyBase'
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
-
-            '
-          type: string
-          readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
-    _objectStoreAccessKeyPostBase:
-      type: object
-      properties:
-        user:
-          description: The user associated with the access key.
-          title: ReferenceWithFixedType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithFixedType'
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    ObjectStoreAccessKeyPost:
-      type: object
-      properties:
-        secret_access_key:
-          description: 'The secret access key to import from another FlashBlade.
-
-            To import a set of credentials, this field must be specified
-
-            with the `names` query parameter where the `names` includes
-
-            prefix of the realm where the user lives. If both of these are not
-
-            specified, the system will generate a new set of credentials.
-
-            '
-          type: string
-        user:
-          type: object
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-          - description: Reference of the associated user.
-            type: object
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _context_2:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _objectStoreAccessKeyBase:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        description: 'The object store access key credentials that allow programmatic access to an object store account.
-
-          Access keys are associated with a user and are used to authenticate and authorize operations on the object store.
-
-          '
-        properties:
-          created:
-            description: The object store access key creation time in milliseconds since the UNIX epoch.
-            type: integer
-            format: int64
-            readOnly: true
-            example: 1602115200000
-          enabled:
-            description: 'If set to `true`, the access key is enabled.
-
-              If set to `false`, the access key cannot be used for authentication.
-
-              The default value is `true`.
-
-              '
-            type: boolean
-            example: true
-          secret_access_key:
-            description: 'The secret access key. This value is returned only upon creation.
-
-              '
-            type: string
-            readOnly: true
-          user:
-            description: The user associated with the access key.
-            readOnly: true
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
-    _builtInResourceNoId:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
   parameters:
-    Offset:
-      name: offset
+    Sort:
+      name: sort
       in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
+        type: string
     Filter:
       name: filter
       in: query
@@ -715,32 +321,6 @@ components:
         '
       schema:
         type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Names_required_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -759,49 +339,6 @@ components:
         Pagination requires the `limit` and `continuation_token`
 
         query parameters.
-
-        '
-      schema:
-        type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
@@ -878,6 +415,91 @@ components:
         type: array
         items:
           type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
     Sort_2:
       name: sort
       in: query
@@ -897,6 +519,30 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Names_required_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Access_key_names:
       name: names
       in: query
@@ -924,49 +570,507 @@ components:
         type: array
         items:
           type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
+  schemas:
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
 
-        specified query parameters is calculated and returned in
+            or the name of the object that was being processed when the error was encountered.
 
-        the response. If set to `false`, the `total_item_count`
+            This may be `null` for more general errors.
 
-        is `null` in the response. This may speed up queries
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
 
-        where the `total_item_count` is large. If not specified,
+            when the error occurred.
 
-        defaults to `false`.
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    ObjectStoreAccessKey:
+      allOf:
+      - $ref: '#/components/schemas/_builtInResourceNoId'
+      - $ref: '#/components/schemas/_objectStoreAccessKeyBase'
+    _objectStoreAccessKeyBase:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        description: 'The object store access key credentials that allow programmatic access to an object store account.
+
+          Access keys are associated with a user and are used to authenticate and authorize operations on the object store.
+
+          '
+        properties:
+          created:
+            description: The object store access key creation time in milliseconds since the UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 1602115200000
+          enabled:
+            description: 'If set to `true`, the access key is enabled.
+
+              If set to `false`, the access key cannot be used for authentication.
+
+              The default value is `true`.
+
+              '
+            type: boolean
+            example: true
+          secret_access_key:
+            description: 'The secret access key. This value is returned only upon creation.
+
+              '
+            type: string
+            readOnly: true
+          user:
+            description: The user associated with the access key.
+            readOnly: true
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+    ObjectStoreAccessKeyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreAccessKeyResponse'
+    _referenceWithFixedType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    ObjectStoreAccessKeyResponse:
+      type: object
+      properties:
+        items:
+          description: A list of object store access key objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectStoreAccessKey'
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    _builtInResourceNoId:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
 
         '
-      schema:
-        type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
+      type: object
+      properties:
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
           type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique name specified.
+          readOnly: true
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
 
-        For example, `name01`.
 
-        Enter multiple names in comma-separated format.
+            Valid values include a reference to any array which is a member of the same fleet
 
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _objectStoreAccessKeyPostBase:
+      type: object
+      properties:
+        user:
+          description: The user associated with the access key.
+          title: ReferenceWithFixedType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithFixedType'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    ObjectStoreAccessKeyPost:
+      type: object
+      properties:
+        secret_access_key:
+          description: 'The secret access key to import from another FlashBlade.
+
+            To import a set of credentials, this field must be specified
+
+            with the `names` query parameter where the `names` includes
+
+            prefix of the realm where the user lives. If both of these are not
+
+            specified, the system will generate a new set of credentials.
+
+            '
           type: string
+        user:
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+          - description: Reference of the associated user.
+            type: object
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+    ObjectStoreAccessKey_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          access_key_id:
+            description: 'The access key ID which can be used directly to
+
+              authorize S3 operations.
+
+              '
+            type: string
+            readOnly: true
+          created:
+            description: Creation timestamp of the object.
+            type: integer
+            format: int64
+            readOnly: true
+          enabled:
+            description: 'Is the access key enabled? If not specified, defaults to `false`.
+
+              '
+            type: boolean
+          secret_access_key:
+            description: 'The secret access key, only populated on creation if it is not
+
+              imported from another FlashBlade.
+
+              '
+            type: string
+            readOnly: true
+          user:
+            description: Reference of the associated user.
+            readOnly: true
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _builtInNoId:
+      type: object
+      properties:
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _context_2:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header
+x-refined-from:
+- flasharray-rest-api-openapi.yml
+- flashblade-rest-api-openapi.yml

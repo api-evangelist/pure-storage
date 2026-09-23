@@ -1,16 +1,17 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Public Keys API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: FlashBlade REST Public Keys API
+  description: OpenAPI specification for FlashBlade REST API, developed by Pure Storage, Inc. (https://www.purestorage.com/).
+  version: '2.26'
+  x-pure-description-ref: ../custom_descriptions/FB-api-introduction.md
+  x-logo:
+    url:
+      $ref: ../redoc/PS-LogoBase64-FA.txt
 servers:
-- url: /
+- url: http://[array]/
+- url: https://[array]/
+security:
+- AuthorizationHeader: []
 tags:
 - name: Public Keys
   description: Public Keys can be configured for reference in other configurations as signing keys are used to verify cryptographic signatures.
@@ -42,6 +43,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PublicKeyGetResponse'
+      operationId: getApi226PublicKeys
+      x-operation-id-source: derived
     post:
       tags:
       - Public Keys
@@ -70,6 +73,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/PublicKeyResponse'
       x-codegen-request-body-name: public_key
+      operationId: postApi226PublicKeys
+      x-operation-id-source: derived
     delete:
       tags:
       - Public Keys
@@ -88,6 +93,8 @@ paths:
               schema:
                 type: string
           content: {}
+      operationId: deleteApi226PublicKeys
+      x-operation-id-source: derived
   /api/2.26/public-keys/uses:
     get:
       tags:
@@ -115,19 +122,210 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PublicKeyUseGetResponse'
+      operationId: getApi226PublicKeysUses
+      x-operation-id-source: derived
 components:
+  schemas:
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    PublicKeyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PublicKeyResponse'
+    PublicKeyUse:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          use:
+            description: A reference to an object using this public key.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+    PublicKeyUseResponse:
+      type: object
+      properties:
+        items:
+          description: A list of public key use objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicKeyUse'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    PublicKeyUseGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PublicKeyUseResponse'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    PublicKey:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/PublicKeyPost'
+      - type: object
+        properties:
+          algorithm:
+            description: 'The cryptographic algorithm used by the key.
+
+              Valid values include `rsa`, `rsassa-pss`, `dsa`, `ec`, and `ed25519`.
+
+              '
+            type: string
+            readOnly: true
+            example: rsa
+          key_size:
+            description: The size of the public key in bits.
+            type: integer
+            format: int32
+            readOnly: true
+            example: 2048
+    PublicKeyResponse:
+      type: object
+      properties:
+        items:
+          description: A list of public key objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicKey'
+    PublicKeyPost:
+      description: 'A public key configuration, defining a key used for cryptographic signature verification.
+
+        '
+      type: object
+      properties:
+        public_key:
+          description: 'The text of the public key. May be PEM-formatted or OpenSSH-formatted at the time of input.
+
+            '
+          type: string
+          maxLength: 5400
   parameters:
-    Offset:
-      name: offset
+    Sort:
+      name: sort
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
+        type: string
     Filter:
       name: filter
       in: query
@@ -160,33 +358,6 @@ components:
         '
       schema:
         type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Names:
       name: names
       in: query
@@ -210,6 +381,49 @@ components:
         type: array
         items:
           type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Ids:
       name: ids
       in: query
@@ -228,208 +442,12 @@ components:
         type: array
         items:
           type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-  schemas:
-    PublicKeyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PublicKeyResponse'
-    PublicKeyUseResponse:
-      type: object
-      properties:
-        items:
-          description: A list of public key use objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/PublicKeyUse'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    PublicKeyUseGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PublicKeyUseResponse'
-    PublicKeyUse:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          use:
-            description: A reference to an object using this public key.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-    PublicKey:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/PublicKeyPost'
-      - type: object
-        properties:
-          algorithm:
-            description: 'The cryptographic algorithm used by the key.
-
-              Valid values include `rsa`, `rsassa-pss`, `dsa`, `ec`, and `ed25519`.
-
-              '
-            type: string
-            readOnly: true
-            example: rsa
-          key_size:
-            description: The size of the public key in bits.
-            type: integer
-            format: int32
-            readOnly: true
-            example: 2048
-    PublicKeyResponse:
-      type: object
-      properties:
-        items:
-          description: A list of public key objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/PublicKey'
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    PublicKeyPost:
-      description: 'A public key configuration, defining a key used for cryptographic signature verification.
-
-        '
-      type: object
-      properties:
-        public_key:
-          description: 'The text of the public key. May be PEM-formatted or OpenSSH-formatted at the time of input.
-
-            '
-          type: string
-          maxLength: 5400
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header

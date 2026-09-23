@@ -1,21 +1,18 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Subnets API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure Storage Subnets API
+  x-refined-note:
+  - x-logo differs across the merged source definitions and was not carried
+  - x-pure-description-ref differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged Subnets across 2 of this provider''s published API definitions: flasharray-rest-api-openapi.yml, flashblade-rest-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
+- url: http://[array]/
+- url: https://[array]/
 tags:
 - name: Subnets
-  description: 'Manages the subnets and VLANs used to organize the network interfaces.
-
-    '
+  description: Manages the subnets and VLANs used to organize the network interfaces.
 paths:
   /api/2.52/subnets:
     get:
@@ -40,6 +37,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubnetGetResponse'
+      operationId: getApi252Subnets
+      x-operation-id-source: derived
     post:
       tags:
       - Subnets
@@ -64,15 +63,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/SubnetResponse'
       x-codegen-request-body-name: subnet
+      operationId: postApi252Subnets
+      x-operation-id-source: derived
     delete:
       tags:
       - Subnets
       summary: Pure Storage Delete Subnet
       description: 'Deletes subnets. A subnet can only be deleted if it has no interfaces. Interfaces must be
 
-        removed by using the `network-interfaces` endpoint.
-
-        '
+        removed by using the `network-interfaces` endpoint.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -81,6 +80,8 @@ paths:
         '200':
           description: OK
           content: {}
+      operationId: deleteApi252Subnets
+      x-operation-id-source: derived
     patch:
       tags:
       - Subnets
@@ -105,6 +106,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/SubnetResponse'
       x-codegen-request-body-name: subnet
+      operationId: patchApi252Subnets
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.26/subnets:
     get:
       tags:
@@ -132,6 +137,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubnetGetResponse'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226Subnets
+      x-operation-id-source: derived
     post:
       tags:
       - Subnets
@@ -160,6 +169,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/SubnetResponse_2'
       x-codegen-request-body-name: subnet
+      security:
+      - AuthorizationHeader: []
+      operationId: postApi226Subnets
+      x-operation-id-source: derived
     delete:
       tags:
       - Subnets
@@ -178,6 +191,10 @@ paths:
               schema:
                 type: string
           content: {}
+      security:
+      - AuthorizationHeader: []
+      operationId: deleteApi226Subnets
+      x-operation-id-source: derived
     patch:
       tags:
       - Subnets
@@ -207,16 +224,160 @@ paths:
               schema:
                 $ref: '#/components/schemas/SubnetResponse_2'
       x-codegen-request-body-name: subnet
+      security:
+      - AuthorizationHeader: []
+      operationId: patchApi226Subnets
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
 components:
   schemas:
-    SubnetResponse_2:
+    SubnetPatch:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoId'
+      - $ref: '#/components/schemas/SubnetPost'
+    _resourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        volume), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    Subnet:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoId'
+      - $ref: '#/components/schemas/SubnetPost'
+      - type: object
+        properties:
+          interfaces:
+            description: List of network interfaces associated with this subnet.
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_fixedReferenceNoId'
+          services:
+            description: The services provided by this subnet, as inherited from all of its interfaces.
+            type: array
+            readOnly: true
+            items:
+              type: string
+              description: 'Valid values are `iscsi`, `management`, `nvme/fc`, `nvme/roce`, and `replication`.
+
+                '
+    SubnetResponse:
       type: object
       properties:
         items:
-          description: A list of subnet objects.
           type: array
           items:
-            $ref: '#/components/schemas/Subnet_2'
+            $ref: '#/components/schemas/Subnet'
+    SubnetPost:
+      type: object
+      properties:
+        enabled:
+          description: 'Returns a value of `true` if subnet is enabled.
+
+            Returns a value of `false` if subnet is disabled.
+
+            If not specified, defaults to `true`.
+
+            '
+          type: boolean
+        gateway:
+          description: 'The IPv4 or IPv6 address of the gateway through which the specified
+
+            subnet is to communicate with the network.
+
+            '
+          type: string
+        mtu:
+          description: 'Maximum message transfer unit (packet) size for the subnet in bytes.
+
+            MTU setting cannot exceed the MTU of the corresponding physical interface.
+
+            If not specified, defaults to `1500`.
+
+            '
+          type: integer
+          format: int32
+          minimum: 1280
+          maximum: 9216
+        prefix:
+          description: 'The IPv4 or IPv6 address to be associated with the specified subnet.
+
+            '
+          type: string
+        vlan:
+          description: VLAN ID number.
+          type: integer
+          format: int32
+    _fixedReferenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
     SubnetGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
@@ -287,6 +448,44 @@ components:
             description: VLAN ID.
             type: integer
             format: int32
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    SubnetResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of subnet objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Subnet_2'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
     _reference:
       type: object
       properties:
@@ -320,6 +519,34 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -340,182 +567,38 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    SubnetResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subnet'
-    _resourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
 
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        volume), or correspond to something in the environment, like a host or a
-
-        server.
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
 
         '
-      type: object
-      properties:
-        name:
-          description: 'A user-specified name.
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
 
-            The name must be locally unique and can be changed.
+        that satisfy the filter criteria.
 
-            '
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    _fixedReferenceNoId:
-      type: object
-      properties:
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    SubnetPatch:
-      allOf:
-      - $ref: '#/components/schemas/_resourceNoId'
-      - $ref: '#/components/schemas/SubnetPost'
-    Subnet:
-      allOf:
-      - $ref: '#/components/schemas/_resourceNoId'
-      - $ref: '#/components/schemas/SubnetPost'
-      - type: object
-        properties:
-          interfaces:
-            description: List of network interfaces associated with this subnet.
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_fixedReferenceNoId'
-          services:
-            description: The services provided by this subnet, as inherited from all of its interfaces.
-            type: array
-            readOnly: true
-            items:
-              type: string
-              description: 'Valid values are `iscsi`, `management`, `nvme/fc`, `nvme/roce`, and `replication`.
-
-                '
-    SubnetPost:
-      type: object
-      properties:
-        enabled:
-          description: 'Returns a value of `true` if subnet is enabled.
-
-            Returns a value of `false` if subnet is disabled.
-
-            If not specified, defaults to `true`.
-
-            '
-          type: boolean
-        gateway:
-          description: 'The IPv4 or IPv6 address of the gateway through which the specified
-
-            subnet is to communicate with the network.
-
-            '
-          type: string
-        mtu:
-          description: 'Maximum message transfer unit (packet) size for the subnet in bytes.
-
-            MTU setting cannot exceed the MTU of the corresponding physical interface.
-
-            If not specified, defaults to `1500`.
-
-            '
-          type: integer
-          format: int32
-          minimum: 1280
-          maximum: 9216
-        prefix:
-          description: 'The IPv4 or IPv6 address to be associated with the specified subnet.
-
-            '
-          type: string
-        vlan:
-          description: VLAN ID number.
-          type: integer
-          format: int32
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
-  parameters:
     Offset:
       name: offset
       in: query
@@ -529,95 +612,10 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Names_required_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     XRequestId:
       name: X-Request-ID
       in: header
       description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
 
         '
       schema:
@@ -645,6 +643,95 @@ components:
         type: array
         items:
           type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_required_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Sort_2:
       name: sort
       in: query
@@ -664,6 +751,17 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Ids:
       name: ids
       in: query
@@ -682,49 +780,15 @@ components:
         type: array
         items:
           type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique name specified.
-
-        For example, `name01`.
-
-        Enter multiple names in comma-separated format.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header
+x-refined-from:
+- flasharray-rest-api-openapi.yml
+- flashblade-rest-api-openapi.yml

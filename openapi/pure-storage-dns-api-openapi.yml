@@ -1,23 +1,20 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory DNS API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure Storage DNS API
+  x-refined-note:
+  - x-logo differs across the merged source definitions and was not carried
+  - x-pure-description-ref differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged DNS across 2 of this provider''s published API definitions: flasharray-rest-api-openapi.yml, flashblade-rest-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
+- url: http://[array]/
+- url: https://[array]/
 tags:
 - name: DNS
   description: 'DNS attributes include the domain suffix, static name servers, mode (static or DHCP), and search
 
-    domain. The configured attributes can be listed.
-
-    '
+    domain. The configured attributes can be listed.'
 paths:
   /api/2.52/dns:
     get:
@@ -28,9 +25,7 @@ paths:
 
         including domain suffix, the list of DNS name server IP addresses,
 
-        and the list of services that DNS parameters apply to.
-
-        '
+        and the list of services that DNS parameters apply to.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -62,6 +57,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DnsGetResponse'
+      operationId: getApi252Dns
+      x-operation-id-source: derived
     post:
       tags:
       - DNS
@@ -70,9 +67,7 @@ paths:
 
         the list of DNS name server IP addresses, and the list of services that DNS parameters
 
-        apply to.
-
-        '
+        apply to.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -93,13 +88,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/DnsResponse'
       x-codegen-request-body-name: dns
+      operationId: postApi252Dns
+      x-operation-id-source: derived
     delete:
       tags:
       - DNS
       summary: Pure Storage Delete DNS Configuration
-      description: 'Deletes DNS configuration identified by configuration name.
-
-        '
+      description: Deletes DNS configuration identified by configuration name.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -109,6 +104,8 @@ paths:
         '200':
           description: OK
           content: {}
+      operationId: deleteApi252Dns
+      x-operation-id-source: derived
     patch:
       tags:
       - DNS
@@ -121,9 +118,7 @@ paths:
 
         name is created. If more than one DNS configuration exists, `name` has to be specified
 
-        to identify the DNS configuration to be modified.
-
-        '
+        to identify the DNS configuration to be modified.'
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -144,6 +139,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/DnsResponse'
       x-codegen-request-body-name: dns
+      operationId: patchApi252Dns
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.26/dns:
     get:
       tags:
@@ -153,9 +152,7 @@ paths:
 
         including domain suffix, the list of DNS name server IP addresses,
 
-        and the list of services that DNS parameters apply to.
-
-        '
+        and the list of services that DNS parameters apply to.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Allow_errors'
@@ -196,6 +193,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DnsGetResponse'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226Dns
+      x-operation-id-source: derived
     post:
       tags:
       - DNS
@@ -204,9 +205,7 @@ paths:
 
         the list of DNS name server IP addresses, and the list of services that DNS parameters
 
-        apply to.
-
-        '
+        apply to.'
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Context_names'
@@ -231,13 +230,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/DnsResponse_2'
       x-codegen-request-body-name: dns
+      security:
+      - AuthorizationHeader: []
+      operationId: postApi226Dns
+      x-operation-id-source: derived
     delete:
       tags:
       - DNS
       summary: Pure Storage DELETE Dns
-      description: 'Deletes a DNS configuration.
-
-        '
+      description: Deletes a DNS configuration.
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Context_names'
@@ -247,6 +248,10 @@ paths:
         '200':
           description: OK
           content: {}
+      security:
+      - AuthorizationHeader: []
+      operationId: deleteApi226Dns
+      x-operation-id-source: derived
     patch:
       tags:
       - DNS
@@ -277,8 +282,98 @@ paths:
               schema:
                 $ref: '#/components/schemas/DnsResponse_2'
       x-codegen-request-body-name: dns
+      security:
+      - AuthorizationHeader: []
+      operationId: patchApi226Dns
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
 components:
   schemas:
+    DnsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dns'
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    DnsPatch:
+      allOf:
+      - $ref: '#/components/schemas/_newName'
+      - $ref: '#/components/schemas/DnsPost'
+    _resourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        volume), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
     DnsPost:
       description: 'Configuration information for the domain name servers.
 
@@ -357,40 +452,11 @@ components:
           title: ReferenceNoId
           allOf:
           - $ref: '#/components/schemas/_referenceNoId'
-    DnsPatch:
+    DnsGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_newName'
-      - $ref: '#/components/schemas/DnsPost'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    _referenceNoId:
-      type: object
-      properties:
-        name:
-          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-    _newName:
-      type: object
-      properties:
-        name:
-          description: The new name for the resource.
-          type: string
-    DnsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Dns'
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/DnsResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     _reference:
       type: object
       properties:
@@ -410,6 +476,146 @@ components:
           type: string
       x-aliases:
       - _referenceWithoutType
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _referenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+    _newName:
+      type: object
+      properties:
+        name:
+          description: The new name for the resource.
+          type: string
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    Dns:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_resourceNoId'
+      - $ref: '#/components/schemas/DnsPost'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    DnsResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of dns objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Dns_2'
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -437,27 +643,22 @@ components:
 
             '
           type: string
-    _fixedReferenceWithoutType:
+    _realmsReference:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        realms:
+          description: 'Reference to the realms this resource belongs to.
 
-            The ID cannot be modified.
+            The value is set to empty array when the resource
 
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
+            lives outside of a realm.
 
             '
-          type: string
+          type: array
           readOnly: true
-      x-readOnly: true
-    _errorcontextresponseErrors:
+          items:
+            $ref: '#/components/schemas/_fixedReference_2'
+    _errorContextResponseErrors:
       type: object
       properties:
         context:
@@ -481,189 +682,13 @@ components:
             was provided with the request.
 
             '
-          title: FixedReferenceWithType
+          title: FixedReference
           allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+          - $ref: '#/components/schemas/_fixedReference_2'
         message:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
-    _resourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        volume), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    DnsResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of dns objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Dns_2'
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    Dns:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - $ref: '#/components/schemas/_resourceNoId'
-      - $ref: '#/components/schemas/DnsPost'
-    Dns_2:
-      allOf:
-      - $ref: '#/components/schemas/_context_2'
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/DnsPost_2'
-      - $ref: '#/components/schemas/_realmsReference'
-    DnsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/DnsResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _context_2:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-    _reference_2:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
-
-            '
-          type: string
-          readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
     DnsPost_2:
       type: object
       properties:
@@ -744,7 +769,85 @@ components:
           maxItems: 1
           items:
             $ref: '#/components/schemas/_reference_2'
-    _fixedReference:
+    _reference_2:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _fixedReferenceWithoutType:
       type: object
       properties:
         id:
@@ -764,86 +867,62 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    _realmsReference:
+    Dns_2:
+      allOf:
+      - $ref: '#/components/schemas/_context_2'
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/DnsPost_2'
+      - $ref: '#/components/schemas/_realmsReference'
+    _context_2:
       type: object
       properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
+        context:
+          description: 'The context in which the operation was performed.
 
-            The value is set to empty array when the resource
 
-            lives outside of a realm.
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
 
             '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/_fixedReference_2'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
+            $ref: '#/components/schemas/_errorContextResponseErrors'
   parameters:
-    Fqnames:
-      name: names
+    Sort:
+      name: sort
       in: query
-      description: 'Performs the operation on the unique name specified.
-
-        Enter multiple names in comma-separated format.
-
-        The name is expected to be fully qualified, meaning if the object is contained in some context,
-
-        the corresponding name would provide complete information about the containment hierarchy.
-
-        For example, `name01,pod01::name01`.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Filter:
       name: filter
       in: query
@@ -854,32 +933,6 @@ components:
         '
       schema:
         type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
     Continuation_token:
       name: continuation_token
       in: query
@@ -902,10 +955,91 @@ components:
         '
       schema:
         type: string
-    Offset_2:
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Fqnames:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        Enter multiple names in comma-separated format.
+
+        The name is expected to be fully qualified, meaning if the object is contained in some context,
+
+        the corresponding name would provide complete information about the containment hierarchy.
+
+        For example, `name01,pod01::name01`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
       name: offset
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
 
         '
       schema:
@@ -937,56 +1071,56 @@ components:
         type: array
         items:
           type: string
-    Names_required:
-      name: names
+    Total_item_count:
+      name: total_item_count
       in: query
-      description: 'A comma-separated list of resource names.
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
 
         '
-      required: true
+      schema:
+        type: boolean
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
     Names:
       name: names
       in: query
@@ -1010,55 +1144,30 @@ components:
         type: array
         items:
           type: string
-    Context_names_get:
-      name: context_names
+    Names_required:
+      name: names
       in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
+      description: 'A comma-separated list of resource names.
 
         '
+      required: true
       style: form
       explode: false
       schema:
         type: array
         items:
           type: string
-    Sort_2:
-      name: sort
+    Offset_2:
+      name: offset
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
+      description: 'The offset of the first resource to return from a collection.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Ids:
       name: ids
       in: query
@@ -1077,32 +1186,15 @@ components:
         type: array
         items:
           type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header
+x-refined-from:
+- flasharray-rest-api-openapi.yml
+- flashblade-rest-api-openapi.yml

@@ -1,30 +1,25 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: FlashArray REST Active Directory Remote Realms API
-  version: '2.52'
-  description: 'Active Directory configuration authenticates users for NFS using Kerberos or SMB using Kerberos
-
-    or New Technology LAN Manager (NTLM). Active Directory is also used to authorize users by
-
-    mapping identities across the NFS and SMB protocols by using LDAP queries.
-
-    '
+  title: Pure Storage Remote Realms API
+  x-refined-note:
+  - x-logo differs across the merged source definitions and was not carried
+  - x-pure-description-ref differs across the merged source definitions and was not carried
+  version: '1.0'
+  description: 'Operations tagged Remote Realms across 2 of this provider''s published API definitions: flasharray-rest-api-openapi.yml, flashblade-rest-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
+- url: http://[array]/
+- url: https://[array]/
 tags:
 - name: Remote Realms
-  description: 'A remote realm represents a realm that is on a connected array but not stretched to this array.
-
-    '
+  description: A remote realm represents a realm that is on a connected array but not stretched to this array.
 paths:
   /api/2.52/remote-realms:
     get:
       tags:
       - Remote Realms
       summary: Pure Storage List Remote Realms
-      description: 'Displays a list of realms that are on connected arrays.
-
-        '
+      description: Displays a list of realms that are on connected arrays.
       parameters:
       - $ref: '#/components/parameters/Authorization'
       - $ref: '#/components/parameters/XRequestId'
@@ -57,6 +52,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoteRealmsResponse'
+      operationId: getApi252RemoteRealms
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.52/remote-realms/tags:
     get:
       tags:
@@ -92,15 +91,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoteRealmTagGetResponse'
+      operationId: getApi252RemoteRealmsTags
+      x-operation-id-source: derived
+    servers:
+    - url: /
   /api/2.26/remote-realms:
     get:
       tags:
       - Remote Realms
       summary: Pure Storage List Remote Realms
-      description: 'Displays a list of realms that are on connected arrays and known to the local array.
-
-
-        '
+      description: Displays a list of realms that are on connected arrays and known to the local array.
       parameters:
       - $ref: '#/components/parameters/XRequestId'
       - $ref: '#/components/parameters/Continuation_token'
@@ -125,66 +125,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoteRealmsResponse_2'
+      security:
+      - AuthorizationHeader: []
+      operationId: getApi226RemoteRealms
+      x-operation-id-source: derived
+    servers:
+    - url: http://[array]/
+    - url: https://[array]/
 components:
   schemas:
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    RemoteRealm_2:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - description: 'Realm that is on a remote array.
-
-          '
-        type: object
-        properties:
-          arrays:
-            description: 'A list of arrays that contain this realm.
-
-              '
-            type: array
-            minItems: 1
-            items:
-              title: ReferenceWritable
-              allOf:
-              - $ref: '#/components/schemas/_referenceWritable'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    RemoteRealm:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - $ref: '#/components/schemas/_resource'
-      - description: 'The realm that is on a remote array.
-
-          '
-        type: object
-        properties:
-          arrays:
-            type: array
-            minItems: 1
-            items:
-              $ref: '#/components/schemas/_referenceWithType'
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -212,25 +161,6 @@ components:
 
             '
           type: string
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -264,24 +194,6 @@ components:
           example: Resource does not exist.
       x-aliases:
       - _errorContextResponseErrors
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
     _referenceWithType:
       allOf:
       - $ref: '#/components/schemas/_reference'
@@ -302,6 +214,177 @@ components:
             type: string
       x-aliases:
       - _reference
+    _stretchedTagRemoteArrayStatus:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithType'
+      - type: object
+        properties:
+          member:
+            description: 'A reference to the member associated with the tag''s array status.
+
+              '
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+        readOnly: true
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    RemoteRealmsResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Displays a list of all items after filtering.
+
+              The values are displayed for each name where meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/RemoteRealm'
+    RemoteRealm:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_resource'
+      - description: 'The realm that is on a remote array.
+
+          '
+        type: object
+        properties:
+          arrays:
+            type: array
+            minItems: 1
+            items:
+              $ref: '#/components/schemas/_referenceWithType'
+    RemoteRealmTagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/StretchedTagRealm'
+    StretchedTagRealm:
+      allOf:
+      - $ref: '#/components/schemas/Tag'
+      - type: object
+        properties:
+          arrays:
+            type: array
+            minItems: 1
+            items:
+              $ref: '#/components/schemas/_stretchedTagRemoteArrayStatus'
+          members:
+            description: A list of arrays or realms over which the tag is stretched.
+            type: array
+            minItems: 1
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+        readOnly: true
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
     Tag:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -347,86 +430,6 @@ components:
               '
             type: string
             example: staging
-    _stretchedTagRemoteArrayStatus:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithType'
-      - type: object
-        properties:
-          member:
-            description: 'A reference to the member associated with the tag''s array status.
-
-              '
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
-        readOnly: true
-    RemoteRealmsResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          items:
-            description: 'Displays a list of all items after filtering.
-
-              The values are displayed for each name where meaningful.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/RemoteRealm'
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    StretchedTagRealm:
-      allOf:
-      - $ref: '#/components/schemas/Tag'
-      - type: object
-        properties:
-          arrays:
-            type: array
-            minItems: 1
-            items:
-              $ref: '#/components/schemas/_stretchedTagRemoteArrayStatus'
-          members:
-            description: A list of arrays or realms over which the tag is stretched.
-            type: array
-            minItems: 1
-            items:
-              $ref: '#/components/schemas/_fixedReferenceWithType'
-        readOnly: true
-    RemoteRealmsResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            description: 'Returns a list of all items after filtering.
-
-              The values are displayed for each name where meaningful.
-
-              '
-            type: array
-            items:
-              title: RemoteRealm
-              allOf:
-              - $ref: '#/components/schemas/RemoteRealm_2'
     _context:
       type: object
       properties:
@@ -448,16 +451,67 @@ components:
           title: FixedReferenceWithType
           allOf:
           - $ref: '#/components/schemas/_fixedReferenceWithType'
-    RemoteRealmTagGetResponse:
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    RemoteRealmsResponse_2:
       allOf:
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PageInfo_2'
       - type: object
         properties:
           items:
+            description: 'Returns a list of all items after filtering.
+
+              The values are displayed for each name where meaningful.
+
+              '
             type: array
             items:
-              $ref: '#/components/schemas/StretchedTagRealm'
+              title: RemoteRealm
+              allOf:
+              - $ref: '#/components/schemas/RemoteRealm_2'
+    RemoteRealm_2:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - description: 'Realm that is on a remote array.
+
+          '
+        type: object
+        properties:
+          arrays:
+            description: 'A list of arrays that contain this realm.
+
+              '
+            type: array
+            minItems: 1
+            items:
+              title: ReferenceWritable
+              allOf:
+              - $ref: '#/components/schemas/_referenceWritable'
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
     PageInfo_2:
       type: object
       properties:
@@ -486,7 +540,7 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    _fixedReference:
+    _referenceWithoutType:
       type: object
       properties:
         id:
@@ -496,60 +550,13 @@ components:
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
+          description: 'The resource name, such as volume name, pod name,
 
             snapshot name, and so on.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
   parameters:
     On_:
       name: 'on'
@@ -567,148 +574,16 @@ components:
         type: array
         items:
           type: string
-    Total_only:
-      name: total_only
+    Sort:
+      name: sort
       in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    On_ids:
-      name: on_ids
-      in: query
-      description: 'Performs the operation on the specified target IDs.
-
-        Enter multiple target IDs in comma-separated format.
-
-        The on and on_ids parameters cannot be set together.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
-          type: string
-    On_ids_2:
-      name: on_ids
-      in: query
-      description: 'Performs the operation on the target IDs specified.
-
-        Enter multiple target IDs in comma-separated format.
-
-        The `on` and `on_ids` parameters cannot be specified together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Resource_names:
-      name: resource_names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Resource_ids:
-      name: resource_ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     XRequestId:
       name: X-Request-ID
@@ -737,10 +612,34 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Namespaces:
-      name: namespaces
+    Continuation_token:
+      name: continuation_token
       in: query
-      description: 'A comma-separated list of namespaces.
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Resource_ids:
+      name: resource_ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
 
         '
       style: form
@@ -749,12 +648,12 @@ components:
         type: array
         items:
           type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
 
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
+        that satisfy the filter criteria.
 
         '
       schema:
@@ -812,16 +711,12 @@ components:
         type: array
         items:
           type: string
-    Sort_2:
-      name: sort
+    Resource_names:
+      name: resource_names
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A comma-separated list of resource names.
 
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
 
         '
       style: form
@@ -829,28 +724,50 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Ids:
-      name: ids
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
       in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Namespaces:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces.
+
+        '
       style: form
       explode: false
       schema:
         type: array
         items:
           type: string
-    Ids_2:
-      name: ids
+    On_ids:
+      name: on_ids
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Performs the operation on the specified target IDs.
 
-        If after filtering, there is not at least one resource that matches
+        Enter multiple target IDs in comma-separated format.
 
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
+        The on and on_ids parameters cannot be set together.
 
         '
       style: form
@@ -877,10 +794,41 @@ components:
         '
       schema:
         type: boolean
-    Sort:
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
       name: sort
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
       style: form
       explode: false
       schema:
@@ -888,3 +836,74 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    On_ids_2:
+      name: on_ids
+      in: query
+      description: 'Performs the operation on the target IDs specified.
+
+        Enter multiple target IDs in comma-separated format.
+
+        The `on` and `on_ids` parameters cannot be specified together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+  securitySchemes:
+    AuthorizationHeader:
+      type: apiKey
+      name: x-auth-token
+      in: header
+    ApiToken:
+      type: apiKey
+      name: api-token
+      in: header
+x-refined-from:
+- flasharray-rest-api-openapi.yml
+- flashblade-rest-api-openapi.yml
