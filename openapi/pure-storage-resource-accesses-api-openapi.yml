@@ -208,10 +208,44 @@ components:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/ResourceAccessesStatusResponse'
-    ResourceAccessesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ResourceAccessesResponse'
+    ResourceAccessesResponse:
+      type: object
+      properties:
+        items:
+          description: A list of resource access objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceAccess'
+    ResourceAccessStatus:
+      description: 'A resource access status realizes the configuration of resource accesses. For instance, if there
+
+        is a resource access for a host group to a realm, resource access status would include
+
+        the explicit host group resource access as well as an implicit resource access for each host
+
+        in that host group.
+
+        '
+      type: object
+      properties:
+        created_by:
+          description: 'Reference the IDs of resource accesses that created this status.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/ResourceAccessStatusCreatedBy'
+        resource:
+          description: Resource to which the scope has access.
+          title: ReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithType'
+        scope:
+          description: Scope which has access to the resource.
+          title: ReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithType'
     _referenceWithType:
       allOf:
       - $ref: '#/components/schemas/_reference'
@@ -232,25 +266,57 @@ components:
             type: string
       x-aliases:
       - _reference
-    _reference:
+    ResourceAccessStatusCreatedBy:
+      description: 'Each Resource Access Status has a reference to the resource accesses that explain its existence.
+
+        '
       type: object
       properties:
         id:
-          description: 'A globally unique, system-generated ID.
+          description: ID of a Resource Access.
+          type: string
+        implicit:
+          description: 'Set to `true` when this resource access status was not explicitly created, but instead, its
 
-            The ID cannot be modified.
+            existence is implied by another resource access. Usually, this happens when a scope has access
+
+            to a group of resources (e.g., a host group). Then this scope has access to each member of
+
+            the group, individual hosts. Set to `false` when a resource access status reflects explicitly
+
+            created resource access.
+
+            Note that if there is both implicit and explicit access of an object to a scope, there will be
+
+            only one entry in the response for that object and scope pair. The `created_by` field will
+
+            contain both implicit and explicit resource access references.
+
 
             '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
+          type: boolean
+    ResourceAccess:
+      description: 'A resource access captures configuration of sharing a resource to a scope.
 
-            snapshot name, and so on.
+        For example, resource access can specify that an array host is accessible from a realm.
 
-            '
+        '
+      type: object
+      properties:
+        id:
+          description: ID of a resource access object.
           type: string
-      x-aliases:
-      - _referenceWithoutType
+          readOnly: true
+        resource:
+          description: Resource to which the scope has access.
+          title: ReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithType'
+        scope:
+          description: Scope which has access to the resource.
+          title: ReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithType'
     PageInfo:
       type: object
       properties:
@@ -293,36 +359,6 @@ components:
             '
           type: integer
           format: int32
-    ResourceAccessesResponse:
-      type: object
-      properties:
-        items:
-          description: A list of resource access objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/ResourceAccess'
-    ResourceAccess:
-      description: 'A resource access captures configuration of sharing a resource to a scope.
-
-        For example, resource access can specify that an array host is accessible from a realm.
-
-        '
-      type: object
-      properties:
-        id:
-          description: ID of a resource access object.
-          type: string
-          readOnly: true
-        resource:
-          description: Resource to which the scope has access.
-          title: ReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithType'
-        scope:
-          description: Scope which has access to the resource.
-          title: ReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithType'
     ResourceAccessesStatusResponse:
       type: object
       properties:
@@ -331,65 +367,64 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResourceAccessStatus'
-    ResourceAccessStatusCreatedBy:
-      description: 'Each Resource Access Status has a reference to the resource accesses that explain its existence.
-
-        '
+    ResourceAccessesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ResourceAccessesResponse'
+    _reference:
       type: object
       properties:
         id:
-          description: ID of a Resource Access.
-          type: string
-        implicit:
-          description: 'Set to `true` when this resource access status was not explicitly created, but instead, its
+          description: 'A globally unique, system-generated ID.
 
-            existence is implied by another resource access. Usually, this happens when a scope has access
-
-            to a group of resources (e.g., a host group). Then this scope has access to each member of
-
-            the group, individual hosts. Set to `false` when a resource access status reflects explicitly
-
-            created resource access.
-
-            Note that if there is both implicit and explicit access of an object to a scope, there will be
-
-            only one entry in the response for that object and scope pair. The `created_by` field will
-
-            contain both implicit and explicit resource access references.
-
+            The ID cannot be modified.
 
             '
-          type: boolean
-    ResourceAccessStatus:
-      description: 'A resource access status realizes the configuration of resource accesses. For instance, if there
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
 
-        is a resource access for a host group to a realm, resource access status would include
+            snapshot name, and so on.
 
-        the explicit host group resource access as well as an implicit resource access for each host
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-        in that host group.
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
 
-        '
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    _referenceWithoutType:
       type: object
       properties:
-        created_by:
-          description: 'Reference the IDs of resource accesses that created this status.
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
 
             '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/ResourceAccessStatusCreatedBy'
-        resource:
-          description: Resource to which the scope has access.
-          title: ReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithType'
-        scope:
-          description: Scope which has access to the resource.
-          title: ReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithType'
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
     PageInfoScale:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
@@ -416,28 +451,6 @@ components:
             title: Reference
             allOf:
             - $ref: '#/components/schemas/_reference_2'
-    ResourceAccessesGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfoScale'
-      - $ref: '#/components/schemas/ResourceAccessesResponse'
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
     _builtInRelationship:
       type: object
       properties:
@@ -460,6 +473,38 @@ components:
           title: ReferenceWritable
           allOf:
           - $ref: '#/components/schemas/_referenceWritable'
+    ResourceAccessesGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfoScale'
+      - $ref: '#/components/schemas/ResourceAccessesResponse'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     _reference_2:
       type: object
       properties:
@@ -493,71 +538,21 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
   parameters:
-    Sort:
-      name: sort
+    Ids_without_names:
+      name: ids
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      description: 'Performs the operation on the unique resource IDs specified.
+
+        Enter multiple resource IDs in comma-separated format.
+
+        '
       style: form
       explode: false
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
     Filter:
       name: filter
       in: query
@@ -568,6 +563,38 @@ components:
         '
       schema:
         type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Continuation_token:
       name: continuation_token
       in: query
@@ -590,43 +617,6 @@ components:
         '
       schema:
         type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids_without_names:
-      name: ids
-      in: query
-      description: 'Performs the operation on the unique resource IDs specified.
-
-        Enter multiple resource IDs in comma-separated format.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Total_item_count:
       name: total_item_count
       in: query
@@ -645,18 +635,77 @@ components:
         '
       schema:
         type: boolean
-    Limit:
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit_scale:
       name: limit
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
+      description: 'Limit the size of the response to the specified number of resources.
 
-        To return the total number of resources, set `limit=0`.
+        A `limit` of `0` can be used to get the number of resources without getting
 
-        The total number of resources is returned as a `total_item_count` value.
+        all of the resources. It will be returned in the `total_item_count` field.
+
+        If a client asks for a page size larger than the available number, the request
+
+        is still valid. In that case the server just returns the available number of
+
+        items, disregarding the client''s page size request.
 
         If the page size requested is larger than the system maximum limit,
 
         the server returns the maximum limit, disregarding the requested page size.
+
+        If there are additional items `more_items_remaining` will be set to true.
+
+        Additional items can be fetched using the `offset` or `continuation_token` query
+
+        params.
 
         '
       schema:
@@ -694,55 +743,6 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Limit_scale:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A `limit` of `0` can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the `total_item_count` field.
-
-        If a client asks for a page size larger than the available number, the request
-
-        is still valid. In that case the server just returns the available number of
-
-        items, disregarding the client''s page size request.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        If there are additional items `more_items_remaining` will be set to true.
-
-        Additional items can be fetched using the `offset` or `continuation_token` query
-
-        params.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

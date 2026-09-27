@@ -427,6 +427,22 @@ paths:
     - url: https://[array]/
 components:
   schemas:
+    SupportRemoteAssistSessionsSettingsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportRemoteAssistSessionsSettings'
+    SupportSystemManifestResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/SupportSystemManifest'
     SupportPatch:
       type: object
       properties:
@@ -477,46 +493,25 @@ components:
           type: integer
           format: int64
           example: 86400000
-    SupportRemoteAssistSessionsSettingsResponse:
+    SupportResponse:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/SupportRemoteAssistSessionsSettings'
-    SupportDiagnosticsSettings:
-      description: 'Diagnostics tools
+            $ref: '#/components/schemas/Support'
+    SupportRemoteAssistSessions:
+      description: 'Remote assist session settings.
 
         '
       type: object
       properties:
-        last_updated:
-          description: 'Date the diagnostics tool was last updated.
+        access_level:
+          description: 'The access level for this remote assist session.
 
-            '
-          type: integer
-          format: int64
-          example: 1672531200000
-        version:
-          description: 'Version of the diagnostics tool.
-
-            '
-          type: string
-          readOnly: true
-          example: 1.0.0
-    SupportRemoteAssistSessionsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SupportRemoteAssistSessionsResponse'
-    SupportRemoteAssistSessionsPatch:
-      type: object
-      properties:
-        access_level_override:
-          description: 'Overrides the default access level for the remote assist session only.
+            This is set to default_access_level unless access_level_override is provided.
 
             Values include `restricted` and `elevated`.
-
-            If not provided, the remote assist session will use the default_access_level setting.
 
             '
           type: string
@@ -542,73 +537,36 @@ components:
           type: integer
           format: int64
           example: 86400000
-    SupportGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SupportResponse'
-    SupportRemoteAssistSessionsResponse:
-      type: object
-      properties:
-        items:
+        expires:
+          description: 'The timestamp when the session expires, measured in milliseconds since the UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1574633337678
+        opened:
+          description: 'The timestamp when the session opened, measured in milliseconds since the UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1574460534674
+        paths:
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/SupportRemoteAssistSessions'
-    TestResult:
-      type: object
-      properties:
-        component_address:
-          description: Address of the component running the test.
-          type: string
-          example: 10.230.94.21
-        component_name:
-          description: Name of the component running the test.
-          type: string
-          example: CT0
-        description:
-          description: What the test is doing.
-          type: string
-          example: Testing phonehome connectivity
-        destination:
-          description: The URI of the target server being tested.
-          type: string
-          example: ra.cloud-support.purestorage.com
-        enabled:
-          description: 'Whether the object being tested is enabled or not.
+            $ref: '#/components/schemas/_supportRemoteAssistSessionsPaths'
+        status:
+          description: 'The status of the remote assist session.
 
-            Returns a value of `true` if the the service is enabled.
-
-            Returns a value of `false` if the service is disabled.
-
-            '
-          type: boolean
-          example: true
-        result_details:
-          description: Additional information about the test result.
-          type: string
-          example: Timeout connecting to phonehome endpoint
-        success:
-          description: 'Whether the object being tested passed the test or not.
-
-            Returns a value of `true` if the specified test has succeeded.
-
-            Returns a value of `false` if the specified test has failed.
-
-            '
-          type: boolean
-        test_type:
-          description: 'Displays the type of test being performed. The returned values are determined
-
-            by the `resource` being tested and its configuration.
-
-            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
-
-            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
-
-            `storage-admin-group-searching`, and `validate-ntp-configuration`.
+            Values include `connected`, `connecting`, `disconnected`, and `session-active`.
 
             '
           type: string
-          example: phonehome
+          readOnly: true
+          example: connected
     _supportRemoteAssistPaths:
       type: object
       properties:
@@ -626,6 +584,28 @@ components:
             '
           type: string
           example: connected
+    SupportRemoteAssistSessionsSettings:
+      type: object
+      properties:
+        default_access_level:
+          description: 'The default access level that support will have when connecting to the array.
+
+            Values include `restricted` and `elevated`.
+
+            '
+          type: string
+    SupportSystemManifest:
+      type: object
+      description: 'system manifest.
+
+        '
+      properties:
+        system-manifest:
+          type: string
+          description: 'The system manifest for the array in JSON format.
+
+            '
+          readOnly: true
     Support:
       allOf:
       - $ref: '#/components/schemas/SupportPatch'
@@ -704,6 +684,27 @@ components:
             type: string
             readOnly: true
             example: connected
+    _supportRemoteAssistSessionsPaths:
+      type: object
+      properties:
+        component_name:
+          description: 'The name of the local controller running the remote assist session.
+
+            '
+          type: string
+          example: CT0
+        status:
+          description: 'The status of the remote assist session on the local controller.
+
+            Values include `connected`, `connecting`, `disconnected`, and `session-active`.
+
+            '
+          type: string
+          example: connected
+    SupportRemoteAssistSessionsSettingsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SupportRemoteAssistSessionsSettingsResponse'
     PageInfo:
       type: object
       properties:
@@ -746,80 +747,15 @@ components:
             '
           type: integer
           format: int32
-    SupportDiagnosticsDetailsResponse:
+    SupportRemoteAssistSessionsPatch:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SupportDiagnosticsDetails'
-    SupportSystemManifestResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/SupportSystemManifest'
-    SupportDiagnosticsDetailsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SupportDiagnosticsDetailsResponse'
-    SupportRemoteAssistSessionsSettings:
-      type: object
-      properties:
-        default_access_level:
-          description: 'The default access level that support will have when connecting to the array.
+        access_level_override:
+          description: 'Overrides the default access level for the remote assist session only.
 
             Values include `restricted` and `elevated`.
 
-            '
-          type: string
-    SupportRemoteAssistSessionsSettingsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SupportRemoteAssistSessionsSettingsResponse'
-    SupportDiagnosticsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SupportDiagnosticsResponse'
-    _supportRemoteAssistSessionsPaths:
-      type: object
-      properties:
-        component_name:
-          description: 'The name of the local controller running the remote assist session.
-
-            '
-          type: string
-          example: CT0
-        status:
-          description: 'The status of the remote assist session on the local controller.
-
-            Values include `connected`, `connecting`, `disconnected`, and `session-active`.
-
-            '
-          type: string
-          example: connected
-    SupportDiagnosticsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SupportDiagnosticsSettings'
-    SupportRemoteAssistSessions:
-      description: 'Remote assist session settings.
-
-        '
-      type: object
-      properties:
-        access_level:
-          description: 'The access level for this remote assist session.
-
-            This is set to default_access_level unless access_level_override is provided.
-
-            Values include `restricted` and `elevated`.
+            If not provided, the remote assist session will use the default_access_level setting.
 
             '
           type: string
@@ -845,36 +781,63 @@ components:
           type: integer
           format: int64
           example: 86400000
-        expires:
-          description: 'The timestamp when the session expires, measured in milliseconds since the UNIX epoch.
+    SupportDiagnosticsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SupportDiagnosticsResponse'
+    TestResultGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TestResultResponse'
+    SupportDiagnosticsDetailsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SupportDiagnosticsDetailsResponse'
+    SupportGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SupportResponse'
+    SupportDiagnosticsSettings:
+      description: 'Diagnostics tools
+
+        '
+      type: object
+      properties:
+        last_updated:
+          description: 'Date the diagnostics tool was last updated.
 
             '
           type: integer
           format: int64
-          readOnly: true
-          example: 1574633337678
-        opened:
-          description: 'The timestamp when the session opened, measured in milliseconds since the UNIX epoch.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1574460534674
-        paths:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_supportRemoteAssistSessionsPaths'
-        status:
-          description: 'The status of the remote assist session.
-
-            Values include `connected`, `connecting`, `disconnected`, and `session-active`.
+          example: 1672531200000
+        version:
+          description: 'Version of the diagnostics tool.
 
             '
           type: string
           readOnly: true
-          example: connected
+          example: 1.0.0
+    SupportRemoteAssistSessionsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportRemoteAssistSessions'
+    SupportDiagnosticsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportDiagnosticsSettings'
+    SupportDiagnosticsDetailsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportDiagnosticsDetails'
     SupportDiagnosticsDetails:
       description: 'Details of diagnostics tests tasks
 
@@ -905,17 +868,10 @@ components:
           type: string
           readOnly: true
           example: generic
-    TestResultGetResponse:
+    SupportRemoteAssistSessionsGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TestResultResponse'
-    SupportResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Support'
+      - $ref: '#/components/schemas/SupportRemoteAssistSessionsResponse'
     TestResultResponse:
       type: object
       properties:
@@ -923,18 +879,273 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TestResult'
-    SupportSystemManifest:
+    TestResult:
       type: object
-      description: 'system manifest.
-
-        '
       properties:
-        system-manifest:
+        component_address:
+          description: Address of the component running the test.
           type: string
-          description: 'The system manifest for the array in JSON format.
+          example: 10.230.94.21
+        component_name:
+          description: Name of the component running the test.
+          type: string
+          example: CT0
+        description:
+          description: What the test is doing.
+          type: string
+          example: Testing phonehome connectivity
+        destination:
+          description: The URI of the target server being tested.
+          type: string
+          example: ra.cloud-support.purestorage.com
+        enabled:
+          description: 'Whether the object being tested is enabled or not.
+
+            Returns a value of `true` if the the service is enabled.
+
+            Returns a value of `false` if the service is disabled.
+
+            '
+          type: boolean
+          example: true
+        result_details:
+          description: Additional information about the test result.
+          type: string
+          example: Timeout connecting to phonehome endpoint
+        success:
+          description: 'Whether the object being tested passed the test or not.
+
+            Returns a value of `true` if the specified test has succeeded.
+
+            Returns a value of `false` if the specified test has failed.
+
+            '
+          type: boolean
+        test_type:
+          description: 'Displays the type of test being performed. The returned values are determined
+
+            by the `resource` being tested and its configuration.
+
+            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
+
+            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
+
+            `storage-admin-group-searching`, and `validate-ntp-configuration`.
+
+            '
+          type: string
+          example: phonehome
+    SupportSystemManifestResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/SupportSystemManifest_2'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    SupportSystemManifest_2:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        description: 'system manifest.
+
+          '
+        properties:
+          system-manifest:
+            type: string
+            description: 'The system manifest for the array, delivered as a JSON object.
+
+              '
+            readOnly: true
+    Support_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          edge_agent_update_enabled:
+            description: The switch to enable opt-in for edge agent updates.
+            type: boolean
+          edge_management_enabled:
+            description: The switch to enable opt-in for edge management.
+            type: boolean
+          phonehome_enabled:
+            description: The switch to enable phonehome.
+            type: boolean
+          proxy:
+            type: string
+          remote_assist_active:
+            description: The switch to open all remote-assist sessions.
+            type: boolean
+          remote_assist_duration:
+            description: 'Specifies the duration of the remote-assist session in milliseconds.
+
+              This parameter should only be provided when establishing a new session.
+
+              It determines the length of time the session will remain active after it''s initiated.
+
+              '
+            type: integer
+            format: int64
+            example: 86400000
+          remote_assist_expires:
+            description: The time when the session expires.
+            type: string
+            readOnly: true
+          remote_assist_opened:
+            description: The time when the session opened.
+            type: string
+            readOnly: true
+          remote_assist_paths:
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_support_remote_assist_paths'
+          remote_assist_status:
+            description: 'The status of the remote-assist sessions.
+
+              Valid values are `connected`, `partially_connected`, `reconnecting`,
+
+              and `disconnected`.
+
+              '
+            type: string
+            readOnly: true
+            example: connected
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
 
             '
           readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _support_remote_assist_paths:
+      type: object
+      properties:
+        component_name:
+          description: The name of the FM.
+          type: string
+        status:
+          description: 'The status of the remote-assist session on the local FM.
+
+            Valid values are `reconnecting`, `connected`, `disconnected`,
+
+            and `unknown`.
+
+            '
+          type: string
+          example: connected
+    TestResultGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/TestResultResponse'
+      - type: object
+        properties:
+          total_item_count:
+            description: Total number of items after applying `filter` params.
+            type: integer
+            format: int32
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -1013,243 +1224,63 @@ components:
             '
           type: string
           example: phonehome
-    Support_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          edge_agent_update_enabled:
-            description: The switch to enable opt-in for edge agent updates.
-            type: boolean
-          edge_management_enabled:
-            description: The switch to enable opt-in for edge management.
-            type: boolean
-          phonehome_enabled:
-            description: The switch to enable phonehome.
-            type: boolean
-          proxy:
-            type: string
-          remote_assist_active:
-            description: The switch to open all remote-assist sessions.
-            type: boolean
-          remote_assist_duration:
-            description: 'Specifies the duration of the remote-assist session in milliseconds.
-
-              This parameter should only be provided when establishing a new session.
-
-              It determines the length of time the session will remain active after it''s initiated.
-
-              '
-            type: integer
-            format: int64
-            example: 86400000
-          remote_assist_expires:
-            description: The time when the session expires.
-            type: string
-            readOnly: true
-          remote_assist_opened:
-            description: The time when the session opened.
-            type: string
-            readOnly: true
-          remote_assist_paths:
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_support_remote_assist_paths'
-          remote_assist_status:
-            description: 'The status of the remote-assist sessions.
-
-              Valid values are `connected`, `partially_connected`, `reconnecting`,
-
-              and `disconnected`.
-
-              '
-            type: string
-            readOnly: true
-            example: connected
-    _support_remote_assist_paths:
-      type: object
-      properties:
-        component_name:
-          description: The name of the FM.
-          type: string
-        status:
-          description: 'The status of the remote-assist session on the local FM.
-
-            Valid values are `reconnecting`, `connected`, `disconnected`,
-
-            and `unknown`.
-
-            '
-          type: string
-          example: connected
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    SupportSystemManifestResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/SupportSystemManifest_2'
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    TestResultGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/TestResultResponse'
-      - type: object
-        properties:
-          total_item_count:
-            description: Total number of items after applying `filter` params.
-            type: integer
-            format: int32
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    SupportSystemManifest_2:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        description: 'system manifest.
-
-          '
-        properties:
-          system-manifest:
-            type: string
-            description: 'The system manifest for the array, delivered as a JSON object.
-
-              '
-            readOnly: true
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
   parameters:
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
     Filter:
       name: filter
       in: query
       description: 'Narrows down the results to only the response objects
 
         that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    PurityDefault:
+      name: purity_default
+      in: query
+      description: 'Set diagnostics tool to default version.
+
+        '
+      schema:
+        type: boolean
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Test_type:
+      name: test_type
+      in: query
+      description: 'Specifies the type of test. Valid values are `all`, `phonehome`, and `remote-assist`.
+
+        If not specified, defaults to `all`.
 
         '
       schema:
@@ -1276,47 +1307,6 @@ components:
         '
       schema:
         type: string
-    PurityDefault:
-      name: purity_default
-      in: query
-      description: 'Set diagnostics tool to default version.
-
-        '
-      schema:
-        type: boolean
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Test_type:
-      name: test_type
-      in: query
-      description: 'Specifies the type of test. Valid values are `all`, `phonehome`, and `remote-assist`.
-
-        If not specified, defaults to `all`.
-
-        '
-      schema:
-        type: string
     Total_item_count:
       name: total_item_count
       in: query
@@ -1335,37 +1325,18 @@ components:
         '
       schema:
         type: boolean
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Sort_2:
+        type: string
+    Sort:
       name: sort
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
@@ -1373,20 +1344,27 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
 
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
 
         '
       schema:
-        type: boolean
+        type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Names:
       name: names
       in: query
@@ -1440,30 +1418,6 @@ components:
         type: array
         items:
           type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
     Ids:
       name: ids
       in: query
@@ -1482,6 +1436,52 @@ components:
         type: array
         items:
           type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

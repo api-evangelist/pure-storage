@@ -378,23 +378,35 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    _memberWithType:
-      type: object
-      properties:
-        group:
-          $ref: '#/components/schemas/_referenceWithType'
-        member:
-          $ref: '#/components/schemas/_referenceWithType'
-    CertificateGroupUseGetResponse:
+    CertificateGroup:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+    CertificateGroupGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/CertificateGroupResponse'
+    CertificateGroupResponse:
+      type: object
+      properties:
+        items:
+          description: 'A list of certificate group objects.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/CertificateGroup'
+    CertificateGroupUse:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
       - type: object
         properties:
-          items:
-            description: A list of certificate group use objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/CertificateGroupUse'
+          use:
+            description: 'A reference to an object using this certificate group.
+
+              '
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
     _referenceWithType:
       allOf:
       - $ref: '#/components/schemas/_reference'
@@ -415,25 +427,42 @@ components:
             type: string
       x-aliases:
       - _reference
-    _reference:
+    _memberWithType:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        group:
+          $ref: '#/components/schemas/_referenceWithType'
+        member:
+          $ref: '#/components/schemas/_referenceWithType'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-            The ID cannot be modified.
+              Valid values are the unique part of the resource''s REST endpoint.
 
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
+              For example, a reference to a file system would have a
 
-            snapshot name, and so on.
+              `resource_type` of `file-systems`.
 
-            '
-          type: string
+              '
+            type: string
+            readOnly: true
       x-aliases:
-      - _referenceWithoutType
+      - _fixedReference
+    CertificateGroupUseGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            description: A list of certificate group use objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/CertificateGroupUse'
     PageInfo:
       type: object
       properties:
@@ -476,40 +505,38 @@ components:
             '
           type: integer
           format: int32
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
 
-              Valid values are the unique part of the resource''s REST endpoint.
+            The ID cannot be modified.
 
-              For example, a reference to a file system would have a
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
 
-              `resource_type` of `file-systems`.
+            snapshot name, and so on.
 
-              '
-            type: string
-            readOnly: true
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
       x-aliases:
-      - _fixedReference
-    CertificateGroupUse:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          use:
-            description: 'A reference to an object using this certificate group.
+      - _fixedReferenceWithoutType
+    CertificateGroupCertificateResponse:
+      type: object
+      properties:
+        items:
+          description: 'A list of certificate and certificate group relationships.
 
-              '
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
-    CertificateGroup:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_memberWithType'
     _builtIn:
       description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
 
@@ -543,7 +570,62 @@ components:
             '
           type: string
           readOnly: true
-    _fixedReference:
+    CertificateGroupCertificateGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/CertificateGroupCertificateResponse'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    CertificateGroup_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn_2'
+      - $ref: '#/components/schemas/_realmsReference'
+    _fixedReferenceWithRemote:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          remote:
+            description: The remote field of the corresponding array connection.
+            title: FixedReferenceNoResourceType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceNoResourceType'
+    CertificateGroupResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of certificate group objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/CertificateGroup_2'
+    CertificateGroupUse_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn_2'
+      - type: object
+        properties:
+          use:
+            description: A reference to an object using this certificate group.
+            title: FixedReferenceWithRemote
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithRemote'
+    _fixedReferenceWithoutType:
       type: object
       properties:
         id:
@@ -563,36 +645,34 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    CertificateGroupResponse:
+    _realmsReference:
       type: object
       properties:
-        items:
-          description: 'A list of certificate group objects.
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
 
             '
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/CertificateGroup'
-    CertificateGroupCertificateResponse:
+            $ref: '#/components/schemas/_fixedReference_2'
+    _fixedReferenceNoResourceType:
       type: object
       properties:
-        items:
-          description: 'A list of certificate and certificate group relationships.
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/_memberWithType'
-    CertificateGroupGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/CertificateGroupResponse'
-    CertificateGroupCertificateGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/CertificateGroupCertificateResponse'
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+      x-readOnly: true
     Member:
       type: object
       properties:
@@ -612,35 +692,78 @@ components:
           title: Reference
           allOf:
           - $ref: '#/components/schemas/_reference_2'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    CertificateGroupCertificateResponse_2:
+      type: object
+      properties:
+        items:
+          description: 'A list of certificate and certificate group relationships.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+    _builtIn_2:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     CertificateGroupCertificateGetResp:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
       - $ref: '#/components/schemas/CertificateGroupCertificateResponse_2'
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference_2'
-    _fixedReferenceWithRemote:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          remote:
-            description: The remote field of the corresponding array connection.
-            title: FixedReferenceNoResourceType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceNoResourceType'
     _reference_2:
       type: object
       properties:
@@ -674,141 +797,17 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    CertificateGroupUse_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn_2'
-      - type: object
-        properties:
-          use:
-            description: A reference to an object using this certificate group.
-            title: FixedReferenceWithRemote
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithRemote'
-    CertificateGroup_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn_2'
-      - $ref: '#/components/schemas/_realmsReference'
-    _builtIn_2:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    CertificateGroupResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of certificate group objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/CertificateGroup_2'
-    CertificateGroupCertificateResponse_2:
-      type: object
-      properties:
-        items:
-          description: 'A list of certificate and certificate group relationships.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Member'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _fixedReferenceNoResourceType:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-      x-readOnly: true
   parameters:
-    Sort:
-      name: sort
+    Filter:
+      name: filter
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
       schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+        type: string
     Certificate_group_ids:
       name: certificate_group_ids
       in: query
@@ -827,99 +826,6 @@ components:
         type: array
         items:
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Certificate_ids:
-      name: certificate_ids
-      in: query
-      description: 'A comma-separated list of certificate ids.
-
-        If there is not at least one resource that matches each of the
-
-        elements of `certificate_ids`, then an error is returned.
-
-        This cannot be provided in conjunction with the `certificate_names`
-
-        parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
     Offset:
       name: offset
       in: query
@@ -949,24 +855,26 @@ components:
         type: array
         items:
           type: string
-    Total_item_count:
-      name: total_item_count
+    Certificate_ids:
+      name: certificate_ids
       in: query
-      description: 'If set to `true`, the `total_item_count` matching the
+      description: 'A comma-separated list of certificate ids.
 
-        specified query parameters is calculated and returned in
+        If there is not at least one resource that matches each of the
 
-        the response. If set to `false`, the `total_item_count`
+        elements of `certificate_ids`, then an error is returned.
 
-        is `null` in the response. This may speed up queries
+        This cannot be provided in conjunction with the `certificate_names`
 
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
+        parameter.
 
         '
+      style: form
+      explode: false
       schema:
-        type: boolean
+        type: array
+        items:
+          type: string
     Limit:
       name: limit
       in: query
@@ -986,6 +894,29 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Certificate_group_names:
       name: certificate_group_names
       in: query
@@ -1004,6 +935,46 @@ components:
         type: array
         items:
           type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
     Ids:
       name: ids
       in: query
@@ -1014,18 +985,18 @@ components:
         type: array
         items:
           type: string
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
@@ -1033,6 +1004,16 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
     Offset_2:
       name: offset
       in: query
@@ -1081,6 +1062,25 @@ components:
       schema:
         type: array
         items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
   securitySchemes:
     AuthorizationHeader:

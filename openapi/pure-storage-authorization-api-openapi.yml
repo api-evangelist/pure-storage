@@ -264,6 +264,18 @@ paths:
     - url: https://[array]/
 components:
   schemas:
+    OauthSubjectTokenType:
+      type: string
+      description: 'An identifier that indicates the type of security token specifed in the `subject_token` parameter.
+
+        The Pure Storage REST API supports the JSON Web Token (JWT)
+
+        as the means for requesting the access token.
+
+        Set `subject_token_type` to `urn:ietf:params:oauth:token-type:jwt`.
+
+        '
+      default: urn:ietf:params:oauth:token-type:jwt
     LoginPost:
       type: object
       properties:
@@ -277,6 +289,20 @@ components:
 
             '
           type: string
+    Username:
+      type: object
+      properties:
+        username:
+          description: The username of the user.
+          type: string
+          example: pureuser
+    UsernameResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Username'
     Api_versionResponse:
       type: object
       properties:
@@ -307,25 +333,18 @@ components:
       - '1.16'
       - '1.17'
       - '2.0'
-    OauthSubjectTokenType:
+    OauthGrantType:
       type: string
-      description: 'An identifier that indicates the type of security token specifed in the `subject_token` parameter.
+      description: 'The method by which the access token will be obtained.
 
-        The Pure Storage REST API supports the JSON Web Token (JWT)
+        The Pure Storage REST API supports the OAuth 2.0 "token exchange" grant type,
 
-        as the means for requesting the access token.
+        which indicates that a token exchange is being performed.
 
-        Set `subject_token_type` to `urn:ietf:params:oauth:token-type:jwt`.
+        Set `grant_type` to `urn:ietf:params:oauth:grant-type:token-exchange`.
 
         '
-      default: urn:ietf:params:oauth:token-type:jwt
-    Username:
-      type: object
-      properties:
-        username:
-          description: The username of the user.
-          type: string
-          example: pureuser
+      default: urn:ietf:params:oauth:grant-type:token-exchange
     OauthSubjectToken:
       type: string
       description: 'An encoded security ID Token representing the identity of the party on behalf of
@@ -382,25 +401,11 @@ components:
 
 
         '
-    UsernameResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Username'
-    OauthGrantType:
-      type: string
-      description: 'The method by which the access token will be obtained.
-
-        The Pure Storage REST API supports the OAuth 2.0 "token exchange" grant type,
-
-        which indicates that a token exchange is being performed.
-
-        Set `grant_type` to `urn:ietf:params:oauth:grant-type:token-exchange`.
-
-        '
-      default: urn:ietf:params:oauth:grant-type:token-exchange
+    Login:
+      allOf:
+      - $ref: '#/components/schemas/Username'
+      x-aliases:
+      - LoginResponse
     LoginPost_2:
       type: object
       properties:
@@ -414,16 +419,6 @@ components:
 
             '
           type: string
-    Login:
-      allOf:
-      - $ref: '#/components/schemas/Username'
-      x-aliases:
-      - LoginResponse
-    Api_version:
-      type: object
-      properties:
-        versions:
-          $ref: '#/components/schemas/_api_versions'
     LoginBannerGetResponse:
       type: object
       properties:
@@ -431,7 +426,25 @@ components:
           description: The string to show as login banner.
           type: string
           example: Restricted area. Authorized personnel only.
+    Api_version:
+      type: object
+      properties:
+        versions:
+          $ref: '#/components/schemas/_api_versions'
   responses:
+    OauthToken400:
+      description: BAD REQUEST
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: invalid_request
+              error_description:
+                type: string
+                example: 'Unsupported subject_token_type: urn:ietf:params:oauth:token-'
     OauthToken200:
       description: OK
       content:
@@ -488,19 +501,6 @@ components:
               error_description:
                 type: string
                 example: 'Invalid identity: JWT validation failed.'
-    OauthToken400:
-      description: BAD REQUEST
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-                example: invalid_request
-              error_description:
-                type: string
-                example: 'Unsupported subject_token_type: urn:ietf:params:oauth:token-'
     OauthToken400_2:
       description: BAD REQUEST
       headers:

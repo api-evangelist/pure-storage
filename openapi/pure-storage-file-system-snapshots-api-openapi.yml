@@ -451,6 +451,26 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
+    FileSystemSnapshotGetTransferResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/FileSystemSnapshotTransferResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'If `total_only` query param is `true`, then it will be a total of
+
+              all records after filtering and no items will be returned.
+
+              If `total_only` is `false`, then it will be a total of all records
+
+              on this page.
+
+              '
+            title: FileSystemSnapshotTransfer
+            allOf:
+            - $ref: '#/components/schemas/FileSystemSnapshotTransfer'
     PolicyMember:
       type: object
       properties:
@@ -464,44 +484,175 @@ components:
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+    FileSystemSnapshotGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/FileSystemSnapshotResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'If `total_only` query param is `true`, then it will be a total of
 
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
+              all records after filtering and no items will be returned.
 
-        file system), or correspond to something in the environment, like a host or a
+              If `total_only` is `false`, then it will be a total of all records
 
-        server.
+              on this page.
+
+              '
+            title: FileSystemSnapshot
+            allOf:
+            - $ref: '#/components/schemas/FileSystemSnapshot'
+    _direction:
+      type: string
+      description: 'The direction of replication. Valid values are `inbound` and
+
+        `outbound`.
 
         '
+      readOnly: true
+      x-read-only: true
+    PolicyFileSystemSnapshotResponse:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        items:
+          description: A list of members for policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyFileSystemSnapshot'
+    FileSystemSnapshotTransferResponse:
+      type: object
+      properties:
+        items:
+          description: A list of file system snapshot objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemSnapshotTransfer'
+    _fixedLocationReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          display_name:
+            description: 'Full name of the source with remote array information.
 
-            The ID cannot be modified and cannot refer to another resource.
+              Response will be same as source name for local file systems and policies.
 
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
+              '
+            type: string
+            readOnly: true
+            example: irp624-c02:fs1
+          is_local:
+            description: 'Is the location reference to the local array or somewhere remote?
 
-            The name must be locally unique and can be changed.
+              '
+            type: boolean
+            readOnly: true
+          location:
+            description: 'A reference to the location where the object is defined.
 
-            '
-          type: string
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
     PolicyFileSystemSnapshotGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/PolicyFileSystemSnapshotResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
-    FileSystemSnapshotPost:
+    _fixedReferenceWithoutType:
       type: object
       properties:
-        suffix:
-          description: The suffix of the snapshot, e.g., `snap1`.
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
           type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _fixedReferenceNoResourceType:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _locationReference:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          display_name:
+            description: 'Full name of the source with remote array information.
+
+              Response will be same as source name for local file systems and policies.
+
+              '
+            type: string
+            readOnly: true
+            example: irp624-c02:fs1
+          is_local:
+            description: 'Is the location reference to the local array or somewhere remote?
+
+              '
+            type: boolean
+            readOnly: true
+          location:
+            description: 'A reference to the location where the object is defined.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+    PolicyFileSystemSnapshot:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          policy:
+            description: Reference to the policy. Location can be array or realm.
+            title: LocationReference
+            allOf:
+            - $ref: '#/components/schemas/_locationReference'
     FileSystemSnapshotTransfer:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -569,6 +720,81 @@ components:
               '
             type: string
             readOnly: true
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    FileSystemSnapshotResponse:
+      type: object
+      properties:
+        items:
+          description: A list of file system snapshot objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemSnapshot'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -600,6 +826,39 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
+    FileSystemSnapshotPost:
+      type: object
+      properties:
+        suffix:
+          description: The suffix of the snapshot, e.g., `snap1`.
+          type: string
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
     FileSystemSnapshot:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -704,265 +963,6 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    PolicyFileSystemSnapshotResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyFileSystemSnapshot'
-    PolicyFileSystemSnapshot:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          policy:
-            description: Reference to the policy. Location can be array or realm.
-            title: LocationReference
-            allOf:
-            - $ref: '#/components/schemas/_locationReference'
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _locationReference:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          display_name:
-            description: 'Full name of the source with remote array information.
-
-              Response will be same as source name for local file systems and policies.
-
-              '
-            type: string
-            readOnly: true
-            example: irp624-c02:fs1
-          is_local:
-            description: 'Is the location reference to the local array or somewhere remote?
-
-              '
-            type: boolean
-            readOnly: true
-          location:
-            description: 'A reference to the location where the object is defined.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-    _direction:
-      type: string
-      description: 'The direction of replication. Valid values are `inbound` and
-
-        `outbound`.
-
-        '
-      readOnly: true
-      x-read-only: true
-    FileSystemSnapshotResponse:
-      type: object
-      properties:
-        items:
-          description: A list of file system snapshot objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemSnapshot'
-    _fixedLocationReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          display_name:
-            description: 'Full name of the source with remote array information.
-
-              Response will be same as source name for local file systems and policies.
-
-              '
-            type: string
-            readOnly: true
-            example: irp624-c02:fs1
-          is_local:
-            description: 'Is the location reference to the local array or somewhere remote?
-
-              '
-            type: boolean
-            readOnly: true
-          location:
-            description: 'A reference to the location where the object is defined.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-    FileSystemSnapshotGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/FileSystemSnapshotResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          total:
-            description: 'If `total_only` query param is `true`, then it will be a total of
-
-              all records after filtering and no items will be returned.
-
-              If `total_only` is `false`, then it will be a total of all records
-
-              on this page.
-
-              '
-            title: FileSystemSnapshot
-            allOf:
-            - $ref: '#/components/schemas/FileSystemSnapshot'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    FileSystemSnapshotGetTransferResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/FileSystemSnapshotTransferResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          total:
-            description: 'If `total_only` query param is `true`, then it will be a total of
-
-              all records after filtering and no items will be returned.
-
-              If `total_only` is `false`, then it will be a total of all records
-
-              on this page.
-
-              '
-            title: FileSystemSnapshotTransfer
-            allOf:
-            - $ref: '#/components/schemas/FileSystemSnapshotTransfer'
-    FileSystemSnapshotTransferResponse:
-      type: object
-      properties:
-        items:
-          description: A list of file system snapshot objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemSnapshotTransfer'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _fixedReferenceNoResourceType:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-      x-readOnly: true
     PolicyMember_2:
       description: An association between a policy and a member.
       allOf:
@@ -973,6 +973,55 @@ components:
             $ref: '#/components/schemas/_fixedReference_2'
           policy:
             $ref: '#/components/schemas/_fixedReference_2'
+    FileSystemSnapshotGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/FileSystemSnapshotResponse_2'
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    PolicyMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/PolicyMembersResponse'
+    _builtInAsOf:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 01c2889a-4124-49ff-8cbd-c33405ede123
+          name:
+            description: A non-modifiable, locally unique name chosen by the system.
+            type: string
+            readOnly: true
+            example: example_name
     _fixedReferenceFqdn:
       allOf:
       - $ref: '#/components/schemas/_fixedReference_2'
@@ -987,56 +1036,6 @@ components:
             type: string
             readOnly: true
             example: example_name.dc1.example.com
-    _arraysBuiltIn:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - $ref: '#/components/schemas/_arrays'
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
-    FileSystemSnapshot_2:
-      description: 'A point-in-time image of the contents of a FlashBlade file system.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_arraysBuiltIn'
-      - type: object
-        properties:
-          created:
-            description: Creation time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-            example: 1502729489760
-          destroyed:
-            description: 'Indicates if this snapshot has been destroyed and is pending
-
-              eradication.
-
-              '
-            type: boolean
-            example: false
-          'on':
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-          source:
-            description: 'A reference to the file system that the snapshot was taken from.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          suffix:
-            description: Indicates the suffix of the snapshot.
-            type: string
-            example: checkpoint_2018_01_01
     _arrays:
       type: object
       properties:
@@ -1081,28 +1080,6 @@ components:
           type: integer
           format: int32
           example: 1
-    PolicyMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/PolicyMembersResponse'
-    FileSystemSnapshotResponse_2:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemSnapshot_2'
-    PolicyMembersResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMember_2'
-    FileSystemSnapshotGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/FileSystemSnapshotResponse_2'
     _fixedReference_2:
       type: object
       properties:
@@ -1128,6 +1105,26 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
+    _arraysBuiltIn:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - $ref: '#/components/schemas/_arrays'
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    FileSystemSnapshotResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemSnapshot_2'
     Error:
       type: object
       properties:
@@ -1136,53 +1133,56 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/_errorErrors'
-    _builtInAsOf:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 01c2889a-4124-49ff-8cbd-c33405ede123
-          name:
-            description: A non-modifiable, locally unique name chosen by the system.
-            type: string
-            readOnly: true
-            example: example_name
-    ErrorNoContext:
+    PolicyMembersResponse:
       type: object
       properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMember_2'
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
         message:
           type: string
           example: Something was wrong
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
+    FileSystemSnapshot_2:
+      description: 'A point-in-time image of the contents of a FlashBlade file system.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_arraysBuiltIn'
+      - type: object
+        properties:
+          created:
+            description: Creation time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+            example: 1502729489760
+          destroyed:
+            description: 'Indicates if this snapshot has been destroyed and is pending
+
+              eradication.
+
+              '
+            type: boolean
+            example: false
+          'on':
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+          source:
+            description: 'A reference to the file system that the snapshot was taken from.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          suffix:
+            description: Indicates the suffix of the snapshot.
+            type: string
+            example: checkpoint_2018_01_01
   parameters:
     Send:
       name: send
@@ -1196,100 +1196,6 @@ components:
         '
       schema:
         type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Targets:
-      name: targets
-      in: query
-      description: 'The target arrays to replicate created snapshots to.
-
-        Only valid when `send` is `true`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
     Filter:
       name: filter
       in: query
@@ -1300,6 +1206,68 @@ components:
         '
       schema:
         type: string
+    Source_ids:
+      name: source_ids
+      in: query
+      description: 'A comma-separated list of source file system IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `source_ids`, then an error is returned.
+
+        This cannot be provided together with the `names_or_sources` or
+
+        `sources` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Destroyed:
       name: destroyed
       in: query
@@ -1324,18 +1292,44 @@ components:
         '
       schema:
         type: boolean
-    Owner_ids:
-      name: owner_ids
+    Offset:
+      name: offset
       in: query
-      description: 'A comma-separated list of owning file system IDs.
+      description: 'The offset of the first resource to return from a collection.
 
-        If after filtering, there is not at least one resource that matches
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        each of the elements of owner IDs, then an error is returned.
+        To return the total number of resources, set `limit=0`.
 
-        This cannot be provided together with the `ids`, `names_or_owner_names`,
+        The total number of resources is returned as a `total_item_count` value.
 
-        or `names_or_sources` query parameters.
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Remote_names:
+      name: remote_names
+      in: query
+      description: 'A comma-separated list of remote array names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `remote_ids` query parameter.
 
         '
       style: form
@@ -1344,24 +1338,12 @@ components:
         type: array
         items:
           type: string
-    Total_only:
-      name: total_only
+    Targets:
+      name: targets
       in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+      description: 'The target arrays to replicate created snapshots to.
 
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
+        Only valid when `send` is `true`.
 
         '
       style: form
@@ -1385,6 +1367,44 @@ components:
         each of the elements of `names`, then an error is returned,
 
         except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Owner_ids:
+      name: owner_ids
+      in: query
+      description: 'A comma-separated list of owning file system IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of owner IDs, then an error is returned.
+
+        This cannot be provided together with the `ids`, `names_or_owner_names`,
+
+        or `names_or_sources` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `member_ids`, then an error is returned.
+
+        This cannot be provided together with the `member_names` query parameter.
 
         '
       style: form
@@ -1423,16 +1443,10 @@ components:
         type: array
         items:
           type: string
-    Policy_ids:
-      name: policy_ids
+    Policy_names:
+      name: policy_names
       in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
+      description: 'A comma-separated list of policy names.
 
         '
       style: form
@@ -1457,71 +1471,38 @@ components:
         type: array
         items:
           type: string
-    Offset:
-      name: offset
+    Continuation_token:
+      name: continuation_token
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Names_or_owner_names:
-      name: names_or_owner_names
+        type: string
+    Ids:
+      name: ids
       in: query
-      description: 'A comma-separated list of resource names.
-
-        Either the names of the snapshots or the owning file systems.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Remote_names:
-      name: remote_names
-      in: query
-      description: 'A comma-separated list of remote array names. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `remote_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Latest_replica:
-      name: latest_replica
-      in: query
-      description: 'Used when destroying a snapshot. If not present or `false`, and the snapshot
-
-        is the latest replicated snapshot, then destroy will fail. If `true` or the
-
-        snapshot is not the latest replicated snapshot, then destroy will be
-
-        successful.
-
-        '
-      schema:
-        type: boolean
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'A comma-separated list of member IDs.
+      description: 'A comma-separated list of resource IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `member_ids`, then an error is returned.
+        each of the elements of `ids`, then an error is returned.
 
-        This cannot be provided together with the `member_names` query parameter.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -1546,18 +1527,24 @@ components:
         type: array
         items:
           type: string
-    Source_ids:
-      name: source_ids
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
       in: query
-      description: 'A comma-separated list of source file system IDs.
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        If after filtering, there is not at least one resource that matches
+        is appended to the field name).
 
-        each of the elements of `source_ids`, then an error is returned.
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-        This cannot be provided together with the `names_or_sources` or
-
-        `sources` query parameters.
+        the response.
 
         '
       style: form
@@ -1565,31 +1552,36 @@ components:
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Context_names:
-      name: context_names
+    Total_only:
+      name: total_only
       in: query
-      description: 'Performs the operation on the context specified.
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
 
+        Where it makes more sense, the average value is displayed instead.
 
-        If specified, the context names must be an array of size 1, and the single element
+        The values are displayed for each name where meaningful.
 
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
+        If `total_only=true`, the `items` list will be empty.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
+        type: boolean
+    Latest_replica:
+      name: latest_replica
+      in: query
+      description: 'Used when destroying a snapshot. If not present or `false`, and the snapshot
+
+        is the latest replicated snapshot, then destroy will fail. If `true` or the
+
+        snapshot is not the latest replicated snapshot, then destroy will be
+
+        successful.
+
+        '
+      schema:
+        type: boolean
     Allow_errors:
       name: allow_errors
       in: query
@@ -1603,16 +1595,12 @@ components:
       schema:
         type: boolean
         default: false
-    Ids:
-      name: ids
+    Names_or_owner_names:
+      name: names_or_owner_names
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'A comma-separated list of resource names.
 
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
+        Either the names of the snapshots or the owning file systems.
 
         '
       style: form
@@ -1621,16 +1609,10 @@ components:
         type: array
         items:
           type: string
-    Sort_2:
-      name: sort
+    Member_names:
+      name: member_names
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        If you provide a sort you will not get a continuation token in
-
-        the response.
+      description: 'A comma-separated list of member names.
 
         '
       style: form
@@ -1638,7 +1620,6 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Filter_2:
       name: filter
@@ -1650,88 +1631,12 @@ components:
         '
       schema:
         type: string
-    Continuation_token_2:
-      name: continuation_token
+    Source_ids_2:
+      name: source_ids
       in: query
-      description: 'An opaque token used to iterate over a collection.
+      description: 'A comma-separated list of ids for the source of the object.
 
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    Member_names_2:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        If there is not at least one resource that matches each `member_name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Policy_names_2:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        If there is not at least one resource that matches each `policy_name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
+        If there is not at least one resource that matches each `source_id` element,
 
         an error is returned.
 
@@ -1766,34 +1671,6 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Source_names_2:
-      name: source_names
-      in: query
-      description: 'A comma-separated list of names for the source of the object.
-
-        If there is not at least one resource that matches each `source_name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
     Offset_2:
       name: offset
       in: query
@@ -1804,46 +1681,6 @@ components:
         type: integer
         format: int32
         minimum: 0
-    Member_ids_2:
-      name: member_ids
-      in: query
-      description: 'A comma-separated list of member IDs.
-
-        If there is not at least one resource that matches each `member_id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Source_ids_2:
-      name: source_ids
-      in: query
-      description: 'A comma-separated list of ids for the source of the object.
-
-        If there is not at least one resource that matches each `source_id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
     Limit_2:
       name: limit
       in: query
@@ -1865,9 +1702,172 @@ components:
       schema:
         type: integer
         format: int32
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Member_ids_2:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If there is not at least one resource that matches each `member_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Policy_names_2:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        If there is not at least one resource that matches each `policy_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Source_names_2:
+      name: source_names
+      in: query
+      description: 'A comma-separated list of names for the source of the object.
+
+        If there is not at least one resource that matches each `source_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Member_names_2:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        If there is not at least one resource that matches each `member_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
   responses:
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error404:
+      description: NOT FOUND
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -1897,8 +1897,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error400:
-      description: BAD REQUEST
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -1970,8 +1970,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error404:
-      description: NOT FOUND
+    Error400:
+      description: BAD REQUEST
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.

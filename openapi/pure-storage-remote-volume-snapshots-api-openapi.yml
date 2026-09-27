@@ -204,6 +204,80 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    RemoteVolumeSnapshotTransferResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RemoteVolumeSnapshotTransfer'
+    _transfer:
+      type: object
+      properties:
+        completed:
+          description: 'The timestamp of when the snapshot replication process completed.
+
+            Measured in milliseconds since the UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        data_transferred:
+          description: 'The number of bytes transferred from the source to the target
+
+            as part of the replication process.
+
+            Measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        destroyed:
+          description: 'Returns a value of `true` if the snapshot has been destroyed and is pending eradication.
+
+            The destroyed snapshot can be recovered by setting `destroyed=false`.
+
+            Once the eradication pending period has elapsed,
+
+            the snapshot is permanently eradicated and can no longer be recovered.
+
+            '
+          type: boolean
+        physical_bytes_written:
+          description: 'The amount of physical/logical data written to the target due to replication.
+
+            Measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        progress:
+          description: 'The percentage progress of the snapshot transfer from the source array to the target.
+
+            Displayed in decimal format.
+
+            '
+          type: number
+          format: float
+          readOnly: true
+          example: 0.66
+        started:
+          description: 'The timestamp of when the snapshot replication process started.
+
+            Measured in milliseconds since the UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+    RemoteVolumeSnapshotGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/RemoteVolumeSnapshotResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     RemoteVolumeSnapshotTransfer:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -213,66 +287,6 @@ components:
 
           '
         type: object
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
     RemoteVolumeSnapshotPost:
       type: object
       properties:
@@ -289,13 +303,46 @@ components:
 
             '
           type: string
-    RemoteVolumeSnapshotTransferResponse:
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _context:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/RemoteVolumeSnapshotTransfer'
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
     _destroyedPatchPost:
       type: object
       properties:
@@ -358,54 +405,6 @@ components:
             '
           type: integer
           format: int32
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    RemoteVolumeSnapshot:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_snapshot'
-      - $ref: '#/components/schemas/_context'
-      - description: 'A volume snapshot on a remote target.
-
-          '
-        type: object
-        properties:
-          remote:
-            description: 'Remote target where this volume snapshot is located.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-    RemoteVolumeSnapshotResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/RemoteVolumeSnapshot'
-    RemoteVolumeSnapshotGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/RemoteVolumeSnapshotResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
     _fixedReference:
       type: object
       properties:
@@ -428,6 +427,40 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    RemoteVolumeSnapshotTransferGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/RemoteVolumeSnapshotTransferResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              Where it makes more sense, the average value is displayed instead.
+
+              The values are displayed for each field where meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/RemoteVolumeSnapshotTransfer'
+    RemoteVolumeSnapshotResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RemoteVolumeSnapshot'
     _snapshot:
       type: object
       properties:
@@ -506,174 +539,84 @@ components:
           type: integer
           format: int64
           readOnly: true
-    _context:
+    _errorcontextresponseErrors:
       type: object
       properties:
         context:
-          description: 'The context in which the operation was performed.
+          description: 'Contains information relating to the cause of this error,
 
+            or the name of the object that was being processed when the error was encountered.
 
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            This may be `null` for more general errors.
 
             '
-          readOnly: true
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
           title: FixedReferenceWithType
           allOf:
           - $ref: '#/components/schemas/_fixedReferenceWithType'
-    RemoteVolumeSnapshotTransferGetResponse:
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    RemoteVolumeSnapshot:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/RemoteVolumeSnapshotTransferResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_snapshot'
+      - $ref: '#/components/schemas/_context'
+      - description: 'A volume snapshot on a remote target.
+
+          '
+        type: object
         properties:
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              Where it makes more sense, the average value is displayed instead.
-
-              The values are displayed for each field where meaningful.
+          remote:
+            description: 'Remote target where this volume snapshot is located.
 
               '
-            type: array
-            items:
-              $ref: '#/components/schemas/RemoteVolumeSnapshotTransfer'
-    _transfer:
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
       type: object
       properties:
-        completed:
-          description: 'The timestamp of when the snapshot replication process completed.
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            Measured in milliseconds since the UNIX epoch.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        data_transferred:
-          description: 'The number of bytes transferred from the source to the target
-
-            as part of the replication process.
-
-            Measured in bytes.
+            The ID cannot be modified and cannot refer to another resource.
 
             '
-          type: integer
-          format: int64
+          type: string
           readOnly: true
-        destroyed:
-          description: 'Returns a value of `true` if the snapshot has been destroyed and is pending eradication.
+        name:
+          description: 'A user-specified name.
 
-            The destroyed snapshot can be recovered by setting `destroyed=false`.
-
-            Once the eradication pending period has elapsed,
-
-            the snapshot is permanently eradicated and can no longer be recovered.
+            The name must be locally unique and can be changed.
 
             '
-          type: boolean
-        physical_bytes_written:
-          description: 'The amount of physical/logical data written to the target due to replication.
-
-            Measured in bytes.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        progress:
-          description: 'The percentage progress of the snapshot transfer from the source array to the target.
-
-            Displayed in decimal format.
-
-            '
-          type: number
-          format: float
-          readOnly: true
-          example: 0.66
-        started:
-          description: 'The timestamp of when the snapshot replication process started.
-
-            Measured in milliseconds since the UNIX epoch.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
+          type: string
   parameters:
-    Replication_snapshot:
-      name: replication_snapshot
-      in: query
-      description: 'If set to `true`, allow destruction/eradication of snapshots in use by replication.
-
-        If set to `false`, allow destruction/eradication of snapshots not in use by replication.
-
-        If not specified, defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    On_:
-      name: 'on'
-      in: query
-      description: 'Performs the operation on the target name specified.
-
-        Enter multiple target names in comma-separated format.
-
-        For example, `targetName01,targetName02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    OnSingle:
-      name: 'on'
-      in: query
-      description: 'Performs the operation on the target name specified.
-
-        For example, `targetName01`.
-
-        '
-      schema:
-        type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
     Filter:
       name: filter
       in: query
@@ -684,28 +627,44 @@ components:
         '
       schema:
         type: string
-    Continuation_token:
-      name: continuation_token
+    Source_ids:
+      name: source_ids
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'Performs the operation on the source ID specified.
 
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
+        Enter multiple source IDs in comma-separated format.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Destroyed:
       name: destroyed
       in: query
@@ -730,20 +689,38 @@ components:
         '
       schema:
         type: boolean
-    Total_only:
-      name: total_only
+    Offset:
+      name: offset
       in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+      description: 'The starting position based on the results of the query
 
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
+        in relation to the full set of response objects returned.
 
         '
       schema:
-        type: boolean
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Names:
       name: names
       in: query
@@ -767,6 +744,18 @@ components:
         type: array
         items:
           type: string
+    Replication_snapshot:
+      name: replication_snapshot
+      in: query
+      description: 'If set to `true`, allow destruction/eradication of snapshots in use by replication.
+
+        If set to `false`, allow destruction/eradication of snapshots not in use by replication.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
     Context_names_get:
       name: context_names
       in: query
@@ -811,6 +800,89 @@ components:
         type: array
         items:
           type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
     Authorization:
       name: Authorization
       in: header
@@ -821,49 +893,14 @@ components:
         '
       schema:
         type: string
-    Offset:
-      name: offset
+    On_:
+      name: 'on'
       in: query
-      description: 'The starting position based on the results of the query
+      description: 'Performs the operation on the target name specified.
 
-        in relation to the full set of response objects returned.
+        Enter multiple target names in comma-separated format.
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Source_ids:
-      name: source_ids
-      in: query
-      description: 'Performs the operation on the source ID specified.
-
-        Enter multiple source IDs in comma-separated format.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
+        For example, `targetName01,targetName02`.
 
         '
       style: form
@@ -885,50 +922,13 @@ components:
       schema:
         type: boolean
         default: false
-    Total_item_count:
-      name: total_item_count
+    OnSingle:
+      name: 'on'
       in: query
-      description: 'If set to `true`, the `total_item_count` matching the
+      description: 'Performs the operation on the target name specified.
 
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
+        For example, `targetName01`.
 
         '
       schema:
-        type: boolean
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+        type: string

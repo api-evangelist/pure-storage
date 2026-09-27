@@ -316,45 +316,68 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    NfsExportPolicyPatchRuleInPolicy:
-      allOf:
-      - $ref: '#/components/schemas/NfsExportPolicyRuleBasePatchRequest'
-      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
+    NfsExportPolicyRuleResponse:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
+        items:
+          description: 'Displays a list of all items after filtering.
 
             '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    NfsExportPolicyGetResponse:
+          type: array
+          items:
+            $ref: '#/components/schemas/NfsExportPolicyRule'
+    NfsExportPolicyRuleGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/NfsExportPolicyResponse'
+      - $ref: '#/components/schemas/NfsExportPolicyRuleResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
+    PolicyBaseRenameable:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
+
+              '
+            type: string
+            readOnly: true
+    _policyRuleIndex:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            NOTE: It is recommended to use the query param `before_rule_id` to do reordering to
+
+            avoid concurrency issues, but changing `index` is also supported. `index` can not be
+
+            changed if `before_rule_id` or `before_rule_name` are specified.
+
+            '
+          type: integer
+          format: int32
     _workloadConfigurationFixedReference:
       description: 'A reference to the workload that is managing this resource.
 
@@ -375,19 +398,42 @@ components:
       allOf:
       - $ref: '#/components/schemas/NfsExportPolicyRuleBasePatchRequest'
       - $ref: '#/components/schemas/_policyRuleIndex'
-    _version:
+    _fixedReferenceWithoutType:
       type: object
       properties:
-        version:
-          description: 'A hash of the other properties of this resource. This can be used when
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            updating the resource to ensure there aren''t any updates since the
-
-            resource was read.
+            The ID cannot be modified.
 
             '
           type: string
           readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    NfsExportPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+      - $ref: '#/components/schemas/_version'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          rules:
+            description: 'All of the rules that are part of this policy. The order is the evaluation order.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/NfsExportPolicyRuleInPolicy'
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationFixedReference'
     _realmsReference:
       type: object
       properties:
@@ -403,168 +449,6 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_fixedReference'
-    NfsExportPolicyRuleBasePatchRequest:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          access:
-            description: 'Specifies access control for the export. Valid values are `root-squash`, `all-squash`, and
-
-              `no-squash`.
-
-              `root-squash` prevents client users and groups with root privilege from mapping their
-
-              root privilege to a file system. All users with UID 0 will have their UID mapped to anonuid.
-
-              All users with GID 0 will have their GID mapped to anongid.
-
-              `all-squash` maps all UIDs (including root) to anonuid and all GIDs (including root) to
-
-              anongid.
-
-              `no-squash` allows users and groups to access the file system with their UIDs and GIDs.
-
-              The default is `root-squash` if not specified.
-
-              '
-            type: string
-          anongid:
-            description: 'Any user whose GID is affected by an `access` of `root_squash` or `all_squash` will have
-
-              their GID mapped to `anongid`. The default `anongid` is null, which means 65534.
-
-              Use "" to clear.
-
-              '
-            type: string
-            example: '65530'
-          anonuid:
-            description: 'Any user whose UID is affected by an `access` of `root_squash` or `all_squash` will have
-
-              their UID mapped to `anonuid`. The default `anonuid` is null, which means 65534.
-
-              Use "" to clear.
-
-              '
-            type: string
-            example: '65530'
-          atime:
-            description: 'If `true`, after a read operation has occurred, the inode access time is updated only if any
-
-              of the following conditions is true: the previous access time is less than the inode modify
-
-              time, the previous access time is less than the inode change time, or the previous access
-
-              time is more than 24 hours ago.
-
-              If `false`, disables the update of inode access times after read operations.
-
-              Defaults to `true`.
-
-              '
-            type: boolean
-          client:
-            description: 'Specifies the clients that will be permitted to access the export.
-
-              Accepted notation is a single IP address, subnet in CIDR notation, netgroup,
-
-              hostname (see RFC-1123 part 2.1), fully qualified domain name
-
-              (see RFC-1123 part 2.1, RFC 2181 part 11), wildcards with fully qualified domain name
-
-              or hostname, or anonymous (`*`).
-
-              The default is `*` if not specified.
-
-              '
-            type: string
-          fileid_32bit:
-            description: 'Whether the file id is 32 bits or not. Defaults to `false`.
-
-              '
-            type: boolean
-          permission:
-            description: 'Specifies which read-write client access permissions are allowed for the export.
-
-              Valid values are `rw` and `ro`. The default is `ro` if not specified.
-
-              '
-            type: string
-          required_transport_security:
-            description: 'Specifies the minimum transport security required for clients to access the export.
-
-              If `tls` is set, then all clients must use TLS or their attempts to mount will be rejected,
-
-              and further use of client certificate authentication is optional.
-
-              If `mutual-tls` is set, then all clients must use TLS with client certificate authentication
-
-              or their attempts to mount will be rejected.
-
-              If `none`, then no specific transport security mechanism is required and any transport
-
-              security mechanisms are permitted for use.
-
-              If not specified when a rule is created, defaults to `none`.
-
-              '
-            type: string
-            example: tls
-          secure:
-            description: 'If `true`, prevents NFS access to client connections coming from non-reserved ports. Applies
-
-              to NFSv3, NFSv4.1, and auxiliary protocols MOUNT and NLM.
-
-              If `false`, allows NFS access to client connections coming from non-reserved ports. Applies
-
-              to NFSv3, NFSv4.1, and auxiliary protocols MOUNT and NLM.
-
-              The default is `false` if not specified.
-
-              '
-            type: boolean
-          security:
-            description: 'The security flavors to use for accessing files on this mount point.  If the server does not
-
-              support the requested flavor, the mount operation fails.
-
-              If `sys`, trusts the client to specify user''s identity.
-
-              If `krb5`, provides cryptographic proof of a user''s identity in each RPC request. This
-
-              provides  strong verification of the identity of users accessing data on the server.
-
-              Note that additional configuration besides adding this mount option is required in order to
-
-              enable Kerberos security.
-
-              If `krb5i`, adds integrity checking to krb5, to ensure the data has not been tampered with.
-
-              If `krb5p`, adds integrity checking and encryption to krb5. This is the most secure setting,
-
-              but it also involves the most performance overhead.
-
-              The default is `sys` if not specified.
-
-              '
-            type: array
-            items:
-              type: string
-              example: sys
-    NfsExportPolicyPatch:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-      - $ref: '#/components/schemas/_version'
-      - type: object
-        properties:
-          rules:
-            description: 'All of the rules that are part of this policy. The order is the evaluation order.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/NfsExportPolicyPatchRuleInPolicy'
     NfsExportPolicyRuleBase:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -731,6 +615,158 @@ components:
             items:
               type: string
               example: sys
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    NfsExportPolicyRule:
+      allOf:
+      - $ref: '#/components/schemas/NfsExportPolicyRuleBase'
+      - $ref: '#/components/schemas/_policyRuleIndex'
+      - $ref: '#/components/schemas/_context'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    NfsExportPolicyPost:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - type: object
+        properties:
+          rules:
+            description: 'All of the rules that are part of this policy. The order is the evaluation order.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/NfsExportPolicyRuleInPolicy'
+    NfsExportPolicyResponse:
+      type: object
+      properties:
+        items:
+          description: A list of NFS export policy objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/NfsExportPolicy'
+    _policyRuleIndexInPolicy:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            '
+          type: integer
+          format: int32
+          readOnly: true
+    NfsExportPolicyPatch:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+      - $ref: '#/components/schemas/_version'
+      - type: object
+        properties:
+          rules:
+            description: 'All of the rules that are part of this policy. The order is the evaluation order.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/NfsExportPolicyPatchRuleInPolicy'
+    NfsExportPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/NfsExportPolicyResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    NfsExportPolicyPatchRuleInPolicy:
+      allOf:
+      - $ref: '#/components/schemas/NfsExportPolicyRuleBasePatchRequest'
+      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    NfsExportPolicyRuleInPolicy:
+      allOf:
+      - $ref: '#/components/schemas/NfsExportPolicyRuleBase'
+      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -762,242 +798,216 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    NfsExportPolicyResponse:
-      type: object
-      properties:
-        items:
-          description: A list of NFS export policy objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/NfsExportPolicy'
-    _policyRuleIndexInPolicy:
-      type: object
-      properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
-            '
-          type: integer
-          format: int32
-          readOnly: true
-    NfsExportPolicyPost:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - type: object
-        properties:
-          rules:
-            description: 'All of the rules that are part of this policy. The order is the evaluation order.
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
 
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/NfsExportPolicyRuleInPolicy'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
+        file system), or correspond to something in the environment, like a host or a
 
-            param to get the next page of data.
+        server.
 
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    PolicyBaseRenameable:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
-
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    _policyRuleIndex:
-      type: object
-      properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
-
-            NOTE: It is recommended to use the query param `before_rule_id` to do reordering to
-
-            avoid concurrency issues, but changing `index` is also supported. `index` can not be
-
-            changed if `before_rule_id` or `before_rule_name` are specified.
-
-            '
-          type: integer
-          format: int32
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    NfsExportPolicyRule:
-      allOf:
-      - $ref: '#/components/schemas/NfsExportPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndex'
-      - $ref: '#/components/schemas/_context'
-    NfsExportPolicyRuleResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after filtering.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/NfsExportPolicyRule'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _fixedReferenceWithoutType:
+        '
       type: object
       properties:
         id:
           description: 'A globally unique, system-generated ID.
 
-            The ID cannot be modified.
+            The ID cannot be modified and cannot refer to another resource.
 
             '
           type: string
           readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
+          description: 'A user-specified name.
 
-            snapshot name, and so on.
+            The name must be locally unique and can be changed.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
-    NfsExportPolicy:
+    NfsExportPolicyRuleBasePatchRequest:
       allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-      - $ref: '#/components/schemas/_version'
-      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_builtIn'
       - type: object
         properties:
-          rules:
-            description: 'All of the rules that are part of this policy. The order is the evaluation order.
+          access:
+            description: 'Specifies access control for the export. Valid values are `root-squash`, `all-squash`, and
+
+              `no-squash`.
+
+              `root-squash` prevents client users and groups with root privilege from mapping their
+
+              root privilege to a file system. All users with UID 0 will have their UID mapped to anonuid.
+
+              All users with GID 0 will have their GID mapped to anongid.
+
+              `all-squash` maps all UIDs (including root) to anonuid and all GIDs (including root) to
+
+              anongid.
+
+              `no-squash` allows users and groups to access the file system with their UIDs and GIDs.
+
+              The default is `root-squash` if not specified.
+
+              '
+            type: string
+          anongid:
+            description: 'Any user whose GID is affected by an `access` of `root_squash` or `all_squash` will have
+
+              their GID mapped to `anongid`. The default `anongid` is null, which means 65534.
+
+              Use "" to clear.
+
+              '
+            type: string
+            example: '65530'
+          anonuid:
+            description: 'Any user whose UID is affected by an `access` of `root_squash` or `all_squash` will have
+
+              their UID mapped to `anonuid`. The default `anonuid` is null, which means 65534.
+
+              Use "" to clear.
+
+              '
+            type: string
+            example: '65530'
+          atime:
+            description: 'If `true`, after a read operation has occurred, the inode access time is updated only if any
+
+              of the following conditions is true: the previous access time is less than the inode modify
+
+              time, the previous access time is less than the inode change time, or the previous access
+
+              time is more than 24 hours ago.
+
+              If `false`, disables the update of inode access times after read operations.
+
+              Defaults to `true`.
+
+              '
+            type: boolean
+          client:
+            description: 'Specifies the clients that will be permitted to access the export.
+
+              Accepted notation is a single IP address, subnet in CIDR notation, netgroup,
+
+              hostname (see RFC-1123 part 2.1), fully qualified domain name
+
+              (see RFC-1123 part 2.1, RFC 2181 part 11), wildcards with fully qualified domain name
+
+              or hostname, or anonymous (`*`).
+
+              The default is `*` if not specified.
+
+              '
+            type: string
+          fileid_32bit:
+            description: 'Whether the file id is 32 bits or not. Defaults to `false`.
+
+              '
+            type: boolean
+          permission:
+            description: 'Specifies which read-write client access permissions are allowed for the export.
+
+              Valid values are `rw` and `ro`. The default is `ro` if not specified.
+
+              '
+            type: string
+          required_transport_security:
+            description: 'Specifies the minimum transport security required for clients to access the export.
+
+              If `tls` is set, then all clients must use TLS or their attempts to mount will be rejected,
+
+              and further use of client certificate authentication is optional.
+
+              If `mutual-tls` is set, then all clients must use TLS with client certificate authentication
+
+              or their attempts to mount will be rejected.
+
+              If `none`, then no specific transport security mechanism is required and any transport
+
+              security mechanisms are permitted for use.
+
+              If not specified when a rule is created, defaults to `none`.
+
+              '
+            type: string
+            example: tls
+          secure:
+            description: 'If `true`, prevents NFS access to client connections coming from non-reserved ports. Applies
+
+              to NFSv3, NFSv4.1, and auxiliary protocols MOUNT and NLM.
+
+              If `false`, allows NFS access to client connections coming from non-reserved ports. Applies
+
+              to NFSv3, NFSv4.1, and auxiliary protocols MOUNT and NLM.
+
+              The default is `false` if not specified.
+
+              '
+            type: boolean
+          security:
+            description: 'The security flavors to use for accessing files on this mount point.  If the server does not
+
+              support the requested flavor, the mount operation fails.
+
+              If `sys`, trusts the client to specify user''s identity.
+
+              If `krb5`, provides cryptographic proof of a user''s identity in each RPC request. This
+
+              provides  strong verification of the identity of users accessing data on the server.
+
+              Note that additional configuration besides adding this mount option is required in order to
+
+              enable Kerberos security.
+
+              If `krb5i`, adds integrity checking to krb5, to ensure the data has not been tampered with.
+
+              If `krb5p`, adds integrity checking and encryption to krb5. This is the most secure setting,
+
+              but it also involves the most performance overhead.
+
+              The default is `sys` if not specified.
 
               '
             type: array
             items:
-              $ref: '#/components/schemas/NfsExportPolicyRuleInPolicy'
-          workload:
-            $ref: '#/components/schemas/_workloadConfigurationFixedReference'
-    _context:
+              type: string
+              example: sys
+    _version:
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
+        version:
+          description: 'A hash of the other properties of this resource. This can be used when
 
+            updating the resource to ensure there aren''t any updates since the
 
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            resource was read.
 
             '
+          type: string
           readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    NfsExportPolicyRuleInPolicy:
-      allOf:
-      - $ref: '#/components/schemas/NfsExportPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    NfsExportPolicyRuleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/NfsExportPolicyRuleResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
   parameters:
-    Sort:
-      name: sort
+    Filter:
+      name: filter
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'Narrows down the results to only the response objects
 
-        is appended to the field name).
+        that satisfy the filter criteria.
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        '
+      schema:
+        type: string
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
 
-        the response.
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -1005,16 +1015,58 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
 
         '
       schema:
-        type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Workload_names:
+      name: workload_names
+      in: query
+      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `workload_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Limit:
       name: limit
       in: query
@@ -1034,76 +1086,6 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Before_rule_id:
-      name: before_rule_id
-      in: query
-      description: 'The id of the rule to insert or move a rule before.
-
-        This cannot be provided together with the `before_rule_name` query parameter.
-
-        '
-      schema:
-        type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Workload_ids:
-      name: workload_ids
-      in: query
-      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `workload_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Names:
       name: names
       in: query
@@ -1157,6 +1139,101 @@ components:
         type: array
         items:
           type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Workload_ids:
+      name: workload_ids
+      in: query
+      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `workload_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     Versions:
       name: versions
       in: query
@@ -1175,48 +1252,6 @@ components:
         type: array
         items:
           type: string
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Before_rule_name:
       name: before_rule_name
       in: query
@@ -1227,46 +1262,6 @@ components:
         '
       schema:
         type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Workload_names:
-      name: workload_names
-      in: query
-      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `workload_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Allow_errors:
       name: allow_errors
       in: query
@@ -1280,18 +1275,23 @@ components:
       schema:
         type: boolean
         default: false
-    Ids:
-      name: ids
+    Before_rule_id:
+      name: before_rule_id
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'The id of the rule to insert or move a rule before.
 
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
+        This cannot be provided together with the `before_rule_name` query parameter.
 
         '
+      schema:
+        type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
       style: form
       explode: false
       schema:

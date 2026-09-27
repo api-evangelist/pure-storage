@@ -1533,6 +1533,38 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
+    _newName:
+      type: object
+      properties:
+        name:
+          description: The new name for the resource.
+          type: string
+    ContainerEradicationConfig:
+      description: The status of the eradication functionality
+      type: object
+      properties:
+        manual_eradication:
+          description: 'The manual eradication status of the container.
+
+            If `all-enabled`, the container and its contents can be eradicated.
+
+            If `partially-disabled`, the container cannot be eradicated because the container
+
+            contains some some entities that are eradication disabled.
+
+            If `all-disabled`, the container and its contents cannot be eradicated.
+
+            Values include `all-disabled`, `all-enabled`, and `partially-disabled`.
+
+            '
+          type: string
+          readOnly: true
+          example: all-enabled
+    FileSystemPost:
+      type: object
+      properties:
+        workload:
+          $ref: '#/components/schemas/_workloadConfigurationReferencePost'
     FileSystem:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -1591,108 +1623,23 @@ components:
             readOnly: true
           workload:
             $ref: '#/components/schemas/_workloadConfigurationReference'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
+    FileSystemResponse:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        items:
+          description: 'Displays a list of all items after filtering.
 
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
+            If applicable, the values are displayed for each name.
 
             '
-          type: string
-    FileSystemPatch:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystem'
+    FileSystemGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_destroyedPatchPost'
-      - $ref: '#/components/schemas/_newName'
-      - type: object
-        properties:
-          pod:
-            description: The pod to move existing file systems into.
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          workload:
-            $ref: '#/components/schemas/_workloadConfigurationReferencePatch'
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
-    _workloadConfigurationReferencePatch:
-      type: object
-      description: 'The instruction for removing the resource from the workload. Setting the `id` or `name` of the
-
-        workload to an empty string (`""`) removes the resource.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithFixedType'
-    _workloadConfigurationReferencePost:
-      type: object
-      description: 'The workload to which the resource is added.
-
-        Set one of `id` or `name`, and `configuration` to add the resource to the workload
-
-        and configure it based on the `configuration` from the preset revision the workload was
-
-        originally provisioned from.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithFixedType'
-      - type: object
-        properties:
-          configuration:
-            description: 'The name of the preset configuration object.
-
-              '
-            type: string
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/FileSystemResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     _workloadConfigurationReference:
       type: object
       description: 'A reference to the workload that is managing this resource.
@@ -1709,37 +1656,55 @@ components:
 
               '
             type: string
-    _referenceWithFixedType:
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _workloadConfigurationReferencePatch:
+      type: object
+      description: 'The instruction for removing the resource from the workload. Setting the `id` or `name` of the
+
+        workload to an empty string (`""`) removes the resource.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithFixedType'
+    _context:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        context:
+          description: 'The context in which the operation was performed.
 
-            The ID cannot be modified.
 
-            '
-          type: string
-        name:
-          description: 'The resource name,
+            Valid values include a reference to any array which is a member of the same fleet
 
-            such as volume name, pod name, snapshot name, and so on.
+            or to the fleet itself.
 
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
 
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+            Other parameters provided with the request, such as names of volumes or snapshots,
 
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
+            are resolved relative to the provided `context`.
 
             '
-          type: string
           readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
     _destroyedPatchPost:
       type: object
       properties:
@@ -1760,30 +1725,6 @@ components:
 
             '
           type: boolean
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    FileSystemGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/FileSystemResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
     PageInfo:
       type: object
       properties:
@@ -1826,36 +1767,6 @@ components:
             '
           type: integer
           format: int32
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    FileSystemPost:
-      type: object
-      properties:
-        workload:
-          $ref: '#/components/schemas/_workloadConfigurationReferencePost'
-    _newName:
-      type: object
-      properties:
-        name:
-          description: The new name for the resource.
-          type: string
     _fixedReference:
       type: object
       properties:
@@ -1878,60 +1789,70 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
-    FileSystemResponse:
+    _workloadConfigurationReferencePost:
+      type: object
+      description: 'The workload to which the resource is added.
+
+        Set one of `id` or `name`, and `configuration` to add the resource to the workload
+
+        and configure it based on the `configuration` from the preset revision the workload was
+
+        originally provisioned from.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithFixedType'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
+
+              '
+            type: string
+    _referenceWithFixedType:
       type: object
       properties:
-        items:
-          description: 'Displays a list of all items after filtering.
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            If applicable, the values are displayed for each name.
+            The ID cannot be modified.
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystem'
-    ContainerEradicationConfig:
-      description: The status of the eradication functionality
-      type: object
-      properties:
-        manual_eradication:
-          description: 'The manual eradication status of the container.
+          type: string
+        name:
+          description: 'The resource name,
 
-            If `all-enabled`, the container and its contents can be eradicated.
+            such as volume name, pod name, snapshot name, and so on.
 
-            If `partially-disabled`, the container cannot be eradicated because the container
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
 
-            contains some some entities that are eradication disabled.
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
 
-            If `all-disabled`, the container and its contents cannot be eradicated.
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
 
-            Values include `all-disabled`, `all-enabled`, and `partially-disabled`.
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
 
             '
           type: string
           readOnly: true
-          example: all-enabled
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    FileSystemPatch:
+      allOf:
+      - $ref: '#/components/schemas/_destroyedPatchPost'
+      - $ref: '#/components/schemas/_newName'
+      - type: object
+        properties:
+          pod:
+            description: The pod to move existing file systems into.
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationReferencePatch'
     _errorContextResponse:
       type: object
       properties:
@@ -1941,48 +1862,344 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_errorcontextresponseErrors'
-    PolicyMember:
+    _errorcontextresponseErrors:
       type: object
       properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-    UserGroupQuotaLimitedBy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - type: object
-        properties:
-          rule_id:
-            description: 'The ID of the policy rule which enforced this quota limit.
+        context:
+          description: 'Contains information relating to the cause of this error,
 
-              '
-            type: string
-          rule_name:
-            description: 'The name of the policy rule which enforced this quota limit.
+            or the name of the object that was being processed when the error was encountered.
 
-              '
-            type: string
-    _group:
-      type: object
-      properties:
-        id:
-          description: The numeric group id that represents the group's identity in a POSIX system.
-          type: integer
-          format: int64
-        name:
-          description: 'The group name that represents the group''s identity, and which resolves to the group''s id
-
-            in a configured directory service.
+            This may be `null` for more general errors.
 
             '
           type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    AuditFileSystemsPoliciesMembersResponse:
+      type: object
+      properties:
+        items:
+          description: A list of members for audit policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
+    FileSystemClientsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/FileSystemClientsResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+    FileSystemLockNlmReclamation:
+      allOf:
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          end:
+            description: 'End time of the NLM reclamation in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          start:
+            description: 'Start time of the NLM reclamation in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+    _nfs:
+      type: object
+      properties:
+        export_policy:
+          description: 'Deprecated. See File System Exports for newer functionality.
+
+            The value returned will be the `policy` of the File System
+
+            Export for the default server, and NFS, with the `export_name`
+
+            matching the file system name, if there is one and null otherwise.
+
+            Modifying this field will still work.
+
+            If the current value is null, then setting this field will attempt
+
+            to create a File System Export with the policy
+
+            and other default values. The `export_name` will be the same as the
+
+            file system''s `name`.
+
+            If the current value is not null, then setting this field will change
+
+            the policy in the matching File System Export.
+
+            Either the `export_policy` or `rules` will control the
+
+            NFS export functionality for the file system.
+
+            If this is set, then the `rules` field will be cleared.
+
+            Both `export_policy` and `rules` can not be set in the same request.
+
+            '
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
+        rules:
+          description: 'Deprecated. See File System Exports and NFS Export Policies for newer functionality.
+
+            Modifying this field will still work, causing the matching
+
+            File System Export to be deleted, if there is one. See `export_policy`.
+
+            Both `export_policy` and `rules` can not be set in the same request.
+
+            Rules can be applied to an individual
+
+            client or a range of clients specified by IP address (`ip_address(options)`),
+
+            netmask (`ip_address/length(options)`), netgroup (`@groupname(options)`),
+
+            hostname (`hostname(options)`) (see RFC-1123 part 2.1), fully qualified domain name
+
+            (`host.exampledomain.com(options)`) (see RFC-1123 part 2.1, RFC 2181 part 11), or wildcards
+
+            with fully qualified domain name or hostname (`*.exampledomain?.com(options)`).
+
+            Possible export options include `rw`, `ro`, `fileid_32bit`,  `no_fileid_32bit`,
+
+            `anonuid`, `anongid`, `root_squash`, `no_root_squash`, `all_squash`,
+
+            `no_all_squash`,  `secure`, `insecure`, `atime`, `noatime`, and `sec`.
+
+            If not specified, defaults to `*(rw,no_root_squash)`.
+
+            '
+          type: string
+          example: 1.0.0.0/8(rw,no_root_squash) fd01:abcd::/64(ro,secure,root_squash,anongid=16000) @netgrp(rw,all_squash,anonuid=99,fileid_32bit) 1.41.8.32(rw,no_all_squash,sec=krb5:krb5i:krp5p) my-hostname(rw,no_root_squash) host.exampledomain.com(rw,no_root_squash) host?(rw,no_root_squash) host?.example*domain.com(rw,no_root_squash) host.*(rw,no_root_squash)
+        v3_enabled:
+          description: 'If set to `true`, the NFSv3 protocol will be enabled.
+
+            '
+          type: boolean
+        v4_1_enabled:
+          description: 'If set to `true`, the NFSv4.1 protocol will be enabled.
+
+            '
+          type: boolean
+    FileSessionResponse:
+      type: object
+      properties:
+        items:
+          description: A list of file sessions.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSession'
+    FileSystemSpaceStorageClassGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - type: object
+        properties:
+          items:
+            description: A list of file system storage class space objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/FileSystemStorageClassSpace'
+          total:
+            description: 'Total of all records after filtering.
+
+              If `total_only` query param is `true`, then no items will be returned.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/FileSystemStorageClassSpace'
+    FileLockNlmReclamationResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemLockNlmReclamation'
+    FileSystemGroup:
+      allOf:
+      - $ref: '#/components/schemas/_context_2'
+      - properties:
+          file_system:
+            $ref: '#/components/schemas/_fixedReference_2'
+          group:
+            description: The group on which this quota is enforced.
+            title: GroupSubject
+            allOf:
+            - $ref: '#/components/schemas/_groupSubject'
+          limited_by:
+            description: The policy that is limiting usage for this group in this file system and the limiting rule.
+            title: UserGroupQuotaLimitedBy
+            allOf:
+            - $ref: '#/components/schemas/UserGroupQuotaLimitedBy'
+          percentage_used:
+            description: 'The ratio of the quota usage to the quota limit, with 1.0 meaning that the
+
+              usage has reached the quota limit.
+
+              '
+            type: number
+            format: float
+            readOnly: true
+          quota_limit:
+            type: integer
+            format: int64
+            description: 'The space limit of the quota (in bytes) for the specified group, cannot
+
+              be `0`. If specified, this value will override the file system''s default
+
+              group quota.
+
+              '
+          usage:
+            type: integer
+            format: int64
+            description: 'The usage of the file system (in bytes) by the specified group.
+
+              '
+            readOnly: true
+    _multiProtocol:
+      type: object
+      properties:
+        access_control_style:
+          description: 'The access control style that is utilized for client actions such as
+
+            setting file and directory ACLs.
+
+            Possible values include `nfs`, `smb`, `shared`, `independent`, and `mode-bits`.
+
+            If `nfs` is specified, then SMB clients will be unable to set permissions
+
+            on files and directories.
+
+            If `smb` is specified, then NFS clients will be unable to set permissions
+
+            on files and directories.
+
+            If `shared` is specified, then NFS and SMB clients will both be able
+
+            to set permissions on files and directories. Any client will be able to
+
+            overwrite the permissions set by another client, regardless of protocol.
+
+            If `independent` is specified, then NFS and SMB clients will both be able
+
+            to set permissions on files and directories, and can access files and
+
+            directories created over any protocol. Permissions set by SMB clients
+
+            will not affect NFS clients and vice versa. NFS clients will be restricted
+
+            to only using mode bits to set permissions.
+
+            If `mode-bits` is specified, then NFS and SMB clients will both be able
+
+            to set permissions on files and directories, but only mode bits may be
+
+            used to set permissions for NFS clients. When SMB clients set an ACL,
+
+            it will be converted to have the same permission granularity as NFS mode
+
+            bits.
+
+            '
+          type: string
+        safeguard_acls:
+          description: 'If set to `true`, prevents NFS clients from erasing a configured ACL when
+
+            setting NFS mode bits.
+
+            If this is `true`, then attempts to set mode bits on a file or directory
+
+            will fail if they cannot be combined with the existing ACL set on a file
+
+            or directory without erasing the ACL.
+
+            Attempts to set mode bits that would not erase an existing ACL will still
+
+            succeed and the mode bit changes will be merged with the existing ACL.
+
+            This must be `false` when `access_control_style` is set to either
+
+            `independent` or `mode-bits`.
+
+            '
+          type: boolean
+    FileSessionGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/FileSessionResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
     FileSystemPatch_2:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -2172,151 +2389,6 @@ components:
 
               '
             type: boolean
-    _smb:
-      type: object
-      properties:
-        client_policy:
-          description: 'Deprecated. See File System Exports for newer functionality.
-
-            The value returned will be the `client_policy` of the File System
-
-            Export for the default server, and SMB, with the `export_name`
-
-            matching the file system name, if there is one and null otherwise.
-
-            Modifying this field will still work.
-
-            If the current value is null, then setting this field will attempt
-
-            to create a File System Export with the `client_policy`
-
-            and other default values. The `export_name` will be the same as the
-
-            file system''s `name`.
-
-            If the current value is not null, then setting this field will change
-
-            the `client_policy` in the matching File System Export.
-
-            The SMB Client policy for the file system. Setting a policy here grants
-
-            access permissions (e.g. read-only or read-write) to the file system via
-
-            SMB on a per-client basis.
-
-            If no policy is set here, no client will have access.
-
-            Use "" to clear.
-
-            '
-          title: ReferenceWritable
-          allOf:
-          - $ref: '#/components/schemas/_referenceWritable'
-        continuous_availability_enabled:
-          description: 'If set to `true`, the file system will be continuously available during
-
-            disruptive scenarios such as network disruption, blades failover, etc.
-
-            If not specified, defaults to `true`.
-
-            '
-          type: boolean
-        enabled:
-          description: 'If set to `true`, enables access to the file system over the SMB
-
-            protocol. If not specified, defaults to `false`.
-
-            '
-          type: boolean
-        share_policy:
-          description: 'Deprecated. See File System Exports for newer functionality.
-
-            The value returned will be the `policy` of the File System
-
-            Export for the default server, and SMB, with the `export_name`
-
-            matching the file system name, if there is one and null otherwise.
-
-            Modifying this field will still work.
-
-            If the current value is null, then setting this field will attempt
-
-            to create a File System Export with the policy
-
-            and other default values. The `export_name` will be the same as the
-
-            file system''s `name`.
-
-            If the current value is not null, then setting this field will change
-
-            the `policy` in the matching File System Export.
-
-            The SMB Share policy for the file system. Setting a policy here
-
-            grants access permissions (e.g. allow or deny Full Control, Change,
-
-            and/or Read) to the file system via SMB on a per-user / per-group basis.
-
-            If no policy is set here, no user or group will have access.
-
-            Use "" to clear.
-
-            '
-          title: ReferenceWritable
-          allOf:
-          - $ref: '#/components/schemas/_referenceWritable'
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference_2'
-    FileSystemOpenFilesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/FileSystemOpenFilesResponse'
-    _reference_2:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
-
-            '
-          type: string
-          readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
     _space:
       type: object
       properties:
@@ -2460,704 +2532,19 @@ components:
           format: int64
           readOnly: true
           example: 19937690345472
-    FileSystemGroupsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/FileSystemGroupsResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    PolicyMemberContextResponse:
+    WormDataPoliciesMembersResponse:
       type: object
       properties:
         items:
-          description: A list of members for policies.
+          description: A list of members for worm data policies.
           type: array
           items:
             $ref: '#/components/schemas/PolicyMemberContext'
-    _fixedLocationReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          display_name:
-            description: 'Full name of the source with remote array information.
-
-              Response will be same as source name for local file systems and policies.
-
-              '
-            type: string
-            readOnly: true
-            example: irp624-c02:fs1
-          is_local:
-            description: 'Is the location reference to the local array or somewhere remote?
-
-              '
-            type: boolean
-            readOnly: true
-          location:
-            description: 'A reference to the location where the object is defined.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-    _smbPost:
-      allOf:
-      - $ref: '#/components/schemas/_smb'
-      - type: object
-        properties:
-          client_policy:
-            description: 'The SMB Client policy for the file system. Setting a policy here grants
-
-              access permissions (e.g. read-only or read-write) to the file system via
-
-              SMB on a per-client basis.
-
-              Defaults to a pre-defined full access policy if none is specified.
-
-              '
-            title: ReferenceWritable
-            allOf:
-            - $ref: '#/components/schemas/_referenceWritable'
-          share_policy:
-            description: 'The SMB Share policy for the file system. Setting a policy here
-
-              grants access permissions (e.g. allow or deny Full Control, Change,
-
-              and/or Read) to the file system via SMB on a per-user / per-group basis.
-
-              Defaults to a pre-defined full access policy if none is specified.
-
-              '
-            title: ReferenceWritable
-            allOf:
-            - $ref: '#/components/schemas/_referenceWritable'
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    FileSystemUser:
-      allOf:
-      - $ref: '#/components/schemas/_context_2'
-      - properties:
-          file_system:
-            $ref: '#/components/schemas/_fixedReference_2'
-          limited_by:
-            description: The policy that is limiting usage for this group in this file system and the limiting rule.
-            title: UserGroupQuotaLimitedBy
-            allOf:
-            - $ref: '#/components/schemas/UserGroupQuotaLimitedBy'
-          percentage_used:
-            description: 'The ratio of the quota usage to the quota limit, with 1.0 meaning that the
-
-              usage has reached the quota limit.
-
-              '
-            type: number
-            format: float
-            readOnly: true
-          quota_limit:
-            type: integer
-            format: int64
-            description: 'The space limit of the quota (in bytes) for the specified group, cannot
-
-              be `0`. If specified, this value will override the file system''s default
-
-              user quota.
-
-              '
-          usage:
-            type: integer
-            format: int64
-            description: 'The usage of the file system (in bytes) by the specified group.
-
-              '
-            readOnly: true
-          user:
-            description: The user on which this quota is enforced.
-            title: UserSubject
-            allOf:
-            - $ref: '#/components/schemas/_userSubject'
-    FileLockGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/FileLockResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    FileSystemOpenFilesResponse:
-      type: object
-      properties:
-        items:
-          description: A list of file system open file objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemOpenFile'
-    _builtInNoId:
-      type: object
-      properties:
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    UserGroupQuotaPoliciesMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/UserGroupQuotaPoliciesMembersResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    _context_2:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-    FileSystemGroupsPerformanceGetResponse:
-      type: object
-      properties:
-        items:
-          description: A list of file system group performance objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemGroupPerformance'
-        total:
-          description: 'Total of all records after filtering.
-
-            If `total_only` query param is `true`, then no items will be returned.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemGroupPerformance'
-    _errorContextResponse_2:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    DataEvictionPoliciesMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/DataEvictionPoliciesMembersResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    _user_no_id:
-      type: object
-      properties:
-        name:
-          description: 'The user name that represents the user''s identity, and which resolves to the user''s id
-
-            in a configured directory service.
-
-            '
-          type: string
-    _workloadConfigurationReference_2:
-      type: object
-      description: 'A reference to the workload that is managing this resource.
-
-        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_reference_2'
-      - type: object
-        properties:
-          configuration:
-            description: 'The name of the preset configuration object.
-
-              '
-            type: string
     FileSystemUsersGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
       - $ref: '#/components/schemas/FileSystemUsersResponse'
       - $ref: '#/components/schemas/_errorContextResponse_2'
-    DataEvictionPoliciesMembersResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-          description: A list of members for data eviction policies.
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    FileSessionResponse:
-      type: object
-      properties:
-        items:
-          description: A list of file sessions.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSession'
-    _multiProtocol:
-      type: object
-      properties:
-        access_control_style:
-          description: 'The access control style that is utilized for client actions such as
-
-            setting file and directory ACLs.
-
-            Possible values include `nfs`, `smb`, `shared`, `independent`, and `mode-bits`.
-
-            If `nfs` is specified, then SMB clients will be unable to set permissions
-
-            on files and directories.
-
-            If `smb` is specified, then NFS clients will be unable to set permissions
-
-            on files and directories.
-
-            If `shared` is specified, then NFS and SMB clients will both be able
-
-            to set permissions on files and directories. Any client will be able to
-
-            overwrite the permissions set by another client, regardless of protocol.
-
-            If `independent` is specified, then NFS and SMB clients will both be able
-
-            to set permissions on files and directories, and can access files and
-
-            directories created over any protocol. Permissions set by SMB clients
-
-            will not affect NFS clients and vice versa. NFS clients will be restricted
-
-            to only using mode bits to set permissions.
-
-            If `mode-bits` is specified, then NFS and SMB clients will both be able
-
-            to set permissions on files and directories, but only mode bits may be
-
-            used to set permissions for NFS clients. When SMB clients set an ACL,
-
-            it will be converted to have the same permission granularity as NFS mode
-
-            bits.
-
-            '
-          type: string
-        safeguard_acls:
-          description: 'If set to `true`, prevents NFS clients from erasing a configured ACL when
-
-            setting NFS mode bits.
-
-            If this is `true`, then attempts to set mode bits on a file or directory
-
-            will fail if they cannot be combined with the existing ACL set on a file
-
-            or directory without erasing the ACL.
-
-            Attempts to set mode bits that would not erase an existing ACL will still
-
-            succeed and the mode bit changes will be merged with the existing ACL.
-
-            This must be `false` when `access_control_style` is set to either
-
-            `independent` or `mode-bits`.
-
-            '
-          type: boolean
-    FileSystemGroupsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemGroup'
-          description: A list of quota objects.
-    WormDataPoliciesMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/WormDataPoliciesMembersResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    PolicyMemberContextGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/PolicyMemberContextResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    _fileLockRange:
-      description: 'The range in bytes (`offset`, `length`) the lock covers within a file.
-
-        If the lock reaches the end of the file, the `length` will be `null`.
-
-        If the lock is set for the entire file, both `offset` and `length`
-
-        will be `null`.
-
-        '
-      type: object
-      properties:
-        length:
-          type: integer
-          readOnly: true
-        offset:
-          type: integer
-          readOnly: true
-    FileSystemUserPerformance:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - type: object
-        properties:
-          bytes_per_op:
-            description: 'Average operation size (read bytes+write bytes/read ops+write ops).
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          bytes_per_read:
-            description: Average read size in bytes per read operation.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          bytes_per_write:
-            description: Average write size in bytes per write operation.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          file_system:
-            description: The file system on which the performance was measured.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          others_per_sec:
-            description: Other operations processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          read_bytes_per_sec:
-            description: Bytes read per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          reads_per_sec:
-            description: Read requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          time:
-            description: Sample time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-            readOnly: true
-          usec_per_other_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              other operations.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_read_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a read request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_write_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a write request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          user:
-            description: The user whose performance is represented.
-            title: User
-            allOf:
-            - $ref: '#/components/schemas/_user'
-          write_bytes_per_sec:
-            description: Bytes written per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          writes_per_sec:
-            description: Write requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-        x-readOnly: true
-    FileSystemGroupPerformance:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - type: object
-        properties:
-          bytes_per_op:
-            description: 'Average operation size (read bytes+write bytes/read ops+write ops).
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          bytes_per_read:
-            description: Average read size in bytes per read operation.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          bytes_per_write:
-            description: Average write size in bytes per write operation.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          file_system:
-            description: The file system on which the performance was measured.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          group:
-            description: The group whose performance is represented.
-            title: Group
-            allOf:
-            - $ref: '#/components/schemas/_group'
-          others_per_sec:
-            description: Other operations processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          read_bytes_per_sec:
-            description: Bytes read per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          reads_per_sec:
-            description: Read requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          time:
-            description: Sample time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-            readOnly: true
-          usec_per_other_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              other operations.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_read_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a read request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_write_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a write request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          write_bytes_per_sec:
-            description: Bytes written per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          writes_per_sec:
-            description: Write requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-        x-readOnly: true
-    FileSystemSpaceStorageClassGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            description: A list of file system storage class space objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/FileSystemStorageClassSpace'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no items will be returned.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/FileSystemStorageClassSpace'
-    FileSystemUsersResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemUser'
-          description: A list of quota objects.
-    _nfs:
-      type: object
-      properties:
-        export_policy:
-          description: 'Deprecated. See File System Exports for newer functionality.
-
-            The value returned will be the `policy` of the File System
-
-            Export for the default server, and NFS, with the `export_name`
-
-            matching the file system name, if there is one and null otherwise.
-
-            Modifying this field will still work.
-
-            If the current value is null, then setting this field will attempt
-
-            to create a File System Export with the policy
-
-            and other default values. The `export_name` will be the same as the
-
-            file system''s `name`.
-
-            If the current value is not null, then setting this field will change
-
-            the policy in the matching File System Export.
-
-            Either the `export_policy` or `rules` will control the
-
-            NFS export functionality for the file system.
-
-            If this is set, then the `rules` field will be cleared.
-
-            Both `export_policy` and `rules` can not be set in the same request.
-
-            '
-          title: ReferenceWritable
-          allOf:
-          - $ref: '#/components/schemas/_referenceWritable'
-        rules:
-          description: 'Deprecated. See File System Exports and NFS Export Policies for newer functionality.
-
-            Modifying this field will still work, causing the matching
-
-            File System Export to be deleted, if there is one. See `export_policy`.
-
-            Both `export_policy` and `rules` can not be set in the same request.
-
-            Rules can be applied to an individual
-
-            client or a range of clients specified by IP address (`ip_address(options)`),
-
-            netmask (`ip_address/length(options)`), netgroup (`@groupname(options)`),
-
-            hostname (`hostname(options)`) (see RFC-1123 part 2.1), fully qualified domain name
-
-            (`host.exampledomain.com(options)`) (see RFC-1123 part 2.1, RFC 2181 part 11), or wildcards
-
-            with fully qualified domain name or hostname (`*.exampledomain?.com(options)`).
-
-            Possible export options include `rw`, `ro`, `fileid_32bit`,  `no_fileid_32bit`,
-
-            `anonuid`, `anongid`, `root_squash`, `no_root_squash`, `all_squash`,
-
-            `no_all_squash`,  `secure`, `insecure`, `atime`, `noatime`, and `sec`.
-
-            If not specified, defaults to `*(rw,no_root_squash)`.
-
-            '
-          type: string
-          example: 1.0.0.0/8(rw,no_root_squash) fd01:abcd::/64(ro,secure,root_squash,anongid=16000) @netgrp(rw,all_squash,anonuid=99,fileid_32bit) 1.41.8.32(rw,no_all_squash,sec=krb5:krb5i:krp5p) my-hostname(rw,no_root_squash) host.exampledomain.com(rw,no_root_squash) host?(rw,no_root_squash) host?.example*domain.com(rw,no_root_squash) host.*(rw,no_root_squash)
-        v3_enabled:
-          description: 'If set to `true`, the NFSv3 protocol will be enabled.
-
-            '
-          type: boolean
-        v4_1_enabled:
-          description: 'If set to `true`, the NFSv4.1 protocol will be enabled.
-
-            '
-          type: boolean
-    PolicyMemberContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context_2'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -3189,32 +2576,83 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    UserGroupQuotaPoliciesMembersResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-          description: A list of members for user-group-quota policies.
-    AuditFileSystemsPoliciesMembersResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for audit policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-    FileSystemGetResponse_2:
+    FileLockGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/FileSystemResponse_2'
+      - $ref: '#/components/schemas/FileLockResponse'
       - $ref: '#/components/schemas/_errorContextResponse_2'
+    PolicyMemberContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context_2'
+    FileSystemStorageClassSpace:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
       - type: object
         properties:
-          total:
-            $ref: '#/components/schemas/FileSystem_2'
-    _referenceWithoutType:
+          space:
+            $ref: '#/components/schemas/_space'
+          storage_class:
+            description: The storage class type of the space information, either `S500X-S` (speed) or `S500X-A` (archival).
+            type: string
+          time:
+            description: Sample time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+    _user_no_id:
+      type: object
+      properties:
+        name:
+          description: 'The user name that represents the user''s identity, and which resolves to the user''s id
+
+            in a configured directory service.
+
+            '
+          type: string
+    FileLockResponse:
+      type: object
+      properties:
+        items:
+          description: A list of file locks.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileLock'
+    _fileSystemEradicationConfig:
+      description: Configuration settings related to file system eradication.
+      type: object
+      properties:
+        eradication_mode:
+          description: 'The eradication mode of the file system.
+
+            If it''s `permission-based` the file system can be eradicated based
+
+            on user permissions.
+
+            If it''s `retention-based` the file system can not be eradicated
+
+            until no files/inodes are locked or retained.
+
+            Valid values are `permission-based` and `retention-based`.
+
+            '
+          type: string
+          example: permission-based
+        manual_eradication:
+          description: 'The manual eradication status of the file system.
+
+            If `disabled`, the file system cannot be eradicated after it has been
+
+            destroyed, unless it is empty.
+
+            If `enabled`, the file system can be eradicated.
+
+            Valid values are `disabled` and `enabled`.
+
+            '
+          type: string
+          readOnly: true
+          example: enabled
+    _reference_2:
       type: object
       properties:
         id:
@@ -3225,49 +2663,28 @@ components:
             '
           type: string
         name:
-          description: 'The resource name, such as volume name, pod name,
+          description: 'The resource name,
 
-            snapshot name, and so on.
+            such as volume name, pod name, snapshot name, and so on.
 
             '
           type: string
-    _referenceNameOnly:
-      type: object
-      properties:
-        name:
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
           type: string
-    FileSystemClientsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/FileSystemClientsResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    _locationReference:
-      allOf:
-      - $ref: '#/components/schemas/_reference_2'
-      - type: object
-        properties:
-          display_name:
-            description: 'Full name of the source with remote array information.
-
-              Response will be same as source name for local file systems and policies.
-
-              '
-            type: string
-            readOnly: true
-            example: irp624-c02:fs1
-          is_local:
-            description: 'Is the location reference to the local array or somewhere remote?
-
-              '
-            type: boolean
-            readOnly: true
-          location:
-            description: 'A reference to the location where the object is defined.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference_2'
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
     _multiProtocolPost:
       type: object
       properties:
@@ -3339,179 +2756,31 @@ components:
 
             '
           type: boolean
-    FileSystemClientsResponse:
-      type: object
-      properties:
-        items:
-          description: A list of file system clients.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemClient'
-    FileSystemResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of file system objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystem_2'
-    _fixedReferenceWithoutType:
+    PolicyMemberContextGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/PolicyMemberContextResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+    _userSubject:
       type: object
       properties:
         id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
+          type: integer
+          format: int64
+          description: The numeric user id that represents the user's identity in a POSIX system.
         name:
-          description: 'The resource name, such as volume name, file system name,
+          type: string
+          description: 'The user name that represents the user''s identity, and which resolves to the user''s id
 
-            snapshot name, and so on.
+            in a configured directory service.
+
 
             '
+        sid:
           type: string
-          readOnly: true
-      x-readOnly: true
-    FileSystemGroup:
-      allOf:
-      - $ref: '#/components/schemas/_context_2'
-      - properties:
-          file_system:
-            $ref: '#/components/schemas/_fixedReference_2'
-          group:
-            description: The group on which this quota is enforced.
-            title: GroupSubject
-            allOf:
-            - $ref: '#/components/schemas/_groupSubject'
-          limited_by:
-            description: The policy that is limiting usage for this group in this file system and the limiting rule.
-            title: UserGroupQuotaLimitedBy
-            allOf:
-            - $ref: '#/components/schemas/UserGroupQuotaLimitedBy'
-          percentage_used:
-            description: 'The ratio of the quota usage to the quota limit, with 1.0 meaning that the
+          description: 'The SMB SID that represents the user''s security identity in a WINDOWS system.
 
-              usage has reached the quota limit.
-
-              '
-            type: number
-            format: float
-            readOnly: true
-          quota_limit:
-            type: integer
-            format: int64
-            description: 'The space limit of the quota (in bytes) for the specified group, cannot
-
-              be `0`. If specified, this value will override the file system''s default
-
-              group quota.
-
-              '
-          usage:
-            type: integer
-            format: int64
-            description: 'The usage of the file system (in bytes) by the specified group.
-
-              '
-            readOnly: true
-    FileSession:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          authentication:
-            description: 'Describes how was the user authenticated.
-
-              Valid values include `KRB` and `NTLMv2`.
-
-              '
-            type: string
-            readOnly: true
-          client:
-            description: 'Client that holds the session.
-
-              '
-            title: FixedReferenceNameOnly
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceNameOnly'
-          connection_time:
-            description: Connection time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-          idle_time:
-            description: 'Duration in milliseconds that indicates how long
-
-              the session has been idle.
-
-              '
-            type: integer
-            format: int64
-          opens:
-            description: Number of opens for the given session.
-            type: integer
-            format: int64
-          port:
-            description: Port number the client is connected from.
-            type: integer
-            format: int64
-          protocol:
-            description: 'The protocol utilized for obtaining and managing the session.
-
-              Valid values include `nfs` and `smb`.
-
-              '
-            type: string
-            readOnly: true
-          time:
-            description: Current time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-          user:
-            description: The user who has created the session.
-            title: User_no_id
-            allOf:
-            - $ref: '#/components/schemas/_user_no_id'
-    FileSystemPerformanceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            description: A list of file system performance objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/FileSystemPerformance'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no items will be returned.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/FileSystemPerformance'
-    FileSystemLockNlmReclamation:
-      allOf:
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          end:
-            description: 'End time of the NLM reclamation in milliseconds since the UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          start:
-            description: 'Start time of the NLM reclamation in milliseconds since the UNIX epoch.
-
-              '
-            type: integer
-            format: int64
+            '
     FileSystem_2:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -3717,143 +2986,399 @@ components:
 
               '
             type: boolean
-    FileSystemClient:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/_context_2'
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    _fixedReferenceNameOnly:
+    DataEvictionPoliciesMembersResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
+          description: A list of members for data eviction policies.
+    _referenceNameOnly:
       type: object
       properties:
         name:
           type: string
-          readOnly: true
-      x-readOnly: true
-    _user:
+    UserGroupQuotaLimitedBy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - type: object
+        properties:
+          rule_id:
+            description: 'The ID of the policy rule which enforced this quota limit.
+
+              '
+            type: string
+          rule_name:
+            description: 'The name of the policy rule which enforced this quota limit.
+
+              '
+            type: string
+    _fixedLocationReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          display_name:
+            description: 'Full name of the source with remote array information.
+
+              Response will be same as source name for local file systems and policies.
+
+              '
+            type: string
+            readOnly: true
+            example: irp624-c02:fs1
+          is_local:
+            description: 'Is the location reference to the local array or somewhere remote?
+
+              '
+            type: boolean
+            readOnly: true
+          location:
+            description: 'A reference to the location where the object is defined.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+    _fixedReferenceWithoutType:
       type: object
       properties:
         id:
-          description: The numeric user id that represents the user's identity in a POSIX system.
-          type: integer
-          format: int64
-        name:
-          description: 'The user name that represents the user''s identity, and which resolves to the user''s id
+          description: 'A globally unique, system-generated ID.
 
-            in a configured directory service.
+            The ID cannot be modified.
 
             '
           type: string
-    _http:
-      type: object
-      properties:
-        enabled:
-          description: Is the protocol enabled? If not specified, defaults to `false`.
-          type: boolean
-    _workloadConfigurationReferencePatch_2:
-      type: object
-      description: 'Set the `id` or `name` of the workload to an empty string to remove the
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
 
-        resource from the workload.
+            snapshot name, and so on.
 
-        '
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _smbPost:
       allOf:
-      - $ref: '#/components/schemas/_reference_2'
-    FileSessionGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/FileSessionResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    _workloadConfigurationReferencePost_2:
-      type: object
-      description: 'The workload to which the resource is added.
+      - $ref: '#/components/schemas/_smb'
+      - type: object
+        properties:
+          client_policy:
+            description: 'The SMB Client policy for the file system. Setting a policy here grants
 
-        Set one of `id` or `name`, and `configuration` to add the resource to the workload
+              access permissions (e.g. read-only or read-write) to the file system via
 
-        and configure it based on the `configuration` from the preset revision the workload was
+              SMB on a per-client basis.
 
-        originally provisioned from.
+              Defaults to a pre-defined full access policy if none is specified.
 
-        '
+              '
+            title: ReferenceWritable
+            allOf:
+            - $ref: '#/components/schemas/_referenceWritable'
+          share_policy:
+            description: 'The SMB Share policy for the file system. Setting a policy here
+
+              grants access permissions (e.g. allow or deny Full Control, Change,
+
+              and/or Read) to the file system via SMB on a per-user / per-group basis.
+
+              Defaults to a pre-defined full access policy if none is specified.
+
+              '
+            title: ReferenceWritable
+            allOf:
+            - $ref: '#/components/schemas/_referenceWritable'
+    _locationReference:
       allOf:
       - $ref: '#/components/schemas/_reference_2'
       - type: object
         properties:
-          configuration:
-            description: 'The name of the preset configuration object.
+          display_name:
+            description: 'Full name of the source with remote array information.
+
+              Response will be same as source name for local file systems and policies.
 
               '
             type: string
-    StorageClassInfo:
-      allOf:
-      - $ref: '#/components/schemas/_referenceNameOnly'
-      - type: object
-        properties:
-          status:
-            description: The status of the transition from the policy to the requested policy. If there is an ongoing transition, the status will be one of `In-Progress` or `Queued`. If there is no transition ongoing, this field will be null.
-            type: string
             readOnly: true
-          status_details:
-            description: Additional details about the status of the transition. If there is no transition ongoing, this field will be null.
-            type: string
+            example: irp624-c02:fs1
+          is_local:
+            description: 'Is the location reference to the local array or somewhere remote?
+
+              '
+            type: boolean
             readOnly: true
-          tiering_policy:
-            description: 'The storage class tiering policy defines tiering for data within the container. If specified,
-
-              data is written to the container''s `S500X-S` (speed) storage class by default, then tiered
-
-              to `S500X-A` (archival) storage class based on the policy.
-
-              If not specified, all data in the container is written to the container''s current storage class.
+          location:
+            description: 'A reference to the location where the object is defined.
 
               '
             title: Reference
             allOf:
             - $ref: '#/components/schemas/_reference_2'
-    WormDataPoliciesMembersResponse:
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fileLockRange:
+      description: 'The range in bytes (`offset`, `length`) the lock covers within a file.
+
+        If the lock reaches the end of the file, the `length` will be `null`.
+
+        If the lock is set for the entire file, both `offset` and `length`
+
+        will be `null`.
+
+        '
+      type: object
+      properties:
+        length:
+          type: integer
+          readOnly: true
+        offset:
+          type: integer
+          readOnly: true
+    _nfsPatch:
+      allOf:
+      - $ref: '#/components/schemas/_nfs'
+      - type: object
+        properties:
+          add_rules:
+            description: 'The rules which will be added to the existing NFS export rules for the
+
+              file system. If `export_policy` is in use and and this field is set, the operation
+
+              will fail.
+
+              '
+            type: string
+          after:
+            description: 'The `after` field can be used with `add_rules` or `remove_rules` or both.
+
+              If used with `add_rules`, then the `add_rules` string will be inserted after
+
+              the first occurrence of the `after` string.
+
+              If used with `remove_rules`, then remove the first occurrence of `remove_rules`
+
+              after the first occurrence of the `after` string. The `remove_rules` will be
+
+              processed before the `add_rules`.
+
+              '
+            type: string
+          remove_rules:
+            description: 'The rules which will be removed from the existing NFS export rules for the
+
+              file system. Only the first occurrence of the `remove_rules` will be removed.
+
+              If `export_policy` is in use and and this field is set, the operation will fail.
+
+              '
+            type: string
+    _builtInNoId:
+      type: object
+      properties:
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    FileSystemUsersResponse:
       type: object
       properties:
         items:
-          description: A list of members for worm data policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemUser'
+          description: A list of quota objects.
+    FileSystemClientsResponse:
+      type: object
+      properties:
+        items:
+          description: A list of file system clients.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemClient'
+    PolicyMemberContextResponse:
+      type: object
+      properties:
+        items:
+          description: A list of members for policies.
           type: array
           items:
             $ref: '#/components/schemas/PolicyMemberContext'
-    AuditFileSystemsPoliciesMembersGetResponse:
+    FileSystemUsersPerformanceGetResponse:
+      type: object
+      properties:
+        items:
+          description: A list of file system user performance objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemUserPerformance'
+        total:
+          description: 'Total of all records after filtering.
+
+            If `total_only` query param is `true`, then no items will be returned.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemUserPerformance'
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    FileSystemOpenFilesResponse:
+      type: object
+      properties:
+        items:
+          description: A list of file system open file objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemOpenFile'
+    _smb:
+      type: object
+      properties:
+        client_policy:
+          description: 'Deprecated. See File System Exports for newer functionality.
+
+            The value returned will be the `client_policy` of the File System
+
+            Export for the default server, and SMB, with the `export_name`
+
+            matching the file system name, if there is one and null otherwise.
+
+            Modifying this field will still work.
+
+            If the current value is null, then setting this field will attempt
+
+            to create a File System Export with the `client_policy`
+
+            and other default values. The `export_name` will be the same as the
+
+            file system''s `name`.
+
+            If the current value is not null, then setting this field will change
+
+            the `client_policy` in the matching File System Export.
+
+            The SMB Client policy for the file system. Setting a policy here grants
+
+            access permissions (e.g. read-only or read-write) to the file system via
+
+            SMB on a per-client basis.
+
+            If no policy is set here, no client will have access.
+
+            Use "" to clear.
+
+            '
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
+        continuous_availability_enabled:
+          description: 'If set to `true`, the file system will be continuously available during
+
+            disruptive scenarios such as network disruption, blades failover, etc.
+
+            If not specified, defaults to `true`.
+
+            '
+          type: boolean
+        enabled:
+          description: 'If set to `true`, enables access to the file system over the SMB
+
+            protocol. If not specified, defaults to `false`.
+
+            '
+          type: boolean
+        share_policy:
+          description: 'Deprecated. See File System Exports for newer functionality.
+
+            The value returned will be the `policy` of the File System
+
+            Export for the default server, and SMB, with the `export_name`
+
+            matching the file system name, if there is one and null otherwise.
+
+            Modifying this field will still work.
+
+            If the current value is null, then setting this field will attempt
+
+            to create a File System Export with the policy
+
+            and other default values. The `export_name` will be the same as the
+
+            file system''s `name`.
+
+            If the current value is not null, then setting this field will change
+
+            the `policy` in the matching File System Export.
+
+            The SMB Share policy for the file system. Setting a policy here
+
+            grants access permissions (e.g. allow or deny Full Control, Change,
+
+            and/or Read) to the file system via SMB on a per-user / per-group basis.
+
+            If no policy is set here, no user or group will have access.
+
+            Use "" to clear.
+
+            '
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
+    FileSystemGetResponse_2:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/AuditFileSystemsPoliciesMembersResponse'
+      - $ref: '#/components/schemas/FileSystemResponse_2'
       - $ref: '#/components/schemas/_errorContextResponse_2'
-    FileLockNlmReclamationResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemLockNlmReclamation'
-    FileLockResponse:
-      type: object
-      properties:
-        items:
-          description: A list of file locks.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileLock'
+      - type: object
+        properties:
+          total:
+            $ref: '#/components/schemas/FileSystem_2'
+    WormDataPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/WormDataPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
     FileLock:
       allOf:
       - $ref: '#/components/schemas/_builtInNoId'
@@ -3924,44 +3449,358 @@ components:
             title: FixedReference
             allOf:
             - $ref: '#/components/schemas/_fixedReference_2'
-    _nfsPatch:
+    UserGroupQuotaPoliciesMembersResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
+          description: A list of members for user-group-quota policies.
+    _workloadConfigurationReference_2:
+      type: object
+      description: 'A reference to the workload that is managing this resource.
+
+        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
+
+        '
       allOf:
-      - $ref: '#/components/schemas/_nfs'
+      - $ref: '#/components/schemas/_reference_2'
       - type: object
         properties:
-          add_rules:
-            description: 'The rules which will be added to the existing NFS export rules for the
-
-              file system. If `export_policy` is in use and and this field is set, the operation
-
-              will fail.
+          configuration:
+            description: 'The name of the preset configuration object.
 
               '
             type: string
-          after:
-            description: 'The `after` field can be used with `add_rules` or `remove_rules` or both.
+    StorageClassInfo:
+      allOf:
+      - $ref: '#/components/schemas/_referenceNameOnly'
+      - type: object
+        properties:
+          status:
+            description: The status of the transition from the policy to the requested policy. If there is an ongoing transition, the status will be one of `In-Progress` or `Queued`. If there is no transition ongoing, this field will be null.
+            type: string
+            readOnly: true
+          status_details:
+            description: Additional details about the status of the transition. If there is no transition ongoing, this field will be null.
+            type: string
+            readOnly: true
+          tiering_policy:
+            description: 'The storage class tiering policy defines tiering for data within the container. If specified,
 
-              If used with `add_rules`, then the `add_rules` string will be inserted after
+              data is written to the container''s `S500X-S` (speed) storage class by default, then tiered
 
-              the first occurrence of the `after` string.
+              to `S500X-A` (archival) storage class based on the policy.
 
-              If used with `remove_rules`, then remove the first occurrence of `remove_rules`
+              If not specified, all data in the container is written to the container''s current storage class.
 
-              after the first occurrence of the `after` string. The `remove_rules` will be
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference_2'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
 
-              processed before the `add_rules`.
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference_2'
+    AuditFileSystemsPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/AuditFileSystemsPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+    FileSystemUser:
+      allOf:
+      - $ref: '#/components/schemas/_context_2'
+      - properties:
+          file_system:
+            $ref: '#/components/schemas/_fixedReference_2'
+          limited_by:
+            description: The policy that is limiting usage for this group in this file system and the limiting rule.
+            title: UserGroupQuotaLimitedBy
+            allOf:
+            - $ref: '#/components/schemas/UserGroupQuotaLimitedBy'
+          percentage_used:
+            description: 'The ratio of the quota usage to the quota limit, with 1.0 meaning that the
+
+              usage has reached the quota limit.
+
+              '
+            type: number
+            format: float
+            readOnly: true
+          quota_limit:
+            type: integer
+            format: int64
+            description: 'The space limit of the quota (in bytes) for the specified group, cannot
+
+              be `0`. If specified, this value will override the file system''s default
+
+              user quota.
+
+              '
+          usage:
+            type: integer
+            format: int64
+            description: 'The usage of the file system (in bytes) by the specified group.
+
+              '
+            readOnly: true
+          user:
+            description: The user on which this quota is enforced.
+            title: UserSubject
+            allOf:
+            - $ref: '#/components/schemas/_userSubject'
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
 
               '
             type: string
-          remove_rules:
-            description: 'The rules which will be removed from the existing NFS export rules for the
+            readOnly: true
+    _workloadConfigurationReferencePost_2:
+      type: object
+      description: 'The workload to which the resource is added.
 
-              file system. Only the first occurrence of the `remove_rules` will be removed.
+        Set one of `id` or `name`, and `configuration` to add the resource to the workload
 
-              If `export_policy` is in use and and this field is set, the operation will fail.
+        and configure it based on the `configuration` from the preset revision the workload was
+
+        originally provisioned from.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_reference_2'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
 
               '
             type: string
+    FileSystemGroupsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/FileSystemGroupsResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+    FileSystemGroupPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - type: object
+        properties:
+          bytes_per_op:
+            description: 'Average operation size (read bytes+write bytes/read ops+write ops).
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          bytes_per_read:
+            description: Average read size in bytes per read operation.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          bytes_per_write:
+            description: Average write size in bytes per write operation.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          file_system:
+            description: The file system on which the performance was measured.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          group:
+            description: The group whose performance is represented.
+            title: Group
+            allOf:
+            - $ref: '#/components/schemas/_group'
+          others_per_sec:
+            description: Other operations processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          read_bytes_per_sec:
+            description: Bytes read per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          reads_per_sec:
+            description: Read requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          time:
+            description: Sample time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+          usec_per_other_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              other operations.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_read_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a read request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_write_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a write request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          write_bytes_per_sec:
+            description: Bytes written per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          writes_per_sec:
+            description: Write requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+        x-readOnly: true
+    FileSession:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          authentication:
+            description: 'Describes how was the user authenticated.
+
+              Valid values include `KRB` and `NTLMv2`.
+
+              '
+            type: string
+            readOnly: true
+          client:
+            description: 'Client that holds the session.
+
+              '
+            title: FixedReferenceNameOnly
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceNameOnly'
+          connection_time:
+            description: Connection time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+          idle_time:
+            description: 'Duration in milliseconds that indicates how long
+
+              the session has been idle.
+
+              '
+            type: integer
+            format: int64
+          opens:
+            description: Number of opens for the given session.
+            type: integer
+            format: int64
+          port:
+            description: Port number the client is connected from.
+            type: integer
+            format: int64
+          protocol:
+            description: 'The protocol utilized for obtaining and managing the session.
+
+              Valid values include `nfs` and `smb`.
+
+              '
+            type: string
+            readOnly: true
+          time:
+            description: Current time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+          user:
+            description: The user who has created the session.
+            title: User_no_id
+            allOf:
+            - $ref: '#/components/schemas/_user_no_id'
+    FileSystemClient:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/_context_2'
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    FileSystemGroupsPerformanceGetResponse:
+      type: object
+      properties:
+        items:
+          description: A list of file system group performance objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemGroupPerformance'
+        total:
+          description: 'Total of all records after filtering.
+
+            If `total_only` query param is `true`, then no items will be returned.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemGroupPerformance'
     FileSystemPost_2:
       type: object
       properties:
@@ -4121,88 +3960,202 @@ components:
 
             '
           type: boolean
-    _fileSystemEradicationConfig:
-      description: Configuration settings related to file system eradication.
-      type: object
-      properties:
-        eradication_mode:
-          description: 'The eradication mode of the file system.
-
-            If it''s `permission-based` the file system can be eradicated based
-
-            on user permissions.
-
-            If it''s `retention-based` the file system can not be eradicated
-
-            until no files/inodes are locked or retained.
-
-            Valid values are `permission-based` and `retention-based`.
-
-            '
-          type: string
-          example: permission-based
-        manual_eradication:
-          description: 'The manual eradication status of the file system.
-
-            If `disabled`, the file system cannot be eradicated after it has been
-
-            destroyed, unless it is empty.
-
-            If `enabled`, the file system can be eradicated.
-
-            Valid values are `disabled` and `enabled`.
-
-            '
-          type: string
-          readOnly: true
-          example: enabled
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    FileSystemStorageClassSpace:
+    FileSystemUserPerformance:
       allOf:
-      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_builtInNoId'
       - type: object
         properties:
-          space:
-            $ref: '#/components/schemas/_space'
-          storage_class:
-            description: The storage class type of the space information, either `S500X-S` (speed) or `S500X-A` (archival).
-            type: string
+          bytes_per_op:
+            description: 'Average operation size (read bytes+write bytes/read ops+write ops).
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          bytes_per_read:
+            description: Average read size in bytes per read operation.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          bytes_per_write:
+            description: Average write size in bytes per write operation.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          file_system:
+            description: The file system on which the performance was measured.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          others_per_sec:
+            description: Other operations processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          read_bytes_per_sec:
+            description: Bytes read per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          reads_per_sec:
+            description: Read requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
           time:
             description: Sample time in milliseconds since UNIX epoch.
             type: integer
             format: int64
-    _userSubject:
+            readOnly: true
+          usec_per_other_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              other operations.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_read_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a read request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_write_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a write request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          user:
+            description: The user whose performance is represented.
+            title: User
+            allOf:
+            - $ref: '#/components/schemas/_user'
+          write_bytes_per_sec:
+            description: Bytes written per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          writes_per_sec:
+            description: Write requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+        x-readOnly: true
+    FileSystemOpenFilesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/FileSystemOpenFilesResponse'
+    FileSystemResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of file system objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystem_2'
+    _fixedReferenceNameOnly:
+      type: object
+      properties:
+        name:
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _group:
       type: object
       properties:
         id:
+          description: The numeric group id that represents the group's identity in a POSIX system.
           type: integer
           format: int64
-          description: The numeric user id that represents the user's identity in a POSIX system.
         name:
+          description: 'The group name that represents the group''s identity, and which resolves to the group''s id
+
+            in a configured directory service.
+
+            '
           type: string
+    _workloadConfigurationReferencePatch_2:
+      type: object
+      description: 'Set the `id` or `name` of the workload to an empty string to remove the
+
+        resource from the workload.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_reference_2'
+    _context_2:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    UserGroupQuotaPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/UserGroupQuotaPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+    DataEvictionPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/DataEvictionPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+    _user:
+      type: object
+      properties:
+        id:
+          description: The numeric user id that represents the user's identity in a POSIX system.
+          type: integer
+          format: int64
+        name:
           description: 'The user name that represents the user''s identity, and which resolves to the user''s id
 
             in a configured directory service.
 
-
             '
-        sid:
           type: string
-          description: 'The SMB SID that represents the user''s security identity in a WINDOWS system.
-
-            '
+    FileSystemGroupsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystemGroup'
+          description: A list of quota objects.
     _groupSubject:
       type: object
       properties:
@@ -4223,23 +4176,70 @@ components:
           description: 'The SMB SID that represents the group domain''s security identity in a WINDOWS system.
 
             '
-    FileSystemUsersPerformanceGetResponse:
+    _fixedReferenceNoId:
       type: object
       properties:
-        items:
-          description: A list of file system user performance objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/FileSystemUserPerformance'
-        total:
-          description: 'Total of all records after filtering.
+        name:
+          type: string
+          readOnly: true
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
 
-            If `total_only` query param is `true`, then no items will be returned.
+            Valid values are the unique part of the resource''s REST endpoint.
+
+            For example, a reference to a file system would have a
+
+            `resource_type` of `file-systems`.
 
             '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _http:
+      type: object
+      properties:
+        enabled:
+          description: Is the protocol enabled? If not specified, defaults to `false`.
+          type: boolean
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/FileSystemUserPerformance'
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
     FileSystemOpenFile:
       type: object
       properties:
@@ -4287,25 +4287,25 @@ components:
           title: User_no_id
           allOf:
           - $ref: '#/components/schemas/_user_no_id'
-    _fixedReferenceNoId:
-      type: object
-      properties:
-        name:
-          type: string
-          readOnly: true
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
+    FileSystemPerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - type: object
+        properties:
+          items:
+            description: A list of file system performance objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/FileSystemPerformance'
+          total:
+            description: 'Total of all records after filtering.
 
-            Valid values are the unique part of the resource''s REST endpoint.
+              If `total_only` query param is `true`, then no items will be returned.
 
-            For example, a reference to a file system would have a
-
-            `resource_type` of `file-systems`.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/FileSystemPerformance'
     FileSystemPerformance:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -4407,6 +4407,17 @@ components:
             $ref: '#/components/schemas/_fixedReference_3'
           policy:
             $ref: '#/components/schemas/_fixedReference_3'
+    _nfs_2:
+      type: object
+      properties:
+        enabled:
+          description: Is the protocol enabled?
+          type: boolean
+          example: false
+        rules:
+          description: NFS rules.
+          type: string
+          example: 10.0.0.1(ro)
     FileSystem_3:
       allOf:
       - $ref: '#/components/schemas/_arraysBuiltIn'
@@ -4481,6 +4492,70 @@ components:
               '
             type: boolean
             example: false
+    FileSystemResponse_3:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileSystem_3'
+    _smb_2:
+      type: object
+      properties:
+        enabled:
+          description: 'Is the protocol enabled?
+
+            '
+          type: boolean
+    FileSystemGetResponse_3:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/FileSystemResponse_3'
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    PolicyMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/PolicyMembersResponse'
+    _builtInAsOf:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 01c2889a-4124-49ff-8cbd-c33405ede123
+          name:
+            description: A non-modifiable, locally unique name chosen by the system.
+            type: string
+            readOnly: true
+            example: example_name
     _fixedReferenceFqdn:
       allOf:
       - $ref: '#/components/schemas/_fixedReference_3'
@@ -4495,48 +4570,6 @@ components:
             type: string
             readOnly: true
             example: example_name.dc1.example.com
-    _arraysBuiltIn:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - $ref: '#/components/schemas/_arrays'
-    _smb_2:
-      type: object
-      properties:
-        enabled:
-          description: 'Is the protocol enabled?
-
-            '
-          type: boolean
-    _http_2:
-      type: object
-      properties:
-        enabled:
-          description: Is the protocol enabled?
-          type: boolean
-          example: false
-    _nfs_2:
-      type: object
-      properties:
-        enabled:
-          description: Is the protocol enabled?
-          type: boolean
-          example: false
-        rules:
-          description: NFS rules.
-          type: string
-          example: 10.0.0.1(ro)
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
     _arrays:
       type: object
       properties:
@@ -4581,21 +4614,6 @@ components:
           type: integer
           format: int32
           example: 1
-    FileSystemGetResponse_3:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/FileSystemResponse_3'
-    PolicyMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/PolicyMembersResponse'
-    PolicyMembersResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMember_2'
     _fixedReference_3:
       type: object
       properties:
@@ -4621,6 +4639,19 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
+    _arraysBuiltIn:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - $ref: '#/components/schemas/_arrays'
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
     Error:
       type: object
       properties:
@@ -4629,171 +4660,30 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/_errorErrors'
-    FileSystemResponse_3:
+    _http_2:
+      type: object
+      properties:
+        enabled:
+          description: Is the protocol enabled?
+          type: boolean
+          example: false
+    PolicyMembersResponse:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/FileSystem_3'
-    _builtInAsOf:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 01c2889a-4124-49ff-8cbd-c33405ede123
-          name:
-            description: A non-modifiable, locally unique name chosen by the system.
-            type: string
-            readOnly: true
-            example: example_name
-    ErrorNoContext:
+            $ref: '#/components/schemas/PolicyMember_2'
+    _errorErrors:
       type: object
       properties:
+        context:
+          type: string
+          example: Error with ...
         message:
           type: string
           example: Something was wrong
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
   parameters:
-    Add_to_policy_names_file_system:
-      name: add_to_policy_names
-      in: query
-      description: 'The root directories of the file systems will become members of the specified policies
-
-        along with creation.
-
-        Enter multiple names in a comma-separated format.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Destroyed:
-      name: destroyed
-      in: query
-      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
-
-        If set to `false`, lists only objects that are not destroyed.
-
-        If not set, lists both objects that are destroyed and those that are not destroyed.
-
-
-        For destroyed objects, the time remaining is displayed in milliseconds.
-
-
-        If object name(s) or id(s) are specified, then each object referenced must exist.
-
-        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
-
-        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
-
-        An error is returned if any of these conditions are not met.
-
-        '
-      schema:
-        type: boolean
     With_default_protection_policy_file_system:
       name: with_default_protection
       in: query
@@ -4818,14 +4708,32 @@ components:
         '
       schema:
         type: boolean
-    Workload_ids:
-      name: workload_ids
+    Filter:
+      name: filter
       in: query
-      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
+      description: 'Narrows down the results to only the response objects
 
-        resource that matches each of the elements, then an error is returned. This cannot be provided
+        that satisfy the filter criteria.
 
-        together with the `workload_names` query parameter.
+        '
+      schema:
+        type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -4834,24 +4742,94 @@ components:
         type: array
         items:
           type: string
-    Total_item_count:
-      name: total_item_count
+    Destroyed:
+      name: destroyed
       in: query
-      description: 'If set to `true`, the `total_item_count` matching the
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
 
-        specified query parameters is calculated and returned in
+        If set to `false`, lists only objects that are not destroyed.
 
-        the response. If set to `false`, the `total_item_count`
+        If not set, lists both objects that are destroyed and those that are not destroyed.
 
-        is `null` in the response. This may speed up queries
 
-        where the `total_item_count` is large. If not specified,
+        For destroyed objects, the time remaining is displayed in milliseconds.
 
-        defaults to `false`.
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
 
         '
       schema:
         type: boolean
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Workload_names:
+      name: workload_names
+      in: query
+      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `workload_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Add_to_policy_ids_file_system:
+      name: add_to_policy_ids
+      in: query
+      description: 'The root directories of the file systems will become members of the
+
+        specified policies along with creation.
+
+        Enter multiple ids in comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Names:
       name: names
       in: query
@@ -4905,14 +4883,14 @@ components:
         type: array
         items:
           type: string
-    Add_to_policy_ids_file_system:
-      name: add_to_policy_ids
+    Workload_ids:
+      name: workload_ids
       in: query
-      description: 'The root directories of the file systems will become members of the
+      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
 
-        specified policies along with creation.
+        resource that matches each of the elements, then an error is returned. This cannot be provided
 
-        Enter multiple ids in comma-separated format.
+        together with the `workload_names` query parameter.
 
         '
       style: form
@@ -4920,6 +4898,91 @@ components:
       schema:
         type: array
         items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Add_to_policy_names_file_system:
+      name: add_to_policy_names
+      in: query
+      description: 'The root directories of the file systems will become members of the specified policies
+
+        along with creation.
+
+        Enter multiple names in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Authorization:
       name: Authorization
@@ -4931,59 +4994,6 @@ components:
         '
       schema:
         type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Workload_names:
-      name: workload_names
-      in: query
-      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `workload_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Allow_errors:
       name: allow_errors
       in: query
@@ -4997,22 +5007,14 @@ components:
       schema:
         type: boolean
         default: false
-    Ids:
-      name: ids
+    Uids:
+      name: uids
       in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Open_files_user_names:
-      name: user_names
-      in: query
-      description: 'A comma-separated list of user names used for filtering open files query.
+      description: 'A comma-separated list of user IDs (UIDs).
 
-        Files opened by any of the specified users will be returned.
+        Enter multiple user IDs in comma-separated format.
+
+        For example, `423,51234`.
 
         '
       style: form
@@ -5020,51 +5022,19 @@ components:
       schema:
         type: array
         items:
-          type: string
-      example: DomainName\User1,DomainName\User2
-    Sort_2:
-      name: sort
+          type: integer
+          format: int32
+    Start_time:
+      name: start_time
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
+      description: 'When the time window starts (in milliseconds since epoch).
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Sessions_user_names:
-      name: user_names
-      in: query
-      description: 'A comma-separated list of user names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
     Discard_detailed_permissions:
       name: discard_detailed_permissions
       in: query
@@ -5091,6 +5061,358 @@ components:
         '
       schema:
         type: boolean
+    Group_names_not_strict:
+      name: group_names
+      in: query
+      description: 'A comma-separated list of group names.
+
+        This cannot be provided together with `gids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Recursive:
+      name: recursive
+      in: query
+      description: 'Flag used to indicate that the action should be done recursively.
+
+        If set to `true` and used e.g. with `path` pointing to a directory, the
+
+        operation will delete all locks in given directory and subdirectories recursively.
+
+        For more fine grained control over deleted locks, use delete by name.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Session_names:
+      name: session_names
+      in: query
+      description: 'A comma-separated list of session names used for filtering open files query.
+
+        Files opened in any of the specified sessions will be returned.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Protocols:
+      name: protocols
+      in: query
+      description: 'A comma-separated list of file protocols.
+
+        Valid values include `nfs` and `smb`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Resolution:
+      name: resolution
+      in: query
+      description: 'The desired ms between samples. Available resolutions may
+
+        depend on data type, `start_time` and `end_time`.
+
+        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
+
+        `86400000` are possible values.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Protocols_required:
+      name: protocols
+      in: query
+      description: 'A comma-separated list of file protocols.
+
+        Valid values include `nfs` and `smb`.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Overwrite:
+      name: overwrite
+      in: query
+      description: 'When used for snapshot restore, overwrites (`true`) an existing file system.
+
+        '
+      schema:
+        type: boolean
+    File_system_ids:
+      name: file_system_ids
+      in: query
+      description: 'A comma-separated list of file system IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `file_system_ids`, then an error is returned.
+
+        This cannot be provided together with the `file_system_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    End_time:
+      name: end_time
+      in: query
+      description: 'When the time window ends (in milliseconds since epoch).
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
+    Sessions_user_names:
+      name: user_names
+      in: query
+      description: 'A comma-separated list of user names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    User_names:
+      name: user_names
+      in: query
+      description: 'A comma-separated list of user names.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `user_names`, then an error is returned.
+
+        This cannot be provided together with `uids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Delete_existing_user_group_quota_settings:
+      name: delete_existing_user_group_quota_settings
+      in: query
+      description: 'This parameter must be set to `true` in order to delete
+
+        existing quota configurations(default_group_quota, default_user_quota or specific quotas) set
+
+        on a file system using either using `quotas/users`, `quotas/groups` or
+
+        `/file-systems`. Setting this parameter to `true` is acknowledgement
+
+        that the currently configured quotas would be erased before attaching the policy.
+
+        Defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Uids_not_strict:
+      name: uids
+      in: query
+      description: 'A comma-separated list of user IDs.
+
+        This cannot be provided together with `user_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int32
+    Cancel_storage_class_transition:
+      name: cancel_in_progress_storage_class_transition
+      in: query
+      description: 'If set to `true`, the storage class policy of this file system
+
+        will be set to the requested storage class policy, even if
+
+        a transition to a different storage class is in-progress.
+
+        Setting this parameter to `true` is acknowledgement that any
+
+        in-progress transition on this file system will be cancelled.
+
+        If not specified, the default value is `false`.
+
+        '
+      schema:
+        type: boolean
+    Ignore_usage:
+      name: ignore_usage
+      in: query
+      description: 'Allow update operations that lead to a `hard_limit_enabled` object store
+
+        account, bucket, or file system with usage over its limiting value.
+
+        For object store accounts and buckets, the limiting value is that of `quota_limit`,
+
+        and for file systems it is that of `provisioned`.
+
+        The operation can be setting `hard_limit_enabled` when usage is higher
+
+        than the limiting value, modifying the limiting value to a value under usage when
+
+        `hard_limit_enabled`, recovering a destroyed bucket of an object store account
+
+        that causes an account''s space usage to go over its hard `quota_limit`.
+
+        Also allows update operations that would cause usage of the requested
+
+        storage class to go over its warning threshold.
+
+        '
+      schema:
+        type: boolean
+    Delete_link_on_eradication:
+      name: delete_link_on_eradication
+      in: query
+      description: 'If set to `true`, the file system can be destroyed, even if it has a replica link.
+
+        If set to `false`, the file system cannot be destroyed if it has a replica link.
+
+        Defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Gids_not_strict:
+      name: gids
+      in: query
+      description: 'A comma-separated list of group IDs.
+
+        This cannot be provided together with `group_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Inodes:
       name: inodes
       in: query
@@ -5109,36 +5431,84 @@ components:
         type: array
         items:
           type: number
-    Delete_link_on_eradication:
-      name: delete_link_on_eradication
+    Discard_non_snapshotted_data:
+      name: discard_non_snapshotted_data
       in: query
-      description: 'If set to `true`, the file system can be destroyed, even if it has a replica link.
+      description: 'This parameter must be set to `true` in order to restore
 
-        If set to `false`, the file system cannot be destroyed if it has a replica link.
+        a file system from a snapshot or to demote a file system
 
-        Defaults to `false`.
+        (which restores the file system from the common baseline
+
+        snapshot). Setting this parameter to `true` is acknowledgement
+
+        that any non-snapshotted data currently in the file system
+
+        will be irretrievably lost.
 
         '
       schema:
         type: boolean
-    Disruptive:
-      name: disruptive
+    Open_files_paths:
+      name: paths
       in: query
-      description: 'If set to `true`, a wide scope of sessions may be deleted
+      description: 'A comma-separated list of paths used for filtering open files query.
 
-        in a single action using a single query parameter from
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      example: /fs1_export1/path/to/file1,/fs1_export1/path/to/file2
+    Gids:
+      name: gids
+      in: query
+      description: 'Performs the operation on the specified GIDs.
 
-        `user_names`, `client_names`, or `protocols`. Otherwise,
+        Enter multiple GIDs in comma-separated format.
 
-        multiple query parameters must be specified to narrow
+        For example, `4234235,9681923`.
 
-        the impact of deletion and avoid potential for accidental
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int32
+    Ignore_usage_user_group_quotas:
+      name: ignore_usage
+      in: query
+      description: 'Flag used to override checks for user-group-quota management operations.
 
-        disruption of clients.
+        If set to `true`, user/group usage is not checked against the `quota_limits` of
+
+        user-group-quota rules.
 
         '
       schema:
         type: boolean
+    Group_names:
+      name: group_names
+      in: query
+      description: 'A comma-separated list of group names.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `group_names`, then an error is returned.
+
+        This cannot be provided together with `gids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Default_exports:
       name: default_exports
       in: query
@@ -5174,492 +5544,12 @@ components:
         items:
           type: string
       example: nfs,smb
-    Paths:
-      name: paths
-      in: query
-      description: 'A comma-separated list of paths used for filtering file locks query by paths.
-
-        This may only be specified if `file_system_ids` or `file_system_names` is
-
-        also specified.
-
-        This cannot be provided together with the `inodes` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Ignore_usage_user_group_quotas:
-      name: ignore_usage
-      in: query
-      description: 'Flag used to override checks for user-group-quota management operations.
-
-        If set to `true`, user/group usage is not checked against the `quota_limits` of
-
-        user-group-quota rules.
-
-        '
-      schema:
-        type: boolean
-    Protocol:
-      name: protocol
-      in: query
-      description: 'Display the performance of a specified protocol.
-
-        Valid values are `all`, `HTTP`, `SMB`, `NFS`, and `S3`.
-
-        If not specified, defaults to `all`, which will provide
-
-        the combined performance of all available protocols.
-
-        '
-      schema:
-        type: string
-    Delete_existing_user_group_quota_settings:
-      name: delete_existing_user_group_quota_settings
-      in: query
-      description: 'This parameter must be set to `true` in order to delete
-
-        existing quota configurations(default_group_quota, default_user_quota or specific quotas) set
-
-        on a file system using either using `quotas/users`, `quotas/groups` or
-
-        `/file-systems`. Setting this parameter to `true` is acknowledgement
-
-        that the currently configured quotas would be erased before attaching the policy.
-
-        Defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Recursive:
-      name: recursive
-      in: query
-      description: 'Flag used to indicate that the action should be done recursively.
-
-        If set to `true` and used e.g. with `path` pointing to a directory, the
-
-        operation will delete all locks in given directory and subdirectories recursively.
-
-        For more fine grained control over deleted locks, use delete by name.
-
-        If not specified, defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    End_time:
-      name: end_time
-      in: query
-      description: 'When the time window ends (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
     User_names_not_strict:
       name: user_names
       in: query
       description: 'A comma-separated list of user names.
 
         This cannot be provided together with `uids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Overwrite:
-      name: overwrite
-      in: query
-      description: 'When used for snapshot restore, overwrites (`true`) an existing file system.
-
-        '
-      schema:
-        type: boolean
-    File_system_ids:
-      name: file_system_ids
-      in: query
-      description: 'A comma-separated list of file system IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `file_system_ids`, then an error is returned.
-
-        This cannot be provided together with the `file_system_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Discard_non_snapshotted_data:
-      name: discard_non_snapshotted_data
-      in: query
-      description: 'This parameter must be set to `true` in order to restore
-
-        a file system from a snapshot or to demote a file system
-
-        (which restores the file system from the common baseline
-
-        snapshot). Setting this parameter to `true` is acknowledgement
-
-        that any non-snapshotted data currently in the file system
-
-        will be irretrievably lost.
-
-        '
-      schema:
-        type: boolean
-    Gids:
-      name: gids
-      in: query
-      description: 'Performs the operation on the specified GIDs.
-
-        Enter multiple GIDs in comma-separated format.
-
-        For example, `4234235,9681923`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: integer
-          format: int32
-    Uids:
-      name: uids
-      in: query
-      description: 'A comma-separated list of user IDs (UIDs).
-
-        Enter multiple user IDs in comma-separated format.
-
-        For example, `423,51234`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: integer
-          format: int32
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'A comma-separated list of member IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `member_ids`, then an error is returned.
-
-        This cannot be provided together with the `member_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    File_system_names:
-      name: file_system_names
-      in: query
-      description: 'A comma-separated list of file system names.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `file_system_names`, then an error is returned.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Uids_not_strict:
-      name: uids
-      in: query
-      description: 'A comma-separated list of user IDs.
-
-        This cannot be provided together with `user_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: integer
-          format: int32
-    User_sids:
-      name: user_sids
-      in: query
-      description: 'A comma-separated list of WINDOWS user SIDs.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `user_sids`, then an error is returned.
-
-        This cannot be provided together with `uids` or `user_names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Ignore_usage:
-      name: ignore_usage
-      in: query
-      description: 'Allow update operations that lead to a `hard_limit_enabled` object store
-
-        account, bucket, or file system with usage over its limiting value.
-
-        For object store accounts and buckets, the limiting value is that of `quota_limit`,
-
-        and for file systems it is that of `provisioned`.
-
-        The operation can be setting `hard_limit_enabled` when usage is higher
-
-        than the limiting value, modifying the limiting value to a value under usage when
-
-        `hard_limit_enabled`, recovering a destroyed bucket of an object store account
-
-        that causes an account''s space usage to go over its hard `quota_limit`.
-
-        Also allows update operations that would cause usage of the requested
-
-        storage class to go over its warning threshold.
-
-        '
-      schema:
-        type: boolean
-    Group_names:
-      name: group_names
-      in: query
-      description: 'A comma-separated list of group names.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `group_names`, then an error is returned.
-
-        This cannot be provided together with `gids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Include_snapshot:
-      name: include_snapshot
-      in: query
-      description: 'This parameter must be set to `true` in order to copy
-
-        an existing snapshot to a new file system. If not specified,
-
-        the default value is `false`.
-
-        '
-      schema:
-        type: boolean
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Protocols_required:
-      name: protocols
-      in: query
-      description: 'A comma-separated list of file protocols.
-
-        Valid values include `nfs` and `smb`.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Resolution:
-      name: resolution
-      in: query
-      description: 'The desired ms between samples. Available resolutions may
-
-        depend on data type, `start_time` and `end_time`.
-
-        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
-
-        `86400000` are possible values.
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Session_names:
-      name: session_names
-      in: query
-      description: 'A comma-separated list of session names used for filtering open files query.
-
-        Files opened in any of the specified sessions will be returned.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Protocols:
-      name: protocols
-      in: query
-      description: 'A comma-separated list of file protocols.
-
-        Valid values include `nfs` and `smb`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Open_files_paths:
-      name: paths
-      in: query
-      description: 'A comma-separated list of paths used for filtering open files query.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-      example: /fs1_export1/path/to/file1,/fs1_export1/path/to/file2
-    Start_time:
-      name: start_time
-      in: query
-      description: 'When the time window starts (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
-    Client_names:
-      name: client_names
-      in: query
-      description: 'A comma-separated list of ip addresses of clients.
-
-        For IPv6 both the extended format (x:x:x:x:x:x:x:x) and the shortened
-
-        format are supported.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Gids_not_strict:
-      name: gids
-      in: query
-      description: 'A comma-separated list of group IDs.
-
-        This cannot be provided together with `group_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Cancel_storage_class_transition:
-      name: cancel_in_progress_storage_class_transition
-      in: query
-      description: 'If set to `true`, the storage class policy of this file system
-
-        will be set to the requested storage class policy, even if
-
-        a transition to a different storage class is in-progress.
-
-        Setting this parameter to `true` is acknowledgement that any
-
-        in-progress transition on this file system will be cancelled.
-
-        If not specified, the default value is `false`.
-
-        '
-      schema:
-        type: boolean
-    Group_names_not_strict:
-      name: group_names
-      in: query
-      description: 'A comma-separated list of group names.
-
-        This cannot be provided together with `gids` query parameter.
 
         '
       style: form
@@ -5680,27 +5570,28 @@ components:
         type: array
         items:
           type: string
-    Offset_2:
-      name: offset
+    Protocol:
+      name: protocol
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'Display the performance of a specified protocol.
+
+        Valid values are `all`, `HTTP`, `SMB`, `NFS`, and `S3`.
+
+        If not specified, defaults to `all`, which will provide
+
+        the combined performance of all available protocols.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    User_names:
-      name: user_names
+        type: string
+    File_system_names:
+      name: file_system_names
       in: query
-      description: 'A comma-separated list of user names.
+      description: 'A comma-separated list of file system names.
 
         If there is not at least one resource that matches
 
-        each of the elements of `user_names`, then an error is returned.
-
-        This cannot be provided together with `uids` query parameter.
+        each of the elements of `file_system_names`, then an error is returned.
 
         '
       style: form
@@ -5709,16 +5600,34 @@ components:
         type: array
         items:
           type: string
-    Ids_2:
-      name: ids
+    Disruptive:
+      name: disruptive
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'If set to `true`, a wide scope of sessions may be deleted
+
+        in a single action using a single query parameter from
+
+        `user_names`, `client_names`, or `protocols`. Otherwise,
+
+        multiple query parameters must be specified to narrow
+
+        the impact of deletion and avoid potential for accidental
+
+        disruption of clients.
+
+        '
+      schema:
+        type: boolean
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `ids`, then an error is returned.
+        each of the elements of `member_ids`, then an error is returned.
 
-        This cannot be provided together with the `name` or `names` query parameters.
+        This cannot be provided together with the `member_names` query parameter.
 
         '
       style: form
@@ -5727,16 +5636,16 @@ components:
         type: array
         items:
           type: string
-    Sort_3:
-      name: sort
+    User_sids:
+      name: user_sids
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A comma-separated list of WINDOWS user SIDs.
 
-        is appended to the field name).
+        If there is not at least one resource that matches
 
-        If you provide a sort you will not get a continuation token in
+        each of the elements of `user_sids`, then an error is returned.
 
-        the response.
+        This cannot be provided together with `uids` or `user_names` query parameters.
 
         '
       style: form
@@ -5744,7 +5653,79 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Open_files_user_names:
+      name: user_names
+      in: query
+      description: 'A comma-separated list of user names used for filtering open files query.
+
+        Files opened by any of the specified users will be returned.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+      example: DomainName\User1,DomainName\User2
+    Paths:
+      name: paths
+      in: query
+      description: 'A comma-separated list of paths used for filtering file locks query by paths.
+
+        This may only be specified if `file_system_ids` or `file_system_names` is
+
+        also specified.
+
+        This cannot be provided together with the `inodes` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Include_snapshot:
+      name: include_snapshot
+      in: query
+      description: 'This parameter must be set to `true` in order to copy
+
+        an existing snapshot to a new file system. If not specified,
+
+        the default value is `false`.
+
+        '
+      schema:
+        type: boolean
+    Client_names:
+      name: client_names
+      in: query
+      description: 'A comma-separated list of ip addresses of clients.
+
+        For IPv6 both the extended format (x:x:x:x:x:x:x:x) and the shortened
+
+        format are supported.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
     Filter_2:
       name: filter
@@ -5756,28 +5737,83 @@ components:
         '
       schema:
         type: string
-    Continuation_token_2:
-      name: continuation_token
+    Policy_ids_2:
+      name: policy_ids
       in: query
-      description: 'An opaque token used to iterate over a collection.
+      description: 'A comma-separated list of policy IDs.
 
-        The token to use on the next request is returned in the
+        If there is not at least one resource that matches each `policy_id` element,
 
-        `continuation_token` field of the result.
+        an error is returned.
 
         Single quotes are required around all strings.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
         x-quoted: true
       x-quoted: true
-    Member_names_2:
-      name: member_names
+    Offset_3:
+      name: offset
       in: query
-      description: 'A comma-separated list of member names.
+      description: 'The offset of the first resource to return from a collection.
 
-        If there is not at least one resource that matches each `member_name` element,
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Member_ids_2:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If there is not at least one resource that matches each `member_id` element,
 
         an error is returned.
 
@@ -5812,24 +5848,20 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Names_2:
-      name: names
+    Continuation_token_2:
+      name: continuation_token
       in: query
-      description: 'A comma-separated list of resource names.
+      description: 'An opaque token used to iterate over a collection.
 
-        If there is not at least one resource that matches each `name` element,
+        The token to use on the next request is returned in the
 
-        an error is returned.
+        `continuation_token` field of the result.
 
         Single quotes are required around all strings.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
+        type: string
         x-quoted: true
       x-quoted: true
     Ids_3:
@@ -5852,16 +5884,16 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Policy_ids_2:
-      name: policy_ids
+    Sort_3:
+      name: sort
       in: query
-      description: 'A comma-separated list of policy IDs.
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        If there is not at least one resource that matches each `policy_id` element,
+        is appended to the field name).
 
-        an error is returned.
+        If you provide a sort you will not get a continuation token in
 
-        Single quotes are required around all strings.
+        the response.
 
         '
       style: form
@@ -5869,9 +5901,8 @@ components:
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-        x-quoted: true
-      x-quoted: true
     Authorization_2:
       name: Authorization
       in: header
@@ -5880,22 +5911,12 @@ components:
         '
       schema:
         type: string
-    Offset_3:
-      name: offset
+    Member_names_2:
+      name: member_names
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'A comma-separated list of member names.
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Member_ids_2:
-      name: member_ids
-      in: query
-      description: 'A comma-separated list of member IDs.
-
-        If there is not at least one resource that matches each `member_id` element,
+        If there is not at least one resource that matches each `member_name` element,
 
         an error is returned.
 
@@ -5910,30 +5931,9 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
   responses:
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error404:
+      description: NOT FOUND
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -5963,8 +5963,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error400:
-      description: BAD REQUEST
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -6036,8 +6036,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error404:
-      description: NOT FOUND
+    Error400:
+      description: BAD REQUEST
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.

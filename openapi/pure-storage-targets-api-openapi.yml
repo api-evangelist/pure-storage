@@ -248,103 +248,6 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
-    _replication_performance:
-      type: object
-      properties:
-        received_bytes_per_sec:
-          description: Total bytes received per second.
-          type: number
-          format: double
-          minimum: 0
-          readOnly: true
-        transmitted_bytes_per_sec:
-          description: Total bytes transmitted per second.
-          type: number
-          format: double
-          minimum: 0
-          readOnly: true
-      x-readOnly: true
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    TargetResponse:
-      type: object
-      properties:
-        items:
-          description: A list of target objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Target'
-    _errorContextResponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    _continuousReplicationPerformance:
-      allOf:
-      - $ref: '#/components/schemas/_replication_performance'
-      - type: object
-        properties:
-          object_backlog:
-            description: 'The total number of pending object operations
-
-              and their size that are currently in the backlog.
-
-              '
-            title: ObjectBacklog
-            allOf:
-            - $ref: '#/components/schemas/_objectBacklog'
-        x-readOnly: true
     Target:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -388,53 +291,119 @@ components:
               '
             type: string
             readOnly: true
-    PageInfo:
+    _objectBacklog:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
+        bytes_count:
+          description: 'The size of the objects in bytes that need to be replicated.
 
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
+            This does not include the size of custom metadata.
 
             '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
           type: integer
-          format: int32
-    TargetPost:
+          format: int64
+          readOnly: true
+        delete_ops_count:
+          description: 'The number of DELETE operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        other_ops_count:
+          description: 'The number of other operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        put_ops_count:
+          description: 'The number of PUT operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+    _replication_performance:
       type: object
       properties:
-        address:
-          description: IP address or FQDN of the target system.
-          type: string
-    _builtIn:
+        received_bytes_per_sec:
+          description: Total bytes received per second.
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+        transmitted_bytes_per_sec:
+          description: Total bytes transmitted per second.
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    _fixedReferenceWithoutType:
       type: object
       properties:
         id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
 
             '
           type: string
           readOnly: true
         name:
-          description: Name of the object (e.g., a file system or snapshot).
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
           type: string
           readOnly: true
+      x-readOnly: true
+    _continuousReplicationPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_replication_performance'
+      - type: object
+        properties:
+          object_backlog:
+            description: 'The total number of pending object operations
+
+              and their size that are currently in the backlog.
+
+              '
+            title: ObjectBacklog
+            allOf:
+            - $ref: '#/components/schemas/_objectBacklog'
+        x-readOnly: true
+    TargetResponseContext:
+      type: object
+      properties:
+        items:
+          description: A list of target objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/TargetWithContext'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
     ResourcePerformanceReplication:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -477,6 +446,34 @@ components:
             format: int64
             readOnly: true
         x-readOnly: true
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -512,89 +509,33 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/ResourcePerformanceReplication'
-    TargetWithContext:
-      allOf:
-      - $ref: '#/components/schemas/Target'
-      - $ref: '#/components/schemas/_context'
-    _objectBacklog:
+    TargetPost:
       type: object
       properties:
-        bytes_count:
-          description: 'The size of the objects in bytes that need to be replicated.
-
-            This does not include the size of custom metadata.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        delete_ops_count:
-          description: 'The number of DELETE operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        other_ops_count:
-          description: 'The number of other operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        put_ops_count:
-          description: 'The number of PUT operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-    _fixedReferenceWithoutType:
+        address:
+          description: IP address or FQDN of the target system.
+          type: string
+    TargetResponse:
+      type: object
+      properties:
+        items:
+          description: A list of target objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Target'
+    _builtIn:
       type: object
       properties:
         id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
+          description: 'A non-modifiable, globally unique ID chosen by the system.
 
             '
           type: string
           readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
+          description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
-      x-readOnly: true
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    TargetGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TargetResponseContext'
-      - $ref: '#/components/schemas/_errorContextResponse'
     _errorContextResponse:
       type: object
       properties:
@@ -604,65 +545,73 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_errorContextResponseErrors'
-    TargetResponseContext:
-      type: object
-      properties:
-        items:
-          description: A list of target objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/TargetWithContext'
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
-    _arraysBuiltIn:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - $ref: '#/components/schemas/_arrays'
-    TargetResponse_2:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Target_2'
-    _errorErrors:
+    _errorContextResponseErrors:
       type: object
       properties:
         context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
-    _arrays:
-      type: object
-      properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+          description: 'Contains information relating to the cause of this error,
 
-            some resources, such as pods, can be shared across multiple arrays.
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
 
             '
-          type: array
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+    TargetWithContext:
+      allOf:
+      - $ref: '#/components/schemas/Target'
+      - $ref: '#/components/schemas/_context'
+    TargetGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TargetResponseContext'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
           readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
     Target_2:
       allOf:
       - $ref: '#/components/schemas/_arraysBuiltIn'
@@ -690,6 +639,75 @@ components:
               '
             type: string
             readOnly: true
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    _builtInAsOf:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 01c2889a-4124-49ff-8cbd-c33405ede123
+          name:
+            description: A non-modifiable, locally unique name chosen by the system.
+            type: string
+            readOnly: true
+            example: example_name
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    _arrays:
+      type: object
+      properties:
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
     PageInfo_2:
       type: object
       properties:
@@ -745,6 +763,19 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
+    _arraysBuiltIn:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - $ref: '#/components/schemas/_arrays'
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
     Error:
       type: object
       properties:
@@ -753,96 +784,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/_errorErrors'
-    _builtInAsOf:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 01c2889a-4124-49ff-8cbd-c33405ede123
-          name:
-            description: A non-modifiable, locally unique name chosen by the system.
-            type: string
-            readOnly: true
-            example: example_name
+    TargetResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Target_2'
     TargetGetResponse_2:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
       - $ref: '#/components/schemas/TargetResponse_2'
-    ErrorNoContext:
+    _errorErrors:
       type: object
       properties:
+        context:
+          type: string
+          example: Error with ...
         message:
           type: string
           example: Something was wrong
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
   parameters:
-    End_time:
-      name: end_time
-      in: query
-      description: 'When the time window ends (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
     Start_time:
       name: start_time
       in: query
@@ -854,6 +816,27 @@ components:
         format: int64
         minimum: 0
       example: 1514764800000
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Limit:
       name: limit
       in: query
@@ -873,52 +856,17 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Continuation_token:
-      name: continuation_token
+    End_time:
+      name: end_time
       in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
+      description: 'When the time window ends (in milliseconds since epoch).
 
         '
       schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
     Names:
       name: names
       in: query
@@ -972,60 +920,28 @@ components:
         type: array
         items:
           type: string
-    Names_required:
-      name: names
+    Continuation_token:
+      name: continuation_token
       in: query
-      description: 'A comma-separated list of resource names.
+      description: 'A token used to retrieve the next page of data
 
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
+        with some consistency guaranteed.
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Resolution:
-      name: resolution
-      in: query
-      description: 'The desired ms between samples. Available resolutions may
+        The token is a Base64 encoded value.
 
-        depend on data type, `start_time` and `end_time`.
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
 
-        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
+        header field of the response.
 
-        `86400000` are possible values.
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
 
         '
       schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
+        type: string
     Ids:
       name: ids
       in: query
@@ -1044,14 +960,22 @@ components:
         type: array
         items:
           type: string
-    Sort_2:
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Sort:
       name: sort
       in: query
       description: 'Sort the response by the specified fields (in descending order if ''-''
 
         is appended to the field name).
 
-        If you provide a sort you will not get a continuation token in
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
         the response.
 
@@ -1063,76 +987,69 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Resolution:
+      name: resolution
+      in: query
+      description: 'The desired ms between samples. Available resolutions may
+
+        depend on data type, `start_time` and `end_time`.
+
+        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
+
+        `86400000` are possible values.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Filter_2:
       name: filter
       in: query
       description: 'Exclude resources that don''t match the specified criteria.
 
         Single quotes are required around all strings inside the filters.
-
-        '
-      schema:
-        type: string
-    Continuation_token_2:
-      name: continuation_token
-      in: query
-      description: 'An opaque token used to iterate over a collection.
-
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
 
         '
       schema:
@@ -1168,9 +1085,92 @@ components:
       schema:
         type: integer
         format: int32
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
   responses:
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error404:
+      description: NOT FOUND
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -1200,8 +1200,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error400:
-      description: BAD REQUEST
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -1273,8 +1273,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error404:
-      description: NOT FOUND
+    Error400:
+      description: BAD REQUEST
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.

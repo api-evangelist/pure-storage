@@ -1822,13 +1822,65 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
-    EulaResponse:
+    ArrayErasureGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ArrayErasureResponse'
+    ArrayPerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ArrayPerformance'
+    CloudProviderTag:
+      type: object
+      properties:
+        details:
+          description: 'Details about the status of the tag if not healthy.
+
+            '
+          type: string
+          readOnly: true
+          example: partially applied
+        key:
+          description: 'Key of the tag. Supports UTF-8 Unicode characters.
+
+            Please refer to the offical document from cloud providers for limitations.
+
+            '
+          type: string
+          example: environment
+        value:
+          description: 'Value of the tag. Supports UTF-8 Unicode characters.
+
+            Please refer to the offical document from cloud providers for limitations.
+
+            '
+          type: string
+          example: staging
+    CloudProviderTagResponse:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/Eula'
+            $ref: '#/components/schemas/CloudProviderTag'
+    CloudConfigPatch:
+      type: object
+      properties:
+        automatic_capacity_upgrade:
+          description: The requested configuration of the automatic capacity upgrade.
+          title: CloudConfigAutomaticCapacityUpgradePatch
+          allOf:
+          - $ref: '#/components/schemas/CloudConfigAutomaticCapacityUpgradePatch'
+        model:
+          description: The requested model configuration of the CBS array.
+          title: CloudConfigModelPatch
+          allOf:
+          - $ref: '#/components/schemas/CloudConfigModelPatch'
     CacheGetResponse:
       type: object
       properties:
@@ -1837,220 +1889,6 @@ components:
           items:
             $ref: '#/components/schemas/Cache'
           description: Displays DIMM Cache status.
-    Space:
-      description: If the user does not have sufficient access, all fields will return `null`.
-      allOf:
-      - $ref: '#/components/schemas/_space'
-      - type: object
-        properties:
-          replication:
-            description: 'The sum of replication space consumed by all pods on this array.
-
-              '
-            type: integer
-            format: int64
-            minimum: 0
-            readOnly: true
-          shared_effective:
-            description: 'This field has been deprecated. It will return `null`.
-
-              Use the `shared` field in the future, as it contains the same information
-
-              for Evergreen//One arrays.
-
-              '
-            type: integer
-            format: int64
-            minimum: 0
-            readOnly: true
-          snapshots_effective:
-            description: 'This field has deprecated. It will return `null`.
-
-              Use the `snapshots` field in the future, as it contains the same information
-
-              for Evergreen//One arrays.
-
-              '
-            type: integer
-            format: int64
-            minimum: 0
-            readOnly: true
-          total_effective:
-            description: 'This field has been deprecated. It will return `null`.
-
-              PUse the `total_physical` field instead, as it contains the same information
-
-              for Evergreen//One arrays.
-
-              '
-            type: integer
-            format: int64
-            minimum: 0
-            readOnly: true
-          unique_effective:
-            description: 'This field has been deprecated. It will return `null`.
-
-              Use the `unique` field in the future, as it contains the same information
-
-              for Evergreen//One arrays.
-
-              '
-            type: integer
-            format: int64
-            minimum: 0
-            readOnly: true
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
-    _cacheSpace:
-      type: object
-      properties:
-        total_available_cache_size:
-          description: The DRAM cache available on the primary controller, measured in bytes.
-          type: integer
-          format: int64
-          example: 3298534883328
-        total_installed_cache_size:
-          description: The DRAM cache installed on both controllers, measured in bytes.
-          type: integer
-          format: int64
-          example: 6597069766656
-    TestResult:
-      type: object
-      properties:
-        component_address:
-          description: Address of the component running the test.
-          type: string
-          example: 10.230.94.21
-        component_name:
-          description: Name of the component running the test.
-          type: string
-          example: CT0
-        description:
-          description: What the test is doing.
-          type: string
-          example: Testing phonehome connectivity
-        destination:
-          description: The URI of the target server being tested.
-          type: string
-          example: ra.cloud-support.purestorage.com
-        enabled:
-          description: 'Whether the object being tested is enabled or not.
-
-            Returns a value of `true` if the the service is enabled.
-
-            Returns a value of `false` if the service is disabled.
-
-            '
-          type: boolean
-          example: true
-        result_details:
-          description: Additional information about the test result.
-          type: string
-          example: Timeout connecting to phonehome endpoint
-        success:
-          description: 'Whether the object being tested passed the test or not.
-
-            Returns a value of `true` if the specified test has succeeded.
-
-            Returns a value of `false` if the specified test has failed.
-
-            '
-          type: boolean
-        test_type:
-          description: 'Displays the type of test being performed. The returned values are determined
-
-            by the `resource` being tested and its configuration.
-
-            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
-
-            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
-
-            `storage-admin-group-searching`, and `validate-ntp-configuration`.
-
-            '
-          type: string
-          example: phonehome
-    ArrayErasurePatch:
-      type: object
-      properties:
-        image_source:
-          description: 'Source of the ISO image to download. Valid values include `auto` and URLs.
-
-            `auto` means download the image from Pure1 cloud,
-
-            and a URL means download the image from the specified URL.
-
-            Default value is `auto`.
-
-            '
-          type: string
-          example: auto
-        image_version:
-          description: 'Version of the image to download. `image_version` is optional,
-
-            and the default value is the current running Purity version.
-
-            If `image_source` is `auto`, the image with the specified version
-
-            will be downloaded from Pure1 cloud.
-
-            If `image_source` is a URL, `image_version` will be used to compare
-
-            to the downloaded image version for the purpose of validation.
-
-            '
-          type: string
-          example: 6.6.6
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
     _space:
       type: object
       properties:
@@ -2251,111 +2089,52 @@ components:
           format: int64
           minimum: 0
           readOnly: true
-    ArrayErasure:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - description: 'Status and detailed information of the factory reset process.
-
-          '
-        type: object
-        properties:
-          details:
-            description: 'The detailed reason of the `status`.
-
-              '
-            type: string
-          image_download_progress:
-            description: 'The progress of the ISO image download, displayed in decimal format.
-
-              '
-            type: number
-            format: float
-            example: 0.32
-          image_source:
-            description: 'Source of the ISO image to download. Valid values include `auto` and URLs.
-
-              `auto` means download the image from Pure1 cloud,
-
-              and a URL means download the image from the specified URL.
-
-              '
-            type: string
-            example: auto
-          image_version:
-            description: 'Version of the image to download and install.
-
-              '
-            type: string
-            example: 6.6.6
-          sanitization_certificate:
-            description: 'The sanitization certificate of the factory reset,
-
-              which complies with the standard described in NIST SP800-88R1 section 4.8.
-
-              '
-            type: string
-          status:
-            description: 'The status of the factory reset process.
-
-              Valid values include `resetting`, `reset_failed`, `reimage_failed`,
-
-              `waiting_for_finalize`, `downloading`, `downloaded`, and `download_failed`.
-
-              A status of `resetting` indicates that the factory reset is running.
-
-              A status of `reset_failed` indicates that the factory reset encountered a failure.
-
-              A status of `reimage_failed` indicates that the factory reset failed to reimage the array.
-
-              A status of `waiting_for_finalize` indicates that the factory reset has finished
-
-              sanitizing drives, and is waiting to be finalized.
-
-              A status of `downloading` indicates that the factory reset is downloading ISO image.
-
-              A status of `downloaded` indicates that the factory reset completed ISO image download.
-
-              A status of `download_failed` indicates that the factory reset failed to download ISO image.
-
-              '
-            type: string
-            example: resetting
-    _fixedReference:
+    CloudConfigModelPatch:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        add_override_checks:
+          description: 'A list of upgrade checks to be overridden.
 
-            The ID cannot be modified.
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - HostIOCheck
+          - HostPathsCheck
+        requested:
+          description: 'A supported model for the CBS array.
 
             '
           type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    TestResultGetResponse:
+          example: CBS-V20MP2R2
+    ArrayGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TestResultResponse'
-    CloudCapacityStep:
+      - $ref: '#/components/schemas/ArrayResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    ArrayFactoryResetTokenGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ArrayFactoryResetTokenResponse'
+    ArrayPerformanceByLinkGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ArrayPerformanceByLinkResponse'
+    ArrayResponse:
       type: object
       properties:
-        supported_capacity:
-          description: 'A possible supported raw capacity of the CBS array in bytes.
-
-            '
-          type: integer
-          format: int64
-          example: 10995116277760
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Arrays'
+    EulaResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Eula'
     _performance:
       type: object
       properties:
@@ -2720,162 +2499,36 @@ components:
           minimum: 0
           readOnly: true
       x-readOnly: true
-    TestResultResponse:
+    _reference:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TestResult'
-    ArrayFactoryResetTokenResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ArrayFactoryResetToken'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
+        id:
+          description: 'A globally unique, system-generated ID.
 
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    CloudConfigPatch:
-      type: object
-      properties:
-        automatic_capacity_upgrade:
-          description: The requested configuration of the automatic capacity upgrade.
-          title: CloudConfigAutomaticCapacityUpgradePatch
-          allOf:
-          - $ref: '#/components/schemas/CloudConfigAutomaticCapacityUpgradePatch'
-        model:
-          description: The requested model configuration of the CBS array.
-          title: CloudConfigModelPatch
-          allOf:
-          - $ref: '#/components/schemas/CloudConfigModelPatch'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    ArrayResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Arrays'
-    _eula_signature:
-      type: object
-      properties:
-        accepted:
-          description: Accepted time in milliseconds since the UNIX epoch.
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1577880000000
-        company:
-          description: 'The company of the person who accepted the End User Agreement.
-
-            This field is deprecated and the response will be `null`. Modification to this field
-
-            will be ignored.
+            The ID cannot be modified.
 
             '
           type: string
-          example: Example Inc.
         name:
-          description: 'The name of the person who accepted the End User Agreement.
+          description: 'The resource name, such as volume name, pod name,
 
-            This field is deprecated and the response will be `null`. Modification to this field
-
-            will be ignored.
+            snapshot name, and so on.
 
             '
           type: string
-          example: John Doe
-        title:
-          description: 'The title of the person who accepted the End User Agreement.
+      x-aliases:
+      - _referenceWithoutType
+    CloudConfigAutomaticCapacityUpgrade:
+      type: object
+      properties:
+        details:
+          description: 'This field displays error details, warnings, and progress information.
 
-            This field is deprecated and the response will be `null`. Modification to this field
-
-            will be ignored.
+            The default value is an empty string.
 
             '
           type: string
-          example: Admin
-    ArraySpace:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          capacity:
-            description: 'Currently entitled usable capacity.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-            example: 10995116277760
-          capacity_installed:
-            description: 'Usable capacity of the array if entitled to full capacity for all drives.
-
-              '
-            type: integer
-            format: int64
-            example: 46179488366592
-          parity:
-            description: 'A representation of data redundancy on the array.
-
-              Data redundancy is rebuilt automatically by the system whenever parity is less than 1.0.
-
-              '
-            type: number
-            format: float
-            readOnly: true
-            example: 0.99
-          space:
-            title: Space
-            allOf:
-            - $ref: '#/components/schemas/Space'
-          time:
-            type: integer
-            format: int64
-            readOnly: true
-    CloudProviderTagResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudProviderTag'
-    CloudCapacityGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/CloudCapacityPatchResponse'
-    CloudConfigAutomaticCapacityUpgradePatch:
-      type: object
-      properties:
+          example: Automatic capacity upgrade will be triggered once the array is full
         enabled:
           description: 'Indicates if the automatic capacity upgrade is enabled.
 
@@ -2889,24 +2542,36 @@ components:
           type: integer
           format: int64
           example: 30786325577728
-    ArrayGetResponse:
+    CloudCapacityGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ArrayResponse'
+      - $ref: '#/components/schemas/CloudCapacityPatchResponse'
+    Cache:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - description: The DIMM cache status.
+        type: object
+        readOnly: true
+        properties:
+          cache_type:
+            description: The cache type.
+            type: string
+            example: DRAM
+          space:
+            $ref: '#/components/schemas/_cacheSpace'
+          status:
+            description: The cache status.
+            type: string
+            example: healthy
+    TagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TagResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
     EulaGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/EulaResponse'
-    Eula:
-      type: object
-      properties:
-        agreement:
-          description: The End User Agreement text.
-          type: string
-          readOnly: true
-        signature:
-          $ref: '#/components/schemas/_eula_signature'
     PageInfo:
       type: object
       properties:
@@ -2949,218 +2614,6 @@ components:
             '
           type: integer
           format: int32
-    ArrayErasureGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ArrayErasureResponse'
-    CloudConfigModel:
-      type: object
-      properties:
-        current:
-          description: The current model of the CBS array.
-          type: string
-          example: CBS-V10MP2R2
-        details:
-          description: 'Details about the hardware upgrade. This field can contain error details
-
-            or progress information when the status is `upgrading`.
-
-            The default value is an empty string.
-
-            '
-          type: string
-          example: ''
-        override_checks:
-          description: A list of upgrade checks to be overridden.
-          type: array
-          items:
-            type: string
-          example:
-          - HostIOCheck
-          - HostPathsCheck
-        requested:
-          description: A requested model of the CBS array.
-          type: string
-          example: CBS-V20MP2R2
-        status:
-          description: 'The status of the hardware upgrade process.
-
-            Can be one of `idle`, `paused`, `upgrading`.
-
-            '
-          type: string
-          example: upgrading
-        step:
-          description: 'The current step of the hardware upgrade process.
-
-            Can be `pre-upgrade-check`, `upgrade-ct0`, `failover` and so on.
-
-            The default value is an empty string.
-
-            '
-          type: string
-          example: mid-upgrade-check
-    ArrayPerformanceByLink:
-      allOf:
-      - $ref: '#/components/schemas/ArrayPerformance'
-      - description: 'Array-level front-end I/O performance per link.
-
-          A link represents a set of arrays that an I/O operation depends on.
-
-          '
-        type: object
-        properties:
-          link:
-            description: 'List of IDs and array names for the link
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_resource'
-    Cache:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - description: The DIMM cache status.
-        type: object
-        readOnly: true
-        properties:
-          cache_type:
-            description: The cache type.
-            type: string
-            example: DRAM
-          space:
-            $ref: '#/components/schemas/_cacheSpace'
-          status:
-            description: The cache status.
-            type: string
-            example: healthy
-    CloudConfigPatchResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudConfig'
-    NonCopyableTag:
-      type: object
-      properties:
-        key:
-          description: 'Key of the tag. Supports up to 64 Unicode characters.
-
-            '
-          type: string
-          example: environment
-        namespace:
-          description: 'Optional namespace of the tag.
-
-            Namespace identifies the category of the tag. Omitting the namespace
-
-            defaults to the namespace `default`. The `pure&#42;` namespaces are
-
-            reserved for plugins and integration partners. It is recommended
-
-            that customers avoid using reserved namespaces.
-
-            '
-          type: string
-          example: default
-        resource:
-          $ref: '#/components/schemas/_fixedReference'
-        value:
-          description: 'Value of the tag. Supports up to 256 Unicode characters.
-
-            '
-          type: string
-          example: staging
-    CloudConfigSupportedConfigsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/CloudConfigSupported'
-    TagGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TagResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    ArraySpaceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ArraySpace'
-    _arrayencryptionDataAtRest:
-      description: 'Data at rest encryption properties.
-
-        '
-      type: object
-      properties:
-        algorithm:
-          description: 'The algorithm used to encrypt data on the array.
-
-            Values include `AES-256-CTR` and `null`.
-
-            '
-          type: string
-          example: AES-256-CTR
-        enabled:
-          description: 'Returns a value of `true` if data at rest encryption is enabled on
-
-            the array.
-
-            '
-          type: boolean
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    ArrayEncryption:
-      description: If the user does not have sufficient access, all fields will return `null`.
-      type: object
-      properties:
-        data_at_rest:
-          title: ArrayencryptionDataAtRest
-          allOf:
-          - $ref: '#/components/schemas/_arrayencryptionDataAtRest'
-        module_version:
-          description: 'The version of the Purity encryption module installed on the array.
-
-            Security certifications are carried out on a per-version basis.
-
-            On non-encrypt builds, an encryption module may be installed without
-
-            being enabled.
-
-            Values include `FA-1.0`, `FA-1.1`, `FA-1.2`, `FA-1.3`, and so on.
-
-            '
-          type: string
-          readOnly: true
-          example: FA-1.3
-      x-readOnly: true
     Eradication_config:
       description: The configuration of eradication feature.
       type: object
@@ -3241,21 +2694,156 @@ components:
           type: string
           readOnly: true
           example: all-disabled
-    CloudProviderTagGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/CloudProviderTagResponse'
-    CloudConfigAutomaticCapacityUpgrade:
+    CloudConfigModel:
       type: object
       properties:
+        current:
+          description: The current model of the CBS array.
+          type: string
+          example: CBS-V10MP2R2
         details:
-          description: 'This field displays error details, warnings, and progress information.
+          description: 'Details about the hardware upgrade. This field can contain error details
+
+            or progress information when the status is `upgrading`.
 
             The default value is an empty string.
 
             '
           type: string
-          example: Automatic capacity upgrade will be triggered once the array is full
+          example: ''
+        override_checks:
+          description: A list of upgrade checks to be overridden.
+          type: array
+          items:
+            type: string
+          example:
+          - HostIOCheck
+          - HostPathsCheck
+        requested:
+          description: A requested model of the CBS array.
+          type: string
+          example: CBS-V20MP2R2
+        status:
+          description: 'The status of the hardware upgrade process.
+
+            Can be one of `idle`, `paused`, `upgrading`.
+
+            '
+          type: string
+          example: upgrading
+        step:
+          description: 'The current step of the hardware upgrade process.
+
+            Can be `pre-upgrade-check`, `upgrade-ct0`, `failover` and so on.
+
+            The default value is an empty string.
+
+            '
+          type: string
+          example: mid-upgrade-check
+    TestResultGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TestResultResponse'
+    _eula_signature:
+      type: object
+      properties:
+        accepted:
+          description: Accepted time in milliseconds since the UNIX epoch.
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1577880000000
+        company:
+          description: 'The company of the person who accepted the End User Agreement.
+
+            This field is deprecated and the response will be `null`. Modification to this field
+
+            will be ignored.
+
+            '
+          type: string
+          example: Example Inc.
+        name:
+          description: 'The name of the person who accepted the End User Agreement.
+
+            This field is deprecated and the response will be `null`. Modification to this field
+
+            will be ignored.
+
+            '
+          type: string
+          example: John Doe
+        title:
+          description: 'The title of the person who accepted the End User Agreement.
+
+            This field is deprecated and the response will be `null`. Modification to this field
+
+            will be ignored.
+
+            '
+          type: string
+          example: Admin
+    _cacheSpace:
+      type: object
+      properties:
+        total_available_cache_size:
+          description: The DRAM cache available on the primary controller, measured in bytes.
+          type: integer
+          format: int64
+          example: 3298534883328
+        total_installed_cache_size:
+          description: The DRAM cache installed on both controllers, measured in bytes.
+          type: integer
+          format: int64
+          example: 6597069766656
+    ArrayFactoryResetTokenResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArrayFactoryResetToken'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    CloudConfigSupported:
+      type: object
+      properties:
+        supported_models:
+          description: List of supported models for an upgrade.
+          type: array
+          items:
+            type: string
+            description: A supported model for the CBS array.
+            example: CBS-V20MP2R2
+    CloudConfigAutomaticCapacityUpgradePatch:
+      type: object
+      properties:
         enabled:
           description: 'Indicates if the automatic capacity upgrade is enabled.
 
@@ -3269,31 +2857,200 @@ components:
           type: integer
           format: int64
           example: 30786325577728
-    ArrayPerformanceGetResponse:
+    ArrayErasure:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
+      - $ref: '#/components/schemas/_resource'
+      - description: 'Status and detailed information of the factory reset process.
+
+          '
+        type: object
         properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ArrayPerformance'
-    CloudConfigGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/CloudConfig'
-    CloudCapacityPatchResponse:
+          details:
+            description: 'The detailed reason of the `status`.
+
+              '
+            type: string
+          image_download_progress:
+            description: 'The progress of the ISO image download, displayed in decimal format.
+
+              '
+            type: number
+            format: float
+            example: 0.32
+          image_source:
+            description: 'Source of the ISO image to download. Valid values include `auto` and URLs.
+
+              `auto` means download the image from Pure1 cloud,
+
+              and a URL means download the image from the specified URL.
+
+              '
+            type: string
+            example: auto
+          image_version:
+            description: 'Version of the image to download and install.
+
+              '
+            type: string
+            example: 6.6.6
+          sanitization_certificate:
+            description: 'The sanitization certificate of the factory reset,
+
+              which complies with the standard described in NIST SP800-88R1 section 4.8.
+
+              '
+            type: string
+          status:
+            description: 'The status of the factory reset process.
+
+              Valid values include `resetting`, `reset_failed`, `reimage_failed`,
+
+              `waiting_for_finalize`, `downloading`, `downloaded`, and `download_failed`.
+
+              A status of `resetting` indicates that the factory reset is running.
+
+              A status of `reset_failed` indicates that the factory reset encountered a failure.
+
+              A status of `reimage_failed` indicates that the factory reset failed to reimage the array.
+
+              A status of `waiting_for_finalize` indicates that the factory reset has finished
+
+              sanitizing drives, and is waiting to be finalized.
+
+              A status of `downloading` indicates that the factory reset is downloading ISO image.
+
+              A status of `downloaded` indicates that the factory reset completed ISO image download.
+
+              A status of `download_failed` indicates that the factory reset failed to download ISO image.
+
+              '
+            type: string
+            example: resetting
+    ArrayErasureResponse:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/CloudCapacityStatus'
+            $ref: '#/components/schemas/ArrayErasure'
+    _arrayencryptionDataAtRest:
+      description: 'Data at rest encryption properties.
+
+        '
+      type: object
+      properties:
+        algorithm:
+          description: 'The algorithm used to encrypt data on the array.
+
+            Values include `AES-256-CTR` and `null`.
+
+            '
+          type: string
+          example: AES-256-CTR
+        enabled:
+          description: 'Returns a value of `true` if data at rest encryption is enabled on
+
+            the array.
+
+            '
+          type: boolean
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    ArraySpaceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ArraySpace'
+    ArrayPerformanceByLinkResponse:
+      type: object
+      properties:
+        items:
+          description: 'Array-level front-end I/O performance metrics grouped by link.
+
+            A link represents a set of arrays that an I/O operation depends on.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/ArrayPerformanceByLink'
+    _performance_others:
+      type: object
+      properties:
+        mirrored_others_per_sec:
+          description: The number of mirrored other requests processed per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        others_per_sec:
+          description: The number of other requests processed per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        usec_per_mirrored_other_op:
+          description: 'The average time it takes the array to process a mirrored I/O other request, measured in
+
+            microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        usec_per_other_op:
+          description: 'The average time it takes the array to process an I/O other request, measured in
+
+            microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
     CloudConfig:
       type: object
       properties:
@@ -3323,42 +3080,92 @@ components:
             '
           type: string
           example: string
-    ArrayPerformance:
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    CloudCapacityPatchResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudCapacityStatus'
+    CloudCapacityStatus:
       allOf:
-      - $ref: '#/components/schemas/_performance'
-      - $ref: '#/components/schemas/_performance_others'
       - $ref: '#/components/schemas/_builtIn'
       - type: object
         properties:
-          local_queue_usec_per_op:
-            description: 'Deprecated. The number displayed here may not be accurate and in later versions
-
-              of the product this field will always display `null`.
-
-              Instead, use `queue_usec_per_mirrored_write_op`, `queue_usec_per_read_op`, and
-
-              `queue_usec_per_write_op` fields to measure IO queuing.
+          current_capacity:
+            description: 'The current raw capacity of the CBS array in bytes.
 
               '
             type: integer
             format: int64
-            minimum: 0
             readOnly: true
-          queue_depth:
-            description: 'Deprecated. The number displayed here may not be accurate and in later versions
+            example: 10995116277760
+          details:
+            description: 'Details about the capacity update. This field can contain error details
 
-              of the product this field will always display `null`.
+              when status is `failed` or progress information when status is
 
-              Instead, use `queue_usec_per_mirrored_write_op`, `queue_usec_per_read_op`, and
+              `expanding`. For status `idle` the value is null.
 
-              `queue_usec_per_write_op` fields to measure IO queuing.
+              '
+            type: string
+            readOnly: true
+          requested_capacity:
+            description: 'The requested raw capacity of the CBS array in bytes. When the capacity
+
+              update process finishes, it should be the same as `current_capacity`.
 
               '
             type: integer
             format: int64
-            minimum: 0
+            example: 10995116277760
+          status:
+            description: 'The status of the capacity update process.
+
+              Can be one of `idle`, `failed`, `expanding`.
+
+              '
+            type: string
             readOnly: true
-        x-readOnly: true
+            example: idle
+    TagResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    CloudConfigGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CloudConfig'
     Tag:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -3404,16 +3211,305 @@ components:
               '
             type: string
             example: staging
-    CloudConfigSupported:
+    _errorcontextresponseErrors:
       type: object
       properties:
-        supported_models:
-          description: List of supported models for an upgrade.
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    ArrayErasurePatch:
+      type: object
+      properties:
+        image_source:
+          description: 'Source of the ISO image to download. Valid values include `auto` and URLs.
+
+            `auto` means download the image from Pure1 cloud,
+
+            and a URL means download the image from the specified URL.
+
+            Default value is `auto`.
+
+            '
+          type: string
+          example: auto
+        image_version:
+          description: 'Version of the image to download. `image_version` is optional,
+
+            and the default value is the current running Purity version.
+
+            If `image_source` is `auto`, the image with the specified version
+
+            will be downloaded from Pure1 cloud.
+
+            If `image_source` is a URL, `image_version` will be used to compare
+
+            to the downloaded image version for the purpose of validation.
+
+            '
+          type: string
+          example: 6.6.6
+    CloudCapacityStep:
+      type: object
+      properties:
+        supported_capacity:
+          description: 'A possible supported raw capacity of the CBS array in bytes.
+
+            '
+          type: integer
+          format: int64
+          example: 10995116277760
+    ArrayPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_performance'
+      - $ref: '#/components/schemas/_performance_others'
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          local_queue_usec_per_op:
+            description: 'Deprecated. The number displayed here may not be accurate and in later versions
+
+              of the product this field will always display `null`.
+
+              Instead, use `queue_usec_per_mirrored_write_op`, `queue_usec_per_read_op`, and
+
+              `queue_usec_per_write_op` fields to measure IO queuing.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          queue_depth:
+            description: 'Deprecated. The number displayed here may not be accurate and in later versions
+
+              of the product this field will always display `null`.
+
+              Instead, use `queue_usec_per_mirrored_write_op`, `queue_usec_per_read_op`, and
+
+              `queue_usec_per_write_op` fields to measure IO queuing.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+        x-readOnly: true
+    ArraySpace:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          capacity:
+            description: 'Currently entitled usable capacity.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 10995116277760
+          capacity_installed:
+            description: 'Usable capacity of the array if entitled to full capacity for all drives.
+
+              '
+            type: integer
+            format: int64
+            example: 46179488366592
+          parity:
+            description: 'A representation of data redundancy on the array.
+
+              Data redundancy is rebuilt automatically by the system whenever parity is less than 1.0.
+
+              '
+            type: number
+            format: float
+            readOnly: true
+            example: 0.99
+          space:
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/Space'
+          time:
+            type: integer
+            format: int64
+            readOnly: true
+    ArrayFactoryResetToken:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - description: 'A token that is required to perform a factory reset of the array.
+
+          A factory reset of the array permanently eradicates all data and deletes all configurations,
+
+          restoring the state of the array to the original manufacturer settings.
+
+
+          '
+        type: object
+        properties:
+          token:
+            description: 'A random number required as input to perform a factory reset of the array.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 4671919
+    CloudConfigPatchResponse:
+      type: object
+      properties:
+        items:
           type: array
           items:
-            type: string
-            description: A supported model for the CBS array.
-            example: CBS-V20MP2R2
+            $ref: '#/components/schemas/CloudConfig'
+    CloudProviderTagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/CloudProviderTagResponse'
+    Eula:
+      type: object
+      properties:
+        agreement:
+          description: The End User Agreement text.
+          type: string
+          readOnly: true
+        signature:
+          $ref: '#/components/schemas/_eula_signature'
+    CloudConfigSupportedConfigsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CloudConfigSupported'
+    ArrayPerformanceByLink:
+      allOf:
+      - $ref: '#/components/schemas/ArrayPerformance'
+      - description: 'Array-level front-end I/O performance per link.
+
+          A link represents a set of arrays that an I/O operation depends on.
+
+          '
+        type: object
+        properties:
+          link:
+            description: 'List of IDs and array names for the link
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_resource'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    Space:
+      description: If the user does not have sufficient access, all fields will return `null`.
+      allOf:
+      - $ref: '#/components/schemas/_space'
+      - type: object
+        properties:
+          replication:
+            description: 'The sum of replication space consumed by all pods on this array.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          shared_effective:
+            description: 'This field has been deprecated. It will return `null`.
+
+              Use the `shared` field in the future, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          snapshots_effective:
+            description: 'This field has deprecated. It will return `null`.
+
+              Use the `snapshots` field in the future, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          total_effective:
+            description: 'This field has been deprecated. It will return `null`.
+
+              PUse the `total_physical` field instead, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          unique_effective:
+            description: 'This field has been deprecated. It will return `null`.
+
+              Use the `unique` field in the future, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
     CloudCapacityStepsGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
@@ -3423,14 +3519,52 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/CloudCapacityStep'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+    NonCopyableTag:
+      type: object
+      properties:
+        key:
+          description: 'Key of the tag. Supports up to 64 Unicode characters.
 
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
+            '
+          type: string
+          example: environment
+        namespace:
+          description: 'Optional namespace of the tag.
 
-        file system), or correspond to something in the environment, like a host or a
+            Namespace identifies the category of the tag. Omitting the namespace
 
-        server.
+            defaults to the namespace `default`. The `pure&#42;` namespaces are
+
+            reserved for plugins and integration partners. It is recommended
+
+            that customers avoid using reserved namespaces.
+
+            '
+          type: string
+          example: default
+        resource:
+          $ref: '#/components/schemas/_fixedReference'
+        value:
+          description: 'Value of the tag. Supports up to 256 Unicode characters.
+
+            '
+          type: string
+          example: staging
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
 
         '
       type: object
@@ -3444,42 +3578,44 @@ components:
           type: string
           readOnly: true
         name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    ArrayPerformanceByLinkGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ArrayPerformanceByLinkResponse'
-    CloudProviderTag:
-      type: object
-      properties:
-        details:
-          description: 'Details about the status of the tag if not healthy.
+          description: 'A locally unique, system-generated name. The name cannot be modified.
 
             '
           type: string
           readOnly: true
-          example: partially applied
-        key:
-          description: 'Key of the tag. Supports UTF-8 Unicode characters.
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    ArrayEncryption:
+      description: If the user does not have sufficient access, all fields will return `null`.
+      type: object
+      properties:
+        data_at_rest:
+          title: ArrayencryptionDataAtRest
+          allOf:
+          - $ref: '#/components/schemas/_arrayencryptionDataAtRest'
+        module_version:
+          description: 'The version of the Purity encryption module installed on the array.
 
-            Please refer to the offical document from cloud providers for limitations.
+            Security certifications are carried out on a per-version basis.
+
+            On non-encrypt builds, an encryption module may be installed without
+
+            being enabled.
+
+            Values include `FA-1.0`, `FA-1.1`, `FA-1.2`, `FA-1.3`, and so on.
 
             '
           type: string
-          example: environment
-        value:
-          description: 'Value of the tag. Supports UTF-8 Unicode characters.
-
-            Please refer to the offical document from cloud providers for limitations.
-
-            '
-          type: string
-          example: staging
+          readOnly: true
+          example: FA-1.3
+      x-readOnly: true
     Arrays:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -3605,221 +3741,286 @@ components:
             type: string
             readOnly: true
             example: 5.0.0
-    _fixedReferenceWithType:
+    TestResultResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestResult'
+    TestResult:
+      type: object
+      properties:
+        component_address:
+          description: Address of the component running the test.
+          type: string
+          example: 10.230.94.21
+        component_name:
+          description: Name of the component running the test.
+          type: string
+          example: CT0
+        description:
+          description: What the test is doing.
+          type: string
+          example: Testing phonehome connectivity
+        destination:
+          description: The URI of the target server being tested.
+          type: string
+          example: ra.cloud-support.purestorage.com
+        enabled:
+          description: 'Whether the object being tested is enabled or not.
+
+            Returns a value of `true` if the the service is enabled.
+
+            Returns a value of `false` if the service is disabled.
+
+            '
+          type: boolean
+          example: true
+        result_details:
+          description: Additional information about the test result.
+          type: string
+          example: Timeout connecting to phonehome endpoint
+        success:
+          description: 'Whether the object being tested passed the test or not.
+
+            Returns a value of `true` if the specified test has succeeded.
+
+            Returns a value of `false` if the specified test has failed.
+
+            '
+          type: boolean
+        test_type:
+          description: 'Displays the type of test being performed. The returned values are determined
+
+            by the `resource` being tested and its configuration.
+
+            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
+
+            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
+
+            `storage-admin-group-searching`, and `validate-ntp-configuration`.
+
+            '
+          type: string
+          example: phonehome
+    _referenceWritable:
       allOf:
-      - $ref: '#/components/schemas/_fixedReference'
+      - $ref: '#/components/schemas/_referenceWithoutType'
       - type: object
         properties:
           resource_type:
             description: 'Type of the object (full name of the endpoint).
 
-              Valid values are the unique part of the resource''s REST endpoint.
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
 
-              For example, a reference to a file system would have a
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
 
-              `resource_type` of `file-systems`.
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
 
               '
             type: string
-            readOnly: true
       x-aliases:
-      - _fixedReference
-    ArrayPerformanceByLinkResponse:
-      type: object
-      properties:
-        items:
-          description: 'Array-level front-end I/O performance metrics grouped by link.
-
-            A link represents a set of arrays that an I/O operation depends on.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/ArrayPerformanceByLink'
-    CloudConfigModelPatch:
-      type: object
-      properties:
-        add_override_checks:
-          description: 'A list of upgrade checks to be overridden.
-
-            '
-          type: array
-          items:
-            type: string
-          example:
-          - HostIOCheck
-          - HostPathsCheck
-        requested:
-          description: 'A supported model for the CBS array.
-
-            '
-          type: string
-          example: CBS-V20MP2R2
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    CloudCapacityStatus:
+      - _reference
+    ArrayPerformanceReplicationGetResp:
       allOf:
-      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
       - type: object
         properties:
-          current_capacity:
-            description: 'The current raw capacity of the CBS array in bytes.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-            example: 10995116277760
-          details:
-            description: 'Details about the capacity update. This field can contain error details
-
-              when status is `failed` or progress information when status is
-
-              `expanding`. For status `idle` the value is null.
-
-              '
-            type: string
-            readOnly: true
-          requested_capacity:
-            description: 'The requested raw capacity of the CBS array in bytes. When the capacity
-
-              update process finishes, it should be the same as `current_capacity`.
-
-              '
-            type: integer
-            format: int64
-            example: 10995116277760
-          status:
-            description: 'The status of the capacity update process.
-
-              Can be one of `idle`, `failed`, `expanding`.
-
-              '
-            type: string
-            readOnly: true
-            example: idle
-    ArrayErasureResponse:
-      type: object
-      properties:
-        items:
-          type: array
           items:
-            $ref: '#/components/schemas/ArrayErasure'
-    ArrayFactoryResetToken:
+            type: array
+            items:
+              $ref: '#/components/schemas/RelationshipPerformanceReplication'
+    ArrayPerformance_2:
       allOf:
-      - $ref: '#/components/schemas/_resource'
-      - description: 'A token that is required to perform a factory reset of the array.
+      - $ref: '#/components/schemas/_builtIn_2'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          bytes_per_op:
+            description: 'Average operation size (read bytes+write bytes/read ops+write ops).
 
-          A factory reset of the array permanently eradicates all data and deletes all configurations,
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          bytes_per_read:
+            description: Average read size in bytes per read operation.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          bytes_per_write:
+            description: Average write size in bytes per write operation.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          others_per_sec:
+            description: Other operations processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          read_bytes_per_sec:
+            description: Bytes read per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          reads_per_sec:
+            description: Read requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          time:
+            description: Sample time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+          usec_per_other_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
 
-          restoring the state of the array to the original manufacturer settings.
+              other operations.
 
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_read_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a read request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_write_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a write request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          write_bytes_per_sec:
+            description: Bytes written per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          writes_per_sec:
+            description: Write requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+        x-readOnly: true
+    ArrayErasure_2:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoId'
+      - description: 'Status and detailed information of the factory reset process.
 
           '
         type: object
         properties:
-          token:
-            description: 'A random number required as input to perform a factory reset of the array.
+          details:
+            description: 'The detailed reason of the `status`.
 
               '
+            type: string
+          sanitization_certificate:
+            description: 'The sanitization certificate of the factory reset,
+
+              which complies with the standard described in NIST SP800-88R1 section 4.8.
+
+              '
+            type: string
+            example: NIST SP800-88R1 section 4.8 ...
+          status:
+            description: 'The status of the factory reset process.
+
+              A status of `resetting` indicates that the factory reset is running - wiping user data.
+
+              A status of `failed` indicates that the factory reset encountered a failure.
+
+              A status of `waiting_for_finalize` indicates that the factory reset has
+
+              finished - waiting for the user to finalize the factory reset.
+
+              '
+            type: string
+            example: resetting
+    _timeZone:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+    ArraySpace_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn_2'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          capacity:
+            description: Usable capacity in bytes.
             type: integer
             format: int64
-            readOnly: true
-            example: 4671919
-    _performance_others:
+            example: 10995116277760
+          parity:
+            description: 'A representation of data redundancy on the array.
+
+              Data redundancy is rebuilt automatically by the system whenever parity is less than 1.0.
+
+              '
+            type: number
+            format: float
+            example: 0.99
+          space:
+            $ref: '#/components/schemas/_space_2'
+          time:
+            description: Sample time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+    _objectBacklog:
       type: object
       properties:
-        mirrored_others_per_sec:
-          description: The number of mirrored other requests processed per second.
-          type: integer
-          format: int64
-          minimum: 0
-          readOnly: true
-        others_per_sec:
-          description: The number of other requests processed per second.
-          type: integer
-          format: int64
-          minimum: 0
-          readOnly: true
-        usec_per_mirrored_other_op:
-          description: 'The average time it takes the array to process a mirrored I/O other request, measured in
+        bytes_count:
+          description: 'The size of the objects in bytes that need to be replicated.
 
-            microseconds.
+            This does not include the size of custom metadata.
 
             '
           type: integer
           format: int64
-          minimum: 0
           readOnly: true
-        usec_per_other_op:
-          description: 'The average time it takes the array to process an I/O other request, measured in
-
-            microseconds.
+        delete_ops_count:
+          description: 'The number of DELETE operations that need to be replicated.
 
             '
           type: integer
           format: int64
-          minimum: 0
           readOnly: true
-      x-readOnly: true
-    TagResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Tag'
-    ArrayFactoryResetTokenGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ArrayFactoryResetTokenResponse'
-    _replication_performance:
-      type: object
-      properties:
-        received_bytes_per_sec:
-          description: Total bytes received per second.
-          type: number
-          format: double
-          minimum: 0
+        other_ops_count:
+          description: 'The number of other operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
           readOnly: true
-        transmitted_bytes_per_sec:
-          description: Total bytes transmitted per second.
-          type: number
-          format: double
-          minimum: 0
+        put_ops_count:
+          description: 'The number of PUT operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
           readOnly: true
-      x-readOnly: true
     ArrayHttpSpecificPerformance:
       allOf:
       - $ref: '#/components/schemas/_builtIn_2'
@@ -3900,50 +4101,36 @@ components:
             type: number
             format: double
             minimum: 0
-    _referenceWritable:
+    ArraySpaceStorageClassGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
+      - $ref: '#/components/schemas/PageInfo_2'
       - type: object
         properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
+          items:
+            description: A list of array space metrics objects for each storage class.
+            type: array
+            items:
+              $ref: '#/components/schemas/StorageClassSpace'
+          total:
+            description: 'Total of all records after filtering.
 
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+              If `total_only` query param is `true`, then no items will be returned.
 
               '
-            type: string
-      x-aliases:
-      - _reference
-    ArraySpace_2:
+            type: array
+            items:
+              $ref: '#/components/schemas/StorageClassSpace'
+    ArrayPerformanceGetResponse_2:
       allOf:
-      - $ref: '#/components/schemas/_builtIn_2'
-      - $ref: '#/components/schemas/_context_2'
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
       - type: object
         properties:
-          capacity:
-            description: Usable capacity in bytes.
-            type: integer
-            format: int64
-            example: 10995116277760
-          parity:
-            description: 'A representation of data redundancy on the array.
-
-              Data redundancy is rebuilt automatically by the system whenever parity is less than 1.0.
-
-              '
-            type: number
-            format: float
-            example: 0.99
-          space:
-            $ref: '#/components/schemas/_space_2'
-          time:
-            description: Sample time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
+          items:
+            description: A list of array performance metrics objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/ArrayPerformance_2'
     _fixedReferenceNameOnly:
       type: object
       properties:
@@ -3951,14 +4138,63 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    ArrayResponse_2:
+    _builtInRelationship:
       type: object
       properties:
-        items:
-          description: A list of array objects.
-          type: array
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+    ArrayFactoryResetToken_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - description: 'A token that is required to perform a factory reset of the array.
+
+          A factory reset of the array permanently eradicates all data and deletes all configurations,
+
+          restoring the state of the array to the original manufacturer settings.
+
+
+          '
+        type: object
+        properties:
+          token:
+            description: 'A random 7-digit number required as input to perform a factory reset of the array.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 5671919
+    _replication_performance:
+      type: object
+      properties:
+        received_bytes_per_sec:
+          description: Total bytes received per second.
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+        transmitted_bytes_per_sec:
+          description: Total bytes transmitted per second.
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    ArrayNfsSpecificPerformanceGet:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - type: object
+        properties:
           items:
-            $ref: '#/components/schemas/Array'
+            description: A list of NFS specific array performance metrics objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/ArrayNfsSpecificPerformance'
     _arrayEncryptionDataAtRest:
       description: Data at Rest Encryption properties.
       type: object
@@ -3983,65 +4219,37 @@ components:
           readOnly: true
           example: rdseed
       x-readOnly: true
-    _errorContextResponseErrors:
+    _fixedReferenceWithoutType:
       type: object
       properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
+            The ID cannot be modified.
 
             '
           type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    _resourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment,
-
-        like a network interface.
-
-        '
-      type: object
-      properties:
+          readOnly: true
         name:
-          description: 'A name chosen by the user. Can be changed. Must be locally unique.
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
 
             '
           type: string
-    ArrayHttpSpecificPerformanceGet:
+          readOnly: true
+      x-readOnly: true
+    ArraySpaceGetResponse_2:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
       - $ref: '#/components/schemas/_errorContextResponse_2'
       - type: object
         properties:
           items:
-            description: A list of http specific array performance metrics objects.
+            description: A list of array space metrics objects.
             type: array
             items:
-              $ref: '#/components/schemas/ArrayHttpSpecificPerformance'
+              $ref: '#/components/schemas/ArraySpace_2'
     _continuousReplicationPerformance:
       allOf:
       - $ref: '#/components/schemas/_replication_performance'
@@ -4057,6 +4265,587 @@ components:
             allOf:
             - $ref: '#/components/schemas/_objectBacklog'
         x-readOnly: true
+    _context_2:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _arrayEncryption:
+      type: object
+      properties:
+        data_at_rest:
+          title: ArrayEncryptionDataAtRest
+          allOf:
+          - $ref: '#/components/schemas/_arrayEncryptionDataAtRest'
+      x-readOnly: true
+    _arrayEradicationConfig:
+      type: object
+      properties:
+        eradication_delay:
+          description: 'The file eradication delay is in milliseconds.
+
+            Automatically eradicate destroyed filesystems and snapshots after the delay time.
+
+            Valid values are `86400000` and any multiple of `86400000`
+
+            in the range of `86400000` and `2592000000`.
+
+            Any other values will be rounded down to the
+
+            nearest multiple of `86400000`.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 86400000
+        manual_eradication:
+          description: 'Manual eradication status is applied on the array level.
+
+            If status is all-disabled, you cannot eradicate buckets and file systems.
+
+            If status is file-disabled then you can not eradicate files systems.
+
+            If status is object-disabled then you can not eradicate buckets.
+
+            If status is all-enabled then you can eradicate file systems and buckets.
+
+            Values include `all-enabled`, `file-disabled`,
+
+            `object-disabled`, and `all-disabled`.
+
+            '
+          type: string
+          readOnly: true
+    ArrayS3SpecificPerformanceGetResp:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - type: object
+        properties:
+          items:
+            description: A list of S3 specific array performance metrics objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/ArrayS3SpecificPerformance'
+    RelationshipPerformanceReplication:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          aggregate:
+            description: 'Total bytes transmitted or received per second for all types of
+
+              replication.
+
+              '
+            title: Replication_performance
+            allOf:
+            - $ref: '#/components/schemas/_replication_performance'
+          continuous:
+            description: 'Object backlog information and total bytes transmitted or received
+
+              per second for continuous replication. Continuous replication
+
+              includes object replication.
+
+              '
+            title: ContinuousReplicationPerformance
+            allOf:
+            - $ref: '#/components/schemas/_continuousReplicationPerformance'
+          periodic:
+            description: 'Total bytes transmitted or received per second for periodic
+
+              replication. Periodic replication includes file system replication,
+
+              which is snapshot based.
+
+              '
+            title: Replication_performance
+            allOf:
+            - $ref: '#/components/schemas/_replication_performance'
+          time:
+            description: Sample time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+        x-readOnly: true
+    ArrayS3SpecificPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn_2'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          others_per_sec:
+            description: Other operations processed per second.
+            type: number
+            format: double
+            minimum: 0
+          read_buckets_per_sec:
+            description: Read buckets requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+          read_objects_per_sec:
+            description: Read object requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+          time:
+            description: Sample time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+          usec_per_other_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              other operations.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+          usec_per_read_bucket_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a read bucket request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+          usec_per_read_object_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a read object request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+          usec_per_write_bucket_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a write bucket request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+          usec_per_write_object_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a write object request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+          write_buckets_per_sec:
+            description: Write buckets requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+          write_objects_per_sec:
+            description: Write object requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+    StorageClassSpace:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceNameOnly'
+      - type: object
+        properties:
+          capacity:
+            description: Usable capacity in bytes.
+            type: integer
+            format: int64
+            example: 10995116277760
+          space:
+            $ref: '#/components/schemas/_space_2'
+          time:
+            description: Sample time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+    _space_2:
+      type: object
+      properties:
+        available_provisioned:
+          description: 'The amount of space left that the current object can grow before writes are stopped
+
+            due to a hard limit quota being hit. This is total_provisioned minus the virtual space
+
+            used for file-systems and buckets.
+
+            For array and object store accounts it is total_provisioned minus the virtual space
+
+            used by non-destroyed file-systems and buckets.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          example: 19937690345472
+        available_ratio:
+          description: 'The ratio of the available space versus the total provisioned space.
+
+            '
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        data_reduction:
+          description: Reduction of data.
+          type: number
+          format: float
+          readOnly: true
+        destroyed:
+          description: 'Unique physical space (excluding snapshots) occupied by destroyed data within
+
+            the child containers, in bytes.
+
+            For buckets and filesystems, the destroyed space will be 0 as they cannot have
+
+            child containers.
+
+            For the whole array, the space will be the sum of all destroyed buckets and filesystems.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        destroyed_virtual:
+          description: 'The amount of destroyed logically written data within the child containers, in bytes.
+
+            For buckets and filesystems, the destroyed virtual space will be 0 as they cannot have
+
+            child containers.
+
+            For the whole array, the space will be the sum of all destroyed buckets and filesystems.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        shared:
+          description: 'The space contributed by data that is not unique to a managed directory,
+
+            or snapshot, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        snapshots:
+          description: Physical usage by snapshots, other than unique in bytes.
+          type: integer
+          format: int64
+          readOnly: true
+        total_physical:
+          description: 'Deprecated. See total_used for the newer functionality.
+
+            The total physical space consumed by the file system, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        total_provisioned:
+          description: 'The effective provisioned size of the container, at which a hard limit
+
+            will be applied.
+
+            For a bucket with a `quota_limit` value and `hard_limit_enabled` set to `true`,
+
+            this is its `quota_limit` value, unless the available space of the associated
+
+            object store account, as defined by its `quota_limit` value, would prevent the
+
+            bucket from reaching its own `quota_limit` value. In such a case,
+
+            `total_provisioned` will reflect the smaller value.
+
+            For a file system with a `provisioned` value and `hard_limit_enabled` set to
+
+            `true`, this is the `provisioned` value of the file system.
+
+            For an object store account with a `quota_limit` value and `hard_limit_enabled`
+
+            set to `true`, this is the `quota_limit` value of the object store account.
+
+            For the array, this is the sum of the file systems and accounts.
+
+            Measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          example: 19937690345472
+        total_used:
+          description: 'The total space consumed by customer data, measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        unique:
+          description: 'Unique physical space occupied by customer data, in bytes.
+
+            Excludes snapshots, destroyed.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        virtual:
+          description: 'The amount of logically written data, in bytes.
+
+            Excludes destroyed data.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 19937690345472
+    ArraysSupportedTimeZonesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/_timeZone'
+    Array:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          _as_of:
+            description: Array time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+          banner:
+            description: 'A string to be shown when logging in to the array.
+
+              '
+            type: string
+            example: Restricted area. Authorized personnel only.
+          default_inbound_tls_policy:
+            description: 'The default TLS policy governing inbound traffic from clients accessing the array.
+
+              This TLS policy will be applied for any IP addresses on the system that do not
+
+              have a specific policy applied to them at a more granular level.
+
+              '
+            title: ReferenceWritable
+            allOf:
+            - $ref: '#/components/schemas/_referenceWritable'
+          encryption:
+            readOnly: true
+            title: ArrayEncryption
+            allOf:
+            - $ref: '#/components/schemas/_arrayEncryption'
+          eradication_config:
+            title: ArrayEradicationConfig
+            allOf:
+            - $ref: '#/components/schemas/_arrayEradicationConfig'
+          idle_timeout:
+            description: 'Idle timeout in milliseconds. Valid values are
+
+              in the range of 300000 and 10800000. Setting this value to 0
+
+              disables timeouts.
+
+              '
+            type: integer
+            format: int32
+            example: 300000
+          network_access_policy:
+            description: 'The network access policy governing which clients are allowed or denied access to different
+
+              array interfaces.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          ntp_servers:
+            type: array
+            items:
+              type: string
+              example: time.acme.com
+          os:
+            description: 'Valid values are `Purity//FA` and `Purity//FB`.
+
+              '
+            type: string
+            readOnly: true
+            example: Purity//FB
+          product_type:
+            description: 'For `FlashBlade//S` arrays, the value is determined by the blades in the system.
+
+              The value will be `FlashBlade` for all older arrays.
+
+              Valid values are `FlashBlade`, `FlashBlade//S`, `FlashBlade//S200`, and `FlashBladeS500`.
+
+              '
+            type: string
+            readOnly: true
+          revision:
+            type: string
+            readOnly: true
+            example: 2017.11.07_8f3ab6f5
+          security_update:
+            description: 'The name of the installed security update that currently applies to the system.
+
+              This field will be `null` if either no security update has been installed, or if the
+
+              most recently installed security update is no longer needed by the current
+
+              FlashBlade software due to the current software fully incorporating the update.
+
+              '
+            type: string
+            readOnly: true
+            example: fb-2022-04-04
+          smb_mode:
+            description: 'The current SMB mode of the array.
+
+              This controls the type of authentication that is used by the array for SMB.
+
+              Possible values include `ad-auto`, `ad-rfc2307`, `guest`, and `native`.
+
+              Modifying this value requires the assistance of Pure Storage Support.
+
+              '
+            type: string
+            readOnly: true
+          time_zone:
+            description: 'The time zone to use for the array. In particular this affects
+
+              the CLI formatting and the default snapshot policy time zone.
+
+              '
+            type: string
+            example: America/Los_Angeles
+          version:
+            type: string
+            readOnly: true
+            example: 2.1.0
+    _builtIn_2:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _builtInNoId:
+      type: object
+      properties:
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
     ArrayNfsSpecificPerformance:
       allOf:
       - $ref: '#/components/schemas/_builtIn_2'
@@ -4439,862 +5228,77 @@ components:
             type: number
             format: double
             minimum: 0
-    RelationshipPerformanceReplication:
-      allOf:
-      - $ref: '#/components/schemas/_builtInRelationship'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          aggregate:
-            description: 'Total bytes transmitted or received per second for all types of
-
-              replication.
-
-              '
-            title: Replication_performance
-            allOf:
-            - $ref: '#/components/schemas/_replication_performance'
-          continuous:
-            description: 'Object backlog information and total bytes transmitted or received
-
-              per second for continuous replication. Continuous replication
-
-              includes object replication.
-
-              '
-            title: ContinuousReplicationPerformance
-            allOf:
-            - $ref: '#/components/schemas/_continuousReplicationPerformance'
-          periodic:
-            description: 'Total bytes transmitted or received per second for periodic
-
-              replication. Periodic replication includes file system replication,
-
-              which is snapshot based.
-
-              '
-            title: Replication_performance
-            allOf:
-            - $ref: '#/components/schemas/_replication_performance'
-          time:
-            description: Sample time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-            readOnly: true
-        x-readOnly: true
-    _space_2:
-      type: object
-      properties:
-        available_provisioned:
-          description: 'The amount of space left that the current object can grow before writes are stopped
-
-            due to a hard limit quota being hit. This is total_provisioned minus the virtual space
-
-            used for file-systems and buckets.
-
-            For array and object store accounts it is total_provisioned minus the virtual space
-
-            used by non-destroyed file-systems and buckets.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-          example: 19937690345472
-        available_ratio:
-          description: 'The ratio of the available space versus the total provisioned space.
-
-            '
-          type: number
-          format: float
-          minimum: 0
-          maximum: 1
-        data_reduction:
-          description: Reduction of data.
-          type: number
-          format: float
-          readOnly: true
-        destroyed:
-          description: 'Unique physical space (excluding snapshots) occupied by destroyed data within
-
-            the child containers, in bytes.
-
-            For buckets and filesystems, the destroyed space will be 0 as they cannot have
-
-            child containers.
-
-            For the whole array, the space will be the sum of all destroyed buckets and filesystems.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        destroyed_virtual:
-          description: 'The amount of destroyed logically written data within the child containers, in bytes.
-
-            For buckets and filesystems, the destroyed virtual space will be 0 as they cannot have
-
-            child containers.
-
-            For the whole array, the space will be the sum of all destroyed buckets and filesystems.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        shared:
-          description: 'The space contributed by data that is not unique to a managed directory,
-
-            or snapshot, measured in bytes.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        snapshots:
-          description: Physical usage by snapshots, other than unique in bytes.
-          type: integer
-          format: int64
-          readOnly: true
-        total_physical:
-          description: 'Deprecated. See total_used for the newer functionality.
-
-            The total physical space consumed by the file system, measured in bytes.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-          readOnly: true
-        total_provisioned:
-          description: 'The effective provisioned size of the container, at which a hard limit
-
-            will be applied.
-
-            For a bucket with a `quota_limit` value and `hard_limit_enabled` set to `true`,
-
-            this is its `quota_limit` value, unless the available space of the associated
-
-            object store account, as defined by its `quota_limit` value, would prevent the
-
-            bucket from reaching its own `quota_limit` value. In such a case,
-
-            `total_provisioned` will reflect the smaller value.
-
-            For a file system with a `provisioned` value and `hard_limit_enabled` set to
-
-            `true`, this is the `provisioned` value of the file system.
-
-            For an object store account with a `quota_limit` value and `hard_limit_enabled`
-
-            set to `true`, this is the `quota_limit` value of the object store account.
-
-            For the array, this is the sum of the file systems and accounts.
-
-            Measured in bytes.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-          example: 19937690345472
-        total_used:
-          description: 'The total space consumed by customer data, measured in bytes.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-          readOnly: true
-        unique:
-          description: 'Unique physical space occupied by customer data, in bytes.
-
-            Excludes snapshots, destroyed.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        virtual:
-          description: 'The amount of logically written data, in bytes.
-
-            Excludes destroyed data.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-          example: 19937690345472
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    ArrayS3SpecificPerformanceGetResp:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - type: object
-        properties:
-          items:
-            description: A list of S3 specific array performance metrics objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/ArrayS3SpecificPerformance'
-    ArraySpaceGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - type: object
-        properties:
-          items:
-            description: A list of array space metrics objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/ArraySpace_2'
-    ArrayNfsSpecificPerformanceGet:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - type: object
-        properties:
-          items:
-            description: A list of NFS specific array performance metrics objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/ArrayNfsSpecificPerformance'
-    ArrayErasure_2:
-      allOf:
-      - $ref: '#/components/schemas/_resourceNoId'
-      - description: 'Status and detailed information of the factory reset process.
-
-          '
-        type: object
-        properties:
-          details:
-            description: 'The detailed reason of the `status`.
-
-              '
-            type: string
-          sanitization_certificate:
-            description: 'The sanitization certificate of the factory reset,
-
-              which complies with the standard described in NIST SP800-88R1 section 4.8.
-
-              '
-            type: string
-            example: NIST SP800-88R1 section 4.8 ...
-          status:
-            description: 'The status of the factory reset process.
-
-              A status of `resetting` indicates that the factory reset is running - wiping user data.
-
-              A status of `failed` indicates that the factory reset encountered a failure.
-
-              A status of `waiting_for_finalize` indicates that the factory reset has
-
-              finished - waiting for the user to finalize the factory reset.
-
-              '
-            type: string
-            example: resetting
-    ArraysSupportedTimeZonesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/_timeZone'
-    ArrayPerformanceGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - type: object
-        properties:
-          items:
-            description: A list of array performance metrics objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/ArrayPerformance_2'
-    _builtIn_2:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    StorageClassSpace:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceNameOnly'
-      - type: object
-        properties:
-          capacity:
-            description: Usable capacity in bytes.
-            type: integer
-            format: int64
-            example: 10995116277760
-          space:
-            $ref: '#/components/schemas/_space_2'
-          time:
-            description: Sample time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    Array:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          _as_of:
-            description: Array time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-            readOnly: true
-          banner:
-            description: 'A string to be shown when logging in to the array.
-
-              '
-            type: string
-            example: Restricted area. Authorized personnel only.
-          default_inbound_tls_policy:
-            description: 'The default TLS policy governing inbound traffic from clients accessing the array.
-
-              This TLS policy will be applied for any IP addresses on the system that do not
-
-              have a specific policy applied to them at a more granular level.
-
-              '
-            title: ReferenceWritable
-            allOf:
-            - $ref: '#/components/schemas/_referenceWritable'
-          encryption:
-            readOnly: true
-            title: ArrayEncryption
-            allOf:
-            - $ref: '#/components/schemas/_arrayEncryption'
-          eradication_config:
-            title: ArrayEradicationConfig
-            allOf:
-            - $ref: '#/components/schemas/_arrayEradicationConfig'
-          idle_timeout:
-            description: 'Idle timeout in milliseconds. Valid values are
-
-              in the range of 300000 and 10800000. Setting this value to 0
-
-              disables timeouts.
-
-              '
-            type: integer
-            format: int32
-            example: 300000
-          network_access_policy:
-            description: 'The network access policy governing which clients are allowed or denied access to different
-
-              array interfaces.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          ntp_servers:
-            type: array
-            items:
-              type: string
-              example: time.acme.com
-          os:
-            description: 'Valid values are `Purity//FA` and `Purity//FB`.
-
-              '
-            type: string
-            readOnly: true
-            example: Purity//FB
-          product_type:
-            description: 'For `FlashBlade//S` arrays, the value is determined by the blades in the system.
-
-              The value will be `FlashBlade` for all older arrays.
-
-              Valid values are `FlashBlade`, `FlashBlade//S`, `FlashBlade//S200`, and `FlashBladeS500`.
-
-              '
-            type: string
-            readOnly: true
-          revision:
-            type: string
-            readOnly: true
-            example: 2017.11.07_8f3ab6f5
-          security_update:
-            description: 'The name of the installed security update that currently applies to the system.
-
-              This field will be `null` if either no security update has been installed, or if the
-
-              most recently installed security update is no longer needed by the current
-
-              FlashBlade software due to the current software fully incorporating the update.
-
-              '
-            type: string
-            readOnly: true
-            example: fb-2022-04-04
-          smb_mode:
-            description: 'The current SMB mode of the array.
-
-              This controls the type of authentication that is used by the array for SMB.
-
-              Possible values include `ad-auto`, `ad-rfc2307`, `guest`, and `native`.
-
-              Modifying this value requires the assistance of Pure Storage Support.
-
-              '
-            type: string
-            readOnly: true
-          time_zone:
-            description: 'The time zone to use for the array. In particular this affects
-
-              the CLI formatting and the default snapshot policy time zone.
-
-              '
-            type: string
-            example: America/Los_Angeles
-          version:
-            type: string
-            readOnly: true
-            example: 2.1.0
-    ArrayFactoryResetToken_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - description: 'A token that is required to perform a factory reset of the array.
-
-          A factory reset of the array permanently eradicates all data and deletes all configurations,
-
-          restoring the state of the array to the original manufacturer settings.
-
-
-          '
-        type: object
-        properties:
-          token:
-            description: 'A random 7-digit number required as input to perform a factory reset of the array.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-            example: 5671919
-    _objectBacklog:
-      type: object
-      properties:
-        bytes_count:
-          description: 'The size of the objects in bytes that need to be replicated.
-
-            This does not include the size of custom metadata.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        delete_ops_count:
-          description: 'The number of DELETE operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        other_ops_count:
-          description: 'The number of other operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        put_ops_count:
-          description: 'The number of PUT operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-    _arrayEncryption:
-      type: object
-      properties:
-        data_at_rest:
-          title: ArrayEncryptionDataAtRest
-          allOf:
-          - $ref: '#/components/schemas/_arrayEncryptionDataAtRest'
-      x-readOnly: true
-    _arrayEradicationConfig:
-      type: object
-      properties:
-        eradication_delay:
-          description: 'The file eradication delay is in milliseconds.
-
-            Automatically eradicate destroyed filesystems and snapshots after the delay time.
-
-            Valid values are `86400000` and any multiple of `86400000`
-
-            in the range of `86400000` and `2592000000`.
-
-            Any other values will be rounded down to the
-
-            nearest multiple of `86400000`.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-          example: 86400000
-        manual_eradication:
-          description: 'Manual eradication status is applied on the array level.
-
-            If status is all-disabled, you cannot eradicate buckets and file systems.
-
-            If status is file-disabled then you can not eradicate files systems.
-
-            If status is object-disabled then you can not eradicate buckets.
-
-            If status is all-enabled then you can eradicate file systems and buckets.
-
-            Values include `all-enabled`, `file-disabled`,
-
-            `object-disabled`, and `all-disabled`.
-
-            '
-          type: string
-          readOnly: true
-    ArrayPerformanceReplicationGetResp:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/RelationshipPerformanceReplication'
-    ArraySpaceStorageClassGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            description: A list of array space metrics objects for each storage class.
-            type: array
-            items:
-              $ref: '#/components/schemas/StorageClassSpace'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no items will be returned.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/StorageClassSpace'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    ArrayPerformance_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn_2'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          bytes_per_op:
-            description: 'Average operation size (read bytes+write bytes/read ops+write ops).
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          bytes_per_read:
-            description: Average read size in bytes per read operation.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          bytes_per_write:
-            description: Average write size in bytes per write operation.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          others_per_sec:
-            description: Other operations processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          read_bytes_per_sec:
-            description: Bytes read per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          reads_per_sec:
-            description: Read requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          time:
-            description: Sample time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-            readOnly: true
-          usec_per_other_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              other operations.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_read_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a read request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_write_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a write request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          write_bytes_per_sec:
-            description: Bytes written per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          writes_per_sec:
-            description: Write requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-        x-readOnly: true
-    _builtInNoId:
-      type: object
-      properties:
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _builtInRelationship:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-    _timeZone:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-    _context_2:
+    _errorContextResponseErrors:
       type: object
       properties:
         context:
-          description: 'The context in which the operation was performed.
+          description: 'Contains information relating to the cause of this error,
 
+            or the name of the object that was being processed when the error was encountered.
 
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            This may be `null` for more general errors.
 
             '
-          readOnly: true
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference_2'
-    _errorContextResponse_2:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
+        message:
+          description: A description of the error which occurred.
           type: string
+          example: Resource does not exist.
+    _resourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment,
+
+        like a network interface.
+
+        '
+      type: object
+      properties:
         name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
+          description: 'A name chosen by the user. Can be changed. Must be locally unique.
 
             '
           type: string
-    ArrayS3SpecificPerformance:
+    ArrayResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of array objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Array'
+    ArrayHttpSpecificPerformanceGet:
       allOf:
-      - $ref: '#/components/schemas/_builtIn_2'
-      - $ref: '#/components/schemas/_context_2'
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
       - type: object
         properties:
-          others_per_sec:
-            description: Other operations processed per second.
-            type: number
-            format: double
-            minimum: 0
-          read_buckets_per_sec:
-            description: Read buckets requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-          read_objects_per_sec:
-            description: Read object requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-          time:
-            description: Sample time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-          usec_per_other_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              other operations.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-          usec_per_read_bucket_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a read bucket request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-          usec_per_read_object_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a read object request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-          usec_per_write_bucket_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a write bucket request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-          usec_per_write_object_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a write object request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-          write_buckets_per_sec:
-            description: Write buckets requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-          write_objects_per_sec:
-            description: Write object requests processed per second.
-            type: number
-            format: double
-            minimum: 0
+          items:
+            description: A list of http specific array performance metrics objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/ArrayHttpSpecificPerformance'
+    TagGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/TagResponse'
     _timeAware:
       type: object
       properties:
@@ -5304,6 +5308,49 @@ components:
           format: int64
           readOnly: true
           example: 1502729489760
+    _builtInAsOf:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 01c2889a-4124-49ff-8cbd-c33405ede123
+          name:
+            description: A non-modifiable, locally unique name chosen by the system.
+            type: string
+            readOnly: true
+            example: example_name
+    TagPut:
+      type: object
+      properties:
+        key:
+          description: Key of the tag.
+          type: string
+          example: example_key
+        value:
+          description: Value of the tag.
+          type: string
+          example: value123
     _fixedReferenceFqdn:
       allOf:
       - $ref: '#/components/schemas/_fixedReference_3'
@@ -5318,46 +5365,6 @@ components:
             type: string
             readOnly: true
             example: example_name.dc1.example.com
-    SupportContract:
-      type: object
-      properties:
-        end_date:
-          description: 'Date when the support contract ended.
-
-            Represented as a timestamp of 00:00 on that date in UTC, in milliseconds since UNIX epoch.
-
-            '
-          type: integer
-          format: int64
-          example: 1582502400000
-        resource:
-          $ref: '#/components/schemas/_fixedReferenceFqdn'
-        start_date:
-          description: 'Date when the support contract started.
-
-            Represented as a timestamp of 00:00 on that date in UTC, in milliseconds since UNIX epoch.
-
-            '
-          type: integer
-          format: int64
-          example: 1550966400000
-    SupportContractGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/SupportContractResponse'
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
-    ArrayGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/ArrayResponse_3'
     PageInfo_3:
       type: object
       properties:
@@ -5388,17 +5395,6 @@ components:
           type: integer
           format: int32
           example: 1
-    TagPut:
-      type: object
-      properties:
-        key:
-          description: Key of the tag.
-          type: string
-          example: example_key
-        value:
-          description: Value of the tag.
-          type: string
-          example: value123
     _fixedReference_3:
       type: object
       properties:
@@ -5424,6 +5420,43 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
+    SupportContract:
+      type: object
+      properties:
+        end_date:
+          description: 'Date when the support contract ended.
+
+            Represented as a timestamp of 00:00 on that date in UTC, in milliseconds since UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          example: 1582502400000
+        resource:
+          $ref: '#/components/schemas/_fixedReferenceFqdn'
+        start_date:
+          description: 'Date when the support contract started.
+
+            Represented as a timestamp of 00:00 on that date in UTC, in milliseconds since UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          example: 1550966400000
+    ArrayGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/ArrayResponse_3'
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    SupportContractGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/SupportContractResponse'
     Error:
       type: object
       properties:
@@ -5461,45 +5494,6 @@ components:
             type: string
             readOnly: true
             example: 5.0.0
-    _builtInAsOf:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 01c2889a-4124-49ff-8cbd-c33405ede123
-          name:
-            description: A non-modifiable, locally unique name chosen by the system.
-            type: string
-            readOnly: true
-            example: example_name
-    SupportContractResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SupportContract'
     Tag_2:
       type: object
       properties:
@@ -5526,10 +5520,29 @@ components:
           description: Value of the tag.
           type: string
           example: value123
-    TagGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/TagResponse'
+    ArrayResponse_3:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Array_2'
+    SupportContractResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportContract'
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
     TagBatchRequired:
       description: 'A list of tags to be upserted.
 
@@ -5538,39 +5551,40 @@ components:
       items:
         $ref: '#/components/schemas/TagPut'
       x-codegen-request-body-name: tag
-    ErrorNoContext:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Something was wrong
-    ArrayResponse_3:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Array_2'
   parameters:
-    Sort:
-      name: sort
+    Eradicate_all_data_required:
+      name: eradicate_all_data
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      description: 'Set to `true` to perform a factory reset.
+
+        '
+      required: true
+      schema:
+        type: boolean
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
       style: form
       explode: false
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
     History_resolution:
       name: resolution
       in: query
@@ -5622,75 +5636,18 @@ components:
         format: int64
         minimum: 0
       example: 30000
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Eradicate_all_data:
-      name: eradicate_all_data
+    Keys:
+      name: keys
       in: query
-      description: 'Set to `true` to perform a factory reset.
+      description: 'A comma-separated list of tag keys.
 
         '
+      style: form
+      explode: false
       schema:
-        type: boolean
-    Factory_reset_token:
-      name: factory_reset_token
-      in: query
-      description: 'A token required to perform a factory reset.
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Delete_sanitization_certificate_required:
-      name: delete_sanitization_certificate
-      in: query
-      description: 'Set to `true` to finalize factory reset and acknowledge the deletion of sanitization certificate.
-
-        '
-      required: true
-      schema:
-        type: boolean
-    Eradicate_all_data_required:
-      name: eradicate_all_data
-      in: query
-      description: 'Set to `true` to perform a factory reset.
-
-        '
-      required: true
-      schema:
-        type: boolean
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Skip_phonehome_check:
-      name: skip_phonehome_check
-      in: query
-      description: 'A flag to skip phonehome connectivity check. If `skip_phonehome_check` is not set,
-
-        the factory reset will fail if phonehome connectivity check fails.
-
-        Arrays that intentionally disable phonehome or do not permit connectivity
-
-        to Pure Storage''s cloud servers must set this flag to `true` in order to start factory reset.
-
-        '
-      schema:
-        type: boolean
+        type: array
+        items:
+          type: string
     History_end_time:
       name: end_time
       in: query
@@ -5721,22 +5678,21 @@ components:
       schema:
         type: integer
         format: int64
-    Total_item_count:
-      name: total_item_count
+    Perf_protocol_group:
+      name: protocol_group
       in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
+      description: 'Protocol group type. Valid values are `block`, `file`, `object-store`, and `all`.
 
         '
+      schema:
+        type: string
+    Delete_sanitization_certificate_required:
+      name: delete_sanitization_certificate
+      in: query
+      description: 'Set to `true` to finalize factory reset and acknowledge the deletion of sanitization certificate.
+
+        '
+      required: true
       schema:
         type: boolean
     Limit:
@@ -5758,74 +5714,23 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Finalize_array_erasure_required:
-      name: finalize
+    Eradicate_all_data:
+      name: eradicate_all_data
       in: query
-      description: 'Must be `true` to finalize factory reset.
+      description: 'Set to `true` to perform a factory reset.
+
+        '
+      schema:
+        type: boolean
+    Reinstall_image_required:
+      name: reinstall_image
+      in: query
+      description: 'Set to `true` to reinstall image, or `false` to skip reinstalling image.
 
         '
       required: true
       schema:
         type: boolean
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Preserve_configuration_data_required:
-      name: preserve_configuration_data
-      in: query
-      description: 'A comma-separated list of configuration data types to preserve.
-
-        A value of `all` will preserve all configuration
-
-        data types. Valid values include `all`.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Perf_protocol_group:
-      name: protocol_group
-      in: query
-      description: 'Protocol group type. Valid values are `block`, `file`, `object-store`, and `all`.
-
-        '
-      schema:
-        type: string
-    Keys:
-      name: keys
-      in: query
-      description: 'A comma-separated list of tag keys.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     History_start_time:
       name: start_time
       in: query
@@ -5856,59 +5761,15 @@ components:
       schema:
         type: integer
         format: int64
-    Namespaces:
-      name: namespaces
+    Factory_reset_token:
+      name: factory_reset_token
       in: query
-      description: 'A comma-separated list of namespaces.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Perf_protocol_type:
-      name: protocol
-      in: query
-      description: 'Protocol type. Valid values are `nfs`, `smb`, `s3`, and `all`.
+      description: 'A token required to perform a factory reset.
 
         '
       schema:
-        type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Reinstall_image_required:
-      name: reinstall_image
-      in: query
-      description: 'Set to `true` to reinstall image, or `false` to skip reinstalling image.
-
-        '
-      required: true
-      schema:
-        type: boolean
+        type: integer
+        format: int64
     Context_names_get:
       name: context_names
       in: query
@@ -5939,6 +5800,25 @@ components:
         type: array
         items:
           type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     Offset:
       name: offset
       in: query
@@ -5952,6 +5832,68 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Namespaces:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
     Allow_errors:
       name: allow_errors
       in: query
@@ -5965,46 +5907,64 @@ components:
       schema:
         type: boolean
         default: false
-    End_time:
-      name: end_time
+    Perf_protocol_type:
+      name: protocol
       in: query
-      description: 'When the time window ends (in milliseconds since epoch).
+      description: 'Protocol type. Valid values are `nfs`, `smb`, `s3`, and `all`.
 
         '
       schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
-    Sort_2:
-      name: sort
+        type: string
+    Skip_phonehome_check:
+      name: skip_phonehome_check
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A flag to skip phonehome connectivity check. If `skip_phonehome_check` is not set,
 
-        is appended to the field name).
+        the factory reset will fail if phonehome connectivity check fails.
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        Arrays that intentionally disable phonehome or do not permit connectivity
 
-        the response.
+        to Pure Storage''s cloud servers must set this flag to `true` in order to start factory reset.
 
         '
+      schema:
+        type: boolean
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Preserve_configuration_data_required:
+      name: preserve_configuration_data
+      in: query
+      description: 'A comma-separated list of configuration data types to preserve.
+
+        A value of `all` will preserve all configuration
+
+        data types. Valid values include `all`.
+
+        '
+      required: true
       style: form
       explode: false
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Finalize_array_erasure_required_2:
+    Finalize_array_erasure_required:
       name: finalize
       in: query
-      required: true
       description: 'Must be `true` to finalize factory reset.
 
         '
+      required: true
       schema:
         type: boolean
-        default: true
     Start_time:
       name: start_time
       in: query
@@ -6026,44 +5986,64 @@ components:
       schema:
         type: boolean
         default: true
-    Preserve_configuration_data_required_2:
-      name: preserve_configuration_data
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Delete_sanitization_certificate_required_2:
+      name: delete_sanitization_certificate
       in: query
       required: true
-      description: 'For the initial phase `none` is only acceptable value for this parameter
+      description: 'Must be `true` to finalize factory reset and acknowledge the deletion of sanitization certificate.
+
+        '
+      schema:
+        type: boolean
+        default: true
+    StorageClassNames:
+      name: storage_class_names
+      in: query
+      description: 'A comma-separated list of storage class names. Valid values include `S500X-S` and `S500X-A`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Protocol:
+      name: protocol
+      in: query
+      description: 'Display the performance of a specified protocol.
+
+        Valid values are `all`, `HTTP`, `SMB`, `NFS`, and `S3`.
+
+        If not specified, defaults to `all`, which will provide
+
+        the combined performance of all available protocols.
 
         '
       schema:
         type: string
-        default: none
-    Total_only:
-      name: total_only
+    End_time:
+      name: end_time
       in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
+      description: 'When the time window ends (in milliseconds since epoch).
 
         '
       schema:
-        type: boolean
-    Skip_phonehome_check_2:
-      name: skip_phonehome_check
-      in: query
-      required: true
-      description: 'A flag to skip phonehome connectivity check.
-
-        Arrays that intentionally disable phonehome or do not permit connectivity
-
-        to Pure Storage''s cloud servers must set this flag to `true` in order to start factory reset.
-
-        '
-      schema:
-        type: boolean
-        default: false
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
     Names:
       name: names
       in: query
@@ -6099,10 +6079,38 @@ components:
         '
       schema:
         type: string
-    StorageClassNames:
-      name: storage_class_names
+    Preserve_configuration_data_required_2:
+      name: preserve_configuration_data
       in: query
-      description: 'A comma-separated list of storage class names. Valid values include `S500X-S` and `S500X-A`.
+      required: true
+      description: 'For the initial phase `none` is only acceptable value for this parameter
+
+        '
+      schema:
+        type: string
+        default: none
+    Type_for_performance:
+      name: type
+      in: query
+      description: 'Display the metric of a specified object type.
+
+        Valid values are `all`, `file-system`, and `object-store`.
+
+        If not specified, defaults to `all`.
+
+        '
+      schema:
+        type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
 
         '
       style: form
@@ -6110,18 +6118,22 @@ components:
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Offset_2:
-      name: offset
+    Total_only:
+      name: total_only
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
+        type: boolean
     Resolution:
       name: resolution
       in: query
@@ -6139,67 +6151,44 @@ components:
         format: int64
         minimum: 0
       example: 30000
-    Delete_sanitization_certificate_required_2:
-      name: delete_sanitization_certificate
+    Finalize_array_erasure_required_2:
+      name: finalize
       in: query
       required: true
-      description: 'Must be `true` to finalize factory reset and acknowledge the deletion of sanitization certificate.
+      description: 'Must be `true` to finalize factory reset.
 
         '
       schema:
         type: boolean
         default: true
-    Type_for_performance:
-      name: type
+    Skip_phonehome_check_2:
+      name: skip_phonehome_check
       in: query
-      description: 'Display the metric of a specified object type.
+      required: true
+      description: 'A flag to skip phonehome connectivity check.
 
-        Valid values are `all`, `file-system`, and `object-store`.
+        Arrays that intentionally disable phonehome or do not permit connectivity
 
-        If not specified, defaults to `all`.
+        to Pure Storage''s cloud servers must set this flag to `true` in order to start factory reset.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
 
         '
       schema:
         type: string
-    Protocol:
-      name: protocol
-      in: query
-      description: 'Display the performance of a specified protocol.
-
-        Valid values are `all`, `HTTP`, `SMB`, `NFS`, and `S3`.
-
-        If not specified, defaults to `all`, which will provide
-
-        the combined performance of all available protocols.
-
-        '
-      schema:
-        type: string
-    Sort_3:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        If you provide a sort you will not get a continuation token in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Resource_namesRequired:
+    Resource_names:
       name: resource_names
       in: query
-      description: 'REQUIRED: either `resource_ids` or `resource_names`.
-
-        A comma-separated list of resource names.
+      description: 'A comma-separated list of resource names.
 
         If there is not at least one resource that matches each `resource_name`
 
@@ -6216,14 +6205,24 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Fqdns:
-      name: fqdns
+    Offset_3:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Resource_fqdns:
+      name: resource_fqdns
       in: query
       description: 'A comma-separated list of resource FQDNs.
 
-        If there is not at least one resource that matches each `fqdn` element,
+        If there is not at least one resource that matches each `resource_fqdn`
 
-        an error is returned.
+        element, an error is returned.
 
         Single quotes are required around all strings.
 
@@ -6236,38 +6235,33 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Filter_2:
-      name: filter
+    Limit_2:
+      name: limit
       in: query
-      description: 'Exclude resources that don''t match the specified criteria.
+      description: 'Limit the size of the response to the specified number of resources.
 
-        Single quotes are required around all strings inside the filters.
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
 
         '
       schema:
-        type: string
-    Continuation_token_2:
-      name: continuation_token
+        type: integer
+        format: int32
+    Fqdns:
+      name: fqdns
       in: query
-      description: 'An opaque token used to iterate over a collection.
+      description: 'A comma-separated list of resource FQDNs.
 
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    Resource_ids:
-      name: resource_ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `resource_id` element,
+        If there is not at least one resource that matches each `fqdn` element,
 
         an error is returned.
 
@@ -6302,82 +6296,14 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Keys_2:
-      name: keys
-      in: query
-      description: 'A comma-separated list of tag keys.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Resource_names:
+    Resource_namesRequired:
       name: resource_names
       in: query
-      description: 'A comma-separated list of resource names.
+      description: 'REQUIRED: either `resource_ids` or `resource_names`.
+
+        A comma-separated list of resource names.
 
         If there is not at least one resource that matches each `resource_name`
-
-        element, an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Authorization_2:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
-    Offset_3:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Namespaces_2:
-      name: namespaces
-      in: query
-      description: 'A comma-separated list of namespaces.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Resource_fqdns:
-      name: resource_fqdns
-      in: query
-      description: 'A comma-separated list of resource FQDNs.
-
-        If there is not at least one resource that matches each `resource_fqdn`
 
         element, an error is returned.
 
@@ -6414,27 +6340,54 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Limit_2:
-      name: limit
+    Keys_2:
+      name: keys
       in: query
-      description: 'Limit the size of the response to the specified number of resources.
+      description: 'A comma-separated list of tag keys.
 
-        A limit of 0 can be used to get the number of resources without getting
+        Single quotes are required around all strings.
 
-        all of the resources. It will be returned in the total_item_count field.
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Namespaces_2:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces.
 
-        If a client asks for a page size larger than the maximum number, the request
+        Single quotes are required around all strings.
 
-        is still valid. In that case the server just returns the maximum number of
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
 
-        items, disregarding the client''s page size request. If not specified, defaults
+        The token to use on the next request is returned in the
 
-        to 1000.
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
 
         '
       schema:
-        type: integer
-        format: int32
+        type: string
+        x-quoted: true
+      x-quoted: true
     Ids:
       name: ids
       in: query
@@ -6455,9 +6408,56 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
+    Sort_3:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Resource_ids:
+      name: resource_ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `resource_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
   responses:
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error404:
+      description: NOT FOUND
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -6489,6 +6489,37 @@ components:
             $ref: '#/components/schemas/Error'
     Error400:
       description: BAD REQUEST
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -6560,37 +6591,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error404:
-      description: NOT FOUND
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

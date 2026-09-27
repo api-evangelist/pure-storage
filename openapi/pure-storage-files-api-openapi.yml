@@ -52,16 +52,22 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
+    Paths:
+      name: paths
+      in: query
+      description: 'Target file path relative to the target directory.
 
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
+        Enter multiple target file path in a comma-separated format.
+
+        For example, `/dir1/dir2/file1,/dir3/dir4/file2`.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     Directory_names:
       name: directory_names
       in: query
@@ -86,22 +92,6 @@ components:
         '
       schema:
         type: string
-    Directory_ids:
-      name: directory_ids
-      in: query
-      description: 'Performs the operation on the unique managed directory IDs specified.
-
-        Enter multiple managed directory IDs in comma-separated format.
-
-        The `directory_ids` or `directory_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Overwrite:
       name: overwrite
       in: query
@@ -120,14 +110,24 @@ components:
         '
       schema:
         type: boolean
-    Paths:
-      name: paths
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Directory_ids:
+      name: directory_ids
       in: query
-      description: 'Target file path relative to the target directory.
+      description: 'Performs the operation on the unique managed directory IDs specified.
 
-        Enter multiple target file path in a comma-separated format.
+        Enter multiple managed directory IDs in comma-separated format.
 
-        For example, `/dir1/dir2/file1,/dir3/dir4/file2`.
+        The `directory_ids` or `directory_names` parameter is required, but they cannot be set together.
 
         '
       style: form
@@ -137,6 +137,26 @@ components:
         items:
           type: string
   schemas:
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
     FilePost:
       type: object
       properties:
@@ -171,23 +191,3 @@ components:
           type: string
       x-aliases:
       - _referenceWithoutType
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference

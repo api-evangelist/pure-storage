@@ -473,155 +473,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    PolicyMember:
-      type: object
-      properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    SnapshotPolicyPatch:
-      allOf:
-      - $ref: '#/components/schemas/SnapshotWormDataPolicyBase'
-      - type: object
-        properties:
-          add_rules:
-            type: array
-            items:
-              $ref: '#/components/schemas/_policy_rule'
-          remove_rules:
-            type: array
-            items:
-              $ref: '#/components/schemas/_policy_rule'
-          retention_lock:
-            description: 'If retention lock is locked, then the the policy can not be removed
-
-              from the associated file systems and the rules may not be changed.
-
-              Valid values are `locked` and `unlocked`.
-
-              Contact Pure Technical Services to change `locked` to `unlocked`.
-
-              '
-            type: string
-            readOnly: true
-          rules:
-            type: array
-            items:
-              $ref: '#/components/schemas/_policy_rule'
-    _memberLink:
-      type: object
-      properties:
-        local_file_system:
-          description: Reference to a local file system.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        remote:
-          description: Reference to a remote array or realm.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        remote_file_system:
-          description: Reference to a remote file system.
-          title: FixedReferenceNoResourceType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceNoResourceType'
-    PolicyResponse:
-      type: object
-      properties:
-        items:
-          description: A list of policy objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Policy'
-    _workloadConfigurationFixedReference:
-      description: 'A reference to the workload that is managing this resource.
-
-        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          configuration:
-            description: 'The name of the preset configuration object.
-
-              '
-            type: string
-            readOnly: true
-    PolicyFileSystemSnapshotGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyFileSystemSnapshotResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference'
-    PolicyMemberWithRemote:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - $ref: '#/components/schemas/PolicyFileSystemSnapshot'
-      - type: object
-        properties:
-          link:
-            description: 'Only populated if the `member` is a file system replica link. Contains additional
-
-              information about the link.
-
-              '
-            title: MemberLink
-            allOf:
-            - $ref: '#/components/schemas/_memberLink'
     _resourceFixed:
       description: 'A resource that can be created, named, or deleted by the user. This might
 
@@ -648,10 +499,379 @@ components:
             '
           type: string
           readOnly: true
-    PolicyMemberContext:
+    PolicyMemberWithRemoteResponse:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          items:
+            description: A list of members for policies.
+            type: array
+            items:
+              $ref: '#/components/schemas/PolicyMemberWithRemote'
+    _policy_rule:
+      description: Rule
+      type: object
+      properties:
+        at:
+          description: 'Time during the day to take the snapshot (using array time zone),
+
+            only valid if ''every'' is in days.
+
+            '
+          type: integer
+          format: int64
+        every:
+          description: How often to take snapshots.
+          type: integer
+          format: int64
+        keep_for:
+          description: The time to keep the snapshots for.
+          type: integer
+          format: int64
+        time_zone:
+          description: The time zone to use with the `at` time.
+          type: string
+          example: America/Los_Angeles
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    PolicyMemberContextGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberContextResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PolicyFileSystemSnapshotResponse:
+      type: object
+      properties:
+        items:
+          description: A list of members for policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyFileSystemSnapshot'
+    Policy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          retention_lock:
+            description: 'If retention lock is locked, then the the policy can not be removed
+
+              from the associated file systems and the rules may not be changed.
+
+              Valid values are `locked` and `unlocked`.
+
+              Contact Pure Technical Services to change `locked` to `unlocked`.
+
+              '
+            type: string
+            readOnly: true
+          rules:
+            type: array
+            items:
+              $ref: '#/components/schemas/_policy_rule'
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationFixedReference'
+    PolicyBaseRenameable:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
+
+              '
+            type: string
+            readOnly: true
+    _workloadConfigurationFixedReference:
+      description: 'A reference to the workload that is managing this resource.
+
+        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
+
+              '
+            type: string
+            readOnly: true
+    SnapshotWormDataPolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/_resourceFixed'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `snapshot` and `worm-data`.
+
+              '
+            type: string
+            readOnly: true
+    PolicyFileSystemSnapshotGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyFileSystemSnapshotResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    PolicyMemberWithRemote:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/PolicyFileSystemSnapshot'
+      - type: object
+        properties:
+          link:
+            description: 'Only populated if the `member` is a file system replica link. Contains additional
+
+              information about the link.
+
+              '
+            title: MemberLink
+            allOf:
+            - $ref: '#/components/schemas/_memberLink'
+    _memberLink:
+      type: object
+      properties:
+        local_file_system:
+          description: Reference to a local file system.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        remote:
+          description: Reference to a remote array or realm.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        remote_file_system:
+          description: Reference to a remote file system.
+          title: FixedReferenceNoResourceType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceNoResourceType'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    _fixedReferenceNoResourceType:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _locationReference:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          display_name:
+            description: 'Full name of the source with remote array information.
+
+              Response will be same as source name for local file systems and policies.
+
+              '
+            type: string
+            readOnly: true
+            example: irp624-c02:fs1
+          is_local:
+            description: 'Is the location reference to the local array or somewhere remote?
+
+              '
+            type: boolean
+            readOnly: true
+          location:
+            description: 'A reference to the location where the object is defined.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+    PolicyResponse:
+      type: object
+      properties:
+        items:
+          description: A list of policy objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Policy'
+    PolicyFileSystemSnapshot:
       allOf:
       - $ref: '#/components/schemas/PolicyMember'
       - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          policy:
+            description: Reference to the policy. Location can be array or realm.
+            title: LocationReference
+            allOf:
+            - $ref: '#/components/schemas/_locationReference'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    PolicyMemberWithRemoteGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberWithRemoteResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -683,35 +903,100 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    _policy_rule:
-      description: Rule
+    PolicyMemberContextResponse:
       type: object
       properties:
-        at:
-          description: 'Time during the day to take the snapshot (using array time zone),
+        items:
+          description: A list of members for policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
+    PolicyMemberContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context'
+    PolicyPost:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - type: object
+        properties:
+          retention_lock:
+            description: 'If retention lock is locked, then the the policy can not be removed
 
-            only valid if ''every'' is in days.
+              from the associated file systems and the rules may not be changed.
+
+              Valid values are `locked` and `unlocked`.
+
+              Contact Pure Technical Services to change `locked` to `unlocked`.
+
+              '
+            type: string
+            readOnly: true
+          rules:
+            type: array
+            items:
+              $ref: '#/components/schemas/_policy_rule'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
 
             '
-          type: integer
-          format: int64
-        every:
-          description: How often to take snapshots.
-          type: integer
-          format: int64
-        keep_for:
-          description: The time to keep the snapshots for.
-          type: integer
-          format: int64
-        time_zone:
-          description: The time zone to use with the `at` time.
           type: string
-          example: America/Los_Angeles
-    PolicyMemberWithRemoteGetResponse:
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    PolicyGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberWithRemoteResponse'
+      - $ref: '#/components/schemas/PolicyResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
+    SnapshotPolicyPatch:
+      allOf:
+      - $ref: '#/components/schemas/SnapshotWormDataPolicyBase'
+      - type: object
+        properties:
+          add_rules:
+            type: array
+            items:
+              $ref: '#/components/schemas/_policy_rule'
+          remove_rules:
+            type: array
+            items:
+              $ref: '#/components/schemas/_policy_rule'
+          retention_lock:
+            description: 'If retention lock is locked, then the the policy can not be removed
+
+              from the associated file systems and the rules may not be changed.
+
+              Valid values are `locked` and `unlocked`.
+
+              Contact Pure Technical Services to change `locked` to `unlocked`.
+
+              '
+            type: string
+            readOnly: true
+          rules:
+            type: array
+            items:
+              $ref: '#/components/schemas/_policy_rule'
     _reference:
       type: object
       properties:
@@ -745,329 +1030,17 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    PolicyBaseRenameable:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
-
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    SnapshotWormDataPolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/_resourceFixed'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `snapshot` and `worm-data`.
-
-              '
-            type: string
-            readOnly: true
-    PolicyPost:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - type: object
-        properties:
-          retention_lock:
-            description: 'If retention lock is locked, then the the policy can not be removed
-
-              from the associated file systems and the rules may not be changed.
-
-              Valid values are `locked` and `unlocked`.
-
-              Contact Pure Technical Services to change `locked` to `unlocked`.
-
-              '
-            type: string
-            readOnly: true
-          rules:
-            type: array
-            items:
-              $ref: '#/components/schemas/_policy_rule'
-    PolicyFileSystemSnapshotResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyFileSystemSnapshot'
-    PolicyFileSystemSnapshot:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          policy:
-            description: Reference to the policy. Location can be array or realm.
-            title: LocationReference
-            allOf:
-            - $ref: '#/components/schemas/_locationReference'
-    Policy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          retention_lock:
-            description: 'If retention lock is locked, then the the policy can not be removed
-
-              from the associated file systems and the rules may not be changed.
-
-              Valid values are `locked` and `unlocked`.
-
-              Contact Pure Technical Services to change `locked` to `unlocked`.
-
-              '
-            type: string
-            readOnly: true
-          rules:
-            type: array
-            items:
-              $ref: '#/components/schemas/_policy_rule'
-          workload:
-            $ref: '#/components/schemas/_workloadConfigurationFixedReference'
-    _locationReference:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          display_name:
-            description: 'Full name of the source with remote array information.
-
-              Response will be same as source name for local file systems and policies.
-
-              '
-            type: string
-            readOnly: true
-            example: irp624-c02:fs1
-          is_local:
-            description: 'Is the location reference to the local array or somewhere remote?
-
-              '
-            type: boolean
-            readOnly: true
-          location:
-            description: 'A reference to the location where the object is defined.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-    PolicyMemberContextResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    PolicyMemberContextGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberContextResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    PolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    PolicyMemberWithRemoteResponse:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          items:
-            description: A list of members for policies.
-            type: array
-            items:
-              $ref: '#/components/schemas/PolicyMemberWithRemote'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _fixedReferenceNoResourceType:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-      x-readOnly: true
   parameters:
-    Sort:
-      name: sort
+    Member_types:
+      name: member_types
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A comma-separated list of member types. Valid values include `file-systems`,
 
-        is appended to the field name).
+        `file-system-snapshots`, `file-system-replica-links`, `object-store-users`,
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        and `object-store-accounts`. Different endpoints may accept different subsets
 
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Local_file_system_names:
-      name: local_file_system_names
-      in: query
-      description: 'A comma-separated list of local file system names. If there is not
-
-        at least one resource that matches each of the elements, then an error
-
-        is returned. This cannot be provided together with `local_file_system_ids`
-
-        query parameter.
+        of these values.
 
         '
       style: form
@@ -1086,10 +1059,16 @@ components:
         '
       schema:
         type: string
-    Member_names:
-      name: member_names
+    Policy_ids:
+      name: policy_ids
       in: query
-      description: 'A comma-separated list of member names.
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -1098,36 +1077,56 @@ components:
         type: array
         items:
           type: string
-    Continuation_token:
-      name: continuation_token
+    Context_names:
+      name: context_names
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'Performs the operation on the context specified.
 
-        with some consistency guaranteed.
 
-        The token is a Base64 encoded value.
+        If specified, the context names must be an array of size 1, and the single element
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+        must be the name of an array in the same fleet or the name of the fleet itself. If
 
-        header field of the response.
+        not specified, the context will default to the array that received this request.
 
-        A query has reached its last page when the response does not include a token.
 
-        Pagination requires the `limit` and `continuation_token`
+        Other parameters provided with the request, such as names of volumes or snapshots,
 
-        query parameters.
+        are resolved relative to the provided `context`.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
-    Remote_file_system_ids:
-      name: remote_file_system_ids
+        type: array
+        items:
+          type: string
+    Local_file_system_ids:
+      name: local_file_system_ids
       in: query
-      description: 'A comma-separated list of remote file system IDs. If there is not at
+      description: 'A comma-separated list of local file system IDs. If after filtering,
+
+        there is not at least one resource that matches each of the elements,
+
+        then an error is returned. This cannot be provided together with the
+
+        `local_file_system_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Remote_file_system_names:
+      name: remote_file_system_names
+      in: query
+      description: 'A comma-separated list of remote file system names. If there is not at
 
         least one resource that matches each of the elements, then an error is
 
-        returned. This cannot be provided together with the `remote_file_system_names`
+        returned. This cannot be provided together with the `remote_file_system_ids`
 
         query parameter.
 
@@ -1138,14 +1137,25 @@ components:
         type: array
         items:
           type: string
-    Workload_ids:
-      name: workload_ids
+    Offset:
+      name: offset
       in: query
-      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Workload_names:
+      name: workload_names
+      in: query
+      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
 
         resource that matches each of the elements, then an error is returned. This cannot be provided
 
-        together with the `workload_names` query parameter.
+        together with the `workload_ids` query parameter.
 
         '
       style: form
@@ -1154,10 +1164,33 @@ components:
         type: array
         items:
           type: string
-    Policy_names:
-      name: policy_names
+    Limit:
+      name: limit
       in: query
-      description: 'A comma-separated list of policy names.
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Remote_names:
+      name: remote_names
+      in: query
+      description: 'A comma-separated list of remote array names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `remote_ids` query parameter.
 
         '
       style: form
@@ -1166,16 +1199,6 @@ components:
         type: array
         items:
           type: string
-    Destroy_snapshots:
-      name: destroy_snapshots
-      in: query
-      description: 'This parameter must be set to `true` in order to modify a policy such
-
-        that local or remote snapshots would be destroyed.
-
-        '
-      schema:
-        type: boolean
     Names:
       name: names
       in: query
@@ -1191,6 +1214,42 @@ components:
         each of the elements of `names`, then an error is returned,
 
         except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Local_file_system_names:
+      name: local_file_system_names
+      in: query
+      description: 'A comma-separated list of local file system names. If there is not
+
+        at least one resource that matches each of the elements, then an error
+
+        is returned. This cannot be provided together with `local_file_system_ids`
+
+        query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `member_ids`, then an error is returned.
+
+        This cannot be provided together with the `member_names` query parameter.
 
         '
       style: form
@@ -1229,16 +1288,10 @@ components:
         type: array
         items:
           type: string
-    Policy_ids:
-      name: policy_ids
+    Policy_names:
+      name: policy_names
       in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
+      description: 'A comma-separated list of policy names.
 
         '
       style: form
@@ -1247,27 +1300,14 @@ components:
         type: array
         items:
           type: string
-    Names_required:
-      name: names
+    Remote_file_system_ids:
+      name: remote_file_system_ids
       in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Remote_file_system_names:
-      name: remote_file_system_names
-      in: query
-      description: 'A comma-separated list of remote file system names. If there is not at
+      description: 'A comma-separated list of remote file system IDs. If there is not at
 
         least one resource that matches each of the elements, then an error is
 
-        returned. This cannot be provided together with the `remote_file_system_ids`
+        returned. This cannot be provided together with the `remote_file_system_names`
 
         query parameter.
 
@@ -1278,25 +1318,14 @@ components:
         type: array
         items:
           type: string
-    Offset:
-      name: offset
+    Workload_ids:
+      name: workload_ids
       in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Remote_names:
-      name: remote_names
-      in: query
-      description: 'A comma-separated list of remote array names. If, after filtering, there is not at least one
+      description: 'A comma-separated list of workload IDs. If, after filtering, there is not at least one
 
         resource that matches each of the elements, then an error is returned. This cannot be provided
 
-        together with the `remote_ids` query parameter.
+        together with the `workload_names` query parameter.
 
         '
       style: form
@@ -1305,16 +1334,38 @@ components:
         type: array
         items:
           type: string
-    Member_ids:
-      name: member_ids
+    Continuation_token:
+      name: continuation_token
       in: query
-      description: 'A comma-separated list of member IDs.
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `member_ids`, then an error is returned.
+        each of the elements of `ids`, then an error is returned.
 
-        This cannot be provided together with the `member_names` query parameter.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -1339,16 +1390,24 @@ components:
         type: array
         items:
           type: string
-    Local_file_system_ids:
-      name: local_file_system_ids
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
       in: query
-      description: 'A comma-separated list of local file system IDs. If after filtering,
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        there is not at least one resource that matches each of the elements,
+        is appended to the field name).
 
-        then an error is returned. This cannot be provided together with the
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-        `local_file_system_names` query parameter.
+        the response.
 
         '
       style: form
@@ -1356,49 +1415,18 @@ components:
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Member_types:
-      name: member_types
+    Destroy_snapshots:
+      name: destroy_snapshots
       in: query
-      description: 'A comma-separated list of member types. Valid values include `file-systems`,
+      description: 'This parameter must be set to `true` in order to modify a policy such
 
-        `file-system-snapshots`, `file-system-replica-links`, `object-store-users`,
-
-        and `object-store-accounts`. Different endpoints may accept different subsets
-
-        of these values.
+        that local or remote snapshots would be destroyed.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+        type: boolean
     Allow_errors:
       name: allow_errors
       in: query
@@ -1412,14 +1440,10 @@ components:
       schema:
         type: boolean
         default: false
-    Workload_names:
-      name: workload_names
+    Member_names:
+      name: member_names
       in: query
-      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `workload_ids` query parameter.
+      description: 'A comma-separated list of member names.
 
         '
       style: form
@@ -1428,37 +1452,13 @@ components:
         type: array
         items:
           type: string
-    Limit:
-      name: limit
+    Names_required:
+      name: names
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+      description: 'A comma-separated list of resource names.
 
         '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
+      required: true
       style: form
       explode: false
       schema:

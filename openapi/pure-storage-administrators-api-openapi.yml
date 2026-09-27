@@ -775,30 +775,74 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    PolicyMemberCleanGetResponse:
+    AdminApiTokenGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberCleanResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    AdminPost:
+      - $ref: '#/components/schemas/AdminApiTokenResponse'
+    AdminSettingsResponse:
       type: object
       properties:
-        management_access_policies:
-          description: 'List of management access policies to associate with the administrator.
-
-            Policies can be specified by the `name` or `ID` parameter, but they cannot be set together.
-
-            '
+        items:
           type: array
           items:
-            $ref: '#/components/schemas/_referenceWithType'
-        password:
-          description: 'Password associated with the account.
+            $ref: '#/components/schemas/AdminSettings'
+    AdminSettings:
+      description: Global settings for administrative accounts.
+      type: object
+      properties:
+        lockout_duration:
+          description: 'The lockout duration, in milliseconds, if a user is locked out after reaching the maximum
+
+            number of login attempts. Ranges from 1 second to 90 days.
+
+            '
+          type: integer
+          format: int64
+          minimum: 1000
+          maximum: 7776000000
+          example: 3600000
+        max_login_attempts:
+          description: 'Maximum number of failed login attempts allowed before the user is locked out.
+
+            '
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 20
+          example: 10
+        min_password_length:
+          description: 'Minimum password length. If not specified, defaults to 1.
+
+            '
+          type: integer
+          format: int32
+          example: 1
+        required_authentication_methods:
+          $ref: '#/components/schemas/_adminSettingsRequiredAuthenticationMethods'
+        single_sign_on_enabled:
+          description: 'If `true`, then single sign-on is enabled for the array.
+
+            '
+          type: boolean
+          example: true
+    _fixedNameResourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named, or
+
+        deleted by the user. This might be a virtual resource (e.g., a
+
+        volume) or correspond to something in the environment, like a host or server.
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and cannot be changed.
 
             '
           type: string
-        role:
-          $ref: '#/components/schemas/_adminRole'
+          readOnly: true
     AdminCache:
       allOf:
       - $ref: '#/components/schemas/_fixedNameResourceNoId'
@@ -840,290 +884,6 @@ components:
             title: AdminRole
             allOf:
             - $ref: '#/components/schemas/_adminRole'
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
-    _adminRole:
-      allOf:
-      - $ref: '#/components/schemas/_referenceNoId'
-      - description: 'This field has been deprecated. Predecessor to management access policies.
-
-          '
-        type: object
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    AdminSettings:
-      description: Global settings for administrative accounts.
-      type: object
-      properties:
-        lockout_duration:
-          description: 'The lockout duration, in milliseconds, if a user is locked out after reaching the maximum
-
-            number of login attempts. Ranges from 1 second to 90 days.
-
-            '
-          type: integer
-          format: int64
-          minimum: 1000
-          maximum: 7776000000
-          example: 3600000
-        max_login_attempts:
-          description: 'Maximum number of failed login attempts allowed before the user is locked out.
-
-            '
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 20
-          example: 10
-        min_password_length:
-          description: 'Minimum password length. If not specified, defaults to 1.
-
-            '
-          type: integer
-          format: int32
-          example: 1
-        required_authentication_methods:
-          $ref: '#/components/schemas/_adminSettingsRequiredAuthenticationMethods'
-        single_sign_on_enabled:
-          description: 'If `true`, then single sign-on is enabled for the array.
-
-            '
-          type: boolean
-          example: true
-    AdminSettingsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/AdminSettingsResponse'
-      - type: object
-        properties:
-          more_items_remaining:
-            description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-              '
-            type: boolean
-            example: false
-          total_item_count:
-            description: 'The total number of records after applying all filter query parameters.
-
-              The `total_item_count` will be calculated if and only if the corresponding
-
-              query parameter `total_item_count` is set to `true`. If this query parameter
-
-              is not set or set to `false`, a value of `null` will be returned.
-
-              '
-            type: integer
-            format: int32
-    PolicyAssignmentPostPolicy:
-      type: object
-      properties:
-        policy:
-          description: 'Reference to the policy to apply to the resource.
-
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-    _adminSettingsRequiredAuthenticationMethods:
-      description: 'Authentication methods that are required for the array on specific user
-
-        interfaces.
-
-        '
-      type: object
-      properties:
-        ssh:
-          description: 'List of authentication methods that are required for SSH.
-
-            Possible values include `password`, `key`, and `default`.
-
-            `securid-am` is a possible value, but it cannot be changed through PATCH.
-
-            If not specified, defaults to `default`.
-
-            Specify `password` and `key` authentication methods to set up
-
-            local multi-factor authentication for SSH.
-
-            '
-          type: array
-          items:
-            type: string
-            description: 'Authentication method required for SSH.
-
-              '
-          example:
-          - password
-          - key
-        web_ui:
-          description: 'List of authentication methods that are required for the web UI.
-
-            Possible values include `password`, `webauthn`, and `default`.
-
-            Other possible values include `saml2` and `securid-am`
-
-            but these cannot be changed through PATCH.
-
-            If not specified, defaults to `default`.
-
-            Specify `password` and `webauthn` authentication methods
-
-            to set up local multi-factor authentication for web UI.
-
-            External multi-factor authentication is configured through SAML2 SSO endpoints.
-
-            '
-          type: array
-          items:
-            type: string
-            description: 'Authentication method required for the web UI.
-
-              '
-          example:
-          - password
-          - webauthn
-    AdminPatch:
-      allOf:
-      - $ref: '#/components/schemas/Admin'
-      - type: object
-        properties:
-          old_password:
-            description: 'The current password.
-
-              '
-            type: string
-    AdminGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AdminResponse'
-    PolicyMemberClean:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          member:
-            description: 'Reference to the resource that the policy is applied to.
-
-              '
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
-          policy:
-            description: 'Reference to the policy.
-
-              '
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
     Admin:
       allOf:
       - $ref: '#/components/schemas/_fixedNameResourceNoId'
@@ -1206,6 +966,115 @@ components:
             type: string
           role:
             $ref: '#/components/schemas/_adminRole'
+    _adminSettingsRequiredAuthenticationMethods:
+      description: 'Authentication methods that are required for the array on specific user
+
+        interfaces.
+
+        '
+      type: object
+      properties:
+        ssh:
+          description: 'List of authentication methods that are required for SSH.
+
+            Possible values include `password`, `key`, and `default`.
+
+            `securid-am` is a possible value, but it cannot be changed through PATCH.
+
+            If not specified, defaults to `default`.
+
+            Specify `password` and `key` authentication methods to set up
+
+            local multi-factor authentication for SSH.
+
+            '
+          type: array
+          items:
+            type: string
+            description: 'Authentication method required for SSH.
+
+              '
+          example:
+          - password
+          - key
+        web_ui:
+          description: 'List of authentication methods that are required for the web UI.
+
+            Possible values include `password`, `webauthn`, and `default`.
+
+            Other possible values include `saml2` and `securid-am`
+
+            but these cannot be changed through PATCH.
+
+            If not specified, defaults to `default`.
+
+            Specify `password` and `webauthn` authentication methods
+
+            to set up local multi-factor authentication for web UI.
+
+            External multi-factor authentication is configured through SAML2 SSO endpoints.
+
+            '
+          type: array
+          items:
+            type: string
+            description: 'Authentication method required for the web UI.
+
+              '
+          example:
+          - password
+          - webauthn
+    PolicyMemberCleanResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            The values are displayed for each name, if meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberClean'
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    AdminPost:
+      type: object
+      properties:
+        management_access_policies:
+          description: 'List of management access policies to associate with the administrator.
+
+            Policies can be specified by the `name` or `ID` parameter, but they cannot be set together.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWithType'
+        password:
+          description: 'Password associated with the account.
+
+            '
+          type: string
+        role:
+          $ref: '#/components/schemas/_adminRole'
     _fixedReferenceWithType:
       allOf:
       - $ref: '#/components/schemas/_fixedReference'
@@ -1225,26 +1094,76 @@ components:
             readOnly: true
       x-aliases:
       - _fixedReference
-    AdminApiTokenGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AdminApiTokenResponse'
-    _referenceNoId:
+    AdminApiTokenResponse:
       type: object
       properties:
-        name:
-          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminApiToken'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
 
             '
           type: string
-    AdminApiToken:
-      allOf:
-      - $ref: '#/components/schemas/_fixedNameResourceNoId'
-      - description: Administrative account API token.
-        type: object
-        properties:
-          api_token:
-            $ref: '#/components/schemas/_apiToken'
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
     _fixedReference:
       type: object
       properties:
@@ -1267,32 +1186,29 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
-    AdminCacheResponse:
+    PolicyMemberCleanGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberCleanResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PolicyAssignmentPostPolicy:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AdminCache'
-    AdminApiTokenResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AdminApiToken'
-    PolicyAssignmentPost:
-      type: object
-      properties:
-        policies:
-          description: 'A list of policies to apply to the resource.
-
-            One of `id` or `name` is required in each `policy`.
+        policy:
+          description: 'Reference to the policy to apply to the resource.
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyAssignmentPostPolicy'
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+    _referenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
     _apiToken:
       description: API token
       type: object
@@ -1311,56 +1227,55 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    _fixedNameResourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named, or
-
-        deleted by the user. This might be a virtual resource (e.g., a
-
-        volume) or correspond to something in the environment, like a host or server.
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and cannot be changed.
-
-            '
-          type: string
-          readOnly: true
-    AdminSettingsResponse:
+    AdminCacheResponse:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/AdminSettings'
-    _context:
+            $ref: '#/components/schemas/AdminCache'
+    PolicyAssignmentPost:
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
+        policies:
+          description: 'A list of policies to apply to the resource.
 
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            One of `id` or `name` is required in each `policy`.
 
             '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    AdminCacheGetResponse:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyAssignmentPostPolicy'
+    _adminRole:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AdminCacheResponse'
+      - $ref: '#/components/schemas/_referenceNoId'
+      - description: 'This field has been deprecated. Predecessor to management access policies.
+
+          '
+        type: object
+    AdminSettingsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/AdminSettingsResponse'
+      - type: object
+        properties:
+          more_items_remaining:
+            description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+              '
+            type: boolean
+            example: false
+          total_item_count:
+            description: 'The total number of records after applying all filter query parameters.
+
+              The `total_item_count` will be calculated if and only if the corresponding
+
+              query parameter `total_item_count` is set to `true`. If this query parameter
+
+              is not set or set to `false`, a value of `null` will be returned.
+
+              '
+            type: integer
+            format: int32
     AdminResponse:
       type: object
       properties:
@@ -1368,6 +1283,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Admin'
+    PolicyMemberClean:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          member:
+            description: 'Reference to the resource that the policy is applied to.
+
+              '
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+          policy:
+            description: 'Reference to the policy.
+
+              '
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
     _errorContextResponse:
       type: object
       properties:
@@ -1377,18 +1311,89 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_errorcontextresponseErrors'
-    PolicyMemberCleanResponse:
+    AdminCacheGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/AdminCacheResponse'
+    AdminApiToken:
+      allOf:
+      - $ref: '#/components/schemas/_fixedNameResourceNoId'
+      - description: Administrative account API token.
+        type: object
+        properties:
+          api_token:
+            $ref: '#/components/schemas/_apiToken'
+    AdminPatch:
+      allOf:
+      - $ref: '#/components/schemas/Admin'
+      - type: object
+        properties:
+          old_password:
+            description: 'The current password.
+
+              '
+            type: string
+    _errorcontextresponseErrors:
       type: object
       properties:
-        items:
-          description: 'Displays a list of all items after filtering.
+        context:
+          description: 'Contains information relating to the cause of this error,
 
-            The values are displayed for each name, if meaningful.
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberClean'
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    AdminGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/AdminResponse'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    AdminApiTokenGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/AdminApiTokenResponse_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
     _referenceWritable:
       allOf:
       - $ref: '#/components/schemas/_referenceWithoutType'
@@ -1407,50 +1412,14 @@ components:
             type: string
       x-aliases:
       - _reference
-    AdminPost_2:
-      description: 'An administrative user, who has rights to login and manage the array in some capacity.
-
-        '
+    AdminSettingsResponse_2:
       type: object
       properties:
-        admin_type:
-          description: 'The type of admin account. Set to `service-account` to create a REST-only service account. Service accounts
-
-            do not have passwords and cannot have associated public keys. If not specified, defaults to `local-user`.
-
-            '
-          type: string
-          example: service-account
-        management_access_policies:
-          description: 'List of management access policies associated with the administrator.
-
-            '
+        items:
+          description: Returns global admin settings.
           type: array
           items:
-            $ref: '#/components/schemas/_referenceWritable'
-        password:
-          description: New user password.
-          type: string
-        public_key:
-          description: Public key for SSH access. Supported key types include `Ed25519` and `RSA`.
-          type: string
-        role:
-          description: 'Deprecated.
-
-            `role` is deprecated in favor of `management_access_policies`, but remains for
-
-            backwards compatibility. If an administrator has exactly one access policy which
-
-            corresponds to a valid legacy role of the same name, `role` will be a
-
-            reference to that role.
-
-            Otherwise, it will be `null`.
-
-            '
-          title: ReferenceWritable
-          allOf:
-          - $ref: '#/components/schemas/_referenceWritable'
+            $ref: '#/components/schemas/AdminSetting'
     AdminCache_2:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -1501,10 +1470,310 @@ components:
             format: int64
             readOnly: true
         x-readOnly: true
+    Admin_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          admin_type:
+            description: 'The type of admin account. Valid values include `local-user`, `remote-user`, `service-account`.
+
+              A `local-user` is managed directly on the array. A `remote-user` is provisioned by an external
+
+              system such as LDAP or SAML. A `service-account` is a local account intended only for
+
+              REST API access.
+
+              '
+            type: string
+            readOnly: true
+            example: local-user
+          api_token:
+            $ref: '#/components/schemas/_apiToken'
+          authorization_model:
+            description: 'The location for access policies mapping. Returns `static` if they''re configured locally on the array. Otherwise, `dynamic` is returned, indicating they''re decided by an external system e.g. LDAP, IDP.
+
+              '
+            type: string
+            example: static
+          is_local:
+            description: Returns a value of `true` if the user is local to the machine, otherwise `false`.
+            type: boolean
+            readOnly: true
+          locked:
+            description: 'Returns a value of `true` if the user is currently locked out, otherwise `false`.
+
+              Can be patched to false to unlock a user. This field is only visible to `array_admin` roles.
+
+              For all other users, the value is always `null`.
+
+              '
+            type: boolean
+            example: false
+          lockout_remaining:
+            description: 'The remaining lockout period, in milliseconds, if the user is locked out.
+
+              This field is only visible to `array_admin` roles.
+
+              For all other users, the value is always `null`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          management_access_policies:
+            description: 'List of management access policies associated with the administrator.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReference_2'
+          public_key:
+            description: Public key for SSH access. Supported key types are `Ed25519` and `RSA`.
+            type: string
+          role:
+            description: 'Deprecated.
+
+              `role` is deprecated in favor of `management_access_policies`, but remains for
+
+              backwards compatibility. If an administrator has exactly one access policy which
+
+              corresponds to a valid legacy role of the same name, `role` will be a
+
+              reference to that role.
+
+              Otherwise, it will be `null`.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    AdminPost_2:
+      description: 'An administrative user, who has rights to login and manage the array in some capacity.
+
+        '
+      type: object
+      properties:
+        admin_type:
+          description: 'The type of admin account. Set to `service-account` to create a REST-only service account. Service accounts
+
+            do not have passwords and cannot have associated public keys. If not specified, defaults to `local-user`.
+
+            '
+          type: string
+          example: service-account
+        management_access_policies:
+          description: 'List of management access policies associated with the administrator.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWritable'
+        password:
+          description: New user password.
+          type: string
+        public_key:
+          description: Public key for SSH access. Supported key types include `Ed25519` and `RSA`.
+          type: string
+        role:
+          description: 'Deprecated.
+
+            `role` is deprecated in favor of `management_access_policies`, but remains for
+
+            backwards compatibility. If an administrator has exactly one access policy which
+
+            corresponds to a valid legacy role of the same name, `role` will be a
+
+            reference to that role.
+
+            Otherwise, it will be `null`.
+
+            '
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
+    AdminApiTokenResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of administrator API tokens.
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminApiToken_2'
+    _context_2:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    AdminResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of administrative account objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Admin_2'
+    AdminSetting:
+      type: object
+      properties:
+        lockout_duration:
+          description: 'The lockout duration, in milliseconds, if a user has reached the
+
+            maximum number of login attempts. Ranges from 1 second to 90 days.
+
+            Default value is `null`. Use 0 to reset the value to `null`.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 7776000000
+          example: 3600000
+        max_login_attempts:
+          description: 'The maximum number of failed login attempts allowed before the user is locked out.
+
+            Default value is `null`. Use 0 to reset the value to `null`.
+
+            '
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+          example: 10
+        min_password_length:
+          description: 'The minimum password length. If not specified, defaults to 1 character.
+
+            '
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          example: 1
     AdminSettingsGetResponse_2:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
       - $ref: '#/components/schemas/AdminSettingsResponse_2'
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
     _errorContextResponseErrors:
       type: object
       properties:
@@ -1536,6 +1805,32 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
+    AdminCacheGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - type: object
+        properties:
+          items:
+            description: A list of admin cache entries.
+            type: array
+            items:
+              $ref: '#/components/schemas/AdminCache_2'
+    AdminApiToken_2:
+      allOf:
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          admin:
+            description: A reference to the admin to whom this token belongs.
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference_2'
+          api_token:
+            title: ApiToken
+            allOf:
+            - $ref: '#/components/schemas/_apiToken'
+        x-readOnly: true
     AdminPatch_2:
       type: object
       properties:
@@ -1633,329 +1928,15 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    Admin_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          admin_type:
-            description: 'The type of admin account. Valid values include `local-user`, `remote-user`, `service-account`.
-
-              A `local-user` is managed directly on the array. A `remote-user` is provisioned by an external
-
-              system such as LDAP or SAML. A `service-account` is a local account intended only for
-
-              REST API access.
-
-              '
-            type: string
-            readOnly: true
-            example: local-user
-          api_token:
-            $ref: '#/components/schemas/_apiToken'
-          authorization_model:
-            description: 'The location for access policies mapping. Returns `static` if they''re configured locally on the array. Otherwise, `dynamic` is returned, indicating they''re decided by an external system e.g. LDAP, IDP.
-
-              '
-            type: string
-            example: static
-          is_local:
-            description: Returns a value of `true` if the user is local to the machine, otherwise `false`.
-            type: boolean
-            readOnly: true
-          locked:
-            description: 'Returns a value of `true` if the user is currently locked out, otherwise `false`.
-
-              Can be patched to false to unlock a user. This field is only visible to `array_admin` roles.
-
-              For all other users, the value is always `null`.
-
-              '
-            type: boolean
-            example: false
-          lockout_remaining:
-            description: 'The remaining lockout period, in milliseconds, if the user is locked out.
-
-              This field is only visible to `array_admin` roles.
-
-              For all other users, the value is always `null`.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          management_access_policies:
-            description: 'List of management access policies associated with the administrator.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_fixedReference_2'
-          public_key:
-            description: Public key for SSH access. Supported key types are `Ed25519` and `RSA`.
-            type: string
-          role:
-            description: 'Deprecated.
-
-              `role` is deprecated in favor of `management_access_policies`, but remains for
-
-              backwards compatibility. If an administrator has exactly one access policy which
-
-              corresponds to a valid legacy role of the same name, `role` will be a
-
-              reference to that role.
-
-              Otherwise, it will be `null`.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-    AdminApiTokenGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/AdminApiTokenResponse_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    AdminApiToken_2:
-      allOf:
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          admin:
-            description: A reference to the admin to whom this token belongs.
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference_2'
-          api_token:
-            title: ApiToken
-            allOf:
-            - $ref: '#/components/schemas/_apiToken'
-        x-readOnly: true
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    AdminSetting:
-      type: object
-      properties:
-        lockout_duration:
-          description: 'The lockout duration, in milliseconds, if a user has reached the
-
-            maximum number of login attempts. Ranges from 1 second to 90 days.
-
-            Default value is `null`. Use 0 to reset the value to `null`.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 7776000000
-          example: 3600000
-        max_login_attempts:
-          description: 'The maximum number of failed login attempts allowed before the user is locked out.
-
-            Default value is `null`. Use 0 to reset the value to `null`.
-
-            '
-          type: integer
-          format: int32
-          minimum: 0
-          maximum: 100
-          example: 10
-        min_password_length:
-          description: 'The minimum password length. If not specified, defaults to 1 character.
-
-            '
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 100
-          example: 1
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    AdminApiTokenResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of administrator API tokens.
-          type: array
-          items:
-            $ref: '#/components/schemas/AdminApiToken_2'
-    AdminSettingsResponse_2:
-      type: object
-      properties:
-        items:
-          description: Returns global admin settings.
-          type: array
-          items:
-            $ref: '#/components/schemas/AdminSetting'
-    _context_2:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-    AdminCacheGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - type: object
-        properties:
-          items:
-            description: A list of admin cache entries.
-            type: array
-            items:
-              $ref: '#/components/schemas/AdminCache_2'
-    AdminResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of administrative account objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Admin_2'
-    _errorContextResponse_2:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
   parameters:
-    Expose_api_token:
-      name: expose_api_token
+    Expose_public_key:
+      name: expose_public_key
       in: query
-      description: 'If `true`, exposes the API token of the current user.
+      description: 'If `true`, exposes the public key of the current user.
 
         '
       schema:
         type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
     Filter:
       name: filter
       in: query
@@ -1966,36 +1947,22 @@ components:
         '
       schema:
         type: string
-    Continuation_token:
-      name: continuation_token
+    Context_names:
+      name: context_names
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'Performs the operation on the context specified.
 
-        with some consistency guaranteed.
 
-        The token is a Base64 encoded value.
+        If specified, the context names must be an array of size 1, and the single element
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+        must be the name of an array in the same fleet or the name of the fleet itself. If
 
-        header field of the response.
+        not specified, the context will default to the array that received this request.
 
-        A query has reached its last page when the response does not include a token.
 
-        Pagination requires the `limit` and `continuation_token`
+        Other parameters provided with the request, such as names of volumes or snapshots,
 
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'Performs the operation on the unique member name specified.
-
-        Examples of members include volumes, hosts, host groups, and directories.
-
-        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -2004,6 +1971,35 @@ components:
         type: array
         items:
           type: string
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'Performs the operation on the unique policy IDs specified.
+
+        Enter multiple policy IDs in comma-separated format.
+
+        The `policy_ids` or `policy_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Remove_all_entries:
       name: remove_all_entries
       in: query
@@ -2013,22 +2009,25 @@ components:
       required: true
       schema:
         type: boolean
-    Policy_names:
-      name: policy_names
+    Limit:
+      name: limit
       in: query
-      description: 'Performs the operation on the policy names specified.
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        Enter multiple policy names in comma-separated format.
+        To return the total number of resources, set `limit=0`.
 
-        For example, `name01,name02`.
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Names:
       name: names
       in: query
@@ -2044,6 +2043,30 @@ components:
         each of the elements of `names`, then an error is returned,
 
         except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Expose_api_token:
+      name: expose_api_token
+      in: query
+      description: 'If `true`, exposes the API token of the current user.
+
+        '
+      schema:
+        type: boolean
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'Performs the operation on the unique member IDs specified.
+
+        Enter multiple member IDs in comma-separated format.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
 
         '
       style: form
@@ -2082,99 +2105,44 @@ components:
         type: array
         items:
           type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'Performs the operation on the policy names specified.
 
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
+        Enter multiple policy names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
 
         '
       schema:
         type: string
-    Expose_public_key:
-      name: expose_public_key
-      in: query
-      description: 'If `true`, exposes the public key of the current user.
-
-        '
-      schema:
-        type: boolean
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Timeout:
-      name: timeout
-      in: query
-      description: 'The duration of API token validity, in milliseconds.
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'Performs the operation on the unique member IDs specified.
-
-        Enter multiple member IDs in comma-separated format.
-
-        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
     Total_item_count:
       name: total_item_count
       in: query
@@ -2193,53 +2161,18 @@ components:
         '
       schema:
         type: boolean
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'Performs the operation on the unique policy IDs specified.
-
-        Enter multiple policy IDs in comma-separated format.
-
-        The `policy_ids` or `policy_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort_2:
+        type: string
+    Sort:
       name: sort
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
@@ -2247,16 +2180,54 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Refresh:
-      name: refresh
-      in: query
-      description: 'Whether to refresh the user info from directory service.
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
 
-        If not specified, defaults to `false`.
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Timeout:
+      name: timeout
+      in: query
+      description: 'The duration of API token validity, in milliseconds.
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
 
         '
       schema:
         type: boolean
+        default: false
+    Member_names:
+      name: member_names
+      in: query
+      description: 'Performs the operation on the unique member name specified.
+
+        Examples of members include volumes, hosts, host groups, and directories.
+
+        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Offset_2:
       name: offset
       in: query
@@ -2284,6 +2255,16 @@ components:
         type: array
         items:
           type: string
+    Refresh:
+      name: refresh
+      in: query
+      description: 'Whether to refresh the user info from directory service.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
     Admin_ids:
       name: admin_ids
       in: query
@@ -2319,6 +2300,25 @@ components:
       schema:
         type: array
         items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
   securitySchemes:
     AuthorizationHeader:

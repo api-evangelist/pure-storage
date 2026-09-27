@@ -669,160 +669,12 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    WorkloadResponse:
+    _newName:
       type: object
       properties:
-        items:
-          description: 'Displays a list of all items after filtering.
-
-            If applicable, the values are displayed for each name.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Workload'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
         name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
+          description: The new name for the resource.
           type: string
-    _workloadPlacementRecommendationParameterConstraints:
-      description: The constraints applied to the parameter.
-      type: object
-      properties:
-        resource_reference:
-          $ref: '#/components/schemas/_workloadPlacementRecommendationParameterResourceReference'
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
-    _workloadPlacementRecommendationProjection:
-      type: object
-      properties:
-        end:
-          description: 'The projection for the end of the projection period. Length of the
-
-            projection period is defined by ''projection_months''.
-
-            The percentage is displayed as a decimal value, starting at 0.00 and ending at 1.00.
-
-            '
-          type: number
-          format: float
-          example: 0.77
-        start:
-          description: 'The projection for the start of the projection period (i.e., immediately
-
-            after the creation of the workload on this target).
-
-            The percentage is displayed as a decimal value, starting at 0.00 and ending at 1.00.
-
-            '
-          type: number
-          format: float
-          example: 0.77
-    _workloadPlacementRecommendationTargetCapacityUsedProjections:
-      description: 'Projections for the capacity consumed by customer data.
-
-        '
-      type: object
-      properties:
-        days_until_full:
-          description: 'The number of days until the target is at full capacity.
-
-            '
-          type: integer
-          format: int32
-          example: 10
-        projection:
-          description: 'The projection of the used capacity, assuming the workload
-
-            is provisioned on this target.
-
-            '
-          title: WorkloadPlacementRecommendationProjection
-          allOf:
-          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
-        projection_baseline:
-          description: 'The projection of the baseline used capacity, without the workload
-
-            on this target.
-
-            '
-          title: WorkloadPlacementRecommendationProjection
-          allOf:
-          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
     _workloadParameterValueResourceReference:
       description: The value for a resource reference parameter.
       type: object
@@ -850,6 +702,300 @@ components:
 
             '
           type: string
+    Workload:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+      - description: 'Workloads organize storage resources (such as volumes) and their related configuration
+
+          and policy objects into logical groupings.
+
+          '
+        type: object
+        properties:
+          created:
+            description: The workload creation time, measured in milliseconds since the UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+          destroyed:
+            description: 'Returns a value of `true` if the workload has been destroyed and is pending eradication.
+
+              The `time_remaining` displays the amount of time left
+
+              until the destroyed workload is permanently eradicated.
+
+              Before the `time_remaining` period has elapsed, the destroyed workload can be recovered
+
+              by setting `destroyed=false`.
+
+              Once the `time_remaining` period has elapsed,
+
+              the workload is permanently eradicated and can no longer be recovered.
+
+              '
+            type: boolean
+            readOnly: true
+          preset:
+            description: 'A reference to the preset the workload was deployed from.
+
+              If the preset has since been destroyed, `name` will be `null`.
+
+              '
+            title: WorkloadPreset
+            allOf:
+            - $ref: '#/components/schemas/_workloadPreset'
+          status:
+            description: 'The status of the workload. Supported values are `creating`, `ready`, `destroying`,
+
+              `destroyed`, `eradicating` and `recovering`.
+
+              '
+            type: string
+            readOnly: true
+            example: ready
+          status_details:
+            description: 'Additional information about the workload status. For example, if the workload status
+
+              is `creating`, status details might describe what resources are currently being created.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              type: string
+          time_remaining:
+            description: 'The amount of time left until the destroyed workload is permanently eradicated, measured in
+
+              milliseconds.
+
+              Before the `time_remaining` period has elapsed, the destroyed workload can be recovered
+
+              by setting `destroyed=false`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+    _workloadParameterValue:
+      description: The value of the parameter.
+      type: object
+      properties:
+        boolean:
+          description: The value for a boolean parameter.
+          type: boolean
+        integer:
+          description: The value for an integer parameter.
+          type: integer
+          format: int64
+        resource_reference:
+          $ref: '#/components/schemas/_workloadParameterValueResourceReference'
+        string:
+          description: The value for a string parameter.
+          type: string
+    WorkloadPlacementRecommendationResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkloadPlacementRecommendation'
+    _workloadPlacementRecommendationParameterResourceReference:
+      description: The constraints applied to parameters of the resource reference type.
+      type: object
+      properties:
+        allowed_values:
+          description: 'The valid values accepted by the parameter to create a workload.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_reference'
+    _workloadPlacementRecommendationGenericTarget:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithType'
+      - description: 'The data for a target in a workload placement recommendation.
+
+          The target is an array that may be used for workload placement.
+
+          '
+        type: object
+        properties:
+          capacity:
+            description: 'The usable capacity of the target, measured in bytes.
+
+              '
+            type: integer
+            format: int64
+            example: 10995116277760
+          capacity_used_projections:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationTargetCapacityUsedProjections'
+          load_projections:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationTargetLoadProjections'
+          model:
+            description: 'The model of the target.
+
+              For example, `FA-X20R2`.
+
+              '
+            type: string
+          periodic_replication_configurations:
+            description: 'The preset periodic replication configurations supported by the array.
+
+              '
+            type: array
+            items:
+              type: string
+          placement_configurations:
+            description: 'The preset placement configurations supported by the array.
+
+              '
+            type: array
+            items:
+              type: string
+          warnings:
+            description: 'The warnings for the target.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_workloadPlacementRecommendationWarning'
+    TagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TagResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    WorkloadPatch:
+      allOf:
+      - $ref: '#/components/schemas/_destroyedPatchPost'
+      - $ref: '#/components/schemas/_newName'
+    WorkloadPlacementRecommendationGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/WorkloadPlacementRecommendationResponse'
+    _workloadPlacementRecommendationParameterConstraints:
+      description: The constraints applied to the parameter.
+      type: object
+      properties:
+        resource_reference:
+          $ref: '#/components/schemas/_workloadPlacementRecommendationParameterResourceReference'
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    TagBatch:
+      type: object
+      properties:
+        copyable:
+          description: 'Specifies whether or not to include the tag when copying the parent resource.
+
+            If set to `true`, the tag is included in resource copying.
+
+            If set to `false`, the tag is not included.
+
+            If not specified, defaults to `true`.
+
+            '
+          type: boolean
+          example: true
+        key:
+          description: 'Key of the tag. Supports up to 64 Unicode characters.
+
+            '
+          type: string
+          example: environment
+        namespace:
+          description: 'Optional namespace of the tag.
+
+            Namespace identifies the category of the tag. Omitting the namespace
+
+            defaults to the namespace `default`. The `pure&#42;` namespaces are
+
+            reserved for plugins and integration partners. It is recommended
+
+            that customers avoid using reserved namespaces.
+
+            '
+          type: string
+          example: default
+        resource:
+          description: 'A reference to the parent object.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+        value:
+          description: 'Value of the tag. Supports up to 256 Unicode characters.
+
+            '
+          type: string
+          example: staging
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    PageInfoWithoutTotalItemCountResponse:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query parameter to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination, then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Displays a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
     _workloadParameter:
       description: The name and value of a single parameter.
       type: object
@@ -859,6 +1005,88 @@ components:
           type: string
         value:
           $ref: '#/components/schemas/_workloadParameterValue'
+    _workloadPlacementRecommendationAdditionalConstraints:
+      description: 'The list of targets considered for workload placement must
+
+        satisfy the requirements imposed by the preset. It is
+
+        also possible to specify additional constraints to further restrict the
+
+        list of targets for consideration.
+
+        '
+      type: object
+      properties:
+        required_resource_references:
+          description: 'Defines a group of resources. At least one resource from each item
+
+            should be present on this target for the target to be considered an
+
+            acceptable candidate for workload placement
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationResourceReference'
+        targets:
+          description: 'If specified, only consider these targets when computing placement
+
+            recommendations. If not specified, the whole fleet is used to
+
+            compute the recommendation.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWithType'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _workloadPlacementRecommendationResourceReference:
+      description: 'Defines a group of resources. At least one of them should be present
+
+        on this target to use it for computation of a recommendation.
+
+        Currently only hosts or host groups could be used.
+
+        '
+      type: object
+      required:
+      - allowed_values
+      properties:
+        allowed_values:
+          description: 'A list of allowed values for the resource reference.
+
+            For hosts and host groups, each item does not define a specific object on
+
+            some target, but defines a pattern which should be matched by the target.
+
+            For example, { `type`: `host`, `name`: `host1` } will match all targets
+
+            that have a host with name `host1`.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWithType'
     WorkloadPlacementRecommendation:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -1001,37 +1229,6 @@ components:
 
             '
           type: boolean
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    WorkloadPost:
-      type: object
-      properties:
-        parameters:
-          description: 'The parameter values to pass to the preset when creating the workload.
-
-            Value must be supplied for all parameters that do not have a default defined in the preset.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_workloadParameter'
     PageInfo:
       type: object
       properties:
@@ -1074,266 +1271,6 @@ components:
             '
           type: integer
           format: int32
-    _workloadPlacementRecommendationTargetLoadProjections:
-      description: 'Load depicts the storage system utilization as a percentage from 0,
-
-        when the system is completely idle, to 100, when the system is completely
-
-        saturated.
-
-        '
-      type: object
-      properties:
-        projection_avg:
-          description: 'The projected average load on the target.
-
-            '
-          title: WorkloadPlacementRecommendationProjection
-          allOf:
-          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
-        projection_baseline:
-          description: 'The projected baseline load on the target, without the workload
-
-            on this target.
-
-            '
-          title: WorkloadPlacementRecommendationProjection
-          allOf:
-          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
-        projection_blended_max:
-          description: 'The projected blended maximum load on the target.
-
-            '
-          title: WorkloadPlacementRecommendationProjection
-          allOf:
-          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
-    _workloadPlacementRecommendationWarning:
-      type: object
-      properties:
-        code:
-          description: 'The warning code.
-
-            Possible values include `limit_volumes_count`, `limit_pods_count`, etc.
-
-            '
-          type: string
-        message:
-          description: 'The warning message. Possible values include
-
-            `Adding the workload on the array would exceed the limit on volumes`,
-
-            `Adding the workload on the array would exceed the limit on pods`, etc.
-
-            '
-          type: string
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    WorkloadGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfoWithoutTotalItemCountResponse'
-      - $ref: '#/components/schemas/WorkloadResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    WorkloadPlacementRecommendationGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/WorkloadPlacementRecommendationResponse'
-    _workloadPlacementRecommendationParameter:
-      allOf:
-      - $ref: '#/components/schemas/_workloadParameter'
-      - description: 'The single parameter passed to the recommendation API.
-
-          It specifies either a fixed value for the parameter or defines constraints with a set of allowed values.
-
-          '
-        type: object
-        properties:
-          constraints:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationParameterConstraints'
-    _workloadPlacementRecommendationTarget:
-      description: 'Data for a target in a workload placement recommendation.
-
-        Target is a FlashArray, which may be used for workload placement.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithType'
-      - type: object
-        properties:
-          capacity:
-            description: 'The usable capacity of the target, measured in bytes.
-
-              '
-            type: integer
-            format: int64
-            example: 10995116277760
-          capacity_used_projections:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationTargetCapacityUsedProjections'
-          load_projections:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationTargetLoadProjections'
-          model:
-            description: 'The model of the target.
-
-              For example, `FA-X20R2`.
-
-              '
-            type: string
-          warnings:
-            description: 'The warnings for the target.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_workloadPlacementRecommendationWarning'
-    _newName:
-      type: object
-      properties:
-        name:
-          description: The new name for the resource.
-          type: string
-    _workloadPreset:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithType'
-      - type: object
-        properties:
-          revision:
-            description: 'The revision of the preset from which the workload was deployed.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-    _workloadPlacementRecommendationResult:
-      description: Single workload placement recommendation result.
-      type: object
-      properties:
-        parameters:
-          description: 'The parameter values passed to the preset when creating a workload based on
-
-            the recommendation result.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_workloadParameter'
-        placements:
-          deprecated: true
-          description: 'The placements of the preset.
-
-            (Deprecated) Use ''targets'' instead.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationPlacement'
-        score:
-          description: 'The score of the recommendation from Pure1.
-
-            Possible values include `optimal`, `optimal-with-warnings`, and `acceptable`.
-
-            '
-          type: string
-          readOnly: true
-        targets:
-          description: 'The list of recommended arrays.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationGenericTarget'
-    Workload:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_context'
-      - description: 'Workloads organize storage resources (such as volumes) and their related configuration
-
-          and policy objects into logical groupings.
-
-          '
-        type: object
-        properties:
-          created:
-            description: The workload creation time, measured in milliseconds since the UNIX epoch.
-            type: integer
-            format: int64
-            readOnly: true
-          destroyed:
-            description: 'Returns a value of `true` if the workload has been destroyed and is pending eradication.
-
-              The `time_remaining` displays the amount of time left
-
-              until the destroyed workload is permanently eradicated.
-
-              Before the `time_remaining` period has elapsed, the destroyed workload can be recovered
-
-              by setting `destroyed=false`.
-
-              Once the `time_remaining` period has elapsed,
-
-              the workload is permanently eradicated and can no longer be recovered.
-
-              '
-            type: boolean
-            readOnly: true
-          preset:
-            description: 'A reference to the preset the workload was deployed from.
-
-              If the preset has since been destroyed, `name` will be `null`.
-
-              '
-            title: WorkloadPreset
-            allOf:
-            - $ref: '#/components/schemas/_workloadPreset'
-          status:
-            description: 'The status of the workload. Supported values are `creating`, `ready`, `destroying`,
-
-              `destroyed`, `eradicating` and `recovering`.
-
-              '
-            type: string
-            readOnly: true
-            example: ready
-          status_details:
-            description: 'Additional information about the workload status. For example, if the workload status
-
-              is `creating`, status details might describe what resources are currently being created.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              type: string
-          time_remaining:
-            description: 'The amount of time left until the destroyed workload is permanently eradicated, measured in
-
-              milliseconds.
-
-              Before the `time_remaining` period has elapsed, the destroyed workload can be recovered
-
-              by setting `destroyed=false`.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
     _fixedReference:
       type: object
       properties:
@@ -1356,142 +1293,62 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
-    _workloadPlacementRecommendationAdditionalConstraints:
-      description: 'The list of targets considered for workload placement must
-
-        satisfy the requirements imposed by the preset. It is
-
-        also possible to specify additional constraints to further restrict the
-
-        list of targets for consideration.
+    _workloadPlacementRecommendationTargetCapacityUsedProjections:
+      description: 'Projections for the capacity consumed by customer data.
 
         '
       type: object
       properties:
-        required_resource_references:
-          description: 'Defines a group of resources. At least one resource from each item
-
-            should be present on this target for the target to be considered an
-
-            acceptable candidate for workload placement
+        days_until_full:
+          description: 'The number of days until the target is at full capacity.
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationResourceReference'
-        targets:
-          description: 'If specified, only consider these targets when computing placement
+          type: integer
+          format: int32
+          example: 10
+        projection:
+          description: 'The projection of the used capacity, assuming the workload
 
-            recommendations. If not specified, the whole fleet is used to
-
-            compute the recommendation.
+            is provisioned on this target.
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceWithType'
-    _workloadPlacementRecommendationParameterResourceReference:
-      description: The constraints applied to parameters of the resource reference type.
-      type: object
-      properties:
-        allowed_values:
-          description: 'The valid values accepted by the parameter to create a workload.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_reference'
-    PageInfoWithoutTotalItemCountResponse:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query parameter to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination, then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Displays a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-    TagBatch:
-      type: object
-      properties:
-        copyable:
-          description: 'Specifies whether or not to include the tag when copying the parent resource.
-
-            If set to `true`, the tag is included in resource copying.
-
-            If set to `false`, the tag is not included.
-
-            If not specified, defaults to `true`.
-
-            '
-          type: boolean
-          example: true
-        key:
-          description: 'Key of the tag. Supports up to 64 Unicode characters.
-
-            '
-          type: string
-          example: environment
-        namespace:
-          description: 'Optional namespace of the tag.
-
-            Namespace identifies the category of the tag. Omitting the namespace
-
-            defaults to the namespace `default`. The `pure&#42;` namespaces are
-
-            reserved for plugins and integration partners. It is recommended
-
-            that customers avoid using reserved namespaces.
-
-            '
-          type: string
-          example: default
-        resource:
-          description: 'A reference to the parent object.
-
-            '
-          title: Reference
+          title: WorkloadPlacementRecommendationProjection
           allOf:
-          - $ref: '#/components/schemas/_reference'
-        value:
-          description: 'Value of the tag. Supports up to 256 Unicode characters.
+          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
+        projection_baseline:
+          description: 'The projection of the baseline used capacity, without the workload
+
+            on this target.
 
             '
-          type: string
-          example: staging
-    _errorContextResponse:
+          title: WorkloadPlacementRecommendationProjection
+          allOf:
+          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
+    _workloadPlacementRecommendationProjection:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    WorkloadPatch:
-      allOf:
-      - $ref: '#/components/schemas/_destroyedPatchPost'
-      - $ref: '#/components/schemas/_newName'
+        end:
+          description: 'The projection for the end of the projection period. Length of the
+
+            projection period is defined by ''projection_months''.
+
+            The percentage is displayed as a decimal value, starting at 0.00 and ending at 1.00.
+
+            '
+          type: number
+          format: float
+          example: 0.77
+        start:
+          description: 'The projection for the start of the projection period (i.e., immediately
+
+            after the creation of the workload on this target).
+
+            The percentage is displayed as a decimal value, starting at 0.00 and ending at 1.00.
+
+            '
+          type: number
+          format: float
+          example: 0.77
     TagResponse:
       type: object
       properties:
@@ -1499,38 +1356,35 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Tag'
-    _workloadParameterValue:
-      description: The value of the parameter.
-      type: object
-      properties:
-        boolean:
-          description: The value for a boolean parameter.
-          type: boolean
-        integer:
-          description: The value for an integer parameter.
-          type: integer
-          format: int64
-        resource_reference:
-          $ref: '#/components/schemas/_workloadParameterValueResourceReference'
-        string:
-          description: The value for a string parameter.
-          type: string
-    _workloadPlacementRecommendationPlacement:
-      description: Placement data in the recommendation result.
-      type: object
-      properties:
-        name:
-          description: 'The name of the placement.
+    _workloadPreset:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithType'
+      - type: object
+        properties:
+          revision:
+            description: 'The revision of the preset from which the workload was deployed.
 
-            '
-          type: string
-        targets:
-          description: 'The targets for the placement.
+              '
+            type: integer
+            format: int64
+            readOnly: true
+    WorkloadPost:
+      type: object
+      properties:
+        parameters:
+          description: 'The parameter values to pass to the preset when creating the workload.
+
+            Value must be supplied for all parameters that do not have a default defined in the preset.
 
             '
           type: array
           items:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationTarget'
+            $ref: '#/components/schemas/_workloadParameter'
+    WorkloadGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfoWithoutTotalItemCountResponse'
+      - $ref: '#/components/schemas/WorkloadResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     Tag:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -1576,68 +1430,125 @@ components:
               '
             type: string
             example: staging
-    _context:
+    _workloadPlacementRecommendationResult:
+      description: Single workload placement recommendation result.
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
+        parameters:
+          description: 'The parameter values passed to the preset when creating a workload based on
 
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _workloadPlacementRecommendationResourceReference:
-      description: 'Defines a group of resources. At least one of them should be present
-
-        on this target to use it for computation of a recommendation.
-
-        Currently only hosts or host groups could be used.
-
-        '
-      type: object
-      required:
-      - allowed_values
-      properties:
-        allowed_values:
-          description: 'A list of allowed values for the resource reference.
-
-            For hosts and host groups, each item does not define a specific object on
-
-            some target, but defines a pattern which should be matched by the target.
-
-            For example, { `type`: `host`, `name`: `host1` } will match all targets
-
-            that have a host with name `host1`.
+            the recommendation result.
 
             '
           type: array
           items:
-            $ref: '#/components/schemas/_referenceWithType'
-    TagGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TagResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _workloadPlacementRecommendationGenericTarget:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithType'
-      - description: 'The data for a target in a workload placement recommendation.
+            $ref: '#/components/schemas/_workloadParameter'
+        placements:
+          deprecated: true
+          description: 'The placements of the preset.
 
-          The target is an array that may be used for workload placement.
+            (Deprecated) Use ''targets'' instead.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationPlacement'
+        score:
+          description: 'The score of the recommendation from Pure1.
+
+            Possible values include `optimal`, `optimal-with-warnings`, and `acceptable`.
+
+            '
+          type: string
+          readOnly: true
+        targets:
+          description: 'The list of recommended arrays.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationGenericTarget'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    _workloadPlacementRecommendationParameter:
+      allOf:
+      - $ref: '#/components/schemas/_workloadParameter'
+      - description: 'The single parameter passed to the recommendation API.
+
+          It specifies either a fixed value for the parameter or defines constraints with a set of allowed values.
 
           '
         type: object
+        properties:
+          constraints:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationParameterConstraints'
+    _workloadPlacementRecommendationTargetLoadProjections:
+      description: 'Load depicts the storage system utilization as a percentage from 0,
+
+        when the system is completely idle, to 100, when the system is completely
+
+        saturated.
+
+        '
+      type: object
+      properties:
+        projection_avg:
+          description: 'The projected average load on the target.
+
+            '
+          title: WorkloadPlacementRecommendationProjection
+          allOf:
+          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
+        projection_baseline:
+          description: 'The projected baseline load on the target, without the workload
+
+            on this target.
+
+            '
+          title: WorkloadPlacementRecommendationProjection
+          allOf:
+          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
+        projection_blended_max:
+          description: 'The projected blended maximum load on the target.
+
+            '
+          title: WorkloadPlacementRecommendationProjection
+          allOf:
+          - $ref: '#/components/schemas/_workloadPlacementRecommendationProjection'
+    _workloadPlacementRecommendationPlacement:
+      description: Placement data in the recommendation result.
+      type: object
+      properties:
+        name:
+          description: 'The name of the placement.
+
+            '
+          type: string
+        targets:
+          description: 'The targets for the placement.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationTarget'
+    _workloadPlacementRecommendationTarget:
+      description: 'Data for a target in a workload placement recommendation.
+
+        Target is a FlashArray, which may be used for workload placement.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithType'
+      - type: object
         properties:
           capacity:
             description: 'The usable capacity of the target, measured in bytes.
@@ -1657,20 +1568,6 @@ components:
 
               '
             type: string
-          periodic_replication_configurations:
-            description: 'The preset periodic replication configurations supported by the array.
-
-              '
-            type: array
-            items:
-              type: string
-          placement_configurations:
-            description: 'The preset placement configurations supported by the array.
-
-              '
-            type: array
-            items:
-              type: string
           warnings:
             description: 'The warnings for the target.
 
@@ -1678,13 +1575,116 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/_workloadPlacementRecommendationWarning'
-    WorkloadPlacementRecommendationResponse:
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    _workloadPlacementRecommendationWarning:
+      type: object
+      properties:
+        code:
+          description: 'The warning code.
+
+            Possible values include `limit_volumes_count`, `limit_pods_count`, etc.
+
+            '
+          type: string
+        message:
+          description: 'The warning message. Possible values include
+
+            `Adding the workload on the array would exceed the limit on volumes`,
+
+            `Adding the workload on the array would exceed the limit on pods`, etc.
+
+            '
+          type: string
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    WorkloadResponse:
       type: object
       properties:
         items:
+          description: 'Displays a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
           type: array
           items:
-            $ref: '#/components/schemas/WorkloadPlacementRecommendation'
+            $ref: '#/components/schemas/Workload'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
     _referenceWritable:
       allOf:
       - $ref: '#/components/schemas/_referenceWithoutType'
@@ -1703,6 +1703,17 @@ components:
             type: string
       x-aliases:
       - _reference
+    _workloadPlacementRecommendationParameterResourceReference_2:
+      description: Constraints to apply to parameters of resource reference type.
+      type: object
+      properties:
+        allowed_values:
+          description: 'The valid values that can be supplied to the parameter to create a workload.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWithoutType'
     _workloadPlacementRecommendationGenericTarget_2:
       allOf:
       - $ref: '#/components/schemas/_referenceWritable'
@@ -1752,43 +1763,169 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/_workloadPlacementRecommendationWarning'
+    WorkloadPlacementRecommendationGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/WorkloadPlacementRecommendationResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
     _workloadPlacementRecommendationParameterConstraints_2:
       description: Constraints to apply to the parameter.
       type: object
       properties:
         resource_reference:
           $ref: '#/components/schemas/_workloadPlacementRecommendationParameterResourceReference_2'
-    _errorContextResponseErrors:
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    TagBatch_2:
+      type: object
+      properties:
+        copyable:
+          description: 'Specifies whether or not to include the tag when copying the parent resource.
+
+            If set to `true`, the tag is included in resource copying.
+
+            If set to `false`, the tag is not included.
+
+            If not specified, defaults to `true`.
+
+            '
+          type: boolean
+          example: true
+        key:
+          description: 'Key of the tag. Supports up to 64 Unicode characters.
+
+            '
+          type: string
+          example: environment
+        namespace:
+          description: 'Optional namespace of the tag.
+
+            Namespace identifies the category of the tag. Omitting the namespace
+
+            defaults to the namespace `default`. The `pure&#42;` namespaces are
+
+            reserved for plugins and integration partners. It is recommended
+
+            that customers avoid using reserved namespaces.
+
+            '
+          type: string
+          example: default
+        resource:
+          description: 'A reference to the parent object.
+
+            '
+          title: ReferenceWithoutType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithoutType'
+        value:
+          description: 'Value of the tag. Supports up to 256 Unicode characters.
+
+            '
+          type: string
+          example: staging
+    _workloadPlacementRecommendationAdditionalConstraints_2:
+      description: 'The list of targets considered for workload placement must
+
+        satisfy the requirements imposed by the preset. It is
+
+        also possible to specify additional constraints to further restrict the
+
+        list of targets for consideration.
+
+        '
+      type: object
+      properties:
+        required_resource_references:
+          description: 'Defines a group of resources. At least one resource from each item
+
+            should be present on this target for the target to be considered an
+
+            acceptable candidate for workload placement
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationResourceReference_2'
+        targets:
+          description: 'If specified, only consider these targets when computing placement recommendations. If not specified, the whole
+
+            fleet is used to compute the recommendation.
+
+            Specify targets as individual arrays or as topology groups (by setting `name` to `[group].arrays`).
+
+            Responses will have targets that are individual arrays.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWritable'
+    _context_2:
       type: object
       properties:
         context:
-          description: 'Contains information relating to the cause of this error,
+          description: 'The context in which the operation was performed.
 
-            or the name of the object that was being processed when the error was encountered.
 
-            This may be `null` for more general errors.
+            Valid values include a reference to any array which is a member of the same fleet
 
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
+            or to the fleet itself.
 
-            when the error occurred.
 
-            For example, this may be the name of an array in the same fleet.
+            Other parameters provided with the request, such as names of volumes or snapshots,
 
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
+            are resolved relative to the provided `context`.
 
             '
+          readOnly: true
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference_2'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
+    _workloadPlacementRecommendationResourceReference_2:
+      description: 'Defines a group of resources. At least one of them should be present
+
+        on this target to use it for computation of a recommendation.
+
+        Currently only hosts or host groups could be used.
+
+        '
+      type: object
+      required:
+      - allowed_values
+      properties:
+        allowed_values:
+          description: 'A list of allowed values for the resource reference.
+
+            For hosts and host groups, each item does not define a specific object on
+
+            some target, but defines a pattern which should be matched by the target.
+
+            For example, { `type`: `host`, `name`: `host1` } will match all targets
+
+            that have a host with name `host1`.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWritable'
     WorkloadPlacementRecommendation_2:
       allOf:
       - $ref: '#/components/schemas/_context_2'
@@ -1939,115 +2076,6 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    WorkloadGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/WorkloadResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    WorkloadPlacementRecommendationGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/WorkloadPlacementRecommendationResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-    _workloadPlacementRecommendationParameter_2:
-      allOf:
-      - $ref: '#/components/schemas/_workloadParameter'
-      - description: 'A single parameter passed to recommendation API. It could specify either a
-
-          fixed value for the parameter or define constraints with a set of allowed values.
-
-          '
-        type: object
-        properties:
-          constraints:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationParameterConstraints_2'
-    _workloadPlacementRecommendationTarget_2:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWritable'
-      - description: 'Data for a target in a workload placement recommendation.
-
-          Target is a FlashArray, which may be used for workload placement.
-
-          '
-        type: object
-        properties:
-          capacity:
-            description: 'The usable capacity of the target, measured in bytes.
-
-              '
-            type: integer
-            format: int64
-            example: 10995116277760
-          capacity_used_projections:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationTargetCapacityUsedProjections'
-          load_projections:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationTargetLoadProjections'
-          model:
-            description: 'The model of the target.
-
-              For example, `FA-X20R2`.
-
-              '
-            type: string
-          warnings:
-            description: 'The warnings for the target.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_workloadPlacementRecommendationWarning'
-    _workloadPreset_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          revision:
-            description: 'The revision of the preset from which the workload was deployed.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-    _workloadPlacementRecommendationResult_2:
-      description: Single workload placement recommendation result.
-      type: object
-      properties:
-        parameters:
-          description: 'The parameter values to pass to the preset when creating the workload based on this
-
-            recommendation result.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_workloadParameter'
-        placements:
-          deprecated: true
-          description: 'The placements of the preset.
-
-            (Deprecated) Use ''targets'' instead.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationPlacement'
-        score:
-          description: 'The score of the recommendation from Pure1.
-
-            Possible values include `optimal`, `optimal-with-warnings`, and `acceptable`.
-
-            '
-          type: string
-          readOnly: true
-        targets:
-          description: 'List of all recommended arrays.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationGenericTarget_2'
     _fixedReference_2:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -2065,130 +2093,23 @@ components:
               '
             type: string
             readOnly: true
-    _workloadPlacementRecommendationAdditionalConstraints_2:
-      description: 'The list of targets considered for workload placement must
+    _workloadPreset_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          revision:
+            description: 'The revision of the preset from which the workload was deployed.
 
-        satisfy the requirements imposed by the preset. It is
-
-        also possible to specify additional constraints to further restrict the
-
-        list of targets for consideration.
-
-        '
-      type: object
-      properties:
-        required_resource_references:
-          description: 'Defines a group of resources. At least one resource from each item
-
-            should be present on this target for the target to be considered an
-
-            acceptable candidate for workload placement
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_workloadPlacementRecommendationResourceReference_2'
-        targets:
-          description: 'If specified, only consider these targets when computing placement recommendations. If not specified, the whole
-
-            fleet is used to compute the recommendation.
-
-            Specify targets as individual arrays or as topology groups (by setting `name` to `[group].arrays`).
-
-            Responses will have targets that are individual arrays.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceWritable'
-    _workloadPlacementRecommendationParameterResourceReference_2:
-      description: Constraints to apply to parameters of resource reference type.
-      type: object
-      properties:
-        allowed_values:
-          description: 'The valid values that can be supplied to the parameter to create a workload.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceWithoutType'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    TagBatch_2:
-      type: object
-      properties:
-        copyable:
-          description: 'Specifies whether or not to include the tag when copying the parent resource.
-
-            If set to `true`, the tag is included in resource copying.
-
-            If set to `false`, the tag is not included.
-
-            If not specified, defaults to `true`.
-
-            '
-          type: boolean
-          example: true
-        key:
-          description: 'Key of the tag. Supports up to 64 Unicode characters.
-
-            '
-          type: string
-          example: environment
-        namespace:
-          description: 'Optional namespace of the tag.
-
-            Namespace identifies the category of the tag. Omitting the namespace
-
-            defaults to the namespace `default`. The `pure&#42;` namespaces are
-
-            reserved for plugins and integration partners. It is recommended
-
-            that customers avoid using reserved namespaces.
-
-            '
-          type: string
-          example: default
-        resource:
-          description: 'A reference to the parent object.
-
-            '
-          title: ReferenceWithoutType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithoutType'
-        value:
-          description: 'Value of the tag. Supports up to 256 Unicode characters.
-
-            '
-          type: string
-          example: staging
-    _errorContextResponse_2:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
+              '
+            type: integer
+            format: int64
+            readOnly: true
+    WorkloadGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/WorkloadResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
     Tag_2:
       allOf:
       - $ref: '#/components/schemas/_context_2'
@@ -2234,54 +2155,98 @@ components:
               '
             type: string
             example: staging
-    _context_2:
+    _workloadPlacementRecommendationResult_2:
+      description: Single workload placement recommendation result.
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
+        parameters:
+          description: 'The parameter values to pass to the preset when creating the workload based on this
 
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-    _workloadPlacementRecommendationResourceReference_2:
-      description: 'Defines a group of resources. At least one of them should be present
-
-        on this target to use it for computation of a recommendation.
-
-        Currently only hosts or host groups could be used.
-
-        '
-      type: object
-      required:
-      - allowed_values
-      properties:
-        allowed_values:
-          description: 'A list of allowed values for the resource reference.
-
-            For hosts and host groups, each item does not define a specific object on
-
-            some target, but defines a pattern which should be matched by the target.
-
-            For example, { `type`: `host`, `name`: `host1` } will match all targets
-
-            that have a host with name `host1`.
+            recommendation result.
 
             '
           type: array
           items:
-            $ref: '#/components/schemas/_referenceWritable'
+            $ref: '#/components/schemas/_workloadParameter'
+        placements:
+          deprecated: true
+          description: 'The placements of the preset.
+
+            (Deprecated) Use ''targets'' instead.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationPlacement'
+        score:
+          description: 'The score of the recommendation from Pure1.
+
+            Possible values include `optimal`, `optimal-with-warnings`, and `acceptable`.
+
+            '
+          type: string
+          readOnly: true
+        targets:
+          description: 'List of all recommended arrays.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationGenericTarget_2'
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    _workloadPlacementRecommendationParameter_2:
+      allOf:
+      - $ref: '#/components/schemas/_workloadParameter'
+      - description: 'A single parameter passed to recommendation API. It could specify either a
+
+          fixed value for the parameter or define constraints with a set of allowed values.
+
+          '
+        type: object
+        properties:
+          constraints:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationParameterConstraints_2'
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
     _referenceWithoutType:
       type: object
       properties:
@@ -2299,21 +2264,48 @@ components:
 
             '
           type: string
+    _workloadPlacementRecommendationTarget_2:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWritable'
+      - description: 'Data for a target in a workload placement recommendation.
+
+          Target is a FlashArray, which may be used for workload placement.
+
+          '
+        type: object
+        properties:
+          capacity:
+            description: 'The usable capacity of the target, measured in bytes.
+
+              '
+            type: integer
+            format: int64
+            example: 10995116277760
+          capacity_used_projections:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationTargetCapacityUsedProjections'
+          load_projections:
+            $ref: '#/components/schemas/_workloadPlacementRecommendationTargetLoadProjections'
+          model:
+            description: 'The model of the target.
+
+              For example, `FA-X20R2`.
+
+              '
+            type: string
+          warnings:
+            description: 'The warnings for the target.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_workloadPlacementRecommendationWarning'
   parameters:
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Ids_single:
-      name: ids
+    Resource_ids_single:
+      name: resource_ids
       in: query
-      description: 'Performs the operation on the unique resource IDs specified.
+      description: 'Performs the operation on the unique resource ID specified. Only one value is supported.
 
-        Only one value is supported.
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
 
         '
       style: form
@@ -2323,12 +2315,50 @@ components:
         maxLength: 1
         items:
           type: string
-    Resource_ids:
-      name: resource_ids
+    Placement_names:
+      name: placement_names
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Placements from the preset which should be used to compute recommendation.
+
+        Optional parameter if preset has just one placement.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Resource_names:
+      name: resource_names
+      in: query
+      description: 'A comma-separated list of resource names.
 
         The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -2361,59 +2391,6 @@ components:
         '
       schema:
         type: boolean
-    Names_single:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique resource names specified.
-
-        Only one value is supported.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        maxLength: 1
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Names_single_required:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique resource names specified.
-
-        Only one value is supported.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        maxLength: 1
-        items:
-          type: string
     Preset_names:
       name: preset_names
       in: query
@@ -2430,6 +2407,25 @@ components:
         type: array
         items:
           type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Names:
       name: names
       in: query
@@ -2453,10 +2449,41 @@ components:
         type: array
         items:
           type: string
-    Keys:
-      name: keys
+    Ids_single:
+      name: ids
       in: query
-      description: 'A comma-separated list of tag keys.
+      description: 'Performs the operation on the unique resource IDs specified.
+
+        Only one value is supported.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        maxLength: 1
+        items:
+          type: string
+    Namespaces_delete:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Preset_ids:
+      name: preset_ids
+      in: query
+      description: 'Create the resource using the preset specified by the ID. Only one preset can be specified.
+
+        One of the `preset_ids` or `preset_names` parameters are required, but they cannot be
+
+        set together.
 
         '
       style: form
@@ -2495,38 +2522,15 @@ components:
         type: array
         items:
           type: string
-    Resource_names:
-      name: resource_names
+    Names_single_required:
+      name: names
       in: query
-      description: 'A comma-separated list of resource names.
+      description: 'Performs the operation on the unique resource names specified.
 
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
+        Only one value is supported.
 
         '
-      schema:
-        type: string
-    Resource_ids_single:
-      name: resource_ids
-      in: query
-      description: 'Performs the operation on the unique resource ID specified. Only one value is supported.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
+      required: true
       style: form
       explode: false
       schema:
@@ -2534,14 +2538,10 @@ components:
         maxLength: 1
         items:
           type: string
-    Preset_ids:
-      name: preset_ids
+    Keys:
+      name: keys
       in: query
-      description: 'Create the resource using the preset specified by the ID. Only one preset can be specified.
-
-        One of the `preset_ids` or `preset_names` parameters are required, but they cannot be
-
-        set together.
+      description: 'A comma-separated list of tag keys.
 
         '
       style: form
@@ -2562,6 +2562,28 @@ components:
         type: array
         items:
           type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
     Resource_names_single:
       name: resource_names
       in: query
@@ -2577,48 +2599,40 @@ components:
         maxLength: 1
         items:
           type: string
-    Placement_names:
-      name: placement_names
+    Ids:
+      name: ids
       in: query
-      description: 'Placements from the preset which should be used to compute recommendation.
-
-        Optional parameter if preset has just one placement.
-
-        '
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
           type: string
-    Namespaces_delete:
-      name: namespaces
-      in: query
-      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Resource_ids:
+      name: resource_ids
       in: query
-      description: 'Performs the operation on the context specified.
+      description: 'A comma-separated list of resource IDs.
 
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
 
         '
       style: form
@@ -2640,33 +2654,19 @@ components:
       schema:
         type: boolean
         default: false
-    Limit:
-      name: limit
+    Names_single:
+      name: names
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
+      description: 'Performs the operation on the unique resource names specified.
 
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+        Only one value is supported.
 
         '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
       style: form
       explode: false
       schema:
         type: array
+        maxLength: 1
         items:
           type: string
     Ids_2:

@@ -197,10 +197,10 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    NetworkAccessPolicyRuleInPolicy:
+    NetworkAccessPolicyRuleGetResponse:
       allOf:
-      - $ref: '#/components/schemas/NetworkAccessPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/NetworkAccessPolicyRuleResponse'
     PolicyMember:
       type: object
       properties:
@@ -214,33 +214,91 @@ components:
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+    NetworkAccessPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+      - $ref: '#/components/schemas/_version'
+      - type: object
+        properties:
+          rules:
+            description: 'All of the rules that are part of this policy. The order is the
 
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
+              evaluation order.
 
-        file system), or correspond to something in the environment, like a host or a
+              If a client does not match any rule in the policy for the interface that
 
-        server.
+              they are attempting to access, the default is to deny access.
 
-        '
+              '
+            type: array
+            maxItems: 200
+            items:
+              $ref: '#/components/schemas/NetworkAccessPolicyRuleInPolicy'
+    NetworkAccessPolicyRuleResponse:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
+        items:
+          description: 'Displays a list of all items after filtering.
 
             '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkAccessPolicyRule'
+    NetworkAccessPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/NetworkAccessPolicyResponse'
+    PolicyBaseRenameable:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
 
-            The name must be locally unique and can be changed.
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
+
+              '
+            type: string
+            readOnly: true
+    _policyRuleIndex:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            NOTE: It is recommended to use the query param `before_rule_id` to do reordering to
+
+            avoid concurrency issues, but changing `index` is also supported. `index` can not be
+
+            changed if `before_rule_id` or `before_rule_name` are specified.
 
             '
-          type: string
+          type: integer
+          format: int32
+    NetworkAccessPolicyRulePost:
+      allOf:
+      - $ref: '#/components/schemas/NetworkAccessPolicyRulePostBase'
+      - $ref: '#/components/schemas/_policyRuleIndex'
     NetworkAccessPolicyRuleBase:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -294,6 +352,26 @@ components:
               '
             type: string
             readOnly: true
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     PolicyMemberResponse:
       type: object
       properties:
@@ -317,6 +395,85 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_fixedReference'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    NetworkAccessPolicyResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkAccessPolicy'
+    _policyRuleIndexInPolicy:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            '
+          type: integer
+          format: int32
+          readOnly: true
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    PolicyMemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberResponse'
     NetworkAccessPolicyRulePostBase:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -359,194 +516,41 @@ components:
             maxItems: 5
             items:
               type: string
-    _policyRuleIndexInPolicy:
-      type: object
-      properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
-            '
-          type: integer
-          format: int32
-          readOnly: true
-    PolicyMemberGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberResponse'
-    NetworkAccessPolicyRuleResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after filtering.
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
 
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/NetworkAccessPolicyRule'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
+        file system), or correspond to something in the environment, like a host or a
 
-            param to get the next page of data.
+        server.
 
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    PolicyBaseRenameable:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
-
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    NetworkAccessPolicyResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/NetworkAccessPolicy'
-    NetworkAccessPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-      - $ref: '#/components/schemas/_version'
-      - type: object
-        properties:
-          rules:
-            description: 'All of the rules that are part of this policy. The order is the
-
-              evaluation order.
-
-              If a client does not match any rule in the policy for the interface that
-
-              they are attempting to access, the default is to deny access.
-
-              '
-            type: array
-            maxItems: 200
-            items:
-              $ref: '#/components/schemas/NetworkAccessPolicyRuleInPolicy'
-    _policyRuleIndex:
-      type: object
-      properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
-
-            NOTE: It is recommended to use the query param `before_rule_id` to do reordering to
-
-            avoid concurrency issues, but changing `index` is also supported. `index` can not be
-
-            changed if `before_rule_id` or `before_rule_name` are specified.
-
-            '
-          type: integer
-          format: int32
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _fixedReferenceWithoutType:
+        '
       type: object
       properties:
         id:
           description: 'A globally unique, system-generated ID.
 
-            The ID cannot be modified.
+            The ID cannot be modified and cannot refer to another resource.
 
             '
           type: string
           readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
+          description: 'A user-specified name.
 
-            snapshot name, and so on.
+            The name must be locally unique and can be changed.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
-    NetworkAccessPolicyRulePost:
+    NetworkAccessPolicyRuleInPolicy:
       allOf:
-      - $ref: '#/components/schemas/NetworkAccessPolicyRulePostBase'
-      - $ref: '#/components/schemas/_policyRuleIndex'
+      - $ref: '#/components/schemas/NetworkAccessPolicyRuleBase'
+      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
     NetworkAccessPolicyRule:
       allOf:
       - $ref: '#/components/schemas/NetworkAccessPolicyRuleBase'
       - $ref: '#/components/schemas/_policyRuleIndex'
-    NetworkAccessPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/NetworkAccessPolicyResponse'
     _version:
       type: object
       properties:
@@ -560,82 +564,7 @@ components:
             '
           type: string
           readOnly: true
-    NetworkAccessPolicyRuleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/NetworkAccessPolicyRuleResponse'
   parameters:
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Before_rule_id:
-      name: before_rule_id
-      in: query
-      description: 'The id of the rule to insert or move a rule before.
-
-        This cannot be provided together with the `before_rule_name` query parameter.
-
-        '
-      schema:
-        type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Filter:
       name: filter
       in: query
@@ -646,10 +575,16 @@ components:
         '
       schema:
         type: string
-    Policy_names:
-      name: policy_names
+    Policy_ids:
+      name: policy_ids
       in: query
-      description: 'A comma-separated list of policy names.
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -658,6 +593,36 @@ components:
         type: array
         items:
           type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Names:
       name: names
       in: query
@@ -681,16 +646,16 @@ components:
         type: array
         items:
           type: string
-    Policy_ids:
-      name: policy_ids
+    Member_ids:
+      name: member_ids
       in: query
-      description: 'A comma-separated list of policy IDs.
+      description: 'A comma-separated list of member IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `policy_ids`, then an error is returned.
+        each of the elements of `member_ids`, then an error is returned.
 
-        This cannot be provided together with the `policy_names` query parameter.
+        This cannot be provided together with the `member_names` query parameter.
 
         '
       style: form
@@ -698,6 +663,85 @@ components:
       schema:
         type: array
         items:
+          type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Versions:
       name: versions
@@ -717,17 +761,6 @@ components:
         type: array
         items:
           type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Before_rule_name:
       name: before_rule_name
       in: query
@@ -738,53 +771,20 @@ components:
         '
       schema:
         type: string
-    Member_ids:
-      name: member_ids
+    Before_rule_id:
+      name: before_rule_id
       in: query
-      description: 'A comma-separated list of member IDs.
+      description: 'The id of the rule to insert or move a rule before.
 
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `member_ids`, then an error is returned.
-
-        This cannot be provided together with the `member_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+        This cannot be provided together with the `before_rule_name` query parameter.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids:
-      name: ids
+        type: string
+    Member_names:
+      name: member_names
       in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
+      description: 'A comma-separated list of member names.
 
         '
       style: form
