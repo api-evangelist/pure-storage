@@ -415,53 +415,17 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   parameters:
-    Filter:
-      name: filter
+    Alert_rules_parameter:
+      name: parameter
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'The parameter of the custom alert rule to modify. Values include `info` and `warning`.
 
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Alert_rules_code:
-      name: code
-      in: query
-      description: 'The alert code that the rule applies to. Available alert codes
-
-        for customization can be found in the alert rules catalog.
+        Available parameter values can be found in the alert rules catalog.
 
         '
       required: true
       schema:
-        type: integer
-        format: int32
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Flagged:
-      name: flagged
-      in: query
-      description: 'If set to `true`, lists only flagged messages.
-
-        If set to `false`, lists only unflagged messages.
-
-        if not specified, lists all messages.
-
-        '
-      schema:
-        type: boolean
+        type: string
     Alert_rules_code_list:
       name: code
       in: query
@@ -471,37 +435,10 @@ components:
       schema:
         type: integer
         format: int32
-    Limit:
-      name: limit
+    Ids:
+      name: ids
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    NamesSemiRequired:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique name specified.
-
-        For example, `name01`.
-
-        Enter multiple names in comma-separated format.
-
-        The `ids` or `names` parameter is required, but they cannot be set together.
-
-        '
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
       style: form
       explode: false
       schema:
@@ -547,6 +484,78 @@ components:
         type: array
         items:
           type: string
+    NamesSemiRequired:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
+
+        The `ids` or `names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Flagged:
+      name: flagged
+      in: query
+      description: 'If set to `true`, lists only flagged messages.
+
+        If set to `false`, lists only unflagged messages.
+
+        if not specified, lists all messages.
+
+        '
+      schema:
+        type: boolean
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Alert_rules_code:
+      name: code
+      in: query
+      description: 'The alert code that the rule applies to. Available alert codes
+
+        for customization can be found in the alert rules catalog.
+
+        '
+      required: true
+      schema:
+        type: integer
+        format: int32
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     Context_names_get:
       name: context_names
       in: query
@@ -577,6 +586,78 @@ components:
         type: array
         items:
           type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -599,105 +680,6 @@ components:
         '
       schema:
         type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Alert_rules_parameter:
-      name: parameter
-      in: query
-      description: 'The parameter of the custom alert rule to modify. Values include `info` and `warning`.
-
-        Available parameter values can be found in the alert rules catalog.
-
-        '
-      required: true
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Sort_2:
       name: sort
       in: query
@@ -728,47 +710,44 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Filter_2:
-      name: filter
+    Ids_2:
+      name: ids
       in: query
-      description: 'Exclude resources that don''t match the specified criteria.
+      description: 'A comma-separated list of resource IDs.
 
-        Single quotes are required around all strings inside the filters.
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
-    Offset_3:
-      name: offset
+        type: array
+        items:
+          type: string
+    Ids_3:
+      name: ids
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
 
         '
+      style: form
+      explode: false
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
     Names_2:
       name: names
       in: query
@@ -805,26 +784,27 @@ components:
         type: string
         x-quoted: true
       x-quoted: true
-    Ids_3:
-      name: ids
+    Limit_2:
+      name: limit
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Limit the size of the response to the specified number of resources.
 
-        If there is not at least one resource that matches each `id` element,
+        A limit of 0 can be used to get the number of resources without getting
 
-        an error is returned.
+        all of the resources. It will be returned in the total_item_count field.
 
-        Single quotes are required around all strings.
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
+        type: integer
+        format: int32
     Sort_3:
       name: sort
       in: query
@@ -844,6 +824,16 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
     Authorization_2:
       name: Authorization
       in: header
@@ -852,6 +842,16 @@ components:
         '
       schema:
         type: string
+    Offset_3:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
   schemas:
     AlertEventResponse:
       type: object
@@ -939,6 +939,36 @@ components:
             format: int64
             readOnly: true
             example: 1578440491109
+    AlertGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/AlertResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _builtInResourceNoId:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
     Alert:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -1062,11 +1092,88 @@ components:
             format: int64
             readOnly: true
             example: 1578440491109
-    AlertGetResponse:
+    AlertResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+    AlertRulesCatalogResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertRulesCatalog'
+    AlertRules:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AlertResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/_context'
+      - description: 'Custom rules for alerts.
+
+          '
+        type: object
+        properties:
+          code:
+            description: 'The alert code that the rule applies to. Available alert codes
+
+              for customization can be found in the alert rules catalog.
+
+              '
+            type: integer
+            format: int32
+            readOnly: true
+            example: 25
+          parameter:
+            description: 'The parameter of the custom alert rule to modify. Values include `info` and `warning`.
+
+              Available parameter values can be found in the alert rules catalog.
+
+              '
+            type: string
+            readOnly: true
+            example: info
+          value:
+            description: 'The value to use for the custom alert rule. Valid values for
+
+              an alert code and parameter combination can be found in the alert rules catalog.
+
+              '
+            type: string
+            example: '85'
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
     _fixedReferenceWithType:
       allOf:
       - $ref: '#/components/schemas/_fixedReference'
@@ -1086,27 +1193,59 @@ components:
             readOnly: true
       x-aliases:
       - _fixedReference
-    _context:
+    AlertRulesCatalog:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - description: 'Available alerts for customization
+
+          '
+        type: object
+        properties:
+          allowed_values:
+            description: 'The range of values allowed to set the custom alert rule to.
+
+              '
+            type: string
+            example: Range 0-100 (must be equal to or lower than Warning Threshold)
+          code:
+            description: 'The alert code that the rule applies to.
+
+              '
+            type: integer
+            format: int32
+            example: 25
+          default_value:
+            description: 'The system default values for the alert code and parameter.
+
+              '
+            type: string
+            example: 80%
+          parameter:
+            description: 'The parameter of the custom alert rule.
+
+              '
+            type: string
+            example: info
+          subject:
+            description: 'The alert code description.
+
+              '
+            type: string
+            example: Storage consumption has reached {percent_usage}% of usable capacity
+    AlertRulesCatalogGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/AlertRulesCatalogResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _errorContextResponse:
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
           readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
     PageInfo:
       type: object
       properties:
@@ -1149,13 +1288,11 @@ components:
             '
           type: integer
           format: int32
-    AlertResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Alert'
+    AlertRulesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/AlertRulesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     _fixedReference:
       type: object
       properties:
@@ -1178,45 +1315,31 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
-    AlertRules:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - description: 'Custom rules for alerts.
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
 
-          '
-        type: object
-        properties:
-          code:
-            description: 'The alert code that the rule applies to. Available alert codes
 
-              for customization can be found in the alert rules catalog.
+            Valid values include a reference to any array which is a member of the same fleet
 
-              '
-            type: integer
-            format: int32
-            readOnly: true
-            example: 25
-          parameter:
-            description: 'The parameter of the custom alert rule to modify. Values include `info` and `warning`.
+            or to the fleet itself.
 
-              Available parameter values can be found in the alert rules catalog.
 
-              '
-            type: string
-            readOnly: true
-            example: info
-          value:
-            description: 'The value to use for the custom alert rule. Valid values for
+            Other parameters provided with the request, such as names of volumes or snapshots,
 
-              an alert code and parameter combination can be found in the alert rules catalog.
+            are resolved relative to the provided `context`.
 
-              '
-            type: string
-            example: '85'
-    AlertRulesCatalogGetResponse:
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    AlertEventGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AlertRulesCatalogResponse'
+      - $ref: '#/components/schemas/AlertEventResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
     AlertRulesResponse:
       type: object
@@ -1225,117 +1348,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AlertRules'
-    AlertRulesCatalog:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - description: 'Available alerts for customization
-
-          '
-        type: object
-        properties:
-          allowed_values:
-            description: 'The range of values allowed to set the custom alert rule to.
-
-              '
-            type: string
-            example: Range 0-100 (must be equal to or lower than Warning Threshold)
-          code:
-            description: 'The alert code that the rule applies to.
-
-              '
-            type: integer
-            format: int32
-            example: 25
-          default_value:
-            description: 'The system default values for the alert code and parameter.
-
-              '
-            type: string
-            example: 80%
-          parameter:
-            description: 'The parameter of the custom alert rule.
-
-              '
-            type: string
-            example: info
-          subject:
-            description: 'The alert code description.
-
-              '
-            type: string
-            example: Storage consumption has reached {percent_usage}% of usable capacity
-    _builtInResourceNoId:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    AlertEventGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AlertEventResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -1369,46 +1381,6 @@ components:
           example: Resource does not exist.
       x-aliases:
       - _errorContextResponseErrors
-    AlertRulesCatalogResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlertRulesCatalog'
-    AlertRulesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/AlertRulesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
     Alert_2:
       allOf:
       - $ref: '#/components/schemas/_builtIn_2'
@@ -1495,10 +1467,42 @@ components:
             readOnly: true
             additionalProperties:
               type: string
-    AlertGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/AlertResponse_2'
+    AlertResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of alert objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert_2'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     _builtIn_2:
       type: object
       properties:
@@ -1512,21 +1516,26 @@ components:
           description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
-    AlertResponse_2:
+    AlertGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/AlertResponse_2'
+    AlertsResponse:
       type: object
       properties:
         items:
-          description: A list of alert objects.
           type: array
           items:
-            $ref: '#/components/schemas/Alert_2'
-    _arraysResource:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_arrays'
+            $ref: '#/components/schemas/Alert_3'
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
     Alert_3:
       allOf:
       - $ref: '#/components/schemas/_arraysResource'
@@ -1634,34 +1643,17 @@ components:
           format: int64
           readOnly: true
           example: 1502729489760
-    _fixedReferenceFqdn:
+    AlertsGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/AlertsResponse'
+    _arraysResource:
+      description: 'A built-in resource that exists on one or multiple arrays.
 
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
-    _arrays:
-      type: object
-      properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
-
-            some resources, such as pods, can be shared across multiple arrays.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
+        '
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_arrays'
     PageInfo_3:
       type: object
       properties:
@@ -1692,6 +1684,37 @@ components:
           type: integer
           format: int32
           example: 1
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed, or deleted by the user. This might be a virtual resource (e.g.,
+
+        a volume), or correspond to something in the physical environment, like a
+
+        host or a server.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+          name:
+            description: A modifiable, locally unique name chosen by the user.
+            type: string
+            example: example_name
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
     _fixedReference_2:
       type: object
       properties:
@@ -1717,95 +1740,41 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
-    AlertsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Alert_3'
     ErrorNoContext:
       type: object
       properties:
         message:
           type: string
           example: Something was wrong
-    Error:
+    _arrays:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered.
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/_errorErrors'
-    AlertsGetResponse:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
+    _fixedReferenceFqdn:
       allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/AlertsResponse'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed, or deleted by the user. This might be a virtual resource (e.g.,
-
-        a volume), or correspond to something in the physical environment, like a
-
-        host or a server.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
+      - $ref: '#/components/schemas/_fixedReference_2'
       - type: object
         properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
             type: string
             readOnly: true
-            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-          name:
-            description: A modifiable, locally unique name chosen by the user.
-            type: string
-            example: example_name
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
+            example: example_name.dc1.example.com
   responses:
-    Error404:
-      description: NOT FOUND
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Error500:
       description: INTERNAL SERVER ERROR
       headers:
@@ -1879,6 +1848,37 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     Error400:
       description: BAD REQUEST
       headers:

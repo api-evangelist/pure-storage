@@ -317,37 +317,10 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    _referenceWritable:
+    PolicyMemberGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    PolicyMember:
-      type: object
-      properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberResponse'
     TlsPolicyPost:
       allOf:
       - $ref: '#/components/schemas/PolicyBase'
@@ -506,6 +479,97 @@ components:
 
               '
             type: boolean
+    TlsPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TlsPolicyResponse'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+    TlsPolicy:
+      allOf:
+      - $ref: '#/components/schemas/TlsPolicyPost'
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     PolicyBaseRenameable:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -538,49 +602,6 @@ components:
               '
             type: string
             readOnly: true
-    PolicyMemberResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMember'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference'
     PageInfo:
       type: object
       properties:
@@ -609,55 +630,6 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    PolicyMemberGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberResponse'
-    TlsPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TlsPolicyResponse'
-    TlsPolicy:
-      allOf:
-      - $ref: '#/components/schemas/TlsPolicyPost'
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -685,6 +657,34 @@ components:
 
             '
           type: string
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    PolicyMemberResponse:
+      type: object
+      properties:
+        items:
+          description: A list of members for policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMember'
     TlsPolicyResponse:
       type: object
       properties:
@@ -694,79 +694,16 @@ components:
           items:
             $ref: '#/components/schemas/TlsPolicy'
   parameters:
-    Filter:
-      name: filter
+    Ids:
+      name: ids
       in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
+      description: 'A comma-separated list of resource IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `policy_ids`, then an error is returned.
+        each of the elements of `ids`, then an error is returned.
 
-        This cannot be provided together with the `policy_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -793,10 +730,21 @@ components:
         type: array
         items:
           type: string
-    Policy_names:
-      name: policy_names
+    Names:
+      name: names
       in: query
-      description: 'A comma-separated list of policy names.
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
 
         '
       style: form
@@ -805,6 +753,85 @@ components:
         type: array
         items:
           type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
     Effective_tls_policy:
       name: effective
       in: query
@@ -823,6 +850,67 @@ components:
         '
       schema:
         type: boolean
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Purity_defined:
+      name: purity_defined
+      in: query
+      description: 'If `true`, then the results returned will be include the specification
+
+        for purity-defined values on the current purity version. These values
+
+        may be used in configurations in order to dynamically adopt new behavior
+
+        across upgrades, and this option allows the exact behavior for the current
+
+        version to be returned.
+
+        Defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -845,94 +933,6 @@ components:
         '
       schema:
         type: string
-    Purity_defined:
-      name: purity_defined
-      in: query
-      description: 'If `true`, then the results returned will be include the specification
-
-        for purity-defined values on the current purity version. These values
-
-        may be used in configurations in order to dynamically adopt new behavior
-
-        across upgrades, and this option allows the exact behavior for the current
-
-        version to be returned.
-
-        Defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

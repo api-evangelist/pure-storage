@@ -115,7 +115,438 @@ paths:
       operationId: deleteApi252Connections
       x-operation-id-source: derived
 components:
+  parameters:
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Volume_ids:
+      name: volume_ids
+      in: query
+      description: 'Performs the operation on the specified volume.
+
+        Enter multiple ids in comma-separated format.
+
+        For example, `vol01id,vol02id`.
+
+        A request cannot include a mix of multiple objects with multiple IDs.
+
+        For example, a request cannot include a mix of multiple volume IDs and host names;
+
+        instead, at least one of the objects (e.g., `volume_ids`) must be set to only one name
+
+        (e.g., `vol01id`).
+
+        Only one of the two between `volume_names` and `volume_ids` may be used at a time.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Host_names:
+      name: host_names
+      in: query
+      description: 'Performs the operation on the hosts specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `host01,host02`.
+
+        A request cannot include a mix of multiple objects with multiple names.
+
+        For example, a request cannot include a mix of multiple host names and volume names;
+
+        instead, at least one of the objects (e.g., `host_names`) must be set to only one name
+
+        (e.g., `host01`).
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Volume_names:
+      name: volume_names
+      in: query
+      description: 'Performs the operation on the volume specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `vol01,vol02`.
+
+        A request cannot include a mix of multiple objects with multiple names.
+
+        For example, a request cannot include a mix of multiple volume names and host names;
+
+        instead, at least one of the objects (e.g., `volume_names`) must be set to only one name
+
+        (e.g., `vol01`).
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Protocol_endpoint_names:
+      name: protocol_endpoint_names
+      in: query
+      description: 'Performs the operation on the protocol endpoints specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `pe01,pe02`.
+
+        A request cannot include a mix of multiple objects with multiple names.
+
+        For example, a request cannot include a mix of multiple protocol endpoint names and host names;
+
+        instead, at least one of the objects (e.g., `protocol_endpoint_names`) must be set to one name
+
+        (e.g., `pe01`).
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Host_group_names:
+      name: host_group_names
+      in: query
+      description: 'Performs the operation on the host group specified.
+
+        Enter multiple names in comma-separated format.
+
+        A request cannot include a mix of multiple objects with multiple names.
+
+        For example, a request cannot include a mix of multiple host group names and volume names;
+
+        instead, at least one of the objects (e.g., `host_group_names`) must be set to only one name
+
+        (e.g., `hgroup01`).
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Protocol_endpoint_ids:
+      name: protocol_endpoint_ids
+      in: query
+      description: 'Performs the operation on the protocol endpoints specified.
+
+        Enter multiple IDs in comma-separated format.
+
+        For example, `peid01,peid02`.
+
+        A request cannot include a mix of multiple objects with multiple IDs.
+
+        For example, a request cannot include a mix of multiple protocol endpoint IDs and host names.
+
+        Instead, at least one of the objects (e.g., `protocol_endpoint_ids`) must be set to one ID
+
+        (e.g., `peid01`).
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
   schemas:
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _referenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+    Connection:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          host:
+            description: The host computer that sends and receives I/O requests to and from volumes on the FlashArray array.
+            title: ReferenceNoId
+            allOf:
+            - $ref: '#/components/schemas/_referenceNoId'
+          host_group:
+            description: A virtual collection of hosts with common connectivity to volumes.
+            title: ReferenceNoId
+            allOf:
+            - $ref: '#/components/schemas/_referenceNoId'
+          lun:
+            description: 'The logical unit number (LUN) by which the specified hosts are to
+
+              address the specified volume. A LUN is set for SCSI connections only.
+
+              A LUN can be in one of two formats: a simple LUN, or a LUN and Sublun
+
+              with virtual volumes. The first format is simply the LUN. The second
+
+              format is a single int64 combining both ((LUN << 32) + Sublun) or (LUN *
+
+              4294967296 + Sublun).
+
+              In the FA UI, a combined LUN and Sublun is represented as `LUN:Sublun`.
+
+              The maximum int64 LUN:Sublun value is `17587891081215`.
+
+              '
+            type: integer
+            format: int64
+            example: 7
+          nsid:
+            description: 'Namespace identifier allocated for the NVMe namespace backing the volume.
+
+              NSID is set for NVMe connections only.
+
+              '
+            type: integer
+            format: int64
+            example: 3856
+          protocol_endpoint:
+            description: A protocol endpoint (also known as a conglomerate volume) which acts as a proxy through which virtual volumes are created and then connected to VMware ESXi hosts or host groups. The protocol endpoint itself does not serve I/Os; instead, its job is to form connections between FlashArray volumes and ESXi hosts and host groups.
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          volume:
+            description: A container that manages the storage space on the array.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+    ConnectionResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connection'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
     ConnectionPost:
       type: object
       properties:
@@ -163,58 +594,15 @@ components:
           title: Reference
           allOf:
           - $ref: '#/components/schemas/_reference'
-    ConnectionGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ConnectionResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    ConnectionResponse:
+    _errorContextResponse:
       type: object
       properties:
-        items:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
           type: array
-          items:
-            $ref: '#/components/schemas/Connection'
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
           readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
     PageInfo:
       type: object
       properties:
@@ -279,23 +667,32 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
-    _referenceNoId:
+    _context:
       type: object
       properties:
-        name:
-          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
 
             '
-          type: string
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
           readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    ConnectionGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ConnectionResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -329,400 +726,3 @@ components:
           example: Resource does not exist.
       x-aliases:
       - _errorContextResponseErrors
-    Connection:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          host:
-            description: The host computer that sends and receives I/O requests to and from volumes on the FlashArray array.
-            title: ReferenceNoId
-            allOf:
-            - $ref: '#/components/schemas/_referenceNoId'
-          host_group:
-            description: A virtual collection of hosts with common connectivity to volumes.
-            title: ReferenceNoId
-            allOf:
-            - $ref: '#/components/schemas/_referenceNoId'
-          lun:
-            description: 'The logical unit number (LUN) by which the specified hosts are to
-
-              address the specified volume. A LUN is set for SCSI connections only.
-
-              A LUN can be in one of two formats: a simple LUN, or a LUN and Sublun
-
-              with virtual volumes. The first format is simply the LUN. The second
-
-              format is a single int64 combining both ((LUN << 32) + Sublun) or (LUN *
-
-              4294967296 + Sublun).
-
-              In the FA UI, a combined LUN and Sublun is represented as `LUN:Sublun`.
-
-              The maximum int64 LUN:Sublun value is `17587891081215`.
-
-              '
-            type: integer
-            format: int64
-            example: 7
-          nsid:
-            description: 'Namespace identifier allocated for the NVMe namespace backing the volume.
-
-              NSID is set for NVMe connections only.
-
-              '
-            type: integer
-            format: int64
-            example: 3856
-          protocol_endpoint:
-            description: A protocol endpoint (also known as a conglomerate volume) which acts as a proxy through which virtual volumes are created and then connected to VMware ESXi hosts or host groups. The protocol endpoint itself does not serve I/Os; instead, its job is to form connections between FlashArray volumes and ESXi hosts and host groups.
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          volume:
-            description: A container that manages the storage space on the array.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-  parameters:
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Protocol_endpoint_names:
-      name: protocol_endpoint_names
-      in: query
-      description: 'Performs the operation on the protocol endpoints specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `pe01,pe02`.
-
-        A request cannot include a mix of multiple objects with multiple names.
-
-        For example, a request cannot include a mix of multiple protocol endpoint names and host names;
-
-        instead, at least one of the objects (e.g., `protocol_endpoint_names`) must be set to one name
-
-        (e.g., `pe01`).
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Volume_ids:
-      name: volume_ids
-      in: query
-      description: 'Performs the operation on the specified volume.
-
-        Enter multiple ids in comma-separated format.
-
-        For example, `vol01id,vol02id`.
-
-        A request cannot include a mix of multiple objects with multiple IDs.
-
-        For example, a request cannot include a mix of multiple volume IDs and host names;
-
-        instead, at least one of the objects (e.g., `volume_ids`) must be set to only one name
-
-        (e.g., `vol01id`).
-
-        Only one of the two between `volume_names` and `volume_ids` may be used at a time.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Host_group_names:
-      name: host_group_names
-      in: query
-      description: 'Performs the operation on the host group specified.
-
-        Enter multiple names in comma-separated format.
-
-        A request cannot include a mix of multiple objects with multiple names.
-
-        For example, a request cannot include a mix of multiple host group names and volume names;
-
-        instead, at least one of the objects (e.g., `host_group_names`) must be set to only one name
-
-        (e.g., `hgroup01`).
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Host_names:
-      name: host_names
-      in: query
-      description: 'Performs the operation on the hosts specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `host01,host02`.
-
-        A request cannot include a mix of multiple objects with multiple names.
-
-        For example, a request cannot include a mix of multiple host names and volume names;
-
-        instead, at least one of the objects (e.g., `host_names`) must be set to only one name
-
-        (e.g., `host01`).
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Volume_names:
-      name: volume_names
-      in: query
-      description: 'Performs the operation on the volume specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `vol01,vol02`.
-
-        A request cannot include a mix of multiple objects with multiple names.
-
-        For example, a request cannot include a mix of multiple volume names and host names;
-
-        instead, at least one of the objects (e.g., `volume_names`) must be set to only one name
-
-        (e.g., `vol01`).
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Protocol_endpoint_ids:
-      name: protocol_endpoint_ids
-      in: query
-      description: 'Performs the operation on the protocol endpoints specified.
-
-        Enter multiple IDs in comma-separated format.
-
-        For example, `peid01,peid02`.
-
-        A request cannot include a mix of multiple objects with multiple IDs.
-
-        For example, a request cannot include a mix of multiple protocol endpoint IDs and host names.
-
-        Instead, at least one of the objects (e.g., `protocol_endpoint_ids`) must be set to one ID
-
-        (e.g., `peid01`).
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string

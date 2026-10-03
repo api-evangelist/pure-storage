@@ -156,6 +156,24 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    KeytabFileResponse:
+      description: A Kerberos keytab file.
+      type: string
+      format: binary
+    KeytabPost:
+      type: object
+      properties:
+        source:
+          description: 'A reference to the Active Directory configuration for the computer account
+
+            whose keys will be rotated in order to create new keytabs for all of its
+
+            registered service principal names.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
     _reference:
       type: object
       properties:
@@ -189,6 +207,84 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
+    KeytabResponse:
+      type: object
+      properties:
+        items:
+          description: A list of Kerberos keytab objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Keytab'
+    KeytabGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/KeytabResponse'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    Keytab_file:
+      description: 'The keytab file to upload.
+
+        '
+      type: string
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     Keytab:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -275,68 +371,6 @@ components:
             format: int64
             readOnly: true
             example: 4
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    KeytabPost:
-      type: object
-      properties:
-        source:
-          description: 'A reference to the Active Directory configuration for the computer account
-
-            whose keys will be rotated in order to create new keytabs for all of its
-
-            registered service principal names.
-
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -354,72 +388,17 @@ components:
               '
             type: string
             readOnly: true
-    KeytabFileResponse:
-      description: A Kerberos keytab file.
-      type: string
-      format: binary
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    KeytabGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/KeytabResponse'
-    KeytabResponse:
-      type: object
-      properties:
-        items:
-          description: A list of Kerberos keytab objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Keytab'
-    Keytab_file:
-      description: 'The keytab file to upload.
-
-        '
-      type: string
   parameters:
-    Filter:
-      name: filter
+    Ids:
+      name: ids
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'A comma-separated list of resource IDs.
 
-        that satisfy the filter criteria.
+        If after filtering, there is not at least one resource that matches
 
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
+        each of the elements of `ids`, then an error is returned.
 
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Keytab_ids:
-      name: keytab_ids
-      in: query
-      description: 'A comma-separated list of keytab IDs. If after filtering, there is not
-
-        at least one resource that matches each of the elements, then an error is
-
-        returned. This cannot be provided together with the `keytab_names` query
-
-        parameter.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -428,35 +407,6 @@ components:
         type: array
         items:
           type: string
-    Name_prefixes:
-      name: name_prefixes
-      in: query
-      description: 'The prefix to use for the names of all Kerberos keytab objects
-
-        that are being created.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Names:
       name: names
       in: query
@@ -480,38 +430,14 @@ components:
         type: array
         items:
           type: string
-    Continuation_token:
-      name: continuation_token
+    Keytab_names:
+      name: keytab_names
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'A comma-separated list of keytab names. If there is not at least one
 
-        with some consistency guaranteed.
+        resource that matches each of the elements, then an error is returned. This
 
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
+        cannot be provided together with `keytab_ids` query parameter.
 
         '
       style: form
@@ -520,10 +446,31 @@ components:
         type: array
         items:
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Name_prefixes:
+      name: name_prefixes
+      in: query
+      description: 'The prefix to use for the names of all Kerberos keytab objects
+
+        that are being created.
 
         '
       schema:
@@ -547,14 +494,26 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Keytab_names:
-      name: keytab_names
+    Filter:
+      name: filter
       in: query
-      description: 'A comma-separated list of keytab names. If there is not at least one
+      description: 'Narrows down the results to only the response objects
 
-        resource that matches each of the elements, then an error is returned. This
+        that satisfy the filter criteria.
 
-        cannot be provided together with `keytab_ids` query parameter.
+        '
+      schema:
+        type: string
+    Keytab_ids:
+      name: keytab_ids
+      in: query
+      description: 'A comma-separated list of keytab IDs. If after filtering, there is not
+
+        at least one resource that matches each of the elements, then an error is
+
+        returned. This cannot be provided together with the `keytab_names` query
+
+        parameter.
 
         '
       style: form
@@ -563,6 +522,47 @@ components:
         type: array
         items:
           type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

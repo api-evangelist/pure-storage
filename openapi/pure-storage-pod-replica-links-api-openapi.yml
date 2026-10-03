@@ -474,810 +474,85 @@ paths:
     servers:
     - url: https://api-staging.pure1.purestorage.com/
 components:
-  parameters:
-    History_end_time:
-      name: end_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Local_pod_names:
-      name: local_pod_names
-      in: query
-      description: 'A comma-separated list of local pod names. If, after filtering, there is not at least one resource
-
-        that matches each of the elements, then an error is returned. This cannot be provided together
-
-        with the `local_pod_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Local_pod_ids:
-      name: local_pod_ids
-      in: query
-      description: 'A comma-separated list of local pod IDs. If, after filtering, there is not at least one resource
-
-        that matches each of the elements, then an error is returned. This cannot be provided together
-
-        with the `local_pod_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Remote_policy_names:
-      name: remote_policy_names
-      in: query
-      description: 'A comma-separated list of remote policy names. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be
-
-        provided together with the `remote_policy_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Pod_replica_link_ids:
-      name: pod_replica_link_ids
-      in: query
-      description: 'A comma-separated list of pod replica link IDs.
-
-        If, after filtering, there is not at least one resource that matches each of the elements,
-
-        then an error is returned.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Remote_policy_ids:
-      name: remote_policy_ids
-      in: query
-      description: 'A comma-separated list of remote policy IDs. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be
-
-        provided together with the `remote_policy_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    History_start_time:
-      name: start_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Historical_total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, only return the aggregate value of all items after filtering.
-
-        For real-time performance, the values are aggregated for the latest timestamp.
-
-        For historical performance, the values are aggregated for each timestamp from
-
-        `start_time` to `end_time`. Where it makes more sense, the average value is
-
-        displayed instead. The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Remote_array_or_realm_names:
-      name: remote_names
-      in: query
-      description: 'The comma-separated list of remote array or realm names.
-
-        If, after filtering, there is not at least one resource
-
-        that matches each of the elements, an error is returned.
-
-        The remote_names and remote_ids parameters cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    History_resolution:
-      name: resolution
-      in: query
-      description: 'The number of milliseconds between samples of historical data.
-
-        For array-wide performance metrics (`/arrays/performance` endpoint),
-
-        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
-
-        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For performance metrics on storage objects (`<object name>/performance` endpoint),
-
-        such as volumes,
-
-        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
-
-        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For space metrics, (`<object name>/space` endpoint),
-
-        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
-
-        `28800000` (8 hours), and `86400000` (24 hours).
-
-        Include the `start_time` parameter to display the performance data
-
-        starting at the specified start time.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        Include the `end_time` parameter to display the performance data until the specified end time.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        If the `resolution` parameter is not specified
-
-        but either the `start_time` or `end_time` parameter is,
-
-        then `resolution` will default to the lowest valid resolution.
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Remote_array_or_realm_ids:
-      name: remote_ids
-      in: query
-      description: 'The comma-separated list of remote array or realm IDs.
-
-        If, after filtering, there is not at least one resource
-
-        that matches each of the elements, an error is returned.
-
-        The remote_ids and remote_names parameters cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Remote_pod_names:
-      name: remote_pod_names
-      in: query
-      description: 'A comma-separated list of remote pod names. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `remote_pod_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Remote_pod_ids:
-      name: remote_pod_ids
-      in: query
-      description: 'A comma-separated list of remote pod IDs. If, after filtering, there is not at least one resource
-
-        that matches each of the elements, then an error is returned. This cannot be provided together
-
-        with the `remote_pod_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Source_ids_plus:
-      name: source_ids
-      in: query
-      description: 'A list of source IDs. Source IDs separated by a `+` indicate that both
-
-        sources must be present in each element. Source IDs separated by a `,`
-
-        indicate that at least one source must be present in each element.
-
-        If there is not at least one resource that matches each `source_id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of source IDs separated by a `+`
-
-        must be entered in the same item cell.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Filter_2:
-      name: filter
-      in: query
-      description: 'Exclude resources that don''t match the specified criteria.
-
-        Single quotes are required around all strings inside the filters.
-
-        '
-      schema:
-        type: string
-    Member_names_plus:
-      name: member_names
-      in: query
-      description: 'A list of member names. Member names separated by a `+` indicate that both
-
-        members must be present in each element. Member names separated by a `,`
-
-        indicate that at least one member must be present in each element.
-
-        If there is not at least one resource that matches each `member_name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of member names separated by a `+`
-
-        must be entered in the same item cell.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Target_ids_plus:
-      name: target_ids
-      in: query
-      description: 'A list of target IDs. Target IDs separated by a `+` indicate that both
-
-        targets must be present in each element. Target IDs separated by a `,`
-
-        indicate that at least one target must be present in each element.
-
-        If there is not at least one resource that matches each `target_id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of target IDs separated by a `+`
-
-        must be entered in the same item cell.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
-    Target_names_plus:
-      name: target_names
-      in: query
-      description: 'A list of target names. Target names separated by a `+` indicate that both
-
-        targets must be present in each element. Target names separated by a `,`
-
-        indicate that at least one target must be present in each element.
-
-        If there is not at least one resource that matches each `target_name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of target names separated by a `+`
-
-        must be entered in the same item cell.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Source_names_plus:
-      name: source_names
-      in: query
-      description: 'A list of source names. Source names separated by a `+` indicate that both
-
-        sources must be present in each element. Source names separated by a `,`
-
-        indicate that at least one source must be present in each element.
-
-        If there is not at least one resource that matches each `source_name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of source names separated by a `+`
-
-        must be entered in the same item cell.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Continuation_token_2:
-      name: continuation_token
-      in: query
-      description: 'An opaque token used to iterate over a collection.
-
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        If you provide a sort you will not get a continuation token in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Authorization_2:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
-    Member_ids_plus:
-      name: member_ids
-      in: query
-      description: 'A list of member IDs. Member IDs separated by a `+` indicate that both
-
-        members must be present in each element. Member IDs separated by a `,`
-
-        indicate that at least one member must be present in each element.
-
-        If there is not at least one resource that matches each `member_id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of member IDs separated by a `+`
-
-        must be entered in the same item cell.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
   schemas:
-    _replicaLinkPerformanceReplicationArray:
-      allOf:
-      - $ref: '#/components/schemas/_replicaLinkPerformanceReplicationBase'
-      - type: object
-        properties:
-          local_pod_array:
-            description: 'The `local array` on which the performance metrics were recorded.
-
-              This acts as the source identifier for the collected data.
-
-              '
-            title: PodArrayAndMember
-            allOf:
-            - $ref: '#/components/schemas/_podArrayAndMember'
-          remote_pod_array:
-            description: 'The `remote array` on which the performance metrics were recorded.
-
-              This acts as the source identifier for data collected from a
-
-              replicated or peered system.
-
-              '
-            title: PodArrayAndMember
-            allOf:
-            - $ref: '#/components/schemas/_podArrayAndMember'
-    PodReplicaLinkLagResponse:
+    PodReplicaLinkMappingPolicyResponse:
       type: object
       properties:
         items:
-          description: A list of pod replica link lag objects.
+          description: 'A list of policy mappings.
+
+            '
           type: array
           items:
-            $ref: '#/components/schemas/PodReplicaLinkLag'
-    _builtInRelationship:
+            $ref: '#/components/schemas/MappingPolicy'
+    PodReplicaLinkPerformanceReplicationGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    MappingPolicy:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          direction:
+            description: 'The direction of replication. Valid values include `inbound` and `outbound`.
+
+              '
+            type: string
+          local_policy:
+            description: 'Reference to a local policy.
+
+              '
+            title: ReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_referenceWithType'
+          mapping:
+            description: 'The mapping for this policy mapping.
+
+              Valid values are `connected` and `disconnected`.
+
+              '
+            type: string
+          pod_replica_link:
+            description: 'Reference to a pod replica link.
+
+              '
+            title: PodReplicaLinkReference
+            allOf:
+            - $ref: '#/components/schemas/_podReplicaLinkReference'
+          policy_type:
+            description: 'The type of policies involved in this policy mapping.
+
+              '
+            type: string
+          remote_policy:
+            description: 'Reference to a remote policy.
+
+              '
+            title: ReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_referenceWithType'
+    _reference:
       type: object
       properties:
         id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
 
             '
           type: string
-          readOnly: true
-    PodReplicaLinkPerformanceReplicationResponse:
-      type: object
-      properties:
-        items:
-          description: A list of pod replica link performance objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplication'
-        total:
-          description: 'The aggregate value of all items after filtering.
+        name:
+          description: 'The resource name, such as volume name, pod name,
 
-            For real-time performance, the values are aggregated for the latest timestamp.
-
-            For historical performance, the values are aggregated for each timestamp from
-
-            `start_time` to `end_time`. Where it makes more sense, the average value is
-
-            displayed instead. The values are displayed for each field where meaningful.
+            snapshot name, and so on.
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplication'
+          type: string
+      x-aliases:
+      - _referenceWithoutType
     PodReplicaLinkLag:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
@@ -1345,19 +620,99 @@ components:
             description: Sample time in milliseconds since the UNIX epoch.
             type: integer
             format: int64
-    PodReplicaLinkResponse:
-      type: object
-      properties:
-        items:
-          description: A list of pod replica link objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/PodReplicaLink'
     PodReplicaLinkPerformanceReplicationArray:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
       - $ref: '#/components/schemas/_replicaLinkPerformanceReplicationArray'
       - $ref: '#/components/schemas/_context'
+    PodReplicaLinkMappingPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkMappingPolicyResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PodReplicaLinkGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PodReplicaLinkPerformanceReplicationResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod replica link performance objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplication'
+        total:
+          description: 'The aggregate value of all items after filtering.
+
+            For real-time performance, the values are aggregated for the latest timestamp.
+
+            For historical performance, the values are aggregated for each timestamp from
+
+            `start_time` to `end_time`. Where it makes more sense, the average value is
+
+            displayed instead. The values are displayed for each field where meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplication'
+    MappingPolicyPatch:
+      type: object
+      properties:
+        mapping:
+          description: 'The mapping to set on this policy mapping.
+
+            Valid values are `connected` and `disconnected`.
+
+            '
+          type: string
+    _podReplicaLinkReference:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - type: object
+        properties:
+          local_pod:
+            description: 'Reference to a local pod.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          remote_pod:
+            description: 'Reference to a remote pod.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          remotes:
+            description: 'Reference to remote arrays.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
     _referenceWithType:
       allOf:
       - $ref: '#/components/schemas/_reference'
@@ -1378,84 +733,6 @@ components:
             type: string
       x-aliases:
       - _reference
-    PodReplicaLinkPerformanceReplicationArrayResponse:
-      type: object
-      properties:
-        items:
-          description: A list of pod replica link performance objects, arranged by array.
-          type: array
-          items:
-            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArray'
-        total:
-          description: 'The aggregate value of all items after filtering.
-
-            For real-time performance, the values are aggregated for the latest timestamp.
-
-            For historical performance, the values are aggregated for each timestamp from
-
-            `start_time` to `end_time`. Where it makes more sense, the average value is
-
-            displayed instead. The values are displayed for each field where meaningful.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArray'
-    MappingPolicyPatch:
-      type: object
-      properties:
-        mapping:
-          description: 'The mapping to set on this policy mapping.
-
-            Valid values are `connected` and `disconnected`.
-
-            '
-          type: string
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    PodReplicaLinkMappingPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PodReplicaLinkMappingPolicyResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
     PodReplicaLink:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
@@ -1526,11 +803,88 @@ components:
               '
             type: string
             readOnly: true
-    PodReplicaLinkPerformanceReplication:
+    PodReplicaLinkPerformanceReplicationArrayGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_builtInRelationship'
-      - $ref: '#/components/schemas/_replicaLinkPerformanceReplication'
-      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArrayResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    PodReplicaLinkResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod replica link objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLink'
+    PodReplicaLinkPerformanceReplicationArrayResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod replica link performance objects, arranged by array.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArray'
+        total:
+          description: 'The aggregate value of all items after filtering.
+
+            For real-time performance, the values are aggregated for the latest timestamp.
+
+            For historical performance, the values are aggregated for each timestamp from
+
+            `start_time` to `end_time`. Where it makes more sense, the average value is
+
+            displayed instead. The values are displayed for each field where meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArray'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    _replicaLinkPerformanceReplicationArray:
+      allOf:
+      - $ref: '#/components/schemas/_replicaLinkPerformanceReplicationBase'
+      - type: object
+        properties:
+          local_pod_array:
+            description: 'The `local array` on which the performance metrics were recorded.
+
+              This acts as the source identifier for the collected data.
+
+              '
+            title: PodArrayAndMember
+            allOf:
+            - $ref: '#/components/schemas/_podArrayAndMember'
+          remote_pod_array:
+            description: 'The `remote array` on which the performance metrics were recorded.
+
+              This acts as the source identifier for data collected from a
+
+              replicated or peered system.
+
+              '
+            title: PodArrayAndMember
+            allOf:
+            - $ref: '#/components/schemas/_podArrayAndMember'
+    _replicaLinkPerformanceReplication:
+      allOf:
+      - $ref: '#/components/schemas/_replicaLinkPerformanceReplicationBase'
+      - type: object
+        properties:
+          remotes:
+            description: The reference to a `remote array`. This uniquely identifies the external or peered storage system involved in data replication, synchronization, or management operations.
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+      x-readOnly: true
     _replicaLinkLag:
       type: object
       properties:
@@ -1555,6 +909,14 @@ components:
           minimum: 0
           readOnly: true
       x-readOnly: true
+    PodReplicaLinkLagResponse:
+      type: object
+      properties:
+        items:
+          description: A list of pod replica link lag objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLinkLag'
     PageInfo:
       type: object
       properties:
@@ -1597,6 +959,76 @@ components:
             '
           type: integer
           format: int32
+    _builtInRelationship:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+    _podArrayAndMember:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithType'
+      - type: object
+        properties:
+          member:
+            description: 'The reference to the member on the array.
+
+              '
+            title: ReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_referenceWithType'
+        x-readOnly: true
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    PodReplicaLinkLagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PodReplicaLinkLagResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
     _replicaLinkPerformanceReplicationBase:
       type: object
       properties:
@@ -1638,126 +1070,23 @@ components:
           format: int64
           readOnly: true
       x-readOnly: true
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    MappingPolicy:
+    PodReplicaLinkPerformanceReplication:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
+      - $ref: '#/components/schemas/_replicaLinkPerformanceReplication'
       - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          direction:
-            description: 'The direction of replication. Valid values include `inbound` and `outbound`.
-
-              '
-            type: string
-          local_policy:
-            description: 'Reference to a local policy.
-
-              '
-            title: ReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_referenceWithType'
-          mapping:
-            description: 'The mapping for this policy mapping.
-
-              Valid values are `connected` and `disconnected`.
-
-              '
-            type: string
-          pod_replica_link:
-            description: 'Reference to a pod replica link.
-
-              '
-            title: PodReplicaLinkReference
-            allOf:
-            - $ref: '#/components/schemas/_podReplicaLinkReference'
-          policy_type:
-            description: 'The type of policies involved in this policy mapping.
-
-              '
-            type: string
-          remote_policy:
-            description: 'Reference to a remote policy.
-
-              '
-            title: ReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_referenceWithType'
-    _replicaLinkPerformanceReplication:
-      allOf:
-      - $ref: '#/components/schemas/_replicaLinkPerformanceReplicationBase'
-      - type: object
-        properties:
-          remotes:
-            description: The reference to a `remote array`. This uniquely identifies the external or peered storage system involved in data replication, synchronization, or management operations.
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_fixedReferenceWithType'
-      x-readOnly: true
-    PodReplicaLinkPerformanceReplicationGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    PodReplicaLinkLagGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PodReplicaLinkLagResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _errorContextResponse:
+    PodReplicaLinkPatch:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    _podArrayAndMember:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithType'
-      - type: object
-        properties:
-          member:
-            description: 'The reference to the member on the array.
+        paused:
+          description: 'Returns a value of `true` if the replica link is to be created in a `paused` state.
 
-              '
-            title: ReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_referenceWithType'
-        x-readOnly: true
-    PodReplicaLinkMappingPolicyResponse:
-      type: object
-      properties:
-        items:
-          description: 'A list of policy mappings.
+            Returns a value of `false` if the replica link is to be created not in a `paused` state.
+
+            If not specified, defaults to `false`.
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/MappingPolicy'
+          type: boolean
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -1791,73 +1120,19 @@ components:
           example: Resource does not exist.
       x-aliases:
       - _errorContextResponseErrors
-    _podReplicaLinkReference:
-      allOf:
-      - $ref: '#/components/schemas/_builtInRelationship'
-      - type: object
-        properties:
-          local_pod:
-            description: 'Reference to a local pod.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          remote_pod:
-            description: 'Reference to a remote pod.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          remotes:
-            description: 'Reference to remote arrays.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_fixedReferenceWithType'
-    PodReplicaLinkGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PodReplicaLinkResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    PodReplicaLinkPatch:
+    _errorErrors:
       type: object
       properties:
-        paused:
-          description: 'Returns a value of `true` if the replica link is to be created in a `paused` state.
-
-            Returns a value of `false` if the replica link is to be created not in a `paused` state.
-
-            If not specified, defaults to `false`.
-
-            '
-          type: boolean
-    PodReplicaLinkPerformanceReplicationArrayGetResponse:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
+    PodReplicaLinkGetResponse_2:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PodReplicaLinkPerformanceReplicationArrayResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/PodReplicaLinkResponse_2'
     _replicaLink:
       allOf:
       - $ref: '#/components/schemas/_resourceNoName'
@@ -1899,13 +1174,6 @@ components:
               '
             type: string
             example: replicating
-    PodReplicaLinkResponse_2:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PodReplicaLink_2'
     _timeAware:
       type: object
       properties:
@@ -1915,23 +1183,6 @@ components:
           format: int64
           readOnly: true
           example: 1502729489760
-    _resourceNoName:
-      description: 'An ordinary (as opposed to built-in) resource that can be created or deleted
-
-        by the user. This might be a virtual resource (e.g., a volume), or correspond
-
-        to something in the physical environment, like a host or a server.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
     _resourceWithLocations:
       description: 'A resource that may relate to multiple locations.
 
@@ -1983,6 +1234,30 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/_resourceWithLocations'
+    _resourceNoName:
+      description: 'An ordinary (as opposed to built-in) resource that can be created or deleted
+
+        by the user. This might be a virtual resource (e.g., a volume), or correspond
+
+        to something in the physical environment, like a host or a server.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+    PodReplicaLinkResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PodReplicaLink_2'
     _fixedReferenceFqdn:
       allOf:
       - $ref: '#/components/schemas/_fixedReference_2'
@@ -2027,6 +1302,14 @@ components:
           type: integer
           format: int32
           example: 1
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
     _fixedReference_2:
       type: object
       properties:
@@ -2058,59 +1341,745 @@ components:
         message:
           type: string
           example: Something was wrong
-    Error:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered.
-          type: array
-          items:
-            $ref: '#/components/schemas/_errorErrors'
-    _errorErrors:
-      type: object
-      properties:
-        context:
+  parameters:
+    Remote_pod_ids:
+      name: remote_pod_ids
+      in: query
+      description: 'A comma-separated list of remote pod IDs. If, after filtering, there is not at least one resource
+
+        that matches each of the elements, then an error is returned. This cannot be provided together
+
+        with the `remote_pod_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-          example: Error with ...
-        message:
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-          example: Something was wrong
-    PodReplicaLinkGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/PodReplicaLinkResponse_2'
+    Remote_array_or_realm_names:
+      name: remote_names
+      in: query
+      description: 'The comma-separated list of remote array or realm names.
+
+        If, after filtering, there is not at least one resource
+
+        that matches each of the elements, an error is returned.
+
+        The remote_names and remote_ids parameters cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Remote_pod_names:
+      name: remote_pod_names
+      in: query
+      description: 'A comma-separated list of remote pod names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `remote_pod_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    History_end_time:
+      name: end_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    History_resolution:
+      name: resolution
+      in: query
+      description: 'The number of milliseconds between samples of historical data.
+
+        For array-wide performance metrics (`/arrays/performance` endpoint),
+
+        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
+
+        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For performance metrics on storage objects (`<object name>/performance` endpoint),
+
+        such as volumes,
+
+        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
+
+        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For space metrics, (`<object name>/space` endpoint),
+
+        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
+
+        `28800000` (8 hours), and `86400000` (24 hours).
+
+        Include the `start_time` parameter to display the performance data
+
+        starting at the specified start time.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        Include the `end_time` parameter to display the performance data until the specified end time.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        If the `resolution` parameter is not specified
+
+        but either the `start_time` or `end_time` parameter is,
+
+        then `resolution` will default to the lowest valid resolution.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Local_pod_ids:
+      name: local_pod_ids
+      in: query
+      description: 'A comma-separated list of local pod IDs. If, after filtering, there is not at least one resource
+
+        that matches each of the elements, then an error is returned. This cannot be provided together
+
+        with the `local_pod_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Historical_total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, only return the aggregate value of all items after filtering.
+
+        For real-time performance, the values are aggregated for the latest timestamp.
+
+        For historical performance, the values are aggregated for each timestamp from
+
+        `start_time` to `end_time`. Where it makes more sense, the average value is
+
+        displayed instead. The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Pod_replica_link_ids:
+      name: pod_replica_link_ids
+      in: query
+      description: 'A comma-separated list of pod replica link IDs.
+
+        If, after filtering, there is not at least one resource that matches each of the elements,
+
+        then an error is returned.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Remote_array_or_realm_ids:
+      name: remote_ids
+      in: query
+      description: 'The comma-separated list of remote array or realm IDs.
+
+        If, after filtering, there is not at least one resource
+
+        that matches each of the elements, an error is returned.
+
+        The remote_ids and remote_names parameters cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Remote_policy_names:
+      name: remote_policy_names
+      in: query
+      description: 'A comma-separated list of remote policy names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be
+
+        provided together with the `remote_policy_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Remote_policy_ids:
+      name: remote_policy_ids
+      in: query
+      description: 'A comma-separated list of remote policy IDs. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be
+
+        provided together with the `remote_policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Local_pod_names:
+      name: local_pod_names
+      in: query
+      description: 'A comma-separated list of local pod names. If, after filtering, there is not at least one resource
+
+        that matches each of the elements, then an error is returned. This cannot be provided together
+
+        with the `local_pod_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    History_start_time:
+      name: start_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Target_ids_plus:
+      name: target_ids
+      in: query
+      description: 'A list of target IDs. Target IDs separated by a `+` indicate that both
+
+        targets must be present in each element. Target IDs separated by a `,`
+
+        indicate that at least one target must be present in each element.
+
+        If there is not at least one resource that matches each `target_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of target IDs separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Member_ids_plus:
+      name: member_ids
+      in: query
+      description: 'A list of member IDs. Member IDs separated by a `+` indicate that both
+
+        members must be present in each element. Member IDs separated by a `,`
+
+        indicate that at least one member must be present in each element.
+
+        If there is not at least one resource that matches each `member_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of member IDs separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Source_ids_plus:
+      name: source_ids
+      in: query
+      description: 'A list of source IDs. Source IDs separated by a `+` indicate that both
+
+        sources must be present in each element. Source IDs separated by a `,`
+
+        indicate that at least one source must be present in each element.
+
+        If there is not at least one resource that matches each `source_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of source IDs separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Member_names_plus:
+      name: member_names
+      in: query
+      description: 'A list of member names. Member names separated by a `+` indicate that both
+
+        members must be present in each element. Member names separated by a `,`
+
+        indicate that at least one member must be present in each element.
+
+        If there is not at least one resource that matches each `member_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of member names separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Target_names_plus:
+      name: target_names
+      in: query
+      description: 'A list of target names. Target names separated by a `+` indicate that both
+
+        targets must be present in each element. Target names separated by a `,`
+
+        indicate that at least one target must be present in each element.
+
+        If there is not at least one resource that matches each `target_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of target names separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Source_names_plus:
+      name: source_names
+      in: query
+      description: 'A list of source names. Source names separated by a `+` indicate that both
+
+        sources must be present in each element. Source names separated by a `,`
+
+        indicate that at least one source must be present in each element.
+
+        If there is not at least one resource that matches each `source_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of source names separated by a `+`
+
+        must be entered in the same item cell.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
   responses:
-    Error404:
-      description: NOT FOUND
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Error500:
       description: INTERNAL SERVER ERROR
       headers:
@@ -2184,6 +2153,37 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     Error400:
       description: BAD REQUEST
       headers:

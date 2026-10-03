@@ -251,18 +251,34 @@ components:
 
             '
           type: string
-    LegalHoldsResponse:
+    _realmsReference:
       type: object
       properties:
-        items:
-          description: A list of legal hold instances.
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/LegalHold'
-    LegalHoldsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/LegalHoldsResponse'
+            $ref: '#/components/schemas/_fixedReference'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -283,21 +299,18 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    _realmsReference:
+    LegalHoldsHeldEntitiesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/LegalHoldsHeldEntitiesResponse'
+    LegalHoldsHeldEntitiesResponse:
       type: object
       properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
+        items:
+          description: A list of held entities for legal holds.
           type: array
-          readOnly: true
           items:
-            $ref: '#/components/schemas/_fixedReference'
+            $ref: '#/components/schemas/LegalHoldHeldEntity'
     PageInfo:
       type: object
       properties:
@@ -326,6 +339,10 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
+    LegalHoldsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/LegalHoldsResponse'
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -343,31 +360,14 @@ components:
               '
             type: string
             readOnly: true
-    LegalHoldsHeldEntitiesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/LegalHoldsHeldEntitiesResponse'
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    LegalHoldsHeldEntitiesResponse:
+    LegalHoldsResponse:
       type: object
       properties:
         items:
-          description: A list of held entities for legal holds.
+          description: A list of legal hold instances.
           type: array
           items:
-            $ref: '#/components/schemas/LegalHoldHeldEntity'
+            $ref: '#/components/schemas/LegalHold'
     LegalHold:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -380,16 +380,47 @@ components:
               '
             type: string
   parameters:
-    Filter:
-      name: filter
+    Names:
+      name: names
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'Performs the operation on the unique names specified.
 
-        that satisfy the filter criteria.
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Legal_holds_recursive:
       name: recursive
       in: query
@@ -403,25 +434,39 @@ components:
       schema:
         type: boolean
         default: false
-    Offset:
-      name: offset
+    Legal_holds_release:
+      name: released
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'This is a flag to set when releasing an attached legal hold from a path.
 
         '
+      required: true
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    File_system_names:
-      name: file_system_names
+        type: boolean
+        default: true
+    Names_required:
+      name: names
       in: query
-      description: 'A comma-separated list of file system names.
+      description: 'A comma-separated list of resource names.
 
-        If there is not at least one resource that matches
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Paths:
+      name: paths
+      in: query
+      description: 'A comma-separated list of paths used for filtering file locks query by paths.
 
-        each of the elements of `file_system_names`, then an error is returned.
+        This may only be specified if `file_system_ids` or `file_system_names` is
+
+        also specified.
+
+        This cannot be provided together with the `inodes` query parameter.
 
         '
       style: form
@@ -449,6 +494,70 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    File_system_names:
+      name: file_system_names
+      in: query
+      description: 'A comma-separated list of file system names.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `file_system_names`, then an error is returned.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     File_system_ids:
       name: file_system_ids
       in: query
@@ -467,39 +576,6 @@ components:
         type: array
         items:
           type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Legal_holds_release:
-      name: released
-      in: query
-      description: 'This is a flag to set when releasing an attached legal hold from a path.
-
-        '
-      required: true
-      schema:
-        type: boolean
-        default: true
     Continuation_token:
       name: continuation_token
       in: query
@@ -522,82 +598,6 @@ components:
         '
       schema:
         type: string
-    Paths:
-      name: paths
-      in: query
-      description: 'A comma-separated list of paths used for filtering file locks query by paths.
-
-        This may only be specified if `file_system_ids` or `file_system_names` is
-
-        also specified.
-
-        This cannot be provided together with the `inodes` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

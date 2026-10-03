@@ -500,25 +500,599 @@ paths:
     servers:
     - url: https://api-staging.pure1.purestorage.com/
 components:
+  parameters:
+    Source_ids:
+      name: source_ids
+      in: query
+      description: 'Performs the operation on the source ID specified.
+
+        Enter multiple source IDs in comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    For_replication:
+      name: for_replication
+      in: query
+      description: 'If `true`, destroys and eradicates the snapshot after 1 hour.
+
+        '
+      schema:
+        type: boolean
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Source_names:
+      name: source_names
+      in: query
+      description: 'Performs the operation on the source name specified.
+
+        Enter multiple source names in comma-separated format. For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Replicate:
+      name: replicate
+      in: query
+      description: 'If set to `true`, queues up and begins replicating to each allowed target after all
+
+        earlier replication sessions for the same protection group have been
+
+        completed to that target. The `replicate` and `replicate_now` parameters cannot be used together.
+
+        '
+      schema:
+        type: boolean
+    Allow_throttle_snapshot:
+      name: allow_throttle
+      in: query
+      description: 'If set to `true`, allows snapshot to fail if array health is not optimal.
+
+        '
+      schema:
+        type: boolean
+    Keys:
+      name: keys
+      in: query
+      description: 'A comma-separated list of tag keys.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Namespaces_delete:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Resource_names:
+      name: resource_names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Replicate_now:
+      name: replicate_now
+      in: query
+      description: 'If set to `true`, replicates the snapshots to each allowed target.
+
+        The `replicate` and `replicate_now` parameters cannot be used together.
+
+        '
+      schema:
+        type: boolean
+    On_as_target:
+      name: 'on'
+      in: query
+      description: 'Performs the operation locally with the target names specified as the
+
+        destinations of the operation.
+
+        Enter multiple target names in comma-separated format.
+
+        For example, `targetName01,targetName02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Resource_destroyed:
+      name: resource_destroyed
+      in: query
+      description: 'If set to `true`, returns only objects from destroyed resources. Returns an error if
+
+        the name of a live resource is specified in the `resource_names` query parameter.
+
+        If set to `false`, returns only objects from live resources. Returns an error if the
+
+        name of a destroyed resource is specified in the `resource_names` query parameter.
+
+        '
+      schema:
+        type: boolean
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Resource_ids:
+      name: resource_ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Convert_source_to_baseline:
+      name: convert_source_to_baseline
+      in: query
+      description: 'Set to `true` to have the snapshot be eradicated when it is no longer baseline on source.
+
+        '
+      schema:
+        type: boolean
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Apply_retention:
+      name: apply_retention
+      in: query
+      description: 'If `true`, applies the local and remote retention policy to the snapshots.
+
+        '
+      schema:
+        type: boolean
+    Namespaces:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Source_ids_2:
+      name: source_ids
+      in: query
+      description: 'A comma-separated list of ids for the source of the object.
+
+        If there is not at least one resource that matches each `source_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Source_names_2:
+      name: source_names
+      in: query
+      description: 'A comma-separated list of names for the source of the object.
+
+        If there is not at least one resource that matches each `source_name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
   schemas:
-    ProtectionGroupSnapshotGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ProtectionGroupSnapshotResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              If applicable, the average value is displayed instead.
-
-              If applicable, the values are displayed for each field.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/ProtectionGroupSnapshot'
     ProtectionGroupSnapshotPatch:
       allOf:
       - $ref: '#/components/schemas/ProtectionGroupSnapshot'
@@ -527,316 +1101,62 @@ components:
           suffix:
             type: string
             readOnly: true
-    _transfer:
+    TestResult:
       type: object
       properties:
-        completed:
-          description: 'The timestamp of when the snapshot replication process completed.
+        component_address:
+          description: Address of the component running the test.
+          type: string
+          example: 10.230.94.21
+        component_name:
+          description: Name of the component running the test.
+          type: string
+          example: CT0
+        description:
+          description: What the test is doing.
+          type: string
+          example: Testing phonehome connectivity
+        destination:
+          description: The URI of the target server being tested.
+          type: string
+          example: ra.cloud-support.purestorage.com
+        enabled:
+          description: 'Whether the object being tested is enabled or not.
 
-            Measured in milliseconds since the UNIX epoch.
+            Returns a value of `true` if the the service is enabled.
 
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        data_transferred:
-          description: 'The number of bytes transferred from the source to the target
-
-            as part of the replication process.
-
-            Measured in bytes.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        destroyed:
-          description: 'Returns a value of `true` if the snapshot has been destroyed and is pending eradication.
-
-            The destroyed snapshot can be recovered by setting `destroyed=false`.
-
-            Once the eradication pending period has elapsed,
-
-            the snapshot is permanently eradicated and can no longer be recovered.
-
-            '
-          type: boolean
-        physical_bytes_written:
-          description: 'The amount of physical/logical data written to the target due to replication.
-
-            Measured in bytes.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        progress:
-          description: 'The percentage progress of the snapshot transfer from the source array to the target.
-
-            Displayed in decimal format.
-
-            '
-          type: number
-          format: float
-          readOnly: true
-          example: 0.66
-        started:
-          description: 'The timestamp of when the snapshot replication process started.
-
-            Measured in milliseconds since the UNIX epoch.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-    ProtectionGroupSnapshotReplicaResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after the operation.
-
-            If applicable, the values are displayed for each name.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/ProtectionGroupSnapshotReplica'
-    TagGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TagResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    TagBatch:
-      type: object
-      properties:
-        copyable:
-          description: 'Specifies whether or not to include the tag when copying the parent resource.
-
-            If set to `true`, the tag is included in resource copying.
-
-            If set to `false`, the tag is not included.
-
-            If not specified, defaults to `true`.
+            Returns a value of `false` if the service is disabled.
 
             '
           type: boolean
           example: true
-        key:
-          description: 'Key of the tag. Supports up to 64 Unicode characters.
-
-            '
+        result_details:
+          description: Additional information about the test result.
           type: string
-          example: environment
-        namespace:
-          description: 'Optional namespace of the tag.
+          example: Timeout connecting to phonehome endpoint
+        success:
+          description: 'Whether the object being tested passed the test or not.
 
-            Namespace identifies the category of the tag. Omitting the namespace
+            Returns a value of `true` if the specified test has succeeded.
 
-            defaults to the namespace `default`. The `pure&#42;` namespaces are
-
-            reserved for plugins and integration partners. It is recommended
-
-            that customers avoid using reserved namespaces.
-
-            '
-          type: string
-          example: default
-        resource:
-          description: 'A reference to the parent object.
-
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-        value:
-          description: 'Value of the tag. Supports up to 256 Unicode characters.
-
-            '
-          type: string
-          example: staging
-    ProtectionGroupEradicationConfig:
-      description: The configuration of the eradication feature.
-      type: object
-      properties:
-        manual_eradication:
-          description: 'Manual eradication status of objects like protection group and
-
-            protection group snapshots.
-
-            If manual_eradication is `disabled`, you cannot eradicate objects.
-
-            Values include `disabled` and `enabled`.
-
-            '
-          type: string
-          readOnly: true
-          example: enabled
-      x-readOnly: true
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    TestResultWithResourceWithId:
-      allOf:
-      - $ref: '#/components/schemas/TestResult'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          resource:
-            description: 'A reference to the object being tested.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-    ProtectionGroupSnapshotTransferGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ProtectionGroupSnapshotTransferResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              Where it makes more sense, the average value is displayed instead.
-
-              If applicable, the values are displayed for each field.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/ProtectionGroupSnapshotTransfer'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
+            Returns a value of `false` if the specified test has failed.
 
             '
           type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
+        test_type:
+          description: 'Displays the type of test being performed. The returned values are determined
 
-            The `total_item_count` will be calculated if and only if the corresponding
+            by the `resource` being tested and its configuration.
 
-            query parameter `total_item_count` is set to `true`. If this query parameter
+            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
 
-            is not set or set to `false`, a value of `null` will be returned.
+            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
 
-            '
-          type: integer
-          format: int32
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
+            `storage-admin-group-searching`, and `validate-ntp-configuration`.
 
             '
           type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    TestResultWithResourceWithIdPostResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TestResultWithResourceWithId'
-    ProtectionGroupSnapshotPost:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/ProtectionGroupSnapshot'
-      - type: object
-        properties:
-          destroyed:
-            type: boolean
-            readOnly: true
-          tags:
-            description: 'The list of tags to be upserted with the object.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/Tag'
-    TagResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Tag'
+          example: phonehome
     _space:
       type: object
       properties:
@@ -1082,168 +1402,25 @@ components:
               '
             type: string
             example: staging
-    ProtectionGroupSnapshotTransferResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after filtering.
-
-            If applicable, the values are displayed for each name.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/ProtectionGroupSnapshotTransfer'
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
+    _reference:
       type: object
       properties:
         id:
           description: 'A globally unique, system-generated ID.
 
-            The ID cannot be modified and cannot refer to another resource.
+            The ID cannot be modified.
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
 
             '
           type: string
-          readOnly: true
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    _resourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        volume), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    ProtectionGroupSnapshotTransfer:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_transfer'
-      - $ref: '#/components/schemas/_context'
-      - description: 'The transfer statistics for snapshot replication data.
-
-          '
-        type: object
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
       x-aliases:
-      - _errorContextResponseErrors
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    ProtectionGroupSnapshotReplica:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/ProtectionGroupSnapshot'
-      - description: 'Replication of specified protection snapshots.
-
-          '
-        type: object
-    ProtectionGroupSnapshotResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after filtering.
-
-            If applicable, the values are displayed for each name.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/ProtectionGroupSnapshot'
+      - _referenceWithoutType
     ProtectionGroupSnapshot:
       allOf:
       - $ref: '#/components/schemas/_resourceNoId'
@@ -1348,63 +1525,310 @@ components:
             type: integer
             format: int64
             readOnly: true
-    TestResult:
+    ProtectionGroupSnapshotTransferGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ProtectionGroupSnapshotTransferResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              Where it makes more sense, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ProtectionGroupSnapshotTransfer'
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
       type: object
       properties:
-        component_address:
-          description: Address of the component running the test.
-          type: string
-          example: 10.230.94.21
-        component_name:
-          description: Name of the component running the test.
-          type: string
-          example: CT0
-        description:
-          description: What the test is doing.
-          type: string
-          example: Testing phonehome connectivity
-        destination:
-          description: The URI of the target server being tested.
-          type: string
-          example: ra.cloud-support.purestorage.com
-        enabled:
-          description: 'Whether the object being tested is enabled or not.
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            Returns a value of `true` if the the service is enabled.
+            The ID cannot be modified and cannot refer to another resource.
 
-            Returns a value of `false` if the service is disabled.
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    ProtectionGroupSnapshotReplica:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/ProtectionGroupSnapshot'
+      - description: 'Replication of specified protection snapshots.
+
+          '
+        type: object
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    TestResultWithResourceWithId:
+      allOf:
+      - $ref: '#/components/schemas/TestResult'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          resource:
+            description: 'A reference to the object being tested.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+    ProtectionGroupSnapshotReplicaResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after the operation.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtectionGroupSnapshotReplica'
+    ProtectionGroupSnapshotGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ProtectionGroupSnapshotResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              If applicable, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ProtectionGroupSnapshot'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    ProtectionGroupSnapshotPost:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/ProtectionGroupSnapshot'
+      - type: object
+        properties:
+          destroyed:
+            type: boolean
+            readOnly: true
+          tags:
+            description: 'The list of tags to be upserted with the object.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/Tag'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
 
             '
           type: boolean
-          example: true
-        result_details:
-          description: Additional information about the test result.
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    _resourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        volume), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
           type: string
-          example: Timeout connecting to phonehome endpoint
-        success:
-          description: 'Whether the object being tested passed the test or not.
+    _transfer:
+      type: object
+      properties:
+        completed:
+          description: 'The timestamp of when the snapshot replication process completed.
 
-            Returns a value of `true` if the specified test has succeeded.
+            Measured in milliseconds since the UNIX epoch.
 
-            Returns a value of `false` if the specified test has failed.
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        data_transferred:
+          description: 'The number of bytes transferred from the source to the target
+
+            as part of the replication process.
+
+            Measured in bytes.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        destroyed:
+          description: 'Returns a value of `true` if the snapshot has been destroyed and is pending eradication.
+
+            The destroyed snapshot can be recovered by setting `destroyed=false`.
+
+            Once the eradication pending period has elapsed,
+
+            the snapshot is permanently eradicated and can no longer be recovered.
 
             '
           type: boolean
-        test_type:
-          description: 'Displays the type of test being performed. The returned values are determined
+        physical_bytes_written:
+          description: 'The amount of physical/logical data written to the target due to replication.
 
-            by the `resource` being tested and its configuration.
+            Measured in bytes.
 
-            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        progress:
+          description: 'The percentage progress of the snapshot transfer from the source array to the target.
 
-            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
+            Displayed in decimal format.
 
-            `storage-admin-group-searching`, and `validate-ntp-configuration`.
+            '
+          type: number
+          format: float
+          readOnly: true
+          example: 0.66
+        started:
+          description: 'The timestamp of when the snapshot replication process started.
+
+            Measured in milliseconds since the UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
 
             '
           type: string
-          example: phonehome
-    _reference:
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    TagResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    _fixedReference:
       type: object
       properties:
         id:
@@ -1414,28 +1838,183 @@ components:
 
             '
           type: string
+          readOnly: true
         name:
-          description: 'The resource name, such as volume name, pod name,
+          description: 'The resource name, such as volume name, file system name,
 
             snapshot name, and so on.
 
             '
           type: string
+          readOnly: true
+      x-readOnly: true
       x-aliases:
-      - _referenceWithoutType
-    ProtectionGroupSnapshotGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/ProtectionGroupSnapshotResponse_2'
-    _timeAware:
+      - _fixedReferenceWithoutType
+    ProtectionGroupSnapshotResponse:
       type: object
       properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtectionGroupSnapshot'
+    TestResultWithResourceWithIdPostResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestResultWithResourceWithId'
+    TagBatch:
+      type: object
+      properties:
+        copyable:
+          description: 'Specifies whether or not to include the tag when copying the parent resource.
+
+            If set to `true`, the tag is included in resource copying.
+
+            If set to `false`, the tag is not included.
+
+            If not specified, defaults to `true`.
+
+            '
+          type: boolean
+          example: true
+        key:
+          description: 'Key of the tag. Supports up to 64 Unicode characters.
+
+            '
+          type: string
+          example: environment
+        namespace:
+          description: 'Optional namespace of the tag.
+
+            Namespace identifies the category of the tag. Omitting the namespace
+
+            defaults to the namespace `default`. The `pure&#42;` namespaces are
+
+            reserved for plugins and integration partners. It is recommended
+
+            that customers avoid using reserved namespaces.
+
+            '
+          type: string
+          example: default
+        resource:
+          description: 'A reference to the parent object.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+        value:
+          description: 'Value of the tag. Supports up to 256 Unicode characters.
+
+            '
+          type: string
+          example: staging
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
           readOnly: true
-          example: 1502729489760
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    ProtectionGroupSnapshotTransferResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtectionGroupSnapshotTransfer'
+    ProtectionGroupEradicationConfig:
+      description: The configuration of the eradication feature.
+      type: object
+      properties:
+        manual_eradication:
+          description: 'Manual eradication status of objects like protection group and
+
+            protection group snapshots.
+
+            If manual_eradication is `disabled`, you cannot eradicate objects.
+
+            Values include `disabled` and `enabled`.
+
+            '
+          type: string
+          readOnly: true
+          example: enabled
+      x-readOnly: true
+    TagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TagResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    ProtectionGroupSnapshotTransfer:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_transfer'
+      - $ref: '#/components/schemas/_context'
+      - description: 'The transfer statistics for snapshot replication data.
+
+          '
+        type: object
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
     _builtInAsOf:
       description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
 
@@ -1468,10 +2047,70 @@ components:
             type: string
             readOnly: true
             example: example_name
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
+    ProtectionGroupSnapshot_2:
+      description: 'A protection group snapshot is a collection of point-in-time consistent volume
+
+        snapshots, for volumes associated with the protection group when the snapshot
+
+        was taken.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - type: object
+        properties:
+          created:
+            description: Creation time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+            example: 1502729489760
+          'on':
+            description: 'A reference to the array where the snapshot is stored.
+
+              '
+            title: FixedReferenceFqdn
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceFqdn'
+          pod:
+            description: 'A reference to the pod the source protection group belongs to, if applicable.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          source:
+            description: 'A reference to the protection group that the snapshot was taken from.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
     ProtectionGroupSnapshotTransferGetResponse_2:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
       - $ref: '#/components/schemas/ProtectionGroupSnapshotTransferResponse_2'
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    ProtectionGroupSnapshotGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/ProtectionGroupSnapshotResponse_2'
     _fixedReferenceFqdn:
       allOf:
       - $ref: '#/components/schemas/_fixedReference_2'
@@ -1516,6 +2155,27 @@ components:
           type: integer
           format: int32
           example: 1
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    ProtectionGroupSnapshotResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtectionGroupSnapshot_2'
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
     _fixedReference_2:
       type: object
       properties:
@@ -1541,12 +2201,6 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
-    ErrorNoContext:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Something was wrong
     ProtectionGroupSnapshotTransferResponse_2:
       type: object
       properties:
@@ -1554,14 +2208,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProtectionGroupSnapshotTransfer_2'
-    Error:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered.
-          type: array
-          items:
-            $ref: '#/components/schemas/_errorErrors'
     ProtectionGroupSnapshotTransfer_2:
       description: 'The transfer statistics for snapshot replication data.
 
@@ -1609,684 +2255,7 @@ components:
             type: integer
             format: int64
             readOnly: true
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
-    ProtectionGroupSnapshotResponse_2:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProtectionGroupSnapshot_2'
-    ProtectionGroupSnapshot_2:
-      description: 'A protection group snapshot is a collection of point-in-time consistent volume
-
-        snapshots, for volumes associated with the protection group when the snapshot
-
-        was taken.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - type: object
-        properties:
-          created:
-            description: Creation time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-            example: 1502729489760
-          'on':
-            description: 'A reference to the array where the snapshot is stored.
-
-              '
-            title: FixedReferenceFqdn
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceFqdn'
-          pod:
-            description: 'A reference to the pod the source protection group belongs to, if applicable.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          source:
-            description: 'A reference to the protection group that the snapshot was taken from.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-  parameters:
-    Replicate:
-      name: replicate
-      in: query
-      description: 'If set to `true`, queues up and begins replicating to each allowed target after all
-
-        earlier replication sessions for the same protection group have been
-
-        completed to that target. The `replicate` and `replicate_now` parameters cannot be used together.
-
-        '
-      schema:
-        type: boolean
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Source_ids:
-      name: source_ids
-      in: query
-      description: 'Performs the operation on the source ID specified.
-
-        Enter multiple source IDs in comma-separated format.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Resource_names:
-      name: resource_names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Destroyed:
-      name: destroyed
-      in: query
-      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
-
-        If set to `false`, lists only objects that are not destroyed.
-
-        If not set, lists both objects that are destroyed and those that are not destroyed.
-
-
-        For destroyed objects, the time remaining is displayed in milliseconds.
-
-
-        If object name(s) or id(s) are specified, then each object referenced must exist.
-
-        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
-
-        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
-
-        An error is returned if any of these conditions are not met.
-
-        '
-      schema:
-        type: boolean
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    For_replication:
-      name: for_replication
-      in: query
-      description: 'If `true`, destroys and eradicates the snapshot after 1 hour.
-
-        '
-      schema:
-        type: boolean
-    Apply_retention:
-      name: apply_retention
-      in: query
-      description: 'If `true`, applies the local and remote retention policy to the snapshots.
-
-        '
-      schema:
-        type: boolean
-    Replicate_now:
-      name: replicate_now
-      in: query
-      description: 'If set to `true`, replicates the snapshots to each allowed target.
-
-        The `replicate` and `replicate_now` parameters cannot be used together.
-
-        '
-      schema:
-        type: boolean
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Namespaces_delete:
-      name: namespaces
-      in: query
-      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Resource_destroyed:
-      name: resource_destroyed
-      in: query
-      description: 'If set to `true`, returns only objects from destroyed resources. Returns an error if
-
-        the name of a live resource is specified in the `resource_names` query parameter.
-
-        If set to `false`, returns only objects from live resources. Returns an error if the
-
-        name of a destroyed resource is specified in the `resource_names` query parameter.
-
-        '
-      schema:
-        type: boolean
-    Allow_throttle_snapshot:
-      name: allow_throttle
-      in: query
-      description: 'If set to `true`, allows snapshot to fail if array health is not optimal.
-
-        '
-      schema:
-        type: boolean
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Convert_source_to_baseline:
-      name: convert_source_to_baseline
-      in: query
-      description: 'Set to `true` to have the snapshot be eradicated when it is no longer baseline on source.
-
-        '
-      schema:
-        type: boolean
-    Source_names:
-      name: source_names
-      in: query
-      description: 'Performs the operation on the source name specified.
-
-        Enter multiple source names in comma-separated format. For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Keys:
-      name: keys
-      in: query
-      description: 'A comma-separated list of tag keys.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Namespaces:
-      name: namespaces
-      in: query
-      description: 'A comma-separated list of namespaces.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Resource_ids:
-      name: resource_ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    On_as_target:
-      name: 'on'
-      in: query
-      description: 'Performs the operation locally with the target names specified as the
-
-        destinations of the operation.
-
-        Enter multiple target names in comma-separated format.
-
-        For example, `targetName01,targetName02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Filter_2:
-      name: filter
-      in: query
-      description: 'Exclude resources that don''t match the specified criteria.
-
-        Single quotes are required around all strings inside the filters.
-
-        '
-      schema:
-        type: string
-    Source_ids_2:
-      name: source_ids
-      in: query
-      description: 'A comma-separated list of ids for the source of the object.
-
-        If there is not at least one resource that matches each `source_id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Source_names_2:
-      name: source_names
-      in: query
-      description: 'A comma-separated list of names for the source of the object.
-
-        If there is not at least one resource that matches each `source_name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Continuation_token_2:
-      name: continuation_token
-      in: query
-      description: 'An opaque token used to iterate over a collection.
-
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        If you provide a sort you will not get a continuation token in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Authorization_2:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
   responses:
-    Error404:
-      description: NOT FOUND
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Error500:
       description: INTERNAL SERVER ERROR
       headers:
@@ -2360,6 +2329,37 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     Error400:
       description: BAD REQUEST
       headers:

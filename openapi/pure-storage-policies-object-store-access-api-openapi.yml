@@ -543,344 +543,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    PolicyMember:
-      type: object
-      properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    PolicyMemberContextGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberContextResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    ObjectStoreAccessPolicyActionGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreAccessPolicyActionResponse'
-    ObjectStoreAccessPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreAccessPolicyResponse'
-    PolicyBaseRenameable:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
-
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    ObjectStoreAccessPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          account:
-            description: 'Reference of the associated account. If the policy is not associated
-
-              with an account, all fields in the reference possess `null` values.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          arn:
-            description: 'Amazon Resource Name of the policy. Used when referencing the policy via
-
-              S3 APIs.
-
-              '
-            type: string
-            readOnly: true
-            example: arn:aws:iam::myaccount:policy/mypolicy
-          created:
-            description: Creation timestamp of the object.
-            type: integer
-            format: int64
-            readOnly: true
-          description:
-            description: 'A description of the policy, optionally specified when the policy is
-
-              created. Cannot be modified for an existing policy.
-
-              '
-            type: string
-            readOnly: true
-            example: This policy allows users to list objects in production buckets.
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-            readOnly: true
-          rules:
-            type: array
-            items:
-              $ref: '#/components/schemas/PolicyRuleObjectAccess'
-          updated:
-            description: The last updated timestamp of the object.
-            type: integer
-            format: int64
-            readOnly: true
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference'
-    ObjectStoreAccessPolicyRuleResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyRuleObjectAccess'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    PolicyRuleObjectAccessBulkManage:
-      allOf:
-      - $ref: '#/components/schemas/PolicyRuleObjectAccessPost'
-      - type: object
-        properties:
-          name:
-            description: Name of the object (e.g., a file system or snapshot).
-            type: string
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    ObjectStoreAccessPolicyPatch:
-      type: object
-      properties:
-        rules:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyRuleObjectAccessBulkManage'
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    ObjectStoreAccessPolicyAction:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          description:
-            description: 'A description of the action.
-
-              '
-            type: string
-            readOnly: true
-            example: Grants permission to create a new bucket.
-    ObjectStoreAccessPolicyRuleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreAccessPolicyRuleResponse'
-    ObjectStoreAccessPolicyResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectStoreAccessPolicy'
-    _builtInNoId:
-      type: object
-      properties:
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    ObjectStoreAccessPolicyActionResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectStoreAccessPolicyAction'
-    ObjectStoreAccessPolicyPost:
-      allOf:
-      - $ref: '#/components/schemas/ObjectStoreAccessPolicyPatch'
-      - type: object
-        properties:
-          description:
-            description: 'A description of the policy, optionally specified when the policy is
-
-              created. Cannot be modified for an existing policy.
-
-              '
-            type: string
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _errorContextResponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    PolicyMemberContextResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
     PolicyRuleObjectAccess:
       allOf:
       - $ref: '#/components/schemas/_builtInNoId'
@@ -954,10 +616,197 @@ components:
             - mybucket
             - mybucket*
             - mybucket*/myobject*
+    ObjectStoreAccessPolicyAction:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          description:
+            description: 'A description of the action.
+
+              '
+            type: string
+            readOnly: true
+            example: Grants permission to create a new bucket.
+    ObjectStoreAccessPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          account:
+            description: 'Reference of the associated account. If the policy is not associated
+
+              with an account, all fields in the reference possess `null` values.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          arn:
+            description: 'Amazon Resource Name of the policy. Used when referencing the policy via
+
+              S3 APIs.
+
+              '
+            type: string
+            readOnly: true
+            example: arn:aws:iam::myaccount:policy/mypolicy
+          created:
+            description: Creation timestamp of the object.
+            type: integer
+            format: int64
+            readOnly: true
+          description:
+            description: 'A description of the policy, optionally specified when the policy is
+
+              created. Cannot be modified for an existing policy.
+
+              '
+            type: string
+            readOnly: true
+            example: This policy allows users to list objects in production buckets.
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+            readOnly: true
+          rules:
+            type: array
+            items:
+              $ref: '#/components/schemas/PolicyRuleObjectAccess'
+          updated:
+            description: The last updated timestamp of the object.
+            type: integer
+            format: int64
+            readOnly: true
+    ObjectStoreAccessPolicyRuleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreAccessPolicyRuleResponse'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    ObjectStoreAccessPolicyActionResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectStoreAccessPolicyAction'
+    PolicyRuleObjectAccessBulkManage:
+      allOf:
+      - $ref: '#/components/schemas/PolicyRuleObjectAccessPost'
+      - type: object
+        properties:
+          name:
+            description: Name of the object (e.g., a file system or snapshot).
+            type: string
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     PolicyMemberContext:
       allOf:
       - $ref: '#/components/schemas/PolicyMember'
       - $ref: '#/components/schemas/_context'
+    PolicyBaseRenameable:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
+
+              '
+            type: string
+            readOnly: true
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    ObjectStoreAccessPolicyRuleResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyRuleObjectAccess'
+    ObjectStoreAccessPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreAccessPolicyResponse'
     PolicyRuleObjectAccessPost:
       type: object
       properties:
@@ -1022,6 +871,34 @@ components:
           - mybucket
           - mybucket*
           - mybucket*/myobject*
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -1049,6 +926,67 @@ components:
 
             '
           type: string
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    ObjectStoreAccessPolicyResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectStoreAccessPolicy'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    ObjectStoreAccessPolicyActionGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreAccessPolicyActionResponse'
+    PolicyMemberContextResponse:
+      type: object
+      properties:
+        items:
+          description: A list of members for policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
     _policyRuleObjectAccessCondition:
       type: object
       properties:
@@ -1095,51 +1033,79 @@ components:
           - 1.2.3.4
           - 5.6.7.0/24
           - 2001:DB8:1234:5678::/64
+    PolicyMemberContextGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberContextResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    ObjectStoreAccessPolicyPatch:
+      type: object
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyRuleObjectAccessBulkManage'
+    _builtInNoId:
+      type: object
+      properties:
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    ObjectStoreAccessPolicyPost:
+      allOf:
+      - $ref: '#/components/schemas/ObjectStoreAccessPolicyPatch'
+      - type: object
+        properties:
+          description:
+            description: 'A description of the policy, optionally specified when the policy is
+
+              created. Cannot be modified for an existing policy.
+
+              '
+            type: string
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
   parameters:
-    Filter:
-      name: filter
+    Ids:
+      name: ids
       in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
+      description: 'A comma-separated list of resource IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `policy_ids`, then an error is returned.
+        each of the elements of `ids`, then an error is returned.
 
-        This cannot be provided together with the `policy_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -1148,36 +1114,6 @@ components:
         type: array
         items:
           type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Names:
       name: names
       in: query
@@ -1219,6 +1155,139 @@ components:
         type: array
         items:
           type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Exclude_rules:
+      name: exclude_rules
+      in: query
+      description: 'If true, the rules field in each policy will be null.
+
+        If false, each returned policy will include its list of rules in the response.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Enforce_action_restrictions:
+      name: enforce_action_restrictions
+      in: query
+      description: 'Certain combinations of actions and other rule elements are inherently ignored
+
+        if specified together in a rule.
+
+        If set to `true`, operations which attempt to set these combinations will
+
+        fail.
+
+        If set to `false`, such operations will instead be allowed.
+
+        Defaults to `true`.
+
+        '
+      schema:
+        type: boolean
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
     Context_names_get:
       name: context_names
       in: query
@@ -1249,6 +1318,30 @@ components:
         type: array
         items:
           type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Policy_names:
       name: policy_names
       in: query
@@ -1261,6 +1354,26 @@ components:
         type: array
         items:
           type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -1283,119 +1396,6 @@ components:
         '
       schema:
         type: string
-    Enforce_action_restrictions:
-      name: enforce_action_restrictions
-      in: query
-      description: 'Certain combinations of actions and other rule elements are inherently ignored
-
-        if specified together in a rule.
-
-        If set to `true`, operations which attempt to set these combinations will
-
-        fail.
-
-        If set to `false`, such operations will instead be allowed.
-
-        Defaults to `true`.
-
-        '
-      schema:
-        type: boolean
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Exclude_rules:
-      name: exclude_rules
-      in: query
-      description: 'If true, the rules field in each policy will be null.
-
-        If false, each returned policy will include its list of rules in the response.
-
-        If not specified, defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

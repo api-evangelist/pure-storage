@@ -1217,705 +1217,27 @@ paths:
     servers:
     - url: https://api-staging.pure1.purestorage.com/
 components:
-  parameters:
-    History_end_time:
-      name: end_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Destroyed:
-      name: destroyed
-      in: query
-      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
-
-        If set to `false`, lists only objects that are not destroyed.
-
-        If not set, lists both objects that are destroyed and those that are not destroyed.
-
-
-        For destroyed objects, the time remaining is displayed in milliseconds.
-
-
-        If object name(s) or id(s) are specified, then each object referenced must exist.
-
-        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
-
-        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
-
-        An error is returned if any of these conditions are not met.
-
-        '
-      schema:
-        type: boolean
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    History_start_time:
-      name: start_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    History_resolution:
-      name: resolution
-      in: query
-      description: 'The number of milliseconds between samples of historical data.
-
-        For array-wide performance metrics (`/arrays/performance` endpoint),
-
-        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
-
-        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For performance metrics on storage objects (`<object name>/performance` endpoint),
-
-        such as volumes,
-
-        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
-
-        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For space metrics, (`<object name>/space` endpoint),
-
-        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
-
-        `28800000` (8 hours), and `86400000` (24 hours).
-
-        Include the `start_time` parameter to display the performance data
-
-        starting at the specified start time.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        Include the `end_time` parameter to display the performance data until the specified end time.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        If the `resolution` parameter is not specified
-
-        but either the `start_time` or `end_time` parameter is,
-
-        then `resolution` will default to the lowest valid resolution.
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Names_required:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique name specified.
-
-        For example, `name01`.
-
-        Enter multiple names in comma-separated format.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Start_time:
-      name: start_time
-      in: query
-      description: 'When the time window starts (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
-    Resolution:
-      name: resolution
-      in: query
-      description: 'The desired ms between samples. Available resolutions may
-
-        depend on data type, `start_time` and `end_time`.
-
-        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
-
-        `86400000` are possible values.
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Bucket_ids:
-      name: bucket_ids
-      in: query
-      description: 'A comma-separated list of bucket IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `bucket_ids`, then an error is returned.
-
-        This cannot be provided together with the `bucket_names` query parameter.
-
-        This can be provided with the `ids` query parameter but not with `names`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    End_time:
-      name: end_time
-      in: query
-      description: 'When the time window ends (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Names_required_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Cancel_storage_class_transition:
-      name: cancel_in_progress_storage_class_transition
-      in: query
-      description: 'If set to `true`, the storage class policy of this file system
-
-        will be set to the requested storage class policy, even if
-
-        a transition to a different storage class is in-progress.
-
-        Setting this parameter to `true` is acknowledgement that any
-
-        in-progress transition on this file system will be cancelled.
-
-        If not specified, the default value is `false`.
-
-        '
-      schema:
-        type: boolean
-    Ignore_usage:
-      name: ignore_usage
-      in: query
-      description: 'Allow update operations that lead to a `hard_limit_enabled` object store
-
-        account, bucket, or file system with usage over its limiting value.
-
-        For object store accounts and buckets, the limiting value is that of `quota_limit`,
-
-        and for file systems it is that of `provisioned`.
-
-        The operation can be setting `hard_limit_enabled` when usage is higher
-
-        than the limiting value, modifying the limiting value to a value under usage when
-
-        `hard_limit_enabled`, recovering a destroyed bucket of an object store account
-
-        that causes an account''s space usage to go over its hard `quota_limit`.
-
-        Also allows update operations that would cause usage of the requested
-
-        storage class to go over its warning threshold.
-
-        '
-      schema:
-        type: boolean
-    Bucket_names:
-      name: bucket_names
-      in: query
-      description: 'A comma-separated list of bucket names.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `bucket_names`, then an error is returned.
-
-        This cannot be provided together with the `bucket_ids` query parameter.
-
-        This can be provided with the `ids` query parameter but not with `names`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Filter_2:
-      name: filter
-      in: query
-      description: 'Exclude resources that don''t match the specified criteria.
-
-        Single quotes are required around all strings inside the filters.
-
-        '
-      schema:
-        type: string
-    Offset_3:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Continuation_token_2:
-      name: continuation_token
-      in: query
-      description: 'An opaque token used to iterate over a collection.
-
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    Ids_3:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Sort_3:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        If you provide a sort you will not get a continuation token in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Authorization_2:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
   schemas:
+    BucketGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/BucketResponse'
+      - type: object
+        properties:
+          total:
+            description: 'If `total_only` query param is `true`, then this field will be a total of
+
+              all records after filtering and no items will be returned.
+
+              If `total_only` is `false`, then it will be a total of all records
+
+              on this page.
+
+              '
+            type: object
+            items:
+              $ref: '#/components/schemas/Bucket'
     ResourceSpace:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -1937,200 +1259,6 @@ components:
             format: int64
             readOnly: true
         x-readOnly: true
-    ResourceBucketSpace:
-      allOf:
-      - $ref: '#/components/schemas/ResourceSpace'
-      - type: object
-        properties:
-          account:
-            $ref: '#/components/schemas/_fixedReferenceWithType'
-          object_count:
-            description: The count of objects within the bucket.
-            type: integer
-            format: int64
-            readOnly: true
-            example: 42
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    _bucketPatchBase:
-      type: object
-      properties:
-        destroyed:
-          description: 'If set to `true`, the bucket is destroyed.
-
-            If set to `false`, the bucket is recovered.
-
-            '
-          type: boolean
-          example: true
-        versioning:
-          description: 'The versioning state for objects within the bucket.
-
-            Valid values are `enabled` and `suspended`.
-
-            '
-          type: string
-          example: enabled
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    BucketPerformance:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_bucketPerformanceBase'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    Bucket:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_bucketBase'
-      - type: object
-        description: 'The bucket in the object store. A bucket is a container for objects.
-
-          '
-        properties:
-          space:
-            description: The size and space consumption details.
-            title: Space
-            allOf:
-            - $ref: '#/components/schemas/_space'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    BucketGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/BucketResponse'
-      - type: object
-        properties:
-          total:
-            description: 'If `total_only` query param is `true`, then this field will be a total of
-
-              all records after filtering and no items will be returned.
-
-              If `total_only` is `false`, then it will be a total of all records
-
-              on this page.
-
-              '
-            type: object
-            items:
-              $ref: '#/components/schemas/Bucket'
     _space:
       type: object
       properties:
@@ -2331,47 +1459,63 @@ components:
           format: int64
           minimum: 0
           readOnly: true
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
+    _reference:
       type: object
       properties:
         id:
           description: 'A globally unique, system-generated ID.
 
-            The ID cannot be modified and cannot refer to another resource.
+            The ID cannot be modified.
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
 
             '
           type: string
-          readOnly: true
-    _bucketPostBase:
-      type: object
-      properties:
-        account:
-          description: The name of the account for bucket creation.
-          title: ReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithType'
+      x-aliases:
+      - _referenceWithoutType
+    BucketPerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            description: 'Performance data.
+
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/BucketPerformance'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              When it makes sense, the average value is displayed instead.
+
+              The values are displayed for each field if meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/BucketPerformance'
+    ResourceBucketSpace:
+      allOf:
+      - $ref: '#/components/schemas/ResourceSpace'
+      - type: object
+        properties:
+          account:
+            $ref: '#/components/schemas/_fixedReferenceWithType'
+          object_count:
+            description: The count of objects within the bucket.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 42
     _bucketPerformanceBase:
       type: object
       properties:
@@ -2465,6 +1609,78 @@ components:
           minimum: 0
           readOnly: true
       x-readOnly: true
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
     _errorContextResponse:
       type: object
       properties:
@@ -2474,6 +1690,62 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_errorcontextresponseErrors'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    Bucket:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_bucketBase'
+      - type: object
+        description: 'The bucket in the object store. A bucket is a container for objects.
+
+          '
+        properties:
+          space:
+            description: The size and space consumption details.
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space'
     ResourceBucketSpaceGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
@@ -2502,6 +1774,68 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/ResourceBucketSpace'
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    _bucketPatchBase:
+      type: object
+      properties:
+        destroyed:
+          description: 'If set to `true`, the bucket is destroyed.
+
+            If set to `false`, the bucket is recovered.
+
+            '
+          type: boolean
+          example: true
+        versioning:
+          description: 'The versioning state for objects within the bucket.
+
+            Valid values are `enabled` and `suspended`.
+
+            '
+          type: string
+          example: enabled
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
     BucketResponse:
       type: object
       properties:
@@ -2510,39 +1844,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Bucket'
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
+    BucketPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_bucketPerformanceBase'
     _bucketBase:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -2597,55 +1902,156 @@ components:
               '
             type: string
             example: enabled
-    BucketPerformanceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            description: 'Performance data.
-
-              If `total_only=true`, the `items` list will be empty.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/BucketPerformance'
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              When it makes sense, the average value is displayed instead.
-
-              The values are displayed for each field if meaningful.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/BucketPerformance'
-    _reference:
+    _bucketPostBase:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        account:
+          description: The name of the account for bucket creation.
+          title: ReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithType'
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
 
-            The ID cannot be modified.
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
 
             '
           type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
 
-            snapshot name, and so on.
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
 
             '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
           type: string
+          example: Resource does not exist.
       x-aliases:
-      - _referenceWithoutType
-    BucketAccessPolicyGetResponse:
+      - _errorContextResponseErrors
+    BucketGetResponse_2:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/BucketResponse'
       - $ref: '#/components/schemas/_errorContextResponse_2'
-      - $ref: '#/components/schemas/BucketAccessPolicyResponse'
+      - type: object
+        properties:
+          total:
+            $ref: '#/components/schemas/Bucket_2'
+    BucketAuditFilterWithContext:
+      allOf:
+      - $ref: '#/components/schemas/_context_2'
+      - $ref: '#/components/schemas/BucketAuditFilter'
+    BucketAccessPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - $ref: '#/components/schemas/_context_2'
+      - type: object
+        properties:
+          bucket:
+            description: The bucket to which this policy belongs.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          rules:
+            type: array
+            items:
+              $ref: '#/components/schemas/BucketAccessPolicyRule'
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    CrossOriginResourceSharingPolicyRulePost:
+      type: object
+      properties:
+        allowed_headers:
+          description: 'A list of headers that are permitted to be included in cross-origin requests to
+
+            access a bucket. The only currently supported allowed header is `*`.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - '*'
+        allowed_methods:
+          description: 'A list of HTTP methods that are permitted for cross-origin requests to access a bucket.
+
+            The only currently supported combination of allowed methods is all methods
+
+            `["GET", "PUT", "HEAD", "POST", "DELETE"]`.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - GET
+          - PUT
+          - HEAD
+          - POST
+          - DELETE
+        allowed_origins:
+          description: 'A list of origins (domains) that are permitted to make cross-origin requests to
+
+            access a bucket. The only currently supported allowed origin is `*`.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - '*'
+    _objectLockConfigRequestBody:
+      allOf:
+      - $ref: '#/components/schemas/_objectLockConfigBase'
+      - type: object
+        properties:
+          default_retention:
+            description: 'The retention period, in milliseconds, used to apply locks
+
+              on new objects if none is specified by the S3 client.
+
+              Valid values are any multiple of `86400000` (1 day), up to
+
+              `3153600000000` (36500 days).
+
+              If there is no default, this value is `null`.
+
+              Use "" to clear.
+
+              '
+            type: string
+            example: '86400000'
     BucketPost:
       type: object
       properties:
@@ -2713,6 +2119,84 @@ components:
             '
           type: string
           example: unlocked
+    _referenceNameOnly:
+      type: object
+      properties:
+        name:
+          type: string
+    BucketAccessPolicyRuleResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BucketAccessPolicyRuleWithContext'
+    _objectLockConfigBase:
+      description: Configuration settings related to object lock.
+      type: object
+      properties:
+        default_retention_mode:
+          description: 'The retention mode used to apply locks on new objects if
+
+            none is specified by the S3 client.
+
+            Valid values include `compliance` and `governance`.
+
+            If there is no default, this value is `null`.
+
+            Use "" to clear.
+
+            '
+          type: string
+          example: governance
+        enabled:
+          description: 'If set to `true`, then S3 APIs relating to object lock
+
+            may be used.
+
+            '
+          type: boolean
+        freeze_locked_objects:
+          description: 'If set to `true`, a locked object will be read-only and no
+
+            new versions of the object may be created due to modifications.
+
+            If not specified, defaults to `false`.
+
+            '
+          type: boolean
+    _objectLockConfigResponse:
+      allOf:
+      - $ref: '#/components/schemas/_objectLockConfigBase'
+      - type: object
+        properties:
+          default_retention:
+            description: 'The retention period, in milliseconds, used to apply locks
+
+              on new objects if none is specified by the S3 client.
+
+              Valid values are any multiple of `86400000` (1 day), up to
+
+              `3153600000000` (36500 days).
+
+              If there is no default, this value is `null`.
+
+              '
+            type: integer
+            format: int64
+            example: 86400000
+    CrossOriginResourceSharingPolicyRuleResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRuleWithContext'
+    BucketAuditFilterGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/BucketAuditFilterResponse'
     CrossOriginResourceSharingPolicyRuleBulkManage:
       allOf:
       - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRulePost'
@@ -2721,6 +2205,137 @@ components:
           name:
             description: Name of the object (e.g., a file system or snapshot).
             type: string
+    _bucketEradicationConfig:
+      description: Configuration settings related to bucket eradication.
+      type: object
+      properties:
+        eradication_delay:
+          description: 'Minimum eradication delay in milliseconds. Automatically eradicate destroyed
+
+            buckets after the delay time passes unless automatic eradication
+
+            is delayed due to other configuration values.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 86400000
+        eradication_mode:
+          description: 'The eradication mode of the bucket.
+
+            If it''s `permission-based` the bucket can be eradicated based
+
+            on user permissions.
+
+            If it''s `retention-based` the bucket can never be eradicated as long
+
+            as there are locked objects still being retained.
+
+            Valid values are `permission-based` and `retention-based`.
+
+            '
+          type: string
+          example: permission-based
+        manual_eradication:
+          description: 'The manual eradication status of the bucket.
+
+            If `disabled`, the bucket cannot be eradicated after it has been
+
+            destroyed, unless it is empty.
+
+            If `enabled`, the bucket can be eradicated.
+
+            Valid values are `disabled` and `enabled`.
+
+            '
+          type: string
+          readOnly: true
+          example: enabled
+    StorageClassInfo:
+      allOf:
+      - $ref: '#/components/schemas/_referenceNameOnly'
+      - type: object
+        properties:
+          status:
+            description: The status of the transition from the policy to the requested policy. If there is an ongoing transition, the status will be one of `In-Progress` or `Queued`. If there is no transition ongoing, this field will be null.
+            type: string
+            readOnly: true
+          status_details:
+            description: Additional details about the status of the transition. If there is no transition ongoing, this field will be null.
+            type: string
+            readOnly: true
+          tiering_policy:
+            description: 'The storage class tiering policy defines tiering for data within the container. If specified,
+
+              data is written to the container''s `S500X-S` (speed) storage class by default, then tiered
+
+              to `S500X-A` (archival) storage class based on the policy.
+
+              If not specified, all data in the container is written to the container''s current storage class.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference_2'
+    BucketAccessPolicyRuleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - $ref: '#/components/schemas/BucketAccessPolicyRuleResponse'
+    BucketPerformanceGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - type: object
+        properties:
+          items:
+            description: A list of bucket performance objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/BucketPerformanceItems'
+          total:
+            description: 'Total of all records after filtering.
+
+              If `total_only` query param is `true`, then no items will be returned.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/BucketPerformance_2'
+    BucketAuditFilterAction:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - type: object
+        properties:
+          description:
+            description: 'A description of the action.
+
+              '
+            type: string
+            readOnly: true
+            example: Configures auditing on creation of objects in a bucket.
+    _builtIn_2:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     Bucket_2:
       allOf:
       - $ref: '#/components/schemas/_builtIn_2'
@@ -2864,16 +2479,143 @@ components:
 
               '
             type: string
-    BucketAccessPolicyRulePrincipal:
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
       type: object
       properties:
-        all:
-          description: 'If `true`, the rule will apply to all object store users regardless of their
+        id:
+          description: 'A globally unique, system-generated ID.
 
-            origin or principal.
+            The ID cannot be modified and cannot refer to another resource.
 
             '
-          type: boolean
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    CrossOriginResourceSharingPolicyRule:
+      allOf:
+      - $ref: '#/components/schemas/_context_2'
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRulePost'
+      - type: object
+        properties:
+          policy:
+            description: The policy to which this rule belongs.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+    BucketS3SpecificPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn_2'
+      - type: object
+        properties:
+          others_per_sec:
+            description: Other operations processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          read_buckets_per_sec:
+            description: Read buckets requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          read_objects_per_sec:
+            description: Read object requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          time:
+            description: Sample time in milliseconds since UNIX epoch.
+            type: integer
+            format: int64
+            readOnly: true
+          usec_per_other_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              other operations.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_read_bucket_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a read bucket request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_read_object_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a read object request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_write_bucket_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a write bucket request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          usec_per_write_object_op:
+            description: 'Average time, measured in microseconds, it takes the array to process
+
+              a write object request.
+
+              '
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          write_buckets_per_sec:
+            description: Write buckets requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+          write_objects_per_sec:
+            description: Write object requests processed per second.
+            type: number
+            format: double
+            minimum: 0
+            readOnly: true
+        x-readOnly: true
+    BucketAccessPolicyPost:
+      type: object
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/BucketAccessPolicyRuleBulkManage'
     _space_2:
       type: object
       properties:
@@ -3017,120 +2759,6 @@ components:
           format: int64
           readOnly: true
           example: 19937690345472
-    BucketAccessPolicyPost:
-      type: object
-      properties:
-        rules:
-          type: array
-          items:
-            $ref: '#/components/schemas/BucketAccessPolicyRuleBulkManage'
-    BucketAccessPolicyRulePost:
-      type: object
-      properties:
-        actions:
-          description: 'The list of actions granted by this rule. Each included action may
-
-            restrict other properties of the rule.
-
-            The only currently supported action is `s3:GetObject`.
-
-            '
-          type: array
-          items:
-            type: string
-          example:
-          - s3:GetObject
-        effect:
-          description: 'Effect of this rule.
-
-            When `allow`, the rule allows the given actions to be performed on the
-
-            given resources, subject to the given conditions.
-
-            The only currently supported effect is `allow`.
-
-            '
-          type: string
-          readOnly: true
-          example: allow
-        principals:
-          description: 'The principals to which this rule applies. Currently, only all principals are supported.
-
-            '
-          title: BucketAccessPolicyRulePrincipal
-          allOf:
-          - $ref: '#/components/schemas/BucketAccessPolicyRulePrincipal'
-        resources:
-          description: 'The list of resources which this rule applies to.
-
-            The only currently supported resource is all objects in a bucket to which
-
-            the parent policy belongs.
-
-            '
-          type: array
-          items:
-            type: string
-          example:
-          - mybucket/*
-    _errorContextResponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    BucketS3SpecificPerformanceGetResp:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            description: A list of S3 specific bucket performance metrics objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/BucketS3SpecificPerformance'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no items will be returned.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/BucketS3SpecificPerformance'
-    BucketAccessPolicyResponse:
-      type: object
-      properties:
-        items:
-          description: A list of bucket policy objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/BucketAccessPolicy'
     BucketAuditFilterPost:
       description: The audit filter object.
       allOf:
@@ -3168,44 +2796,75 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    BucketAuditFilterBase:
+    _realmsReference:
       type: object
       properties:
-        actions:
-          description: 'The list of ops to be audited by this filter.
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
 
             '
           type: array
+          readOnly: true
           items:
-            type: string
-          example:
-          - s3:GetObject
-          - s3:READ_OPS
-          - s3:WRITE_OPS
-        s3_prefixes:
-          description: 'The list of object name prefixes. The corresponding ops present in this filter will be audited
-
-            for the objects having these prefixes.
+            $ref: '#/components/schemas/_fixedReference_2'
+    _publicAccessConfig:
+      description: Configuration settings related to public access.
+      type: object
+      properties:
+        block_new_public_policies:
+          description: 'If set to `true`, adding bucket policies that grant public access to a bucket is not allowed.
 
             '
-          type: array
+          type: boolean
+        block_public_access:
+          description: 'If set to `true`, access to a bucket with a public policy is restricted to only authenticated
+
+            users within the account that bucket belongs to.
+
+            '
+          type: boolean
+    BucketS3SpecificPerformanceGetResp:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - type: object
+        properties:
           items:
+            description: A list of S3 specific bucket performance metrics objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/BucketS3SpecificPerformance'
+          total:
+            description: 'Total of all records after filtering.
+
+              If `total_only` query param is `true`, then no items will be returned.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/BucketS3SpecificPerformance'
+    BucketAuditFilter:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/BucketAuditFilterBase'
+      - type: object
+        properties:
+          bucket:
+            description: Reference to the bucket to which this filter belongs.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+    BucketAccessPolicyRuleBulkManage:
+      allOf:
+      - $ref: '#/components/schemas/BucketAccessPolicyRulePost'
+      - type: object
+        properties:
+          name:
+            description: Name of the object (e.g., a file system or snapshot).
             type: string
-          example:
-          - prefix1
-          - prefix2
-    CrossOriginResourceSharingPolicyRuleResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRuleWithContext'
-    _referenceNameOnly:
-      type: object
-      properties:
-        name:
-          type: string
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -3226,231 +2885,122 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    BucketS3SpecificPerformance:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn_2'
-      - type: object
-        properties:
-          others_per_sec:
-            description: Other operations processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          read_buckets_per_sec:
-            description: Read buckets requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          read_objects_per_sec:
-            description: Read object requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          time:
-            description: Sample time in milliseconds since UNIX epoch.
-            type: integer
-            format: int64
-            readOnly: true
-          usec_per_other_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              other operations.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_read_bucket_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a read bucket request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_read_object_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a read object request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_write_bucket_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a write bucket request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          usec_per_write_object_op:
-            description: 'Average time, measured in microseconds, it takes the array to process
-
-              a write object request.
-
-              '
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          write_buckets_per_sec:
-            description: Write buckets requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-          write_objects_per_sec:
-            description: Write object requests processed per second.
-            type: number
-            format: double
-            minimum: 0
-            readOnly: true
-        x-readOnly: true
-    CrossOriginResourceSharingPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          bucket:
-            description: The bucket to which this policy belongs.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          rules:
-            type: array
-            maxItems: 100
-            items:
-              $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRuleWithContext'
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    BucketAccessPolicyRuleWithContext:
-      allOf:
-      - $ref: '#/components/schemas/BucketAccessPolicyRule'
-      - $ref: '#/components/schemas/_context_2'
-    CrossOriginResourceSharingPolicyRule:
-      allOf:
-      - $ref: '#/components/schemas/_context_2'
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRulePost'
-      - type: object
-        properties:
-          policy:
-            description: The policy to which this rule belongs.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-    _builtInNoId:
-      type: object
-      properties:
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _bucketEradicationConfig:
-      description: Configuration settings related to bucket eradication.
-      type: object
-      properties:
-        eradication_delay:
-          description: 'Minimum eradication delay in milliseconds. Automatically eradicate destroyed
-
-            buckets after the delay time passes unless automatic eradication
-
-            is delayed due to other configuration values.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-          example: 86400000
-        eradication_mode:
-          description: 'The eradication mode of the bucket.
-
-            If it''s `permission-based` the bucket can be eradicated based
-
-            on user permissions.
-
-            If it''s `retention-based` the bucket can never be eradicated as long
-
-            as there are locked objects still being retained.
-
-            Valid values are `permission-based` and `retention-based`.
-
-            '
-          type: string
-          example: permission-based
-        manual_eradication:
-          description: 'The manual eradication status of the bucket.
-
-            If `disabled`, the bucket cannot be eradicated after it has been
-
-            destroyed, unless it is empty.
-
-            If `enabled`, the bucket can be eradicated.
-
-            Valid values are `disabled` and `enabled`.
-
-            '
-          type: string
-          readOnly: true
-          example: enabled
-    CrossOriginResourceSharingPolicyResponse:
+    BucketAccessPolicyResponse:
       type: object
       properties:
         items:
-          description: A list of cross origin resource sharing policy objects.
+          description: A list of bucket policy objects.
           type: array
           items:
-            $ref: '#/components/schemas/CrossOriginResourceSharingPolicy'
-    BucketAuditFilterAction:
+            $ref: '#/components/schemas/BucketAccessPolicy'
+    PolicyBaseRenameable:
       allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
       - type: object
         properties:
-          description:
-            description: 'A description of the action.
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
 
               '
             type: string
             readOnly: true
-            example: Configures auditing on creation of objects in a bucket.
+    BucketPatch:
+      type: object
+      properties:
+        destroyed:
+          description: 'Is the bucket destroyed?
+
+            '
+          type: boolean
+        eradication_config:
+          $ref: '#/components/schemas/_bucketEradicationConfig'
+        hard_limit_enabled:
+          description: 'If set to `true`, the bucket''s size, as defined by `quota_limit`,
+
+            is used as a hard limit quota.
+
+            If set to `false`, a hard limit quota will not be applied to the
+
+            bucket, but soft quota alerts will still be sent if the bucket has
+
+            a value set for `quota_limit`.
+
+            '
+          type: boolean
+        object_lock_config:
+          $ref: '#/components/schemas/_objectLockConfigRequestBody'
+        public_access_config:
+          $ref: '#/components/schemas/_publicAccessConfig'
+        qos_policy:
+          description: 'The QoS policy for the bucket defines the performance controls
+
+            that can be applied to the aggregate performance of all the clients
+
+            accessing the bucket.
+
+            If no policy is set here, no explicit performance controls are applied
+
+            to the bucket beyond the system''s default fairness.
+
+            '
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
+        quota_limit:
+          description: 'The effective quota limit applied against the size of the bucket, displayed in bytes.
+
+            If set to an empty string (`""`), the bucket is unlimited in size.
+
+            '
+          type: string
+        retention_lock:
+          description: 'If set to `ratcheted`, then `object_lock_config.default_retention_mode`
+
+            cannot be changed if set to `compliance`. In this case, the value of
+
+            `object_lock_config.default_retention` can only be increased and
+
+            `object_lock_config.default_retention_mode` cannot be changed once set
+
+            to `compliance`.
+
+            Valid values are `unlocked` and `ratcheted`.
+
+            Contact Pure Technical Services to change `ratcheted` to `unlocked`.
+
+            '
+          type: string
+          example: unlocked
+        storage_class:
+          $ref: '#/components/schemas/StorageClassInfo'
+        versioning:
+          description: 'The versioning state for objects within the bucket.
+
+            Valid values are `none`, `enabled`, and `suspended`.
+
+            '
+          type: string
     BucketPerformanceItems:
       allOf:
       - $ref: '#/components/schemas/_builtIn_2'
@@ -3554,154 +3104,139 @@ components:
             minimum: 0
             readOnly: true
         x-readOnly: true
-    BucketAuditFilterActionWithContext:
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    PolicyBase:
       allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    BucketAuditFilterActionGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/BucketAuditFilterActionResponse'
+    _context_2:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    BucketAuditFilterResponse:
+      type: object
+      properties:
+        items:
+          description: A list of audit filters.
+          type: array
+          items:
+            $ref: '#/components/schemas/BucketAuditFilterWithContext'
+    CrossOriginResourceSharingPolicyRuleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRuleResponse'
+    _builtInNoId:
+      type: object
+      properties:
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    CrossOriginResourceSharingPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
       - $ref: '#/components/schemas/_context_2'
-      - $ref: '#/components/schemas/BucketAuditFilterAction'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
+      - type: object
+        properties:
+          bucket:
+            description: The bucket to which this policy belongs.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          rules:
+            type: array
+            maxItems: 100
+            items:
+              $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRuleWithContext'
+    _referenceWithoutType:
       type: object
       properties:
         id:
           description: 'A globally unique, system-generated ID.
 
-            The ID cannot be modified and cannot refer to another resource.
+            The ID cannot be modified.
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'A user-specified name.
+          description: 'The resource name, such as volume name, pod name,
 
-            The name must be locally unique and can be changed.
+            snapshot name, and so on.
 
             '
           type: string
-    _objectLockConfigResponse:
-      allOf:
-      - $ref: '#/components/schemas/_objectLockConfigBase'
-      - type: object
-        properties:
-          default_retention:
-            description: 'The retention period, in milliseconds, used to apply locks
-
-              on new objects if none is specified by the S3 client.
-
-              Valid values are any multiple of `86400000` (1 day), up to
-
-              `3153600000000` (36500 days).
-
-              If there is no default, this value is `null`.
-
-              '
-            type: integer
-            format: int64
-            example: 86400000
-    _publicAccessConfig:
-      description: Configuration settings related to public access.
+    BucketAccessPolicyRulePrincipal:
       type: object
       properties:
-        block_new_public_policies:
-          description: 'If set to `true`, adding bucket policies that grant public access to a bucket is not allowed.
+        all:
+          description: 'If `true`, the rule will apply to all object store users regardless of their
+
+            origin or principal.
 
             '
           type: boolean
-        block_public_access:
-          description: 'If set to `true`, access to a bucket with a public policy is restricted to only authenticated
-
-            users within the account that bucket belongs to.
-
-            '
-          type: boolean
-    PolicyBaseRenameable:
+    BucketAuditFilterActionWithContext:
       allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
-
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    StorageClassInfo:
+      - $ref: '#/components/schemas/_context_2'
+      - $ref: '#/components/schemas/BucketAuditFilterAction'
+    CrossOriginResourceSharingPolicyGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_referenceNameOnly'
-      - type: object
-        properties:
-          status:
-            description: The status of the transition from the policy to the requested policy. If there is an ongoing transition, the status will be one of `In-Progress` or `Queued`. If there is no transition ongoing, this field will be null.
-            type: string
-            readOnly: true
-          status_details:
-            description: Additional details about the status of the transition. If there is no transition ongoing, this field will be null.
-            type: string
-            readOnly: true
-          tiering_policy:
-            description: 'The storage class tiering policy defines tiering for data within the container. If specified,
-
-              data is written to the container''s `S500X-S` (speed) storage class by default, then tiered
-
-              to `S500X-A` (archival) storage class based on the policy.
-
-              If not specified, all data in the container is written to the container''s current storage class.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference_2'
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference_2'
-    BucketAccessPolicyRuleBulkManage:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyResponse'
+    BucketAccessPolicyRuleWithContext:
       allOf:
-      - $ref: '#/components/schemas/BucketAccessPolicyRulePost'
-      - type: object
-        properties:
-          name:
-            description: Name of the object (e.g., a file system or snapshot).
-            type: string
+      - $ref: '#/components/schemas/BucketAccessPolicyRule'
+      - $ref: '#/components/schemas/_context_2'
     BucketAuditFilterActionResponse:
       type: object
       properties:
@@ -3709,6 +3244,133 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BucketAuditFilterActionWithContext'
+    CrossOriginResourceSharingPolicyRuleWithContext:
+      allOf:
+      - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRule'
+      - $ref: '#/components/schemas/_context_2'
+    BucketAccessPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - $ref: '#/components/schemas/BucketAccessPolicyResponse'
+    BucketAuditFilterBase:
+      type: object
+      properties:
+        actions:
+          description: 'The list of ops to be audited by this filter.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - s3:GetObject
+          - s3:READ_OPS
+          - s3:WRITE_OPS
+        s3_prefixes:
+          description: 'The list of object name prefixes. The corresponding ops present in this filter will be audited
+
+            for the objects having these prefixes.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - prefix1
+          - prefix2
+    CrossOriginResourceSharingPolicyResponse:
+      type: object
+      properties:
+        items:
+          description: A list of cross origin resource sharing policy objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/CrossOriginResourceSharingPolicy'
+    CrossOriginResourceSharingPolicyPatch:
+      type: object
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRuleBulkManage'
+    BucketAccessPolicyRule:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/BucketAccessPolicyRulePost'
+      - type: object
+        properties:
+          policy:
+            description: The policy to which this rule belongs.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+    BucketAccessPolicyRulePost:
+      type: object
+      properties:
+        actions:
+          description: 'The list of actions granted by this rule. Each included action may
+
+            restrict other properties of the rule.
+
+            The only currently supported action is `s3:GetObject`.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - s3:GetObject
+        effect:
+          description: 'Effect of this rule.
+
+            When `allow`, the rule allows the given actions to be performed on the
+
+            given resources, subject to the given conditions.
+
+            The only currently supported effect is `allow`.
+
+            '
+          type: string
+          readOnly: true
+          example: allow
+        principals:
+          description: 'The principals to which this rule applies. Currently, only all principals are supported.
+
+            '
+          title: BucketAccessPolicyRulePrincipal
+          allOf:
+          - $ref: '#/components/schemas/BucketAccessPolicyRulePrincipal'
+        resources:
+          description: 'The list of resources which this rule applies to.
+
+            The only currently supported resource is all objects in a bucket to which
+
+            the parent policy belongs.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - mybucket/*
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
     BucketPerformance_2:
       allOf:
       - $ref: '#/components/schemas/_builtIn_2'
@@ -3800,404 +3462,50 @@ components:
             minimum: 0
             readOnly: true
         x-readOnly: true
-    CrossOriginResourceSharingPolicyPatch:
-      type: object
-      properties:
-        rules:
-          type: array
-          items:
-            $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRuleBulkManage'
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _objectLockConfigBase:
-      description: Configuration settings related to object lock.
-      type: object
-      properties:
-        default_retention_mode:
-          description: 'The retention mode used to apply locks on new objects if
-
-            none is specified by the S3 client.
-
-            Valid values include `compliance` and `governance`.
-
-            If there is no default, this value is `null`.
-
-            Use "" to clear.
-
-            '
-          type: string
-          example: governance
-        enabled:
-          description: 'If set to `true`, then S3 APIs relating to object lock
-
-            may be used.
-
-            '
-          type: boolean
-        freeze_locked_objects:
-          description: 'If set to `true`, a locked object will be read-only and no
-
-            new versions of the object may be created due to modifications.
-
-            If not specified, defaults to `false`.
-
-            '
-          type: boolean
-    _objectLockConfigRequestBody:
-      allOf:
-      - $ref: '#/components/schemas/_objectLockConfigBase'
-      - type: object
-        properties:
-          default_retention:
-            description: 'The retention period, in milliseconds, used to apply locks
-
-              on new objects if none is specified by the S3 client.
-
-              Valid values are any multiple of `86400000` (1 day), up to
-
-              `3153600000000` (36500 days).
-
-              If there is no default, this value is `null`.
-
-              Use "" to clear.
-
-              '
-            type: string
-            example: '86400000'
-    CrossOriginResourceSharingPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyResponse'
-    BucketAccessPolicyRuleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - $ref: '#/components/schemas/BucketAccessPolicyRuleResponse'
-    BucketAuditFilterResponse:
-      type: object
-      properties:
-        items:
-          description: A list of audit filters.
-          type: array
-          items:
-            $ref: '#/components/schemas/BucketAuditFilterWithContext'
-    BucketAuditFilterWithContext:
-      allOf:
-      - $ref: '#/components/schemas/_context_2'
-      - $ref: '#/components/schemas/BucketAuditFilter'
-    BucketPerformanceGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            description: A list of bucket performance objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/BucketPerformanceItems'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no items will be returned.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/BucketPerformance_2'
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    BucketAuditFilterActionGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/BucketAuditFilterActionResponse'
-    BucketAccessPolicyRuleResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/BucketAccessPolicyRuleWithContext'
-    BucketAccessPolicyRule:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/BucketAccessPolicyRulePost'
-      - type: object
-        properties:
-          policy:
-            description: The policy to which this rule belongs.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-    _context_2:
+    _errorContextResponseErrors:
       type: object
       properties:
         context:
-          description: 'The context in which the operation was performed.
+          description: 'Contains information relating to the cause of this error,
 
+            or the name of the object that was being processed when the error was encountered.
 
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            This may be `null` for more general errors.
 
             '
-          readOnly: true
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference_2'
-    BucketAuditFilterGetResponse:
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+    BucketGetResponse_3:
       allOf:
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/BucketAuditFilterResponse'
-    CrossOriginResourceSharingPolicyRuleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRuleResponse'
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    BucketGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/BucketResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
-      - type: object
-        properties:
-          total:
-            $ref: '#/components/schemas/Bucket_2'
-    BucketAuditFilter:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/BucketAuditFilterBase'
-      - type: object
-        properties:
-          bucket:
-            description: Reference to the bucket to which this filter belongs.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-    BucketAccessPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - $ref: '#/components/schemas/_context_2'
-      - type: object
-        properties:
-          bucket:
-            description: The bucket to which this policy belongs.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          rules:
-            type: array
-            items:
-              $ref: '#/components/schemas/BucketAccessPolicyRule'
-    BucketPatch:
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/BucketResponse_2'
+    _errorErrors:
       type: object
       properties:
-        destroyed:
-          description: 'Is the bucket destroyed?
-
-            '
-          type: boolean
-        eradication_config:
-          $ref: '#/components/schemas/_bucketEradicationConfig'
-        hard_limit_enabled:
-          description: 'If set to `true`, the bucket''s size, as defined by `quota_limit`,
-
-            is used as a hard limit quota.
-
-            If set to `false`, a hard limit quota will not be applied to the
-
-            bucket, but soft quota alerts will still be sent if the bucket has
-
-            a value set for `quota_limit`.
-
-            '
-          type: boolean
-        object_lock_config:
-          $ref: '#/components/schemas/_objectLockConfigRequestBody'
-        public_access_config:
-          $ref: '#/components/schemas/_publicAccessConfig'
-        qos_policy:
-          description: 'The QoS policy for the bucket defines the performance controls
-
-            that can be applied to the aggregate performance of all the clients
-
-            accessing the bucket.
-
-            If no policy is set here, no explicit performance controls are applied
-
-            to the bucket beyond the system''s default fairness.
-
-            '
-          title: ReferenceWritable
-          allOf:
-          - $ref: '#/components/schemas/_referenceWritable'
-        quota_limit:
-          description: 'The effective quota limit applied against the size of the bucket, displayed in bytes.
-
-            If set to an empty string (`""`), the bucket is unlimited in size.
-
-            '
+        context:
           type: string
-        retention_lock:
-          description: 'If set to `ratcheted`, then `object_lock_config.default_retention_mode`
-
-            cannot be changed if set to `compliance`. In this case, the value of
-
-            `object_lock_config.default_retention` can only be increased and
-
-            `object_lock_config.default_retention_mode` cannot be changed once set
-
-            to `compliance`.
-
-            Valid values are `unlocked` and `ratcheted`.
-
-            Contact Pure Technical Services to change `ratcheted` to `unlocked`.
-
-            '
+          example: Error with ...
+        message:
           type: string
-          example: unlocked
-        storage_class:
-          $ref: '#/components/schemas/StorageClassInfo'
-        versioning:
-          description: 'The versioning state for objects within the bucket.
-
-            Valid values are `none`, `enabled`, and `suspended`.
-
-            '
-          type: string
-    CrossOriginResourceSharingPolicyRuleWithContext:
-      allOf:
-      - $ref: '#/components/schemas/CrossOriginResourceSharingPolicyRule'
-      - $ref: '#/components/schemas/_context_2'
-    _builtIn_2:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _errorContextResponse_2:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    CrossOriginResourceSharingPolicyRulePost:
-      type: object
-      properties:
-        allowed_headers:
-          description: 'A list of headers that are permitted to be included in cross-origin requests to
-
-            access a bucket. The only currently supported allowed header is `*`.
-
-            '
-          type: array
-          items:
-            type: string
-          example:
-          - '*'
-        allowed_methods:
-          description: 'A list of HTTP methods that are permitted for cross-origin requests to access a bucket.
-
-            The only currently supported combination of allowed methods is all methods
-
-            `["GET", "PUT", "HEAD", "POST", "DELETE"]`.
-
-            '
-          type: array
-          items:
-            type: string
-          example:
-          - GET
-          - PUT
-          - HEAD
-          - POST
-          - DELETE
-        allowed_origins:
-          description: 'A list of origins (domains) that are permitted to make cross-origin requests to
-
-            access a bucket. The only currently supported allowed origin is `*`.
-
-            '
-          type: array
-          items:
-            type: string
-          example:
-          - '*'
-    _arraysResource:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_resource_2'
-      - $ref: '#/components/schemas/_arrays'
+          example: Something was wrong
     _timeAware:
       type: object
       properties:
@@ -4207,6 +3515,57 @@ components:
           format: int64
           readOnly: true
           example: 1502729489760
+    _arraysResource:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_resource_2'
+      - $ref: '#/components/schemas/_arrays'
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_3'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    PageInfo_3:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
     Bucket_3:
       allOf:
       - $ref: '#/components/schemas/_arraysResource'
@@ -4238,68 +3597,37 @@ components:
 
               '
             type: string
-    _fixedReferenceFqdn:
+    _resource_2:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed, or deleted by the user. This might be a virtual resource (e.g.,
+
+        a volume), or correspond to something in the physical environment, like a
+
+        host or a server.
+
+        '
       allOf:
-      - $ref: '#/components/schemas/_fixedReference_3'
+      - $ref: '#/components/schemas/_timeAware'
       - type: object
         properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
             type: string
             readOnly: true
-            example: example_name.dc1.example.com
-    _arrays:
+            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+          name:
+            description: A modifiable, locally unique name chosen by the user.
+            type: string
+            example: example_name
+    Error:
       type: object
       properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
-
-            some resources, such as pods, can be shared across multiple arrays.
-
-            '
+        errors:
+          description: The list of errors encountered.
           type: array
-          readOnly: true
           items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
-    PageInfo_3:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the continuation_token
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
-        total_item_count:
-          description: Total number of items after applying filter params.
-          type: integer
-          format: int32
-          example: 1
-    BucketGetResponse_3:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/BucketResponse_2'
+            $ref: '#/components/schemas/_errorErrors'
     _fixedReference_3:
       type: object
       properties:
@@ -4331,14 +3659,20 @@ components:
         message:
           type: string
           example: Something was wrong
-    Error:
+    _arrays:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered.
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/_errorErrors'
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
     BucketResponse_2:
       type: object
       properties:
@@ -4346,70 +3680,705 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Bucket_3'
-    _resource_2:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+  parameters:
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
 
-        renamed, or deleted by the user. This might be a virtual resource (e.g.,
+        Enter multiple names in comma-separated format.
 
-        a volume), or correspond to something in the physical environment, like a
+        For example, `name01,name02`.
 
-        host or a server.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
 
         '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-          name:
-            description: A modifiable, locally unique name chosen by the user.
-            type: string
-            example: example_name
-    _errorErrors:
-      type: object
-      properties:
-        context:
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-          example: Error with ...
-        message:
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-          example: Something was wrong
+    Names_required:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    History_end_time:
+      name: end_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    History_resolution:
+      name: resolution
+      in: query
+      description: 'The number of milliseconds between samples of historical data.
+
+        For array-wide performance metrics (`/arrays/performance` endpoint),
+
+        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
+
+        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For performance metrics on storage objects (`<object name>/performance` endpoint),
+
+        such as volumes,
+
+        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
+
+        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For space metrics, (`<object name>/space` endpoint),
+
+        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
+
+        `28800000` (8 hours), and `86400000` (24 hours).
+
+        Include the `start_time` parameter to display the performance data
+
+        starting at the specified start time.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        Include the `end_time` parameter to display the performance data until the specified end time.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        If the `resolution` parameter is not specified
+
+        but either the `start_time` or `end_time` parameter is,
+
+        then `resolution` will default to the lowest valid resolution.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    History_start_time:
+      name: start_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Bucket_ids:
+      name: bucket_ids
+      in: query
+      description: 'A comma-separated list of bucket IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `bucket_ids`, then an error is returned.
+
+        This cannot be provided together with the `bucket_names` query parameter.
+
+        This can be provided with the `ids` query parameter but not with `names`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Cancel_storage_class_transition:
+      name: cancel_in_progress_storage_class_transition
+      in: query
+      description: 'If set to `true`, the storage class policy of this file system
+
+        will be set to the requested storage class policy, even if
+
+        a transition to a different storage class is in-progress.
+
+        Setting this parameter to `true` is acknowledgement that any
+
+        in-progress transition on this file system will be cancelled.
+
+        If not specified, the default value is `false`.
+
+        '
+      schema:
+        type: boolean
+    Resolution:
+      name: resolution
+      in: query
+      description: 'The desired ms between samples. Available resolutions may
+
+        depend on data type, `start_time` and `end_time`.
+
+        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
+
+        `86400000` are possible values.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    End_time:
+      name: end_time
+      in: query
+      description: 'When the time window ends (in milliseconds since epoch).
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
+    Start_time:
+      name: start_time
+      in: query
+      description: 'When the time window starts (in milliseconds since epoch).
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
+    Ignore_usage:
+      name: ignore_usage
+      in: query
+      description: 'Allow update operations that lead to a `hard_limit_enabled` object store
+
+        account, bucket, or file system with usage over its limiting value.
+
+        For object store accounts and buckets, the limiting value is that of `quota_limit`,
+
+        and for file systems it is that of `provisioned`.
+
+        The operation can be setting `hard_limit_enabled` when usage is higher
+
+        than the limiting value, modifying the limiting value to a value under usage when
+
+        `hard_limit_enabled`, recovering a destroyed bucket of an object store account
+
+        that causes an account''s space usage to go over its hard `quota_limit`.
+
+        Also allows update operations that would cause usage of the requested
+
+        storage class to go over its warning threshold.
+
+        '
+      schema:
+        type: boolean
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Bucket_names:
+      name: bucket_names
+      in: query
+      description: 'A comma-separated list of bucket names.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `bucket_names`, then an error is returned.
+
+        This cannot be provided together with the `bucket_ids` query parameter.
+
+        This can be provided with the `ids` query parameter but not with `names`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_required_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids_3:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Sort_3:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Offset_3:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
   responses:
-    Error404:
-      description: NOT FOUND
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Error500:
       description: INTERNAL SERVER ERROR
       headers:
@@ -4483,6 +4452,37 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     Error400:
       description: BAD REQUEST
       headers:

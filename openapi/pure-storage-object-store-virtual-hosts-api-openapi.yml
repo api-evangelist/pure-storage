@@ -280,15 +280,51 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    ObjectStoreVirtualHostGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ObjectStoreVirtualHostResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
     ObjectStoreVirtualHost:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
       - $ref: '#/components/schemas/_context'
+    ObjectStoreVirtualHostResponse:
+      type: object
+      properties:
+        items:
+          description: A list of object store virtual host objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectStoreVirtualHost'
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
     _fixedReferenceWithType:
       allOf:
       - $ref: '#/components/schemas/_fixedReference'
@@ -308,27 +344,15 @@ components:
             readOnly: true
       x-aliases:
       - _fixedReference
-    _context:
+    _errorContextResponse:
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
           readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
     PageInfo:
       type: object
       properties:
@@ -393,56 +417,32 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
+    _context:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        context:
+          description: 'The context in which the operation was performed.
 
-            The ID cannot be modified and cannot refer to another resource.
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
 
             '
-          type: string
           readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    ObjectStoreVirtualHostResponse:
-      type: object
-      properties:
-        items:
-          description: A list of object store virtual host objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectStoreVirtualHost'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    ObjectStoreVirtualHostGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ObjectStoreVirtualHostResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -513,6 +513,67 @@ components:
               '
             type: string
             example: s3.myarray.com
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference_2'
+    _builtIn_2:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -533,42 +594,15 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    _realmsReference:
+    _errorContextResponse_2:
       type: object
       properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/_fixedReference_2'
-    _context_2:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     PageInfo_2:
       type: object
       properties:
@@ -597,6 +631,33 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
     _fixedReference_2:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -614,6 +675,58 @@ components:
               '
             type: string
             readOnly: true
+    _context_2:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
     ObjectStoreVirtualHostPatch:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -660,130 +773,40 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/_reference'
-    _builtIn_2:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _errorContextResponse_2:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    _errorContextResponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
-
-            '
-          type: string
-          readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
   parameters:
-    Filter:
-      name: filter
+    Ids:
+      name: ids
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
 
-        that satisfy the filter criteria.
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     Context_names:
       name: context_names
       in: query
@@ -808,19 +831,23 @@ components:
         type: array
         items:
           type: string
-    Offset:
-      name: offset
+    Names_required:
+      name: names
       in: query
-      description: 'The starting position based on the results of the query
+      description: 'Performs the operation on the unique name specified.
 
-        in relation to the full set of response objects returned.
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
 
         '
+      required: true
+      style: form
+      explode: false
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
+        type: array
+        items:
+          type: string
     Limit:
       name: limit
       in: query
@@ -840,28 +867,16 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Names:
-      name: names
+    Sort:
+      name: sort
       in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Context_names_get:
       name: context_names
@@ -893,6 +908,68 @@ components:
         type: array
         items:
           type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -915,94 +992,6 @@ components:
         '
       schema:
         type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Names_required:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique name specified.
-
-        For example, `name01`.
-
-        Enter multiple names in comma-separated format.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Ids_2:
       name: ids
       in: query
@@ -1015,6 +1004,19 @@ components:
         This cannot be provided together with the `name` or `names` query parameters.
 
         '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_required_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
       style: form
       explode: false
       schema:
@@ -1040,19 +1042,17 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Names_required_2:
-      name: names
+    Offset_2:
+      name: offset
       in: query
-      description: 'A comma-separated list of resource names.
+      description: 'The offset of the first resource to return from a collection.
 
         '
-      required: true
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

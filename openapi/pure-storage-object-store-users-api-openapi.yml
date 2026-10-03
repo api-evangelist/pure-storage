@@ -412,12 +412,471 @@ paths:
     - url: http://[array]/
     - url: https://[array]/
 components:
+  parameters:
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'Performs the operation on the unique member IDs specified.
+
+        Enter multiple member IDs in comma-separated format.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'Performs the operation on the unique policy IDs specified.
+
+        Enter multiple policy IDs in comma-separated format.
+
+        The `policy_ids` or `policy_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'Performs the operation on the policy names specified.
+
+        Enter multiple policy names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'Performs the operation on the unique member name specified.
+
+        Examples of members include volumes, hosts, host groups, and directories.
+
+        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Full_access:
+      name: full_access
+      in: query
+      description: 'If set to `true`, creates an object store user with full permissions.
+
+        If set to `false`, creates an object store user with no permission.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_ids_2:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `member_ids`, then an error is returned.
+
+        This cannot be provided together with the `member_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names_required_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Policy_ids_2:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Policy_names_2:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_names_2:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
   schemas:
-    ObjectStoreUserGetResponse:
+    _policy_member_base:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreUserResponse'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          member:
+            description: The reference to the resource targeted by the policy.
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+          policy:
+            description: The reference to the policy.
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
     _fixedReferenceWithType:
       allOf:
       - $ref: '#/components/schemas/_fixedReference'
@@ -437,51 +896,6 @@ components:
             readOnly: true
       x-aliases:
       - _fixedReference
-    ObjectStoreUser:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_objectStoreUserBase'
-    PolicyMemberObjectStoreAccessGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberObjectStoreAccessResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _policy_member_base:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          member:
-            description: The reference to the resource targeted by the policy.
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
-          policy:
-            description: The reference to the policy.
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
     ObjectStoreUserResponse:
       type: object
       properties:
@@ -490,6 +904,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ObjectStoreUser'
+    ObjectStoreUser:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_objectStoreUserBase'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    PolicyMemberObjectStoreAccessGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberObjectStoreAccessResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     PageInfo:
       type: object
       properties:
@@ -532,78 +964,6 @@ components:
             '
           type: integer
           format: int32
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    PolicyMemberObjectStoreAccessResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/_policy_member_base'
     _objectStoreUserBase:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -635,6 +995,62 @@ components:
             format: int64
             readOnly: true
             example: 1602115200000
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    ObjectStoreUserGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreUserResponse'
+    PolicyMemberObjectStoreAccessResponse:
+      type: object
+      properties:
+        items:
+          description: A list of members for policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/_policy_member_base'
     _errorcontextresponseErrors:
       type: object
       properties:
@@ -681,11 +1097,19 @@ components:
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference_2'
-    PolicyMemberContextGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/PolicyMemberContextResponse'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
+    _builtIn_2:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -706,6 +1130,10 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
+    PolicyMemberContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context_2'
     ObjectStoreUser_2:
       allOf:
       - $ref: '#/components/schemas/_builtIn_2'
@@ -728,27 +1156,15 @@ components:
             type: integer
             format: int64
             readOnly: true
-    _context_2:
+    _errorContextResponse_2:
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
           readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     PageInfo_2:
       type: object
       properties:
@@ -794,28 +1210,40 @@ components:
               '
             type: string
             readOnly: true
-    _builtIn_2:
+    _context_2:
       type: object
       properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
 
             '
-          type: string
           readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _errorContextResponse_2:
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+    PolicyMemberContextResponse:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
+        items:
+          description: A list of members for policies.
           type: array
-          readOnly: true
           items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
+            $ref: '#/components/schemas/PolicyMemberContext'
+    PolicyMemberContextGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/PolicyMemberContextResponse'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -847,434 +1275,6 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    PolicyMemberContextResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-    PolicyMemberContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context_2'
-  parameters:
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'Performs the operation on the unique policy IDs specified.
-
-        Enter multiple policy IDs in comma-separated format.
-
-        The `policy_ids` or `policy_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'Performs the operation on the unique member IDs specified.
-
-        Enter multiple member IDs in comma-separated format.
-
-        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'Performs the operation on the policy names specified.
-
-        Enter multiple policy names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Member_names:
-      name: member_names
-      in: query
-      description: 'Performs the operation on the unique member name specified.
-
-        Examples of members include volumes, hosts, host groups, and directories.
-
-        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique name specified.
-
-        For example, `name01`.
-
-        Enter multiple names in comma-separated format.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Policy_ids_2:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Full_access:
-      name: full_access
-      in: query
-      description: 'If set to `true`, creates an object store user with full permissions.
-
-        If set to `false`, creates an object store user with no permission.
-
-        If not specified, defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Member_ids_2:
-      name: member_ids
-      in: query
-      description: 'A comma-separated list of member IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `member_ids`, then an error is returned.
-
-        This cannot be provided together with the `member_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Policy_names_2:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Member_names_2:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

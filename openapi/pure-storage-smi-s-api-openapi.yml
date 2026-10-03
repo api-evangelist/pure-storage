@@ -61,6 +61,40 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Total_item_count:
       name: total_item_count
       in: query
@@ -87,27 +121,6 @@ components:
         '
       schema:
         type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
     Limit:
       name: limit
       in: query
@@ -127,56 +140,17 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
 
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
+        that satisfy the filter criteria.
 
         '
       schema:
         type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
   schemas:
-    SmisGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SmisResponse'
-    Smis:
-      type: object
-      properties:
-        slp_enabled:
-          description: 'If set to `true`, the Service Location Protocol (SLP) and its ports,
-
-            TCP 427 and UDP 427, are enabled.
-
-            '
-          type: boolean
-        wbem_https_enabled:
-          description: 'If set to `true`, the SMI-S provider and its port, TCP 5989 is enabled.
-
-            '
-          type: boolean
-    SmisResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Smis'
     PageInfo:
       type: object
       properties:
@@ -219,3 +193,29 @@ components:
             '
           type: integer
           format: int32
+    SmisResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Smis'
+    Smis:
+      type: object
+      properties:
+        slp_enabled:
+          description: 'If set to `true`, the Service Location Protocol (SLP) and its ports,
+
+            TCP 427 and UDP 427, are enabled.
+
+            '
+          type: boolean
+        wbem_https_enabled:
+          description: 'If set to `true`, the SMI-S provider and its port, TCP 5989 is enabled.
+
+            '
+          type: boolean
+    SmisGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SmisResponse'

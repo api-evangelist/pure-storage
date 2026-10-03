@@ -82,30 +82,39 @@ components:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/ResiliencyGroupMemberResponse'
-    ResiliencyGroup:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - description: 'A group of nodes that are configured to provide high availability
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
 
-          in the case of failures within members of the group.
+            The ID cannot be modified.
 
-          '
-        type: object
-        properties:
-          status:
-            description: 'The status of the resiliency group.
+            '
+          type: string
+        name:
+          description: 'The resource name,
 
-              Valid values include `critical`, `healthy`, and `unhealthy`.
+            such as volume name, pod name, snapshot name, and so on.
 
-              '
-            type: string
-            readOnly: true
-          status_details:
-            description: 'The description of the status of the resiliency group if not healthy.
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
 
-              '
-            type: string
-            readOnly: true
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
     ResiliencyGroupResponse:
       type: object
       properties:
@@ -116,25 +125,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResiliencyGroup'
-    Member:
+    ResiliencyGroupGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ResiliencyGroupResponse'
+    _builtIn:
       type: object
       properties:
-        group:
-          description: 'A reference to a group object that has the referenced member object
-
-            as a member.
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
 
             '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-        member:
-          description: 'A reference to an object that is a member of the referenced group.
-
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     PageInfo:
       type: object
       properties:
@@ -173,115 +180,50 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Member'
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    ResiliencyGroupGetResponse:
+    ResiliencyGroup:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ResiliencyGroupResponse'
-    _reference:
+      - $ref: '#/components/schemas/_builtIn'
+      - description: 'A group of nodes that are configured to provide high availability
+
+          in the case of failures within members of the group.
+
+          '
+        type: object
+        properties:
+          status:
+            description: 'The status of the resiliency group.
+
+              Valid values include `critical`, `healthy`, and `unhealthy`.
+
+              '
+            type: string
+            readOnly: true
+          status_details:
+            description: 'The description of the status of the resiliency group if not healthy.
+
+              '
+            type: string
+            readOnly: true
+    Member:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        group:
+          description: 'A reference to a group object that has the referenced member object
 
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
+            as a member.
 
             '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+        member:
+          description: 'A reference to an object that is a member of the referenced group.
 
             '
-          type: string
-          readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
   parameters:
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Resiliency_group_names:
-      name: resiliency_group_names
-      in: query
-      description: 'A comma-separated list of resiliency group names.
-
-        If there is not at least one resource that matches each of the
-
-        elements of `resiliency_group_names`, then an error is returned.
-
-        This cannot be provided in conjunction with the `resiliency_group_ids` parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Names:
       name: names
       in: query
@@ -323,6 +265,90 @@ components:
         type: array
         items:
           type: string
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Resiliency_group_names:
+      name: resiliency_group_names
+      in: query
+      description: 'A comma-separated list of resiliency group names.
+
+        If there is not at least one resource that matches each of the
+
+        elements of `resiliency_group_names`, then an error is returned.
+
+        This cannot be provided in conjunction with the `resiliency_group_ids` parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
     Resiliency_group_ids:
       name: resiliency_group_ids
       in: query
@@ -341,6 +367,37 @@ components:
         type: array
         items:
           type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -363,63 +420,6 @@ components:
         '
       schema:
         type: string
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

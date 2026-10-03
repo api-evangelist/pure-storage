@@ -263,188 +263,7 @@ paths:
     - url: http://[array]/
     - url: https://[array]/
 components:
-  schemas:
-    OauthSubjectTokenType:
-      type: string
-      description: 'An identifier that indicates the type of security token specifed in the `subject_token` parameter.
-
-        The Pure Storage REST API supports the JSON Web Token (JWT)
-
-        as the means for requesting the access token.
-
-        Set `subject_token_type` to `urn:ietf:params:oauth:token-type:jwt`.
-
-        '
-      default: urn:ietf:params:oauth:token-type:jwt
-    LoginPost:
-      type: object
-      properties:
-        password:
-          description: 'The user password that is used as an alternative to an api-token.
-
-            '
-          type: string
-        username:
-          description: 'The username used to log in as an alternative to an api-token.
-
-            '
-          type: string
-    Username:
-      type: object
-      properties:
-        username:
-          description: The username of the user.
-          type: string
-          example: pureuser
-    UsernameResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Username'
-    Api_versionResponse:
-      type: object
-      properties:
-        version:
-          $ref: '#/components/schemas/_api_versions'
-    _api_versions:
-      description: A list of supported API versions.
-      type: array
-      items:
-        type: string
-      example:
-      - '1.0'
-      - '1.1'
-      - '1.2'
-      - '1.3'
-      - '1.4'
-      - '1.5'
-      - '1.6'
-      - '1.7'
-      - '1.8'
-      - '1.9'
-      - '1.10'
-      - '1.11'
-      - '1.12'
-      - '1.13'
-      - '1.14'
-      - '1.15'
-      - '1.16'
-      - '1.17'
-      - '2.0'
-    OauthGrantType:
-      type: string
-      description: 'The method by which the access token will be obtained.
-
-        The Pure Storage REST API supports the OAuth 2.0 "token exchange" grant type,
-
-        which indicates that a token exchange is being performed.
-
-        Set `grant_type` to `urn:ietf:params:oauth:grant-type:token-exchange`.
-
-        '
-      default: urn:ietf:params:oauth:grant-type:token-exchange
-    OauthSubjectToken:
-      type: string
-      description: 'An encoded security ID Token representing the identity of the party on behalf of
-
-        whom the request is being made. The token must be issued by a trusted
-
-        identity provider which must be either a registered application in Pure1
-
-        or an enabled API client on the array. The token must be a JSON Web Token
-
-        and must contain the following claims:
-
-
-        > | JWT claim | Location | API Client Field | Description | Required By |
-
-
-        > |-|-|-|-|-|
-
-
-        > | kid | Header | key_id | Key ID of the API client that issues the identity token. | FlashArray
-
-        and FlashBlade only. |
-
-
-        > | aud | Payload | id | Client ID of the API client that issues the identity token. | FlashArray
-
-        and FlashBlade only. |
-
-
-        > | sub | Payload | | Login name of the array user for whom the token should be issued.
-
-        This must be a valid user in the system. | FlashArray and FlashBlade only. |
-
-
-        > | iss | Payload | issuer | Application ID for the Pure1 or API client''s trusted identity
-
-        issuer on the array. | All products. |
-
-
-        > | iat | Payload | | Timestamp of when the identity token was issued.
-
-        Measured in milliseconds since the UNIX epoch. | All products. |
-
-
-        > | exp | Payload | | Timestamp of when the identity token will expire.
-
-        Measured in milliseconds since the UNIX epoch. | All products. |
-
-
-
-        Each token must also be signed with the private key that is paired with the
-
-        API client''s public key.
-
-
-        '
-    Login:
-      allOf:
-      - $ref: '#/components/schemas/Username'
-      x-aliases:
-      - LoginResponse
-    LoginPost_2:
-      type: object
-      properties:
-        password:
-          description: 'User password. Used as an alternative to api-token.
-
-            '
-          type: string
-        username:
-          description: 'User to log in. Used as an alternative to api-token.
-
-            '
-          type: string
-    LoginBannerGetResponse:
-      type: object
-      properties:
-        login_banner:
-          description: The string to show as login banner.
-          type: string
-          example: Restricted area. Authorized personnel only.
-    Api_version:
-      type: object
-      properties:
-        versions:
-          $ref: '#/components/schemas/_api_versions'
   responses:
-    OauthToken400:
-      description: BAD REQUEST
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-                example: invalid_request
-              error_description:
-                type: string
-                example: 'Unsupported subject_token_type: urn:ietf:params:oauth:token-'
     OauthToken200:
       description: OK
       content:
@@ -501,13 +320,8 @@ components:
               error_description:
                 type: string
                 example: 'Invalid identity: JWT validation failed.'
-    OauthToken400_2:
+    OauthToken400:
       description: BAD REQUEST
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: string
       content:
         application/json:
           schema:
@@ -585,6 +399,192 @@ components:
               error_description:
                 type: string
                 example: 'Invalid identity: JWT validation failed.'
+    OauthToken400_2:
+      description: BAD REQUEST
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: invalid_request
+              error_description:
+                type: string
+                example: 'Unsupported subject_token_type: urn:ietf:params:oauth:token-'
+  schemas:
+    UsernameResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Username'
+    Username:
+      type: object
+      properties:
+        username:
+          description: The username of the user.
+          type: string
+          example: pureuser
+    _api_versions:
+      description: A list of supported API versions.
+      type: array
+      items:
+        type: string
+      example:
+      - '1.0'
+      - '1.1'
+      - '1.2'
+      - '1.3'
+      - '1.4'
+      - '1.5'
+      - '1.6'
+      - '1.7'
+      - '1.8'
+      - '1.9'
+      - '1.10'
+      - '1.11'
+      - '1.12'
+      - '1.13'
+      - '1.14'
+      - '1.15'
+      - '1.16'
+      - '1.17'
+      - '2.0'
+    LoginPost:
+      type: object
+      properties:
+        password:
+          description: 'The user password that is used as an alternative to an api-token.
+
+            '
+          type: string
+        username:
+          description: 'The username used to log in as an alternative to an api-token.
+
+            '
+          type: string
+    OauthGrantType:
+      type: string
+      description: 'The method by which the access token will be obtained.
+
+        The Pure Storage REST API supports the OAuth 2.0 "token exchange" grant type,
+
+        which indicates that a token exchange is being performed.
+
+        Set `grant_type` to `urn:ietf:params:oauth:grant-type:token-exchange`.
+
+        '
+      default: urn:ietf:params:oauth:grant-type:token-exchange
+    OauthSubjectTokenType:
+      type: string
+      description: 'An identifier that indicates the type of security token specifed in the `subject_token` parameter.
+
+        The Pure Storage REST API supports the JSON Web Token (JWT)
+
+        as the means for requesting the access token.
+
+        Set `subject_token_type` to `urn:ietf:params:oauth:token-type:jwt`.
+
+        '
+      default: urn:ietf:params:oauth:token-type:jwt
+    Api_versionResponse:
+      type: object
+      properties:
+        version:
+          $ref: '#/components/schemas/_api_versions'
+    OauthSubjectToken:
+      type: string
+      description: 'An encoded security ID Token representing the identity of the party on behalf of
+
+        whom the request is being made. The token must be issued by a trusted
+
+        identity provider which must be either a registered application in Pure1
+
+        or an enabled API client on the array. The token must be a JSON Web Token
+
+        and must contain the following claims:
+
+
+        > | JWT claim | Location | API Client Field | Description | Required By |
+
+
+        > |-|-|-|-|-|
+
+
+        > | kid | Header | key_id | Key ID of the API client that issues the identity token. | FlashArray
+
+        and FlashBlade only. |
+
+
+        > | aud | Payload | id | Client ID of the API client that issues the identity token. | FlashArray
+
+        and FlashBlade only. |
+
+
+        > | sub | Payload | | Login name of the array user for whom the token should be issued.
+
+        This must be a valid user in the system. | FlashArray and FlashBlade only. |
+
+
+        > | iss | Payload | issuer | Application ID for the Pure1 or API client''s trusted identity
+
+        issuer on the array. | All products. |
+
+
+        > | iat | Payload | | Timestamp of when the identity token was issued.
+
+        Measured in milliseconds since the UNIX epoch. | All products. |
+
+
+        > | exp | Payload | | Timestamp of when the identity token will expire.
+
+        Measured in milliseconds since the UNIX epoch. | All products. |
+
+
+
+        Each token must also be signed with the private key that is paired with the
+
+        API client''s public key.
+
+
+        '
+    Login:
+      allOf:
+      - $ref: '#/components/schemas/Username'
+      x-aliases:
+      - LoginResponse
+    LoginBannerGetResponse:
+      type: object
+      properties:
+        login_banner:
+          description: The string to show as login banner.
+          type: string
+          example: Restricted area. Authorized personnel only.
+    LoginPost_2:
+      type: object
+      properties:
+        password:
+          description: 'User password. Used as an alternative to api-token.
+
+            '
+          type: string
+        username:
+          description: 'User to log in. Used as an alternative to api-token.
+
+            '
+          type: string
+    Api_version:
+      type: object
+      properties:
+        versions:
+          $ref: '#/components/schemas/_api_versions'
   parameters:
     XRequestId:
       name: X-Request-ID

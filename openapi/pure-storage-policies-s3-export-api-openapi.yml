@@ -303,11 +303,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    S3ExportPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/S3ExportPolicyResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
     S3ExportPolicyPatch:
       type: object
       properties:
@@ -321,15 +316,80 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/_s3ExportPolicyRuleInlined'
-    _s3ExportPolicyRuleInlined:
+    PolicyBaseContext:
       allOf:
-      - $ref: '#/components/schemas/_referenceNameOnly'
-      - $ref: '#/components/schemas/S3ExportPolicyRulePost'
+      - $ref: '#/components/schemas/PolicyBase'
+      - $ref: '#/components/schemas/_context'
+    S3ExportPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseContext'
+      - type: object
+        properties:
+          rules:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/components/schemas/_s3ExportPolicyRuleInlined'
+              - $ref: '#/components/schemas/_policyReference'
+    S3ExportPolicyRuleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/S3ExportPolicyRuleResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    S3ExportPolicyRuleResponse:
+      type: object
+      description: A list of S3 export policy rule objects.
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/S3ExportPolicyRule'
     _referenceNameOnly:
       type: object
       properties:
         name:
           type: string
+    S3ExportPolicyRule:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/S3ExportPolicyRulePost'
+      - $ref: '#/components/schemas/_policyReference'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     PolicyBaseRenameable:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -362,74 +422,19 @@ components:
               '
             type: string
             readOnly: true
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    PolicyBaseContext:
+    _s3ExportPolicyRuleInlined:
       allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - $ref: '#/components/schemas/_context'
-    _realmsReference:
+      - $ref: '#/components/schemas/_referenceNameOnly'
+      - $ref: '#/components/schemas/S3ExportPolicyRulePost'
+    _errorContextResponse:
       type: object
       properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/_fixedReference'
-    S3ExportPolicyRuleResponse:
-      type: object
-      description: A list of S3 export policy rule objects.
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/S3ExportPolicyRule'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     PageInfo:
       type: object
       properties:
@@ -458,9 +463,57 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
+    S3ExportPolicyResponse:
+      type: object
+      properties:
+        items:
+          description: A list of S3 export policy objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/S3ExportPolicy'
+    _policyReference:
+      type: object
+      properties:
+        policy:
+          description: The policy to which this rule belongs.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
     PolicyBase:
       allOf:
       - $ref: '#/components/schemas/PolicyBaseRenameable'
+    S3ExportPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/S3ExportPolicyResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -478,96 +531,27 @@ components:
               '
             type: string
             readOnly: true
-    S3ExportPolicyResponse:
-      type: object
-      properties:
-        items:
-          description: A list of S3 export policy objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/S3ExportPolicy'
-    S3ExportPolicyPost:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-          example: true
-        rules:
-          type: array
-          items:
-            $ref: '#/components/schemas/_s3ExportPolicyRuleInlined'
-    _policyReference:
-      type: object
-      properties:
-        policy:
-          description: The policy to which this rule belongs.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    S3ExportPolicyRule:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/S3ExportPolicyRulePost'
-      - $ref: '#/components/schemas/_policyReference'
-    _builtInNoId:
-      type: object
-      properties:
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    S3ExportPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseContext'
-      - type: object
-        properties:
-          rules:
-            type: array
-            items:
-              allOf:
-              - $ref: '#/components/schemas/_s3ExportPolicyRuleInlined'
-              - $ref: '#/components/schemas/_policyReference'
-    _errorContextResponseErrors:
+    _context:
       type: object
       properties:
         context:
-          description: 'Contains information relating to the cause of this error,
+          description: 'The context in which the operation was performed.
 
-            or the name of the object that was being processed when the error was encountered.
 
-            This may be `null` for more general errors.
+            Valid values include a reference to any array which is a member of the same fleet
 
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
+            or to the fleet itself.
 
-            when the error occurred.
 
-            For example, this may be the name of an array in the same fleet.
+            Other parameters provided with the request, such as names of volumes or snapshots,
 
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
+            are resolved relative to the provided `context`.
 
             '
+          readOnly: true
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
     S3ExportPolicyRulePost:
       type: object
       properties:
@@ -609,59 +593,88 @@ components:
           - '*'
           - mybucket
           - mybucket*
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
+    S3ExportPolicyPost:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
+        enabled:
+          type: boolean
+          example: true
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/_s3ExportPolicyRuleInlined'
+    _builtInNoId:
+      type: object
+      properties:
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
-        name:
-          description: 'A user-specified name.
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
 
-            The name must be locally unique and can be changed.
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
 
             '
           type: string
-    S3ExportPolicyRuleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/S3ExportPolicyRuleResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
   parameters:
-    Filter:
-      name: filter
+    Ids:
+      name: ids
       in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
+      description: 'A comma-separated list of resource IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `policy_ids`, then an error is returned.
+        each of the elements of `ids`, then an error is returned.
 
-        This cannot be provided together with the `policy_names` query parameter.
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
 
         '
       style: form
@@ -694,17 +707,19 @@ components:
         type: array
         items:
           type: string
-    Offset:
-      name: offset
+    Names_required:
+      name: names
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'A comma-separated list of resource names.
 
         '
+      required: true
+      style: form
+      explode: false
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
+        type: array
+        items:
+          type: string
     Limit:
       name: limit
       in: query
@@ -724,21 +739,16 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Names:
-      name: names
+    Policy_ids:
+      name: policy_ids
       in: query
-      description: 'Performs the operation on the unique names specified.
+      description: 'A comma-separated list of policy IDs.
 
-        Enter multiple names in comma-separated format.
+        If after filtering, there is not at least one resource that matches
 
-        For example, `name01,name02`.
+        each of the elements of `policy_ids`, then an error is returned.
 
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -747,6 +757,35 @@ components:
         type: array
         items:
           type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
     Context_names_get:
       name: context_names
       in: query
@@ -777,6 +816,30 @@ components:
         type: array
         items:
           type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Policy_names:
       name: policy_names
       in: query
@@ -789,6 +852,14 @@ components:
         type: array
         items:
           type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -811,77 +882,6 @@ components:
         '
       schema:
         type: string
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

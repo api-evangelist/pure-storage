@@ -117,21 +117,300 @@ paths:
       operationId: getApi226UsageUsers
       x-operation-id-source: derived
 components:
+  parameters:
+    User_names:
+      name: user_names
+      in: query
+      description: 'A comma-separated list of user names.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `user_names`, then an error is returned.
+
+        This cannot be provided together with `uids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Group_quota_gids:
+      name: gids
+      in: query
+      description: 'A comma-separated list of group IDs.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `gids`, then an error is returned.
+
+        This cannot be provided together with `group_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int32
+    Group_names:
+      name: group_names
+      in: query
+      description: 'A comma-separated list of group names.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `group_names`, then an error is returned.
+
+        This cannot be provided together with `gids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    File_system_names:
+      name: file_system_names
+      in: query
+      description: 'A comma-separated list of file system names.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `file_system_names`, then an error is returned.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    User_quota_uids:
+      name: uids
+      in: query
+      description: 'A comma-separated list of user IDs.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `uids`, then an error is returned.
+
+        This cannot be provided together with `user_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+          format: int32
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    File_system_ids:
+      name: file_system_ids
+      in: query
+      description: 'A comma-separated list of file system IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `file_system_ids`, then an error is returned.
+
+        This cannot be provided together with the `file_system_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
   schemas:
-    GroupQuotaGetResponse:
+    UserQuota:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/GroupQuotaResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _group:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          file_system:
+            $ref: '#/components/schemas/_fixedReference'
+          file_system_default_quota:
+            description: 'File system''s default user quota (in bytes). If it is `0`, it means there
+
+              is no default quota. This will be the effective user quota if the user
+
+              doesn''t have an individual quota. This default quota is set through the
+
+              `file-systems` endpoint.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          quota:
+            description: 'The limit of the quota (in bytes) for the specified user, cannot be `0`.
+
+              If specified, this value will override the file system''s default user
+
+              quota.
+
+              '
+            type: integer
+            format: int64
+          usage:
+            description: 'The usage of the file system (in bytes) by the specified user.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          user:
+            description: The user on which this quota is enforced.
+            title: User
+            allOf:
+            - $ref: '#/components/schemas/_user'
+    _user:
       type: object
       properties:
         id:
-          description: The numeric group id that represents the group's identity in a POSIX system.
+          description: The numeric user id that represents the user's identity in a POSIX system.
           type: integer
           format: int64
         name:
-          description: 'The group name that represents the group''s identity, and which resolves to the group''s id
+          description: 'The user name that represents the user''s identity, and which resolves to the user''s id
 
             in a configured directory service.
 
@@ -157,70 +436,37 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    _context:
+    _group:
       type: object
       properties:
-        context:
-          description: 'The context in which the operation was performed.
+        id:
+          description: The numeric group id that represents the group's identity in a POSIX system.
+          type: integer
+          format: int64
+        name:
+          description: 'The group name that represents the group''s identity, and which resolves to the group''s id
 
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
+            in a configured directory service.
 
             '
+          type: string
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
           readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    GroupQuota:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          file_system:
-            $ref: '#/components/schemas/_fixedReference'
-          file_system_default_quota:
-            description: 'File system''s default group quota (in bytes). If it is `0`, it means
-
-              there is no default quota. This will be the effective group quota if
-
-              the group doesn''t have an individual quota. This default quota is set
-
-              through the `file-systems` endpoint.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          group:
-            description: The group on which this quota is enforced.
-            title: Group
-            allOf:
-            - $ref: '#/components/schemas/_group'
-          quota:
-            description: 'The space limit of the quota (in bytes) for the specified group, cannot
-
-              be `0`. If specified, this value will override the file system''s default
-
-              group quota.
-
-              '
-            type: integer
-            format: int64
-          usage:
-            description: 'The usage of the file system (in bytes) by the specified group.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    GroupQuotaResponse:
+      type: object
+      properties:
+        items:
+          description: A list of quota objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupQuota'
     PageInfo:
       type: object
       properties:
@@ -266,33 +512,75 @@ components:
               '
             type: string
             readOnly: true
-    GroupQuotaResponse:
+    _context:
       type: object
       properties:
-        items:
-          description: A list of quota objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/GroupQuota'
-    _user:
-      type: object
-      properties:
-        id:
-          description: The numeric user id that represents the user's identity in a POSIX system.
-          type: integer
-          format: int64
-        name:
-          description: 'The user name that represents the user''s identity, and which resolves to the user''s id
+        context:
+          description: 'The context in which the operation was performed.
 
-            in a configured directory service.
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
 
             '
-          type: string
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
     UserQuotaGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/UserQuotaResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
+    GroupQuota:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          file_system:
+            $ref: '#/components/schemas/_fixedReference'
+          file_system_default_quota:
+            description: 'File system''s default group quota (in bytes). If it is `0`, it means
+
+              there is no default quota. This will be the effective group quota if
+
+              the group doesn''t have an individual quota. This default quota is set
+
+              through the `file-systems` endpoint.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          group:
+            description: The group on which this quota is enforced.
+            title: Group
+            allOf:
+            - $ref: '#/components/schemas/_group'
+          quota:
+            description: 'The space limit of the quota (in bytes) for the specified group, cannot
+
+              be `0`. If specified, this value will override the file system''s default
+
+              group quota.
+
+              '
+            type: integer
+            format: int64
+          usage:
+            description: 'The usage of the file system (in bytes) by the specified group.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
     UserQuotaResponse:
       type: object
       properties:
@@ -308,58 +596,6 @@ components:
           description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
-    UserQuota:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          file_system:
-            $ref: '#/components/schemas/_fixedReference'
-          file_system_default_quota:
-            description: 'File system''s default user quota (in bytes). If it is `0`, it means there
-
-              is no default quota. This will be the effective user quota if the user
-
-              doesn''t have an individual quota. This default quota is set through the
-
-              `file-systems` endpoint.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          quota:
-            description: 'The limit of the quota (in bytes) for the specified user, cannot be `0`.
-
-              If specified, this value will override the file system''s default user
-
-              quota.
-
-              '
-            type: integer
-            format: int64
-          usage:
-            description: 'The usage of the file system (in bytes) by the specified user.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          user:
-            description: The user on which this quota is enforced.
-            title: User
-            allOf:
-            - $ref: '#/components/schemas/_user'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -391,247 +627,11 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-  parameters:
-    User_quota_uids:
-      name: uids
-      in: query
-      description: 'A comma-separated list of user IDs.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `uids`, then an error is returned.
-
-        This cannot be provided together with `user_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: integer
-          format: int32
-    Group_names:
-      name: group_names
-      in: query
-      description: 'A comma-separated list of group names.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `group_names`, then an error is returned.
-
-        This cannot be provided together with `gids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    File_system_names:
-      name: file_system_names
-      in: query
-      description: 'A comma-separated list of file system names.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `file_system_names`, then an error is returned.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    File_system_ids:
-      name: file_system_ids
-      in: query
-      description: 'A comma-separated list of file system IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `file_system_ids`, then an error is returned.
-
-        This cannot be provided together with the `file_system_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Group_quota_gids:
-      name: gids
-      in: query
-      description: 'A comma-separated list of group IDs.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `gids`, then an error is returned.
-
-        This cannot be provided together with `group_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: integer
-          format: int32
-    User_names:
-      name: user_names
-      in: query
-      description: 'A comma-separated list of user names.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `user_names`, then an error is returned.
-
-        This cannot be provided together with `uids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
+    GroupQuotaGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/GroupQuotaResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

@@ -192,71 +192,6 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
-    HardwareConnectorResponse:
-      type: object
-      properties:
-        items:
-          description: A list of connector objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/HardwareConnector'
-    HardwareConnector:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          connector_type:
-            description: 'Form-factor of the interface.
-
-              Valid values include QSFP, QSFP+, QSFP28, QSFP56, QSFP-DD, RJ-45, and -.
-
-              '
-            type: string
-            readOnly: true
-            example: QSFP
-          lane_speed:
-            description: 'Configured speed of each lane in the connector in bits-per-second.
-
-              '
-            type: integer
-            format: int64
-            example: 10000000000
-          lanes_per_port:
-            description: Configured number of lanes comprising each port in the connector.
-            type: integer
-            format: int64
-            example: 4
-          port_count:
-            description: 'Configured number of ports in the connector (1/2/4 for QSFP).
-
-              '
-            type: integer
-            format: int64
-            example: 1
-          port_speed:
-            description: Configured speed of each port in the connector in bits-per-second.
-            type: integer
-            format: int64
-            example: 40000000000
-          transceiver_type:
-            description: 'Details about the transceiver which is plugged into the connector port.
-
-              Transceiver type will be read-only for pureuser. If nothing is plugged
-
-              into QSFP port, value will be `Unused` and type cannot be auto-detected,
-
-              and internal user has not specified a type - value will be `Unknown`.
-
-              If transceiver is plugged in, and type is auto-detected, and/or type
-
-              has been explicitly set by internal user - that value will be shown.
-
-              Transceiver type is not applicable for RJ-45 connectors.
-
-              '
-            type: string
-            readOnly: true
-            example: 40GBASE-LR4
     HardwareConnectorPerformance:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -355,6 +290,107 @@ components:
             minimum: 0
             readOnly: true
         x-readOnly: true
+    HardwareConnectorGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/HardwareConnectorResponse'
+    HardwareConnectorResponse:
+      type: object
+      properties:
+        items:
+          description: A list of connector objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/HardwareConnector'
+    HardwareConnectorPerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            description: A list of hardware connector performance objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/HardwareConnectorPerformance'
+          total:
+            description: 'Total of all records after filtering.
+
+              If `total_only` query param is `true`, then no individual items will be returned.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/HardwareConnectorPerformance'
+    HardwareConnector:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          connector_type:
+            description: 'Form-factor of the interface.
+
+              Valid values include QSFP, QSFP+, QSFP28, QSFP56, QSFP-DD, RJ-45, and -.
+
+              '
+            type: string
+            readOnly: true
+            example: QSFP
+          lane_speed:
+            description: 'Configured speed of each lane in the connector in bits-per-second.
+
+              '
+            type: integer
+            format: int64
+            example: 10000000000
+          lanes_per_port:
+            description: Configured number of lanes comprising each port in the connector.
+            type: integer
+            format: int64
+            example: 4
+          port_count:
+            description: 'Configured number of ports in the connector (1/2/4 for QSFP).
+
+              '
+            type: integer
+            format: int64
+            example: 1
+          port_speed:
+            description: Configured speed of each port in the connector in bits-per-second.
+            type: integer
+            format: int64
+            example: 40000000000
+          transceiver_type:
+            description: 'Details about the transceiver which is plugged into the connector port.
+
+              Transceiver type will be read-only for pureuser. If nothing is plugged
+
+              into QSFP port, value will be `Unused` and type cannot be auto-detected,
+
+              and internal user has not specified a type - value will be `Unknown`.
+
+              If transceiver is plugged in, and type is auto-detected, and/or type
+
+              has been explicitly set by internal user - that value will be shown.
+
+              Transceiver type is not applicable for RJ-45 connectors.
+
+              '
+            type: string
+            readOnly: true
+            example: 40GBASE-LR4
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -375,29 +411,6 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    HardwareConnectorGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/HardwareConnectorResponse'
-    HardwareConnectorPerformanceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            description: A list of hardware connector performance objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/HardwareConnectorPerformance'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no individual items will be returned.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/HardwareConnectorPerformance'
     PageInfo:
       type: object
       properties:
@@ -443,19 +456,54 @@ components:
               '
             type: string
             readOnly: true
-    _builtIn:
+    _arraysBuiltIn:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - $ref: '#/components/schemas/_arrays'
+    _builtInAsOf:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 01c2889a-4124-49ff-8cbd-c33405ede123
+          name:
+            description: A non-modifiable, locally unique name chosen by the system.
+            type: string
+            readOnly: true
+            example: example_name
+    _errorErrors:
       type: object
       properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
+        context:
           type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
+          example: Error with ...
+        message:
           type: string
-          readOnly: true
+          example: Something was wrong
     HardwareConnectorResponse_2:
       type: object
       properties:
@@ -508,38 +556,6 @@ components:
           format: int64
           readOnly: true
           example: 1502729489760
-    _builtInAsOf:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 01c2889a-4124-49ff-8cbd-c33405ede123
-          name:
-            description: A non-modifiable, locally unique name chosen by the system.
-            type: string
-            readOnly: true
-            example: example_name
     _fixedReferenceFqdn:
       allOf:
       - $ref: '#/components/schemas/_fixedReference_2'
@@ -554,20 +570,6 @@ components:
             type: string
             readOnly: true
             example: example_name.dc1.example.com
-    _arrays:
-      type: object
-      properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
-
-            some resources, such as pods, can be shared across multiple arrays.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
     PageInfo_2:
       type: object
       properties:
@@ -598,6 +600,14 @@ components:
           type: integer
           format: int32
           example: 1
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
     _fixedReference_2:
       type: object
       properties:
@@ -623,36 +633,26 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
-    _arraysBuiltIn:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - $ref: '#/components/schemas/_arrays'
     ErrorNoContext:
       type: object
       properties:
         message:
           type: string
           example: Something was wrong
-    Error:
+    _arrays:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered.
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/_errorErrors'
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
   parameters:
     Start_time:
       name: start_time
@@ -665,57 +665,24 @@ components:
         format: int64
         minimum: 0
       example: 1514764800000
-    Filter:
-      name: filter
+    Ids:
+      name: ids
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'A comma-separated list of resource IDs.
 
-        that satisfy the filter criteria.
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    End_time:
-      name: end_time
-      in: query
-      description: 'When the time window ends (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
+        type: array
+        items:
+          type: string
     Names:
       name: names
       in: query
@@ -739,54 +706,25 @@ components:
         type: array
         items:
           type: string
-    Continuation_token:
-      name: continuation_token
+    Limit:
+      name: limit
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        with some consistency guaranteed.
+        To return the total number of resources, set `limit=0`.
 
-        The token is a Base64 encoded value.
+        The total number of resources is returned as a `total_item_count` value.
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+        If the page size requested is larger than the system maximum limit,
 
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
       schema:
-        type: string
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Sort:
       name: sort
       in: query
@@ -820,6 +758,27 @@ components:
         '
       schema:
         type: boolean
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Resolution:
       name: resolution
       in: query
@@ -837,26 +796,87 @@ components:
         format: int64
         minimum: 0
       example: 30000
-    Filter_2:
-      name: filter
-      in: query
-      description: 'Exclude resources that don''t match the specified criteria.
-
-        Single quotes are required around all strings inside the filters.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
         type: string
-    Offset_2:
-      name: offset
+    End_time:
+      name: end_time
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'When the time window ends (in milliseconds since epoch).
 
         '
       schema:
         type: integer
-        format: int32
+        format: int64
         minimum: 0
+      example: 1514764800000
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
     Limit_2:
       name: limit
       in: query
@@ -878,62 +898,6 @@ components:
       schema:
         type: integer
         format: int32
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Continuation_token_2:
-      name: continuation_token
-      in: query
-      description: 'An opaque token used to iterate over a collection.
-
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
     Sort_2:
       name: sort
       in: query
@@ -953,6 +917,16 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
     Authorization:
       name: Authorization
       in: header
@@ -961,38 +935,33 @@ components:
         '
       schema:
         type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
   responses:
-    Error404:
-      description: NOT FOUND
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Error500:
       description: INTERNAL SERVER ERROR
       headers:
@@ -1066,6 +1035,37 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     Error400:
       description: BAD REQUEST
       headers:

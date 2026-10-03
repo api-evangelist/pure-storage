@@ -439,6 +439,300 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    UserGroupQuotaPolicyRulesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/UserGroupQuotaPolicyRulesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    UserGroupQuotaPoliciesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/UserGroupQuotaPoliciesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    UserGroupQuotaPolicyRulePost:
+      allOf:
+      - properties:
+          enforced:
+            description: 'If set to `true`, this rule describes an enforced quota. A quota error
+
+              is issued if the logical space usage of the subject exceeds the limit value
+
+              described in this rule.
+
+              '
+            type: boolean
+          notifications:
+            description: 'Specifies whether to send notifications to the affected quota subject or not.
+
+              Valid values are `None` and `Account`.
+
+              Defaults to `Account`.
+
+              '
+            type: string
+          quota_limit:
+            description: 'The limit of the quota (in bytes) for the specified user, cannot be `0`.
+
+              If specified, this value will override the default quota for that particular subject type.
+
+              '
+            type: integer
+            format: int64
+          quota_type:
+            description: 'Specifies quota type for the quota policy. Valid values are `user`, `group`,
+
+              `user-default`and `group-default`.
+
+              `user-default` and `group-default` cannot be specified with a subject.
+
+              '
+            type: string
+          subject:
+            description: The user or group subject on which this rule is applied
+            title: UserGroupQuotaSubject
+            allOf:
+            - $ref: '#/components/schemas/UserGroupQuotaSubject'
+    UserGroupQuotaPoliciesMembersGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/UserGroupQuotaPoliciesMembersResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _version:
+      type: object
+      properties:
+        version:
+          description: 'A hash of the other properties of this resource. This can be used when
+
+            updating the resource to ensure there aren''t any updates since the
+
+            resource was read.
+
+            '
+          type: string
+          readOnly: true
+    _policyRuleIndex:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            NOTE: It is recommended to use the query param `before_rule_id` to do reordering to
+
+            avoid concurrency issues, but changing `index` is also supported. `index` can not be
+
+            changed if `before_rule_id` or `before_rule_name` are specified.
+
+            '
+          type: integer
+          format: int32
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    UserGroupQuotaPolicyRulePatch:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - properties:
+          notifications:
+            description: 'Specifies whether to send notifications to the affected quota subject or not.
+
+              Valid values are `None` and `Account`.
+
+              Defaults to `Account`.
+
+              '
+            type: string
+          quota_limit:
+            description: 'The limit of the quota (in bytes) for the specified user, cannot be `0`.
+
+              If specified, this value will override the default quota for that particular subject type.
+
+              '
+            type: integer
+            format: int64
+    _policyRuleIndexInPolicy:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            '
+          type: integer
+          format: int32
+          readOnly: true
+    UserGroupQuotaPoliciesMembersResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
+          description: A list of members for user-group-quota policies.
+    UserGroupQuotaPoliciesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGroupQuotaPolicy'
+          description: A list of user-group-quota policies.
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    PolicyMemberContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context'
+    PolicyBaseRenameable:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
+
+              '
+            type: string
+            readOnly: true
+    UserGroupQuotaPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+      - $ref: '#/components/schemas/_version'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          rules:
+            type: array
+            maxItems: 2000
+            items:
+              $ref: '#/components/schemas/UserGroupQuotaPolicyRuleInPolicy'
+            description: 'All of the rules that are part of this policy.
+
+              '
+    UserGroupQuotaPolicyPost:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - properties:
+          rules:
+            type: array
+            maxItems: 2000
+            items:
+              $ref: '#/components/schemas/UserGroupQuotaPolicyRuleInPolicy'
+            description: 'All of the rules that are part of this policy.
+
+              '
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     UserGroupQuotaPolicyRuleBase:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -497,19 +791,68 @@ components:
             title: UserGroupQuotaSubject
             allOf:
             - $ref: '#/components/schemas/UserGroupQuotaSubject'
-    PolicyMember:
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
       type: object
       properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    UserGroupQuotaPolicyRule:
+      allOf:
+      - $ref: '#/components/schemas/UserGroupQuotaPolicyRuleBase'
+      - $ref: '#/components/schemas/_policyRuleIndex'
+      - $ref: '#/components/schemas/_context'
+    UserGroupQuotaPolicyRulesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGroupQuotaPolicyRule'
+          description: 'Displays a list of all items after filtering.
+
+            '
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
     UserGroupQuotaSubject:
       type: object
       properties:
@@ -523,125 +866,6 @@ components:
         sid:
           type: string
           description: SID of the subject.
-    PolicyBaseRenameable:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
-
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    _policyRuleIndex:
-      type: object
-      properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
-
-            NOTE: It is recommended to use the query param `before_rule_id` to do reordering to
-
-            avoid concurrency issues, but changing `index` is also supported. `index` can not be
-
-            changed if `before_rule_id` or `before_rule_name` are specified.
-
-            '
-          type: integer
-          format: int32
-    UserGroupQuotaPoliciesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserGroupQuotaPolicy'
-          description: A list of user-group-quota policies.
-    UserGroupQuotaPoliciesMembersResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-          description: A list of members for user-group-quota policies.
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    UserGroupQuotaPolicyPost:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - properties:
-          rules:
-            type: array
-            maxItems: 2000
-            items:
-              $ref: '#/components/schemas/UserGroupQuotaPolicyRuleInPolicy'
-            description: 'All of the rules that are part of this policy.
-
-              '
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference'
-    UserGroupQuotaPolicyRuleInPolicy:
-      allOf:
-      - $ref: '#/components/schemas/UserGroupQuotaPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
-    UserGroupQuotaPolicyRulesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/UserGroupQuotaPolicyRulesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
     _context:
       type: object
       properties:
@@ -663,137 +887,10 @@ components:
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference'
-    UserGroupQuotaPoliciesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/UserGroupQuotaPoliciesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    UserGroupQuotaPoliciesMembersGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/UserGroupQuotaPoliciesMembersResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    UserGroupQuotaPolicyRule:
+    UserGroupQuotaPolicyRuleInPolicy:
       allOf:
       - $ref: '#/components/schemas/UserGroupQuotaPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndex'
-      - $ref: '#/components/schemas/_context'
-    UserGroupQuotaPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-      - $ref: '#/components/schemas/_version'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          rules:
-            type: array
-            maxItems: 2000
-            items:
-              $ref: '#/components/schemas/UserGroupQuotaPolicyRuleInPolicy'
-            description: 'All of the rules that are part of this policy.
-
-              '
-    _policyRuleIndexInPolicy:
-      type: object
-      properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
-
-            '
-          type: integer
-          format: int32
-          readOnly: true
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    UserGroupQuotaPolicyRulePatch:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - properties:
-          notifications:
-            description: 'Specifies whether to send notifications to the affected quota subject or not.
-
-              Valid values are `None` and `Account`.
-
-              Defaults to `Account`.
-
-              '
-            type: string
-          quota_limit:
-            description: 'The limit of the quota (in bytes) for the specified user, cannot be `0`.
-
-              If specified, this value will override the default quota for that particular subject type.
-
-              '
-            type: integer
-            format: int64
+      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -825,124 +922,94 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    PolicyMemberContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    UserGroupQuotaPolicyRulePost:
-      allOf:
-      - properties:
-          enforced:
-            description: 'If set to `true`, this rule describes an enforced quota. A quota error
-
-              is issued if the logical space usage of the subject exceeds the limit value
-
-              described in this rule.
-
-              '
-            type: boolean
-          notifications:
-            description: 'Specifies whether to send notifications to the affected quota subject or not.
-
-              Valid values are `None` and `Account`.
-
-              Defaults to `Account`.
-
-              '
-            type: string
-          quota_limit:
-            description: 'The limit of the quota (in bytes) for the specified user, cannot be `0`.
-
-              If specified, this value will override the default quota for that particular subject type.
-
-              '
-            type: integer
-            format: int64
-          quota_type:
-            description: 'Specifies quota type for the quota policy. Valid values are `user`, `group`,
-
-              `user-default`and `group-default`.
-
-              `user-default` and `group-default` cannot be specified with a subject.
-
-              '
-            type: string
-          subject:
-            description: The user or group subject on which this rule is applied
-            title: UserGroupQuotaSubject
-            allOf:
-            - $ref: '#/components/schemas/UserGroupQuotaSubject'
-    UserGroupQuotaPolicyRulesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserGroupQuotaPolicyRule'
-          description: 'Displays a list of all items after filtering.
-
-            '
-    _version:
-      type: object
-      properties:
-        version:
-          description: 'A hash of the other properties of this resource. This can be used when
-
-            updating the resource to ensure there aren''t any updates since the
-
-            resource was read.
-
-            '
-          type: string
-          readOnly: true
   parameters:
-    Filter:
-      name: filter
+    Delete_existing_user_group_quota_settings:
+      name: delete_existing_user_group_quota_settings
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'This parameter must be set to `true` in order to delete
 
-        that satisfy the filter criteria.
+        existing quota configurations(default_group_quota, default_user_quota or specific quotas) set
+
+        on a file system using either using `quotas/users`, `quotas/groups` or
+
+        `/file-systems`. Setting this parameter to `true` is acknowledgement
+
+        that the currently configured quotas would be erased before attaching the policy.
+
+        Defaults to `false`.
 
         '
       schema:
-        type: string
-    Policy_ids:
-      name: policy_ids
+        type: boolean
+    Ids:
+      name: ids
       in: query
-      description: 'A comma-separated list of policy IDs.
+      description: 'A comma-separated list of resource IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `policy_ids`, then an error is returned.
+        each of the elements of `ids`, then an error is returned.
 
-        This cannot be provided together with the `policy_names` query parameter.
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Versions:
+      name: versions
+      in: query
+      description: 'A comma-separated list of versions. This is an optional query param used for concurrency control.
+
+        The ordering should match the names or ids query param.
+
+        This will fail with a 412 Precondition failed if the resource was changed and the current
+
+        version of the resource doesn''t match the value in the query param.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `member_ids`, then an error is returned.
+
+        This cannot be provided together with the `member_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
 
         '
       style: form
@@ -975,27 +1042,13 @@ components:
         type: array
         items:
           type: string
-    Offset:
-      name: offset
+    Names_required:
+      name: names
       in: query
-      description: 'The offset of the first resource to return from a collection.
+      description: 'A comma-separated list of resource names.
 
         '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    File_system_names:
-      name: file_system_names
-      in: query
-      description: 'A comma-separated list of file system names.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `file_system_names`, then an error is returned.
-
-        '
+      required: true
       style: form
       explode: false
       schema:
@@ -1021,16 +1074,16 @@ components:
         format: int32
         minimum: 0
       example: 10
-    File_system_ids:
-      name: file_system_ids
+    Policy_ids:
+      name: policy_ids
       in: query
-      description: 'A comma-separated list of file system IDs.
+      description: 'A comma-separated list of policy IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `file_system_ids`, then an error is returned.
+        each of the elements of `policy_ids`, then an error is returned.
 
-        This cannot be provided together with the `file_system_names` query parameter.
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -1039,39 +1092,33 @@ components:
         type: array
         items:
           type: string
-    Names:
-      name: names
+    Sort:
+      name: sort
       in: query
-      description: 'Performs the operation on the unique names specified.
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        Enter multiple names in comma-separated format.
+        is appended to the field name).
 
-        For example, `name01,name02`.
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    File_system_names:
+      name: file_system_names
+      in: query
+      description: 'A comma-separated list of file system names.
 
         If there is not at least one resource that matches
 
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'A comma-separated list of member IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `member_ids`, then an error is returned.
-
-        This cannot be provided together with the `member_names` query parameter.
+        each of the elements of `file_system_names`, then an error is returned.
 
         '
       style: form
@@ -1110,10 +1157,94 @@ components:
         type: array
         items:
           type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Policy_names:
       name: policy_names
       in: query
       description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ignore_usage_user_group_quotas:
+      name: ignore_usage
+      in: query
+      description: 'Flag used to override checks for user-group-quota management operations.
+
+        If set to `true`, user/group usage is not checked against the `quota_limits` of
+
+        user-group-quota rules.
+
+        '
+      schema:
+        type: boolean
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    File_system_ids:
+      name: file_system_ids
+      in: query
+      description: 'A comma-separated list of file system IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `file_system_ids`, then an error is returned.
+
+        This cannot be provided together with the `file_system_names` query parameter.
 
         '
       style: form
@@ -1144,137 +1275,6 @@ components:
         '
       schema:
         type: string
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Ignore_usage_user_group_quotas:
-      name: ignore_usage
-      in: query
-      description: 'Flag used to override checks for user-group-quota management operations.
-
-        If set to `true`, user/group usage is not checked against the `quota_limits` of
-
-        user-group-quota rules.
-
-        '
-      schema:
-        type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Versions:
-      name: versions
-      in: query
-      description: 'A comma-separated list of versions. This is an optional query param used for concurrency control.
-
-        The ordering should match the names or ids query param.
-
-        This will fail with a 412 Precondition failed if the resource was changed and the current
-
-        version of the resource doesn''t match the value in the query param.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Delete_existing_user_group_quota_settings:
-      name: delete_existing_user_group_quota_settings
-      in: query
-      description: 'This parameter must be set to `true` in order to delete
-
-        existing quota configurations(default_group_quota, default_user_quota or specific quotas) set
-
-        on a file system using either using `quotas/users`, `quotas/groups` or
-
-        `/file-systems`. Setting this parameter to `true` is acknowledgement
-
-        that the currently configured quotas would be erased before attaching the policy.
-
-        Defaults to `false`.
-
-        '
-      schema:
-        type: boolean
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

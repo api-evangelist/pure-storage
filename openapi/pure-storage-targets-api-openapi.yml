@@ -291,6 +291,14 @@ components:
               '
             type: string
             readOnly: true
+    TargetResponseContext:
+      type: object
+      properties:
+        items:
+          description: A list of target objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/TargetWithContext'
     _objectBacklog:
       type: object
       properties:
@@ -324,22 +332,37 @@ components:
           type: integer
           format: int64
           readOnly: true
-    _replication_performance:
+    ResourcePerformanceReplicationGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePerformanceReplication'
+          total:
+            description: 'Total of all records after filtering.
+
+              If `total_only` query param is `true`, then no items will be returned.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePerformanceReplication'
+    _builtIn:
       type: object
       properties:
-        received_bytes_per_sec:
-          description: Total bytes received per second.
-          type: number
-          format: double
-          minimum: 0
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
           readOnly: true
-        transmitted_bytes_per_sec:
-          description: Total bytes transmitted per second.
-          type: number
-          format: double
-          minimum: 0
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
           readOnly: true
-      x-readOnly: true
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -360,29 +383,100 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    _continuousReplicationPerformance:
+    TargetGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_replication_performance'
-      - type: object
-        properties:
-          object_backlog:
-            description: 'The total number of pending object operations
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TargetResponseContext'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
 
-              and their size that are currently in the backlog.
+            param to get the next page of data.
 
-              '
-            title: ObjectBacklog
-            allOf:
-            - $ref: '#/components/schemas/_objectBacklog'
-        x-readOnly: true
-    TargetResponseContext:
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    TargetResponse:
       type: object
       properties:
         items:
           description: A list of target objects.
           type: array
           items:
-            $ref: '#/components/schemas/TargetWithContext'
+            $ref: '#/components/schemas/Target'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
     _context:
       type: object
       properties:
@@ -446,105 +540,47 @@ components:
             format: int64
             readOnly: true
         x-readOnly: true
-    PageInfo:
+    TargetWithContext:
+      allOf:
+      - $ref: '#/components/schemas/Target'
+      - $ref: '#/components/schemas/_context'
+    _replication_performance:
       type: object
       properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    _fixedReference:
+        received_bytes_per_sec:
+          description: Total bytes received per second.
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+        transmitted_bytes_per_sec:
+          description: Total bytes transmitted per second.
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    _continuousReplicationPerformance:
       allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - $ref: '#/components/schemas/_replication_performance'
       - type: object
         properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
+          object_backlog:
+            description: 'The total number of pending object operations
 
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
+              and their size that are currently in the backlog.
 
               '
-            type: string
-            readOnly: true
-    ResourcePerformanceReplicationGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourcePerformanceReplication'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no items will be returned.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourcePerformanceReplication'
+            title: ObjectBacklog
+            allOf:
+            - $ref: '#/components/schemas/_objectBacklog'
+        x-readOnly: true
     TargetPost:
       type: object
       properties:
         address:
           description: IP address or FQDN of the target system.
           type: string
-    TargetResponse:
-      type: object
-      properties:
-        items:
-          description: A list of target objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Target'
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
     _errorContextResponseErrors:
       type: object
       properties:
@@ -576,42 +612,6 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    TargetWithContext:
-      allOf:
-      - $ref: '#/components/schemas/Target'
-      - $ref: '#/components/schemas/_context'
-    TargetGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TargetResponseContext'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
     Target_2:
       allOf:
       - $ref: '#/components/schemas/_arraysBuiltIn'
@@ -639,15 +639,13 @@ components:
               '
             type: string
             readOnly: true
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
+    _arraysBuiltIn:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - $ref: '#/components/schemas/_arrays'
     _builtInAsOf:
       description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
 
@@ -680,34 +678,28 @@ components:
             type: string
             readOnly: true
             example: example_name
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
-    _arrays:
+    _errorErrors:
       type: object
       properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
-
-            some resources, such as pods, can be shared across multiple arrays.
-
-            '
-          type: array
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
           readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
+          example: 1502729489760
+    TargetGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/TargetResponse_2'
     PageInfo_2:
       type: object
       properties:
@@ -738,6 +730,21 @@ components:
           type: integer
           format: int32
           example: 1
+    TargetResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Target_2'
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
     _fixedReference_2:
       type: object
       properties:
@@ -763,47 +770,40 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
-    _arraysBuiltIn:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - $ref: '#/components/schemas/_arrays'
     ErrorNoContext:
       type: object
       properties:
         message:
           type: string
           example: Something was wrong
-    Error:
+    _arrays:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered.
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/_errorErrors'
-    TargetResponse_2:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Target_2'
-    TargetGetResponse_2:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
+    _fixedReferenceFqdn:
       allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/TargetResponse_2'
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
   parameters:
     Start_time:
       name: start_time
@@ -816,57 +816,24 @@ components:
         format: int64
         minimum: 0
       example: 1514764800000
-    Filter:
-      name: filter
+    Ids:
+      name: ids
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'A comma-separated list of resource IDs.
 
-        that satisfy the filter criteria.
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    End_time:
-      name: end_time
-      in: query
-      description: 'When the time window ends (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
+        type: array
+        items:
+          type: string
     Names:
       name: names
       in: query
@@ -890,84 +857,38 @@ components:
         type: array
         items:
           type: string
-    Context_names_get:
-      name: context_names
+    Names_required:
+      name: names
       in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
+      description: 'A comma-separated list of resource names.
 
         '
+      required: true
       style: form
       explode: false
       schema:
         type: array
         items:
           type: string
-    Continuation_token:
-      name: continuation_token
+    Limit:
+      name: limit
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        with some consistency guaranteed.
+        To return the total number of resources, set `limit=0`.
 
-        The token is a Base64 encoded value.
+        The total number of resources is returned as a `total_item_count` value.
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+        If the page size requested is larger than the system maximum limit,
 
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
       schema:
-        type: string
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Sort:
       name: sort
       in: query
@@ -1001,6 +922,46 @@ components:
         '
       schema:
         type: boolean
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
     Allow_errors:
       name: allow_errors
       in: query
@@ -1014,6 +975,17 @@ components:
       schema:
         type: boolean
         default: false
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Resolution:
       name: resolution
       in: query
@@ -1031,60 +1003,67 @@ components:
         format: int64
         minimum: 0
       example: 30000
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
-      required: true
+      schema:
+        type: string
+    End_time:
+      name: end_time
+      in: query
+      description: 'When the time window ends (in milliseconds since epoch).
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
       style: form
       explode: false
       schema:
         type: array
         items:
           type: string
-    Filter_2:
-      name: filter
-      in: query
-      description: 'Exclude resources that don''t match the specified criteria.
-
-        Single quotes are required around all strings inside the filters.
-
-        '
-      schema:
-        type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
+        x-quoted: true
+      x-quoted: true
     Names_2:
       name: names
       in: query
@@ -1121,26 +1100,27 @@ components:
         type: string
         x-quoted: true
       x-quoted: true
-    Ids_2:
-      name: ids
+    Limit_2:
+      name: limit
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Limit the size of the response to the specified number of resources.
 
-        If there is not at least one resource that matches each `id` element,
+        A limit of 0 can be used to get the number of resources without getting
 
-        an error is returned.
+        all of the resources. It will be returned in the total_item_count field.
 
-        Single quotes are required around all strings.
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
+        type: integer
+        format: int32
     Sort_2:
       name: sort
       in: query
@@ -1160,6 +1140,16 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
     Authorization:
       name: Authorization
       in: header
@@ -1168,38 +1158,17 @@ components:
         '
       schema:
         type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
   responses:
-    Error404:
-      description: NOT FOUND
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-        X-RateLimit-Remaining-minute:
-          description: 'The number of requests remaining for the organization in that minute.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Remaining-second:
-          description: 'The number of requests remaining for the organization in that second.
-
-            '
-          schema:
-            type: object
-        X-RateLimit-Limit-minute:
-          description: The number of requests available per minute.
-          schema:
-            type: object
-        X-RateLimit-Limit-second:
-          description: The number of requests available per second.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Error500:
       description: INTERNAL SERVER ERROR
       headers:
@@ -1273,6 +1242,37 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
+    Error404:
+      description: NOT FOUND
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+        X-RateLimit-Remaining-minute:
+          description: 'The number of requests remaining for the organization in that minute.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Remaining-second:
+          description: 'The number of requests remaining for the organization in that second.
+
+            '
+          schema:
+            type: object
+        X-RateLimit-Limit-minute:
+          description: The number of requests available per minute.
+          schema:
+            type: object
+        X-RateLimit-Limit-second:
+          description: The number of requests available per second.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     Error400:
       description: BAD REQUEST
       headers:
