@@ -233,10 +233,18 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    SubnetPatch:
-      allOf:
-      - $ref: '#/components/schemas/_resourceNoId'
-      - $ref: '#/components/schemas/SubnetPost'
+    _fixedReferenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     SubnetPost:
       type: object
       properties:
@@ -277,13 +285,14 @@ components:
           description: VLAN ID number.
           type: integer
           format: int32
-    SubnetResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Subnet'
+    SubnetGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SubnetResponse'
+    SubnetPatch:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoId'
+      - $ref: '#/components/schemas/SubnetPost'
     Subnet:
       allOf:
       - $ref: '#/components/schemas/_resourceNoId'
@@ -305,18 +314,25 @@ components:
               description: 'Valid values are `iscsi`, `management`, `nvme/fc`, `nvme/roce`, and `replication`.
 
                 '
-    _fixedReferenceNoId:
+    _resourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        volume), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
       type: object
       properties:
         name:
-          description: 'The resource name,
+          description: 'A user-specified name.
 
-            such as volume name, pod name, snapshot name, and so on.
+            The name must be locally unique and can be changed.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
     PageInfo:
       type: object
       properties:
@@ -359,70 +375,43 @@ components:
             '
           type: integer
           format: int32
-    SubnetGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SubnetResponse'
-    _resourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        volume), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
+    SubnetResponse:
       type: object
       properties:
-        name:
-          description: 'A user-specified name.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subnet'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-            The name must be locally unique and can be changed.
+              Valid values are the unique part of the resource''s REST endpoint.
 
-            '
-          type: string
-    _reference:
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _builtIn:
       type: object
       properties:
         id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
+          description: 'A non-modifiable, globally unique ID chosen by the system.
 
             '
           type: string
           readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
-    SubnetResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of subnet objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Subnet_2'
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     Subnet_2:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -489,6 +478,26 @@ components:
             description: VLAN ID.
             type: integer
             format: int32
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     PageInfo_2:
       type: object
       properties:
@@ -517,20 +526,15 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    _builtIn:
+    SubnetResponse_2:
       type: object
       properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _fixedReferenceWithoutType:
+        items:
+          description: A list of subnet objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Subnet_2'
+    _reference:
       type: object
       properties:
         id:
@@ -540,44 +544,30 @@ components:
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
+          description: 'The resource name,
 
-            snapshot name, and so on.
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
 
             '
           type: string
           readOnly: true
-      x-readOnly: true
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
   parameters:
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
     Sort:
       name: sort
       in: query
@@ -589,19 +579,6 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Total_item_count:
       name: total_item_count
       in: query
@@ -643,43 +620,12 @@ components:
         type: array
         items:
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Names_required:
-      name: names
+    Offset:
+      name: offset
       in: query
-      description: 'Performs the operation on the unique name specified.
+      description: 'The starting position based on the results of the query
 
-        For example, `name01`.
-
-        Enter multiple names in comma-separated format.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+        in relation to the full set of response objects returned.
 
         '
       schema:
@@ -687,12 +633,10 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
@@ -719,6 +663,62 @@ components:
         '
       schema:
         type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Names_required:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Sort_2:
       name: sort
       in: query

@@ -248,6 +248,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Subscription'
+    Subscription:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        service:
+          description: 'The service type of the subscription.
+
+            '
+          type: string
+          example: Evergreen//One
+    SubscriptionGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SubscriptionResponse'
     PageInfo:
       type: object
       properties:
@@ -290,70 +310,6 @@ components:
             '
           type: integer
           format: int32
-    Subscription:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        service:
-          description: 'The service type of the subscription.
-
-            '
-          type: string
-          example: Evergreen//One
-    SubscriptionGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SubscriptionResponse'
-    SubscriptionAssetArray:
-      type: object
-      properties:
-        advanced_space:
-          description: 'The physical and effective space information.
-
-            Only visible when the query parameter `advanced_space` is set to `true`.
-
-            '
-          title: SubscriptionAssetArrayAdvancedSpace
-          allOf:
-          - $ref: '#/components/schemas/SubscriptionAssetArrayAdvancedSpace'
-        chassis_serial_number:
-          description: The chassis serial number of the appliance.
-          type: string
-          readOnly: true
-        model:
-          description: The model of the appliance.
-          type: string
-          readOnly: true
-          example: FA-X50R2
-        space:
-          description: 'Displays size and space consumption information.
-
-            For Evergreen//One and Evergreen//Flex this is the effective space information.
-
-            For Evergreen//Forever and Evergreen//Foundation this is the physical space information.
-
-            '
-          title: Asset_space
-          allOf:
-          - $ref: '#/components/schemas/_asset_space'
-        version:
-          description: The Purity version of the appliance.
-          type: string
-          readOnly: true
-          example: 5.0.0
-    SubscriptionLicenseResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionLicense'
     AssetUpgradeDetails:
       type: object
       properties:
@@ -380,15 +336,23 @@ components:
           type: integer
           format: int64
           example: 1604702243000
-    _asset_address:
+    SubscriptionAssetGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_base_address'
-      - type: object
-        properties:
-          street_address:
-            type: string
-            readOnly: true
-            example: 2555 Augustine Dr, Santa Clara, CA 95054, United States
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/SubscriptionAssetResponse'
+    SubscriptionAssetArrayAdvancedSpace:
+      type: object
+      properties:
+        effective:
+          description: The effective space information of the appliance.
+          title: Asset_space
+          allOf:
+          - $ref: '#/components/schemas/_asset_space'
+        physical:
+          description: The physical space information of the appliance.
+          title: Asset_space
+          allOf:
+          - $ref: '#/components/schemas/_asset_space'
     _license_resource_reference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceFqdn'
@@ -410,38 +374,6 @@ components:
             title: Current_metric
             allOf:
             - $ref: '#/components/schemas/_current_metric'
-    _builtInAsOf:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 01c2889a-4124-49ff-8cbd-c33405ede123
-          name:
-            description: A non-modifiable, locally unique name chosen by the system.
-            type: string
-            readOnly: true
-            example: example_name
     _errorErrors:
       type: object
       properties:
@@ -451,443 +383,9 @@ components:
         message:
           type: string
           example: Something was wrong
-    _asset_space:
-      type: object
-      properties:
-        capacity:
-          description: The usable capacity of the appliance.
-          title: Current_metric
-          allOf:
-          - $ref: '#/components/schemas/_current_metric'
-        total_used:
-          description: The total space contributed by customer data.
-          title: Current_metric
-          allOf:
-          - $ref: '#/components/schemas/_current_metric'
-        total_used_ratio:
-          $ref: '#/components/schemas/_assetSpaceTotalUsedRatio'
-    EvergreenForeverAndFoundationDetails:
-      type: object
-      properties:
-        service_sla:
-          description: The associated Service Level Agreements (SLAs) for the service tier.
-          type: string
-          readOnly: true
-          example: NBD
-        service_tier:
-          description: 'A non-modifiable, locally unique name that the subscription was started with, never changes.
-
-            '
-          type: string
-          readOnly: true
-          example: Silver
-    SubscriptionAsset:
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - type: object
-        properties:
-          activation_date:
-            description: 'The date when the appliance is activated under the license.
-
-              Represented as a timestamp of 00:00 on that date in UTC, in
-
-              milliseconds since UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            example: 1604702243000
-          array:
-            description: The specific fields for assets that are arrays.
-            title: SubscriptionAssetArray
-            allOf:
-            - $ref: '#/components/schemas/SubscriptionAssetArray'
-          customer_name:
-            description: The name of the end customer of the asset.
-            type: string
-            readOnly: true
-            example: Pure Storage Customer
-          end_of_life_date:
-            description: 'The date when the appliance hardware reach end of life and Pure no longer provide support.
-
-              Represented as a timestamp of 00:00 on that date in UTC, in
-
-              milliseconds since UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            example: 1636588800000
-          install_address:
-            description: 'The address where the appliance is installed. This address is also where
-
-              replacement parts will be shipped to.
-
-              '
-            title: Asset_address
-            allOf:
-            - $ref: '#/components/schemas/_asset_address'
-          license:
-            description: A reference to which license this appliance belongs.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          organization:
-            description: 'This field has been deprecated. Please use `customer_name` instead. The
-
-              Pure1 organization for the asset.
-
-              '
-            title: Asset_org
-            allOf:
-            - $ref: '#/components/schemas/_asset_org'
-          subscription:
-            description: A reference to which subscription this appliance belongs.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          upgrade_details:
-            description: 'The address where the appliance is installed. This address is also where
-
-              replacement parts will be shipped to.
-
-              '
-            title: AssetUpgradeDetails
-            allOf:
-            - $ref: '#/components/schemas/AssetUpgradeDetails'
-    _current_metric:
-      type: object
-      properties:
-        data:
-          description: 'The data value.
-
-            '
-          type: number
-          example: 123.0
-        metric:
-          description: 'A reference to the metric this data measures.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        unit:
-          description: The unit of the metric.
-          type: string
-          example: B
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
-    _subscriptionLicensePreRatio:
-      description: 'The pre-reduced & encrypted ratio calculated at license level.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_current_metric'
-      - type: object
-        properties:
-          data:
-            type: number
-            format: float
-            example: 3.3
-    Subscription_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - description: 'A Pure1 subscription.
-
-          '
-        type: object
-        properties:
-          customer_name:
-            description: The name of the end customer of the asset.
-            type: string
-            readOnly: true
-            example: Pure Storage Customer
-          expiration_date:
-            description: 'Date when the subscription expires.
-
-              Represented as a timestamp of 00:00 on that date in UTC, in
-
-              milliseconds since UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            example: 1636238104000
-          initial_name:
-            description: 'A non-modifiable, locally unique name that the subscription was started with, never changes.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name
-          last_updated_date:
-            description: 'The date of the last amendment to the current subscription.
-
-              Represented as a timestamp of 00:00 on that date in UTC, in
-
-              milliseconds since UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            example: 1604702243000
-          organization:
-            description: 'This field has been deprecated. Please use `customer_name` instead. The
-
-              Pure1 organization for the asset.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          partner_name:
-            description: The partner who invoices for the subscription.
-            type: string
-            readOnly: true
-            example: Pure Storage Partner
-          service:
-            description: 'The service type of the subscription. Values include
-
-              `Evergreen//One`,
-
-              `Evergreen//Flex`,
-
-              `FlashStack as a Service`,
-
-              `Storage as a Service`,
-
-              `PaaS (Block Storage Service)`,
-
-              `PaaS (File and Object Storage Service)`,
-
-              `PaaS (Data Protection Service)`,
-
-              and
-
-              `Pure1 Subscription`.
-
-              '
-            type: string
-            example: PaaS (Block Storage Service)
-          service_details:
-            description: 'Additional details for the given service.
-
-              '
-            oneOf:
-            - $ref: '#/components/schemas/EvergreenForeverAndFoundationDetails'
-            - $ref: '#/components/schemas/DefaultDetails'
-          start_date:
-            description: 'Date when the subscription starts.
-
-              Represented as a timestamp of 00:00 on that date in UTC, in
-
-              milliseconds since UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            example: 1604702243000
-          status:
-            description: 'Current status of the subscription. Values include `active`,
-
-              `terminated`, `poc-expired`, and `signed`.
-
-              '
-            type: string
-            example: active
-          subscription_term:
-            description: Length of the subscription in months.
-            type: integer
-            example: 24
-    SubscriptionLicenseGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/SubscriptionLicenseResponse'
     DefaultDetails:
       type: object
       properties: {}
-    _assetSpaceTotalUsedRatio:
-      description: 'The ratio of `total_used` to the `capacity`.
-
-        This represents how full the appliance is.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_current_metric'
-      - type: object
-        properties:
-          data:
-            type: number
-            format: float
-            minimum: 0
-            maximum: 1
-            example: 0.5
-    _base_address:
-      type: object
-      properties:
-        city:
-          type: string
-          readOnly: true
-          example: Mountain View
-        country:
-          type: string
-          readOnly: true
-          example: United States
-        state:
-          description: The state or province.
-          type: string
-          readOnly: true
-          example: CA
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the continuation_token
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
-        total_item_count:
-          description: Total number of items after applying filter params.
-          type: integer
-          format: int32
-          example: 1
-    SubscriptionLicenseAddOnSla:
-      type: object
-      properties:
-        name:
-          type: string
-      required:
-      - name
-    SubscriptionAssetResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubscriptionAsset'
-    Error:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered.
-          type: array
-          items:
-            $ref: '#/components/schemas/_errorErrors'
-    SubscriptionAssetArrayAdvancedSpace:
-      type: object
-      properties:
-        effective:
-          description: The effective space information of the appliance.
-          title: Asset_space
-          allOf:
-          - $ref: '#/components/schemas/_asset_space'
-        physical:
-          description: The physical space information of the appliance.
-          title: Asset_space
-          allOf:
-          - $ref: '#/components/schemas/_asset_space'
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: The opaque and unique id of this resource.
-          type: string
-          readOnly: true
-          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-        name:
-          description: The name of this resource.
-          type: string
-          readOnly: true
-          example: example_name
-        resource_type:
-          description: 'The type of this resource represented by the name of its REST endpoint.
-
-            For example, "arrays", "network-interfaces", and "metrics".
-
-            The value may be `null` if the resource is not represented.
-
-            '
-          type: string
-          readOnly: true
-          example: example_resource_type
-      x-readOnly: true
-    ErrorNoContext:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Something was wrong
-    _asset_org:
-      type: object
-      properties:
-        name:
-          description: 'This field has been deprecated. Use the `customer_name` field instead.
-
-            The organization name for the asset.
-
-            '
-          type: string
-          readOnly: true
-          example: Pure Storage
-      x-readOnly: true
-    _marketplace_partner:
-      type: object
-      properties:
-        name:
-          description: 'Name or identifier of the marketplace parter who owns the
-
-            reference ID.
-
-            '
-          type: string
-          example: pure1
-        reference_id:
-          description: 'External ID the marketplace partner knows to refer to this license.
-
-            '
-          type: string
-    SubscriptionAssetGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/SubscriptionAssetResponse'
     SubscriptionLicense:
       allOf:
       - $ref: '#/components/schemas/_builtInAsOf'
@@ -998,17 +496,509 @@ components:
             title: Current_metric
             allOf:
             - $ref: '#/components/schemas/_current_metric'
-  parameters:
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    SubscriptionAssetResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionAsset'
+    _subscriptionLicensePreRatio:
+      description: 'The pre-reduced & encrypted ratio calculated at license level.
 
         '
-      schema:
-        type: string
+      allOf:
+      - $ref: '#/components/schemas/_current_metric'
+      - type: object
+        properties:
+          data:
+            type: number
+            format: float
+            example: 3.3
+    SubscriptionLicenseAddOnSla:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+      - name
+    SubscriptionAsset:
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - type: object
+        properties:
+          activation_date:
+            description: 'The date when the appliance is activated under the license.
+
+              Represented as a timestamp of 00:00 on that date in UTC, in
+
+              milliseconds since UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            example: 1604702243000
+          array:
+            description: The specific fields for assets that are arrays.
+            title: SubscriptionAssetArray
+            allOf:
+            - $ref: '#/components/schemas/SubscriptionAssetArray'
+          customer_name:
+            description: The name of the end customer of the asset.
+            type: string
+            readOnly: true
+            example: Pure Storage Customer
+          end_of_life_date:
+            description: 'The date when the appliance hardware reach end of life and Pure no longer provide support.
+
+              Represented as a timestamp of 00:00 on that date in UTC, in
+
+              milliseconds since UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            example: 1636588800000
+          install_address:
+            description: 'The address where the appliance is installed. This address is also where
+
+              replacement parts will be shipped to.
+
+              '
+            title: Asset_address
+            allOf:
+            - $ref: '#/components/schemas/_asset_address'
+          license:
+            description: A reference to which license this appliance belongs.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          organization:
+            description: 'This field has been deprecated. Please use `customer_name` instead. The
+
+              Pure1 organization for the asset.
+
+              '
+            title: Asset_org
+            allOf:
+            - $ref: '#/components/schemas/_asset_org'
+          subscription:
+            description: A reference to which subscription this appliance belongs.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          upgrade_details:
+            description: 'The address where the appliance is installed. This address is also where
+
+              replacement parts will be shipped to.
+
+              '
+            title: AssetUpgradeDetails
+            allOf:
+            - $ref: '#/components/schemas/AssetUpgradeDetails'
+    _asset_address:
+      allOf:
+      - $ref: '#/components/schemas/_base_address'
+      - type: object
+        properties:
+          street_address:
+            type: string
+            readOnly: true
+            example: 2555 Augustine Dr, Santa Clara, CA 95054, United States
+    _asset_org:
+      type: object
+      properties:
+        name:
+          description: 'This field has been deprecated. Use the `customer_name` field instead.
+
+            The organization name for the asset.
+
+            '
+          type: string
+          readOnly: true
+          example: Pure Storage
+      x-readOnly: true
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    _base_address:
+      type: object
+      properties:
+        city:
+          type: string
+          readOnly: true
+          example: Mountain View
+        country:
+          type: string
+          readOnly: true
+          example: United States
+        state:
+          description: The state or province.
+          type: string
+          readOnly: true
+          example: CA
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: The opaque and unique id of this resource.
+          type: string
+          readOnly: true
+          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+        name:
+          description: The name of this resource.
+          type: string
+          readOnly: true
+          example: example_name
+        resource_type:
+          description: 'The type of this resource represented by the name of its REST endpoint.
+
+            For example, "arrays", "network-interfaces", and "metrics".
+
+            The value may be `null` if the resource is not represented.
+
+            '
+          type: string
+          readOnly: true
+          example: example_resource_type
+      x-readOnly: true
+    _asset_space:
+      type: object
+      properties:
+        capacity:
+          description: The usable capacity of the appliance.
+          title: Current_metric
+          allOf:
+          - $ref: '#/components/schemas/_current_metric'
+        total_used:
+          description: The total space contributed by customer data.
+          title: Current_metric
+          allOf:
+          - $ref: '#/components/schemas/_current_metric'
+        total_used_ratio:
+          $ref: '#/components/schemas/_assetSpaceTotalUsedRatio'
+    _assetSpaceTotalUsedRatio:
+      description: 'The ratio of `total_used` to the `capacity`.
+
+        This represents how full the appliance is.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_current_metric'
+      - type: object
+        properties:
+          data:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 1
+            example: 0.5
+    _marketplace_partner:
+      type: object
+      properties:
+        name:
+          description: 'Name or identifier of the marketplace parter who owns the
+
+            reference ID.
+
+            '
+          type: string
+          example: pure1
+        reference_id:
+          description: 'External ID the marketplace partner knows to refer to this license.
+
+            '
+          type: string
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
+    _current_metric:
+      type: object
+      properties:
+        data:
+          description: 'The data value.
+
+            '
+          type: number
+          example: 123.0
+        metric:
+          description: 'A reference to the metric this data measures.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        unit:
+          description: The unit of the metric.
+          type: string
+          example: B
+    SubscriptionLicenseResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionLicense'
+    _builtInAsOf:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 01c2889a-4124-49ff-8cbd-c33405ede123
+          name:
+            description: A non-modifiable, locally unique name chosen by the system.
+            type: string
+            readOnly: true
+            example: example_name
+    Subscription_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - description: 'A Pure1 subscription.
+
+          '
+        type: object
+        properties:
+          customer_name:
+            description: The name of the end customer of the asset.
+            type: string
+            readOnly: true
+            example: Pure Storage Customer
+          expiration_date:
+            description: 'Date when the subscription expires.
+
+              Represented as a timestamp of 00:00 on that date in UTC, in
+
+              milliseconds since UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            example: 1636238104000
+          initial_name:
+            description: 'A non-modifiable, locally unique name that the subscription was started with, never changes.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name
+          last_updated_date:
+            description: 'The date of the last amendment to the current subscription.
+
+              Represented as a timestamp of 00:00 on that date in UTC, in
+
+              milliseconds since UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            example: 1604702243000
+          organization:
+            description: 'This field has been deprecated. Please use `customer_name` instead. The
+
+              Pure1 organization for the asset.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          partner_name:
+            description: The partner who invoices for the subscription.
+            type: string
+            readOnly: true
+            example: Pure Storage Partner
+          service:
+            description: 'The service type of the subscription. Values include
+
+              `Evergreen//One`,
+
+              `Evergreen//Flex`,
+
+              `FlashStack as a Service`,
+
+              `Storage as a Service`,
+
+              `PaaS (Block Storage Service)`,
+
+              `PaaS (File and Object Storage Service)`,
+
+              `PaaS (Data Protection Service)`,
+
+              and
+
+              `Pure1 Subscription`.
+
+              '
+            type: string
+            example: PaaS (Block Storage Service)
+          service_details:
+            description: 'Additional details for the given service.
+
+              '
+            oneOf:
+            - $ref: '#/components/schemas/EvergreenForeverAndFoundationDetails'
+            - $ref: '#/components/schemas/DefaultDetails'
+          start_date:
+            description: 'Date when the subscription starts.
+
+              Represented as a timestamp of 00:00 on that date in UTC, in
+
+              milliseconds since UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            example: 1604702243000
+          status:
+            description: 'Current status of the subscription. Values include `active`,
+
+              `terminated`, `poc-expired`, and `signed`.
+
+              '
+            type: string
+            example: active
+          subscription_term:
+            description: Length of the subscription in months.
+            type: integer
+            example: 24
+    EvergreenForeverAndFoundationDetails:
+      type: object
+      properties:
+        service_sla:
+          description: The associated Service Level Agreements (SLAs) for the service tier.
+          type: string
+          readOnly: true
+          example: NBD
+        service_tier:
+          description: 'A non-modifiable, locally unique name that the subscription was started with, never changes.
+
+            '
+          type: string
+          readOnly: true
+          example: Silver
+    SubscriptionLicenseGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/SubscriptionLicenseResponse'
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    SubscriptionAssetArray:
+      type: object
+      properties:
+        advanced_space:
+          description: 'The physical and effective space information.
+
+            Only visible when the query parameter `advanced_space` is set to `true`.
+
+            '
+          title: SubscriptionAssetArrayAdvancedSpace
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionAssetArrayAdvancedSpace'
+        chassis_serial_number:
+          description: The chassis serial number of the appliance.
+          type: string
+          readOnly: true
+        model:
+          description: The model of the appliance.
+          type: string
+          readOnly: true
+          example: FA-X50R2
+        space:
+          description: 'Displays size and space consumption information.
+
+            For Evergreen//One and Evergreen//Flex this is the effective space information.
+
+            For Evergreen//Forever and Evergreen//Foundation this is the physical space information.
+
+            '
+          title: Asset_space
+          allOf:
+          - $ref: '#/components/schemas/_asset_space'
+        version:
+          description: The Purity version of the appliance.
+          type: string
+          readOnly: true
+          example: 5.0.0
+  parameters:
     Sort:
       name: sort
       in: query
@@ -1020,6 +1010,24 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
     Offset:
       name: offset
       in: query
@@ -1043,57 +1051,10 @@ components:
         type: array
         items:
           type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
     XRequestId:
       name: X-Request-ID
       in: header
       description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
 
         '
       schema:
@@ -1120,115 +1081,45 @@ components:
         '
       schema:
         type: string
-    Names:
-      name: names
+    Filter:
+      name: filter
       in: query
-      description: 'A comma-separated list of resource names.
+      description: 'Narrows down the results to only the response objects
 
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
+        that satisfy the filter criteria.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
 
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Subscription_names:
-      name: subscription_names
-      in: query
-      description: 'A comma-separated list of subscription names.
-
-        If there is not at least one resource that matches each `subscription.name`
-
-        element, an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Marketplace_partner_reference_ids:
-      name: marketplace_partner_reference_ids
-      in: query
-      description: 'A comma-separated list of marketplace partner reference IDs.
-
-        If there is not at least one resource that matches each
-
-        `marketplace_partner.reference_id` element, an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Limit_2:
+        type: string
+    Limit:
       name: limit
       in: query
-      description: 'Limit the size of the response to the specified number of resources.
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        A limit of 0 can be used to get the number of resources without getting
+        To return the total number of resources, set `limit=0`.
 
-        all of the resources. It will be returned in the total_item_count field.
+        The total number of resources is returned as a `total_item_count` value.
 
-        If a client asks for a page size larger than the maximum number, the request
+        If the page size requested is larger than the system maximum limit,
 
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
       schema:
         type: integer
         format: int32
-    Advanced_space:
-      name: advanced_space
-      in: query
-      description: 'If `true`, returns the `advanced_space` field containing physical and effective space information.
-
-        '
-      schema:
-        type: boolean
+        minimum: 0
+      example: 10
     Sort_2:
       name: sort
       in: query
@@ -1268,6 +1159,26 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
+    Subscription_names:
+      name: subscription_names
+      in: query
+      description: 'A comma-separated list of subscription names.
+
+        If there is not at least one resource that matches each `subscription.name`
+
+        element, an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
     Filter_2:
       name: filter
       in: query
@@ -1286,16 +1197,6 @@ components:
         '
       schema:
         type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
     License_names:
       name: license_names
       in: query
@@ -1316,6 +1217,64 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
+    Marketplace_partner_reference_ids:
+      name: marketplace_partner_reference_ids
+      in: query
+      description: 'A comma-separated list of marketplace partner reference IDs.
+
+        If there is not at least one resource that matches each
+
+        `marketplace_partner.reference_id` element, an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Advanced_space:
+      name: advanced_space
+      in: query
+      description: 'If `true`, returns the `advanced_space` field containing physical and effective space information.
+
+        '
+      schema:
+        type: boolean
+    Names:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
     License_ids:
       name: license_ids
       in: query
@@ -1324,6 +1283,26 @@ components:
         If there is not at least one resource that matches each `license.id`
 
         element, an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
 
         Single quotes are required around all strings.
 
@@ -1352,9 +1331,30 @@ components:
         type: string
         x-quoted: true
       x-quoted: true
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
   responses:
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error400:
+      description: BAD REQUEST
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -1415,17 +1415,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error403:
-      description: FORBIDDEN
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorNoContext'
     Error404:
       description: NOT FOUND
       headers:
@@ -1457,8 +1446,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error400:
-      description: BAD REQUEST
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -1488,6 +1477,17 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

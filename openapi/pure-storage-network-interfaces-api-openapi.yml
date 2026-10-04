@@ -675,42 +675,42 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
-    _networkInterfacePortDetailsTx_fault:
+    _networkinterfacepostEth:
+      description: Ethernet network interface properties.
       type: object
       properties:
-        channel:
-          description: 'The channel number if the transceiver is a multilane transceiver.
-
-            If not specified, defaults to `null`.
+        address:
+          description: 'The IPv4 or IPv6 address to be associated with the specified network interface.
 
             '
-          type: integer
-          example: 0
-        flag:
-          description: A value of `true` indicates transmitter/laser fault.
-          type: boolean
-    _networkInterfacePortDetailsStaticVoltageThresholds:
-      description: 'The alarm low, warn low, warn high, alarm high thresholds for supply voltage (in volts).
+          type: string
+        subinterfaces:
+          description: 'List of network interfaces configured to be a subinterface of the specified network
 
-        '
-      type: object
-      properties:
-        alarm_high:
-          description: The alarm high threshold for supply voltage in volts.
-          type: number
-          format: double
-        alarm_low:
-          description: The alarm low threshold for supply voltage in volts.
-          type: number
-          format: double
-        warn_high:
-          description: The warn high threshold for supply voltage in volts.
-          type: number
-          format: double
-        warn_low:
-          description: The warn low threshold for supply voltage in volts.
-          type: number
-          format: double
+            interface.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceNoId'
+        subnet:
+          description: 'Subnet that is associated with the specified network interface.
+
+            '
+          title: ReferenceNoId
+          allOf:
+          - $ref: '#/components/schemas/_referenceNoId'
+        subtype:
+          description: 'The subtype of the specified network interface. Only interfaces of subtype
+
+            `vif` and `lacp_bond` can be created. Configurable on POST only.
+
+            Valid values are `failover_bond`, `lacp_bond`, `physical`, and
+
+            `vif`. If the subtype is `vif`, the services parameter must not be set.
+
+            '
+          type: string
     _networkInterfaceNeighborCapability:
       type: object
       properties:
@@ -729,11 +729,92 @@ components:
           readOnly: true
           example: false
       x-readOnly: true
-    NetworkInterfaceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/NetworkInterfaceResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
+    _referenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+    NetworkInterfaceResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkInterface'
+    _networkInterfaceNeighborNeighborChassisId:
+      description: 'An administratively assigned identifier of the particular
+
+        neighboring chassis.
+
+        '
+      type: object
+      properties:
+        type:
+          description: 'The chassis ID subtype. Valid values are `ifname`, `ifalias`,
+
+            `local`, `mac`, `ip`, and `unhandled`.
+
+            '
+          type: string
+          example: mac
+        value:
+          description: The specific identifier for the particular chassis.
+          type: string
+          example: 00:12:ab:cd:ab:cd
+    _networkInterfacePortDetailsStaticTemperatureThresholds:
+      description: 'The alarm low, warn low, warn high, alarm high thresholds for temperature in degrees
+
+        Celsius.
+
+        '
+      type: object
+      properties:
+        alarm_high:
+          description: The alarm high threshold for temperature in degrees Celsius.
+          type: number
+          format: double
+        alarm_low:
+          description: The alarm low threshold for temperature in degrees Celsius.
+          type: number
+          format: double
+        warn_high:
+          description: The warn high threshold for temperature in degrees Celsius.
+          type: number
+          format: double
+        warn_low:
+          description: The warn low threshold for temperature in degrees Celsius.
+          type: number
+          format: double
+    _networkInterfacePortDetailsTx_power:
+      type: object
+      properties:
+        channel:
+          description: 'The channel number if the transceiver is a multilane transceiver.
+
+            If not specified, defaults to `null`.
+
+            '
+          type: integer
+          example: 0
+        measurement:
+          description: 'Tx output power in mW.
+
+            '
+          type: number
+          format: double
+        status:
+          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
+
+            or low warning thresholds for Tx output power.
+
+            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
+
+            '
+          type: string
+          example: ok
     _networkInterfaceEth:
       description: Ethernet network interface properties.
       type: object
@@ -803,690 +884,10 @@ components:
           type: integer
           format: int32
           readOnly: true
-    _networkInterfaceNeighborNeighborChassisId:
-      description: 'An administratively assigned identifier of the particular
-
-        neighboring chassis.
-
-        '
-      type: object
-      properties:
-        type:
-          description: 'The chassis ID subtype. Valid values are `ifname`, `ifalias`,
-
-            `local`, `mac`, `ip`, and `unhandled`.
-
-            '
-          type: string
-          example: mac
-        value:
-          description: The specific identifier for the particular chassis.
-          type: string
-          example: 00:12:ab:cd:ab:cd
-    NetworkInterfaceNeighborGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/NetworkInterfaceNeighborResponse'
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    _builtInResourceNoId:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _networkInterfaceNeighborNeighborPortId:
-      description: 'An administratively assigned identifier of the particular neighboring port.
-
-        '
-      type: object
-      properties:
-        type:
-          description: 'The port ID subtype. Valid values are `ifname`, `ifalias`, `local`, `mac`, `ip`, and
-
-            `unhandled`.
-
-            '
-          type: string
-          example: ifname
-        value:
-          description: The specific identifier for the particular port.
-          type: string
-          example: Ethernet7
-    _networkInterfacePortDetailsTx_power:
-      type: object
-      properties:
-        channel:
-          description: 'The channel number if the transceiver is a multilane transceiver.
-
-            If not specified, defaults to `null`.
-
-            '
-          type: integer
-          example: 0
-        measurement:
-          description: 'Tx output power in mW.
-
-            '
-          type: number
-          format: double
-        status:
-          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
-
-            or low warning thresholds for Tx output power.
-
-            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
-
-            '
-          type: string
-          example: ok
-    NetworkInterfacesPortDetails:
-      description: 'Network interface SFP details.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_builtInResourceNoId'
-      - type: object
-        properties:
-          interface_type:
-            description: 'The interface type. Valid values are `eth` and `fc`.
-
-              '
-            type: string
-            readOnly: true
-          rx_los:
-            description: 'Displays status flags for Rx LOS. A value of `true` indicates Rx Loss-of-Signal.
-
-              For four-lane modules, the array contains a flag for each channel.
-
-              If the transceiver does not support digital diagnostic monitoring, the array is empty.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_networkInterfacePortDetailsRx_los'
-          rx_power:
-            description: 'Displays real-time measurement of Rx input power and whether it is within range.
-
-              For four-lane modules, the array contains a measurement and status for each channel.
-
-              If the transceiver does not support digital diagnostic monitoring, the array is empty.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_networkInterfacePortDetailsRx_power'
-          static:
-            title: NetworkInterfacePortDetailsStatic
-            allOf:
-            - $ref: '#/components/schemas/_networkInterfacePortDetailsStatic'
-          temperature:
-            description: 'Displays real-time measurement of transceiver temperature and range.
-
-              If the transceiver does not support digital diagnostic monitoring, the array is empty.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_networkInterfacePortDetailsTemperature'
-          tx_bias:
-            description: 'Displays real-time measurement of Tx bias current and whether it is within range.
-
-              For four-lane modules, the array contains a measurement and status for each channel.
-
-              If the transceiver does not support digital diagnostic monitoring, the array is empty.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_networkInterfacePortDetailsTx_bias'
-          tx_fault:
-            description: 'Displays status flags for Tx Fault. A value of `true` indicates transmitter/laser fault.
-
-              For four-lane modules, the array contains a flag for each channel.
-
-              If the transceiver does not support digital diagnostic monitoring, the array is empty.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_networkInterfacePortDetailsTx_fault'
-          tx_power:
-            description: 'Displays real-time measurement of Tx output power and whether it is within range.
-
-              For four-lane modules, the array contains a measurement and status for each channel.
-
-              If the transceiver does not support digital diagnostic monitoring, the array is empty.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_networkInterfacePortDetailsTx_power'
-          voltage:
-            description: 'Displays real-time measurement of supply voltage and whether it is within range.
-
-              If the transceiver does not support digital diagnostic monitoring, the array is empty.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_networkInterfacePortDetailsVoltage'
-        x-readOnly: true
-    _networkInterfacePortDetailsVoltage:
-      type: object
-      properties:
-        channel:
-          description: 'The channel number if the diagnostic has an associated channel number.
-
-            If not specified, defaults to `null`.
-
-            '
-          type: integer
-          example: 0
-        measurement:
-          description: 'Supply voltage in volts.
-
-            '
-          type: number
-          format: double
-        status:
-          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
-
-            or low warning thresholds for supply voltage.
-
-            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
-
-            '
-          type: string
-          example: ok
-    _referenceNoId:
-      type: object
-      properties:
-        name:
-          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-    _networkInterfacePortDetailsStaticTemperatureThresholds:
-      description: 'The alarm low, warn low, warn high, alarm high thresholds for temperature in degrees
-
-        Celsius.
-
-        '
-      type: object
-      properties:
-        alarm_high:
-          description: The alarm high threshold for temperature in degrees Celsius.
-          type: number
-          format: double
-        alarm_low:
-          description: The alarm low threshold for temperature in degrees Celsius.
-          type: number
-          format: double
-        warn_high:
-          description: The warn high threshold for temperature in degrees Celsius.
-          type: number
-          format: double
-        warn_low:
-          description: The warn low threshold for temperature in degrees Celsius.
-          type: number
-          format: double
-    NetworkInterfacePerformanceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            description: A list of performance objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/NetworkInterfacePerformance'
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              Where it makes more sense, the average value is displayed instead.
-
-              The values are displayed for each field where meaningful.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/NetworkInterfacePerformance'
-    NetworkInterfacePatch:
-      type: object
-      properties:
-        attached_servers:
-          description: 'Applicable only to Ethernet interfaces.
-
-            List of servers to be associated with the specified network interface for data ingress.
-
-            At most one server can be specified for each interface. To attach the network
-
-            interface to a server, `name` or `id` the desired server must be provided. To detach
-
-            a network interface from all servers, an empty list `[]` should be passed to the
-
-            `attached_servers` field.
-
-            '
-          type: array
-          maxItems: 1
-          items:
-            $ref: '#/components/schemas/_reference'
-        enabled:
-          description: 'Returns a value of `true` if the specified network interface or Fibre Channel port is
-
-            enabled. Returns a value of `false` if the specified network interface or Fibre Channel
-
-            port is disabled.
-
-            '
-          type: boolean
-        eth:
-          $ref: '#/components/schemas/_networkinterfacepatchEth'
-        override_npiv_check:
-          description: 'N-Port ID Virtualization (NPIV) requires a balanced configuration of Fibre Channel ports
-
-            configured for SCSI on both controllers. Enabling or Disabling a Fibre Channel port
-
-            configured for SCSI might cause the NPIV status to change from enabled to disabled or
-
-            vice versa. Set this option to proceed with enabling or disabling the port.
-
-            '
-          type: boolean
-        services:
-          description: 'The services provided by the specified network interface or Fibre Channel port.
-
-            '
-          type: array
-          items:
-            type: string
-            description: 'Valid values include `iscsi`, `management`, `nvme-fc`, `nvme-roce`,
-
-              `nvme-tcp`, `offload`, `replication`, and `scsi-fc`.
-
-              '
-    _networkinterfacepostEth:
-      description: Ethernet network interface properties.
-      type: object
-      properties:
-        address:
-          description: 'The IPv4 or IPv6 address to be associated with the specified network interface.
-
-            '
-          type: string
-        subinterfaces:
-          description: 'List of network interfaces configured to be a subinterface of the specified network
-
-            interface.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceNoId'
-        subnet:
-          description: 'Subnet that is associated with the specified network interface.
-
-            '
-          title: ReferenceNoId
-          allOf:
-          - $ref: '#/components/schemas/_referenceNoId'
-        subtype:
-          description: 'The subtype of the specified network interface. Only interfaces of subtype
-
-            `vif` and `lacp_bond` can be created. Configurable on POST only.
-
-            Valid values are `failover_bond`, `lacp_bond`, `physical`, and
-
-            `vif`. If the subtype is `vif`, the services parameter must not be set.
-
-            '
-          type: string
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _serverReference:
-      description: 'An object that is server-aware and can be associated to a server.
-
-        '
-      type: object
-      properties:
-        server:
-          description: 'Reference to the server the object belongs to. When the value is empty or set to `null`
-
-            it means the object lives outside of a server scope.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _networkInterfaceNeighborNeighborPort:
-      description: 'The neighboring port connected to the FlashArray local port.
-
-        '
-      type: object
-      properties:
-        description:
-          description: A description of the neighbor port.
-          type: string
-          example: eth7
-        id:
-          $ref: '#/components/schemas/_networkInterfaceNeighborNeighborPortId'
-    _networkInterfacePortDetailsStaticTxBiasThresholds:
-      description: 'The alarm low, warn low, warn high, alarm high thresholds for Tx bias current in mA.
-
-        '
-      type: object
-      properties:
-        alarm_high:
-          description: The alarm high threshold for Tx bias current in mA.
-          type: number
-          format: double
-        alarm_low:
-          description: The alarm low threshold for Tx bias current in mA.
-          type: number
-          format: double
-        warn_high:
-          description: The warn high threshold for Tx bias current in mA.
-          type: number
-          format: double
-        warn_low:
-          description: The warn low threshold for Tx bias current in mA.
-          type: number
-          format: double
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    _networkInterfacePerformanceFc:
-      description: 'Fibre Channel port statistics.
-
-        '
-      type: object
-      properties:
-        received_bytes_per_sec:
-          description: 'Bytes received per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        received_crc_errors_per_sec:
-          description: 'Fibre Channel frame CRC errors per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        received_frames_per_sec:
-          description: 'Fibre Channel frames received per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        received_link_failures_per_sec:
-          description: 'Loss of connectivity errors per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        received_loss_of_signal_per_sec:
-          description: 'Loss of signal errors on Fibre Channel port per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        received_loss_of_sync_per_sec:
-          description: 'Loss of sync errors on Fibre Channel port per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        total_errors_per_sec:
-          description: 'The sum of all reception and transmission errors per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        transmitted_bytes_per_sec:
-          description: 'Bytes transmitted per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        transmitted_frames_per_sec:
-          description: 'Fibre Channel frames transmitted per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-        transmitted_invalid_words_per_sec:
-          description: 'Bit errors in transmission word per second.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-    _networkInterfacePortDetailsStaticRxPowerThresholds:
-      description: 'The alarm low, warn low, warn high, alarm high thresholds for Rx input power in mW.
-
-        '
-      type: object
-      properties:
-        alarm_high:
-          description: The alarm high threshold for Rx input power in mW.
-          type: number
-          format: double
-        alarm_low:
-          description: The alarm low threshold for Rx input power in mW.
-          type: number
-          format: double
-        warn_high:
-          description: The warn high threshold for Rx input power in mW.
-          type: number
-          format: double
-        warn_low:
-          description: The warn low threshold for Rx input power in mW.
-          type: number
-          format: double
-    _fixedReferenceNoId:
-      type: object
-      properties:
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
-    _resourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        volume), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    NetworkInterfacePerformance:
-      allOf:
-      - $ref: '#/components/schemas/_resourceNoId'
-      - type: object
-        properties:
-          eth:
-            title: NetworkInterfacePerformanceEth
-            allOf:
-            - $ref: '#/components/schemas/_networkInterfacePerformanceEth'
-          fc:
-            title: NetworkInterfacePerformanceFc
-            allOf:
-            - $ref: '#/components/schemas/_networkInterfacePerformanceFc'
-          interface_type:
-            description: 'The interface type. Valid values are `eth` and `fc`.
-
-              '
-            type: string
-            readOnly: true
-          time:
-            description: 'Sample time in milliseconds since UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-        x-readOnly: true
     NetworkInterfacesPortDetailsGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/NetworkInterfacesPortDetailsResponse'
-    _networkInterfacePortDetailsRx_los:
-      type: object
-      properties:
-        channel:
-          description: 'The channel number if the transceiver is a multilane transceiver.
-
-            If not specified, defaults to `null`.
-
-            '
-          type: integer
-          example: 0
-        flag:
-          description: A value of `true` indicates Rx Loss-of-Signal.
-          type: boolean
-    NetworkInterfaceNeighborResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/NetworkInterfaceNeighbor'
     _networkInterfacePerformanceEth:
       description: 'Ethernet network interface statistics.
 
@@ -1648,6 +1049,967 @@ components:
           type: integer
           format: int64
           minimum: 0
+    _networkInterfaceNeighborNeighborChassis:
+      description: 'The neighboring physical component incorporating one or more IEEE 802
+
+        LAN stations and their associated application functionality.
+
+        '
+      type: object
+      properties:
+        addresses:
+          description: Management IP addresses of the neighbor.
+          type: array
+          items:
+            type: string
+            example: 10.202.101.70
+        bridge:
+          description: Bridge capability of the neighbor system.
+          title: NetworkInterfaceNeighborCapability
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
+        description:
+          description: 'The textual description of the neighbor. The description may include
+
+            the full name and version identification of the system hardware
+
+            type, software operating system, and networking software.
+
+            '
+          type: string
+          example: Example Switch iscsi-sw-100-b version 1.0
+        docsis_cable_device:
+          description: DOCSIS cable device capability of the neighbor system.
+          title: NetworkInterfaceNeighborCapability
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
+        id:
+          $ref: '#/components/schemas/_networkInterfaceNeighborNeighborChassisId'
+        name:
+          description: Administratively assigned name of the neighbour.
+          type: string
+          example: iscsi-sw-100-b.example.com
+        repeater:
+          description: Neighbor system's repeater capability.
+          title: NetworkInterfaceNeighborCapability
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
+        router:
+          description: IP router capability of the neighbor system.
+          title: NetworkInterfaceNeighborCapability
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
+        station_only:
+          description: Station only status of the neighbor system.
+          title: NetworkInterfaceNeighborCapability
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
+        telephone:
+          description: Telephone capability of the neighbor system.
+          title: NetworkInterfaceNeighborCapability
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
+        wlan_access_point:
+          description: WLAN access point capability of the neighbor system.
+          title: NetworkInterfaceNeighborCapability
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _fixedReferenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _networkInterfaceFc:
+      description: Fibre Channel port properties.
+      type: object
+      properties:
+        wwn:
+          description: World Wide Name of the specified Fibre Channel port.
+          type: string
+          readOnly: true
+    NetworkInterfaceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/NetworkInterfaceResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    NetworkInterface:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_builtInResourceNoId'
+      - $ref: '#/components/schemas/_serverReference'
+      - type: object
+        properties:
+          attached_servers:
+            description: 'List of servers associated with the specified network interface for data ingress.
+
+              '
+            type: array
+            maxItems: 1
+            items:
+              $ref: '#/components/schemas/_fixedReferenceWithType'
+          enabled:
+            description: 'Returns a value of `true` if the specified network interface or Fibre
+
+              Channel port is enabled. Returns a value of `false` if the specified
+
+              network interface or Fibre Channel port is disabled.
+
+              '
+            type: boolean
+            readOnly: true
+          eth:
+            $ref: '#/components/schemas/_networkInterfaceEth'
+          fc:
+            $ref: '#/components/schemas/_networkInterfaceFc'
+          interface_type:
+            description: 'The interface type. Valid values are `eth` and `fc`.
+
+              '
+            type: string
+            readOnly: true
+          services:
+            description: 'The services provided by the specified network interface or Fibre Channel port.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              type: string
+              description: 'Valid values include `iscsi`, `management`, `nvme-fc`, `nvme-roce`,
+
+                `nvme-tcp`, `offload`, `replication`, and `scsi-fc`.
+
+                '
+          speed:
+            description: 'Configured speed of the specified network interface or Fibre Channel
+
+              port (in Gb/s). Typically this is the maximum speed of the port or bond
+
+              represented by the network interface.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+    _networkinterfacepatchEth:
+      description: Ethernet network interface properties.
+      type: object
+      properties:
+        add_subinterfaces:
+          description: 'Child devices to be added to the specified bond interface.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceNoId'
+        address:
+          description: 'The IPv4 or IPv6 address to be associated with the specified network interface.
+
+            '
+          type: string
+        gateway:
+          description: 'The IPv4 or IPv6 address of the gateway through which the specified network interface
+
+            is to communicate with the network.
+
+            '
+          type: string
+        mtu:
+          description: 'Maximum message transfer unit (packet) size for the network interface in bytes.
+
+            MTU setting cannot exceed the MTU of the corresponding physical interface.
+
+            '
+          type: integer
+          format: int32
+        netmask:
+          description: 'Netmask of the specified network interface that, when combined with the
+
+            address of the interface, determines the network address of the interface.
+
+            '
+          type: string
+        remove_subinterfaces:
+          description: 'Child devices to be removed from the specified bond interface.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceNoId'
+        subinterfaces:
+          description: 'Child devices to be added to the specified bond interface.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceNoId'
+        subnet:
+          description: 'Subnet that is associated with the specified network interface.
+
+            '
+          title: ReferenceNoId
+          allOf:
+          - $ref: '#/components/schemas/_referenceNoId'
+    NetworkInterfacesPortDetailsResponse:
+      type: object
+      properties:
+        items:
+          description: 'A list of port details objects.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkInterfacesPortDetails'
+    NetworkInterfaceNeighbor:
+      type: object
+      properties:
+        initial_ttl_in_sec:
+          description: 'The initial time to live in seconds from when the local port received notice that the
+
+            neighbor information is regarded as valid. The time is not measured from when this endpoint
+
+            was queried.
+
+            '
+          type: integer
+          format: uint32
+          readOnly: true
+          example: 120
+        local_port:
+          description: 'A reference to the local network interface the neighbor is connected to.
+
+            '
+          title: FixedReferenceNoId
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceNoId'
+        neighbor_chassis:
+          title: NetworkInterfaceNeighborNeighborChassis
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborNeighborChassis'
+        neighbor_port:
+          title: NetworkInterfaceNeighborNeighborPort
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborNeighborPort'
+      x-readOnly: true
+    _resourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        volume), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _networkInterfacePortDetailsTemperature:
+      type: object
+      properties:
+        channel:
+          description: 'The channel number if the diagnostic has an associated channel number.
+
+            If not specified, defaults to `null`.
+
+            '
+          type: integer
+          example: 0
+        measurement:
+          description: 'Temperature in degrees Celsius.
+
+            '
+          type: number
+          format: double
+        status:
+          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
+
+            or low warning thresholds for temperature.
+
+            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
+
+            '
+          type: string
+          example: ok
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    NetworkInterfacePatch:
+      type: object
+      properties:
+        attached_servers:
+          description: 'Applicable only to Ethernet interfaces.
+
+            List of servers to be associated with the specified network interface for data ingress.
+
+            At most one server can be specified for each interface. To attach the network
+
+            interface to a server, `name` or `id` the desired server must be provided. To detach
+
+            a network interface from all servers, an empty list `[]` should be passed to the
+
+            `attached_servers` field.
+
+            '
+          type: array
+          maxItems: 1
+          items:
+            $ref: '#/components/schemas/_reference'
+        enabled:
+          description: 'Returns a value of `true` if the specified network interface or Fibre Channel port is
+
+            enabled. Returns a value of `false` if the specified network interface or Fibre Channel
+
+            port is disabled.
+
+            '
+          type: boolean
+        eth:
+          $ref: '#/components/schemas/_networkinterfacepatchEth'
+        override_npiv_check:
+          description: 'N-Port ID Virtualization (NPIV) requires a balanced configuration of Fibre Channel ports
+
+            configured for SCSI on both controllers. Enabling or Disabling a Fibre Channel port
+
+            configured for SCSI might cause the NPIV status to change from enabled to disabled or
+
+            vice versa. Set this option to proceed with enabling or disabling the port.
+
+            '
+          type: boolean
+        services:
+          description: 'The services provided by the specified network interface or Fibre Channel port.
+
+            '
+          type: array
+          items:
+            type: string
+            description: 'Valid values include `iscsi`, `management`, `nvme-fc`, `nvme-roce`,
+
+              `nvme-tcp`, `offload`, `replication`, and `scsi-fc`.
+
+              '
+    NetworkInterfacePost:
+      allOf:
+      - $ref: '#/components/schemas/_builtInResourceNoId'
+      - type: object
+        properties:
+          attached_servers:
+            description: 'Applies only to Ethernet interfaces.
+
+              The list of servers to be associated with the specified network interface for data ingress.
+
+              At most one server can be specified for each interface.
+
+              To attach the network interface to a server, the name or id of the desired server must be provided.
+
+              If not specified and the interface is created at the array level, defaults to the _array_server instance.
+
+              If not specified and the interface is created within a server, defaults to that server.
+
+              To create a network interface that is not attached to any server, specify an empty list [].
+
+              '
+            type: array
+            maxItems: 1
+            items:
+              $ref: '#/components/schemas/_reference'
+          eth:
+            $ref: '#/components/schemas/_networkinterfacepostEth'
+          services:
+            description: 'The services provided by the specified network interface or Fibre Channel port.
+
+              '
+            type: array
+            items:
+              type: string
+              description: 'Valid values include `iscsi`, `management`, `nvme-fc`, `nvme-roce`,
+
+                `nvme-tcp`, `offload`, `replication` and `scsi-fc`.
+
+                '
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    _networkInterfacePortDetailsVoltage:
+      type: object
+      properties:
+        channel:
+          description: 'The channel number if the diagnostic has an associated channel number.
+
+            If not specified, defaults to `null`.
+
+            '
+          type: integer
+          example: 0
+        measurement:
+          description: 'Supply voltage in volts.
+
+            '
+          type: number
+          format: double
+        status:
+          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
+
+            or low warning thresholds for supply voltage.
+
+            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
+
+            '
+          type: string
+          example: ok
+    _networkInterfacePortDetailsTx_bias:
+      type: object
+      properties:
+        channel:
+          description: 'The channel number if the transceiver is a multilane transceiver.
+
+            If not specified, defaults to `null`.
+
+            '
+          type: integer
+          example: 0
+        measurement:
+          description: 'Tx bias current in mA.
+
+            '
+          type: number
+          format: double
+        status:
+          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
+
+            or low warning thresholds for Tx bias current.
+
+            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
+
+            '
+          type: string
+          example: ok
+    NetworkInterfacePerformance:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoId'
+      - type: object
+        properties:
+          eth:
+            title: NetworkInterfacePerformanceEth
+            allOf:
+            - $ref: '#/components/schemas/_networkInterfacePerformanceEth'
+          fc:
+            title: NetworkInterfacePerformanceFc
+            allOf:
+            - $ref: '#/components/schemas/_networkInterfacePerformanceFc'
+          interface_type:
+            description: 'The interface type. Valid values are `eth` and `fc`.
+
+              '
+            type: string
+            readOnly: true
+          time:
+            description: 'Sample time in milliseconds since UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+        x-readOnly: true
+    _networkInterfacePortDetailsStaticRxPowerThresholds:
+      description: 'The alarm low, warn low, warn high, alarm high thresholds for Rx input power in mW.
+
+        '
+      type: object
+      properties:
+        alarm_high:
+          description: The alarm high threshold for Rx input power in mW.
+          type: number
+          format: double
+        alarm_low:
+          description: The alarm low threshold for Rx input power in mW.
+          type: number
+          format: double
+        warn_high:
+          description: The warn high threshold for Rx input power in mW.
+          type: number
+          format: double
+        warn_low:
+          description: The warn low threshold for Rx input power in mW.
+          type: number
+          format: double
+    _networkInterfacePortDetailsStaticVoltageThresholds:
+      description: 'The alarm low, warn low, warn high, alarm high thresholds for supply voltage (in volts).
+
+        '
+      type: object
+      properties:
+        alarm_high:
+          description: The alarm high threshold for supply voltage in volts.
+          type: number
+          format: double
+        alarm_low:
+          description: The alarm low threshold for supply voltage in volts.
+          type: number
+          format: double
+        warn_high:
+          description: The warn high threshold for supply voltage in volts.
+          type: number
+          format: double
+        warn_low:
+          description: The warn low threshold for supply voltage in volts.
+          type: number
+          format: double
+    NetworkInterfaceNeighborGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/NetworkInterfaceNeighborResponse'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    NetworkInterfacePerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            description: A list of performance objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/NetworkInterfacePerformance'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              Where it makes more sense, the average value is displayed instead.
+
+              The values are displayed for each field where meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/NetworkInterfacePerformance'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    _networkInterfacePortDetailsStaticTxBiasThresholds:
+      description: 'The alarm low, warn low, warn high, alarm high thresholds for Tx bias current in mA.
+
+        '
+      type: object
+      properties:
+        alarm_high:
+          description: The alarm high threshold for Tx bias current in mA.
+          type: number
+          format: double
+        alarm_low:
+          description: The alarm low threshold for Tx bias current in mA.
+          type: number
+          format: double
+        warn_high:
+          description: The warn high threshold for Tx bias current in mA.
+          type: number
+          format: double
+        warn_low:
+          description: The warn low threshold for Tx bias current in mA.
+          type: number
+          format: double
+    _serverReference:
+      description: 'An object that is server-aware and can be associated to a server.
+
+        '
+      type: object
+      properties:
+        server:
+          description: 'Reference to the server the object belongs to. When the value is empty or set to `null`
+
+            it means the object lives outside of a server scope.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    NetworkInterfaceNeighborResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkInterfaceNeighbor'
+    _networkInterfacePortDetailsRx_power:
+      type: object
+      properties:
+        channel:
+          description: 'The channel number if the transceiver is a multilane transceiver.
+
+            If not specified, defaults to `null`.
+
+            '
+          type: integer
+          example: 0
+        measurement:
+          description: 'Rx input power in mW.
+
+            '
+          type: number
+          format: double
+        status:
+          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
+
+            or low warning thresholds for Rx input power.
+
+            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
+
+            '
+          type: string
+          example: ok
+    _networkInterfacePortDetailsTx_fault:
+      type: object
+      properties:
+        channel:
+          description: 'The channel number if the transceiver is a multilane transceiver.
+
+            If not specified, defaults to `null`.
+
+            '
+          type: integer
+          example: 0
+        flag:
+          description: A value of `true` indicates transmitter/laser fault.
+          type: boolean
+    _networkInterfaceNeighborNeighborPortId:
+      description: 'An administratively assigned identifier of the particular neighboring port.
+
+        '
+      type: object
+      properties:
+        type:
+          description: 'The port ID subtype. Valid values are `ifname`, `ifalias`, `local`, `mac`, `ip`, and
+
+            `unhandled`.
+
+            '
+          type: string
+          example: ifname
+        value:
+          description: The specific identifier for the particular port.
+          type: string
+          example: Ethernet7
+    _builtInResourceNoId:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    _networkInterfacePortDetailsRx_los:
+      type: object
+      properties:
+        channel:
+          description: 'The channel number if the transceiver is a multilane transceiver.
+
+            If not specified, defaults to `null`.
+
+            '
+          type: integer
+          example: 0
+        flag:
+          description: A value of `true` indicates Rx Loss-of-Signal.
+          type: boolean
+    _networkInterfacePortDetailsStaticTxPowerThresholds:
+      description: 'The alarm low, warn low, warn high, alarm high thresholds for Tx output power in mW.
+
+        '
+      type: object
+      properties:
+        alarm_high:
+          description: The alarm high threshold for Tx output power in mW.
+          type: number
+          format: double
+        alarm_low:
+          description: The alarm low threshold for Tx output power in mW.
+          type: number
+          format: double
+        warn_high:
+          description: The warn high threshold for Tx output power in mW.
+          type: number
+          format: double
+        warn_low:
+          description: The warn low threshold for Tx output power in mW.
+          type: number
+          format: double
+    NetworkInterfacesPortDetails:
+      description: 'Network interface SFP details.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInResourceNoId'
+      - type: object
+        properties:
+          interface_type:
+            description: 'The interface type. Valid values are `eth` and `fc`.
+
+              '
+            type: string
+            readOnly: true
+          rx_los:
+            description: 'Displays status flags for Rx LOS. A value of `true` indicates Rx Loss-of-Signal.
+
+              For four-lane modules, the array contains a flag for each channel.
+
+              If the transceiver does not support digital diagnostic monitoring, the array is empty.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_networkInterfacePortDetailsRx_los'
+          rx_power:
+            description: 'Displays real-time measurement of Rx input power and whether it is within range.
+
+              For four-lane modules, the array contains a measurement and status for each channel.
+
+              If the transceiver does not support digital diagnostic monitoring, the array is empty.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_networkInterfacePortDetailsRx_power'
+          static:
+            title: NetworkInterfacePortDetailsStatic
+            allOf:
+            - $ref: '#/components/schemas/_networkInterfacePortDetailsStatic'
+          temperature:
+            description: 'Displays real-time measurement of transceiver temperature and range.
+
+              If the transceiver does not support digital diagnostic monitoring, the array is empty.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_networkInterfacePortDetailsTemperature'
+          tx_bias:
+            description: 'Displays real-time measurement of Tx bias current and whether it is within range.
+
+              For four-lane modules, the array contains a measurement and status for each channel.
+
+              If the transceiver does not support digital diagnostic monitoring, the array is empty.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_networkInterfacePortDetailsTx_bias'
+          tx_fault:
+            description: 'Displays status flags for Tx Fault. A value of `true` indicates transmitter/laser fault.
+
+              For four-lane modules, the array contains a flag for each channel.
+
+              If the transceiver does not support digital diagnostic monitoring, the array is empty.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_networkInterfacePortDetailsTx_fault'
+          tx_power:
+            description: 'Displays real-time measurement of Tx output power and whether it is within range.
+
+              For four-lane modules, the array contains a measurement and status for each channel.
+
+              If the transceiver does not support digital diagnostic monitoring, the array is empty.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_networkInterfacePortDetailsTx_power'
+          voltage:
+            description: 'Displays real-time measurement of supply voltage and whether it is within range.
+
+              If the transceiver does not support digital diagnostic monitoring, the array is empty.
+
+              '
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_networkInterfacePortDetailsVoltage'
+        x-readOnly: true
+    _networkInterfaceNeighborNeighborPort:
+      description: 'The neighboring port connected to the FlashArray local port.
+
+        '
+      type: object
+      properties:
+        description:
+          description: A description of the neighbor port.
+          type: string
+          example: eth7
+        id:
+          $ref: '#/components/schemas/_networkInterfaceNeighborNeighborPortId'
     _networkInterfacePortDetailsStatic:
       description: 'Static module identity and capabilities information for the specified network interface or
 
@@ -1831,7 +2193,7 @@ components:
             '
           type: string
           example: 850 nm
-    _fixedReference:
+    _reference:
       type: object
       properties:
         id:
@@ -1841,453 +2203,132 @@ components:
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
+          description: 'The resource name, such as volume name, pod name,
 
             snapshot name, and so on.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
       x-aliases:
-      - _fixedReferenceWithoutType
-    NetworkInterfaceResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/NetworkInterface'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    NetworkInterfaceNeighbor:
-      type: object
-      properties:
-        initial_ttl_in_sec:
-          description: 'The initial time to live in seconds from when the local port received notice that the
-
-            neighbor information is regarded as valid. The time is not measured from when this endpoint
-
-            was queried.
-
-            '
-          type: integer
-          format: uint32
-          readOnly: true
-          example: 120
-        local_port:
-          description: 'A reference to the local network interface the neighbor is connected to.
-
-            '
-          title: FixedReferenceNoId
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceNoId'
-        neighbor_chassis:
-          title: NetworkInterfaceNeighborNeighborChassis
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborNeighborChassis'
-        neighbor_port:
-          title: NetworkInterfaceNeighborNeighborPort
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborNeighborPort'
-      x-readOnly: true
-    _networkInterfaceNeighborNeighborChassis:
-      description: 'The neighboring physical component incorporating one or more IEEE 802
-
-        LAN stations and their associated application functionality.
+      - _referenceWithoutType
+    _networkInterfacePerformanceFc:
+      description: 'Fibre Channel port statistics.
 
         '
       type: object
       properties:
-        addresses:
-          description: Management IP addresses of the neighbor.
-          type: array
-          items:
-            type: string
-            example: 10.202.101.70
-        bridge:
-          description: Bridge capability of the neighbor system.
-          title: NetworkInterfaceNeighborCapability
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
-        description:
-          description: 'The textual description of the neighbor. The description may include
-
-            the full name and version identification of the system hardware
-
-            type, software operating system, and networking software.
+        received_bytes_per_sec:
+          description: 'Bytes received per second.
 
             '
-          type: string
-          example: Example Switch iscsi-sw-100-b version 1.0
-        docsis_cable_device:
-          description: DOCSIS cable device capability of the neighbor system.
-          title: NetworkInterfaceNeighborCapability
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
-        id:
-          $ref: '#/components/schemas/_networkInterfaceNeighborNeighborChassisId'
-        name:
-          description: Administratively assigned name of the neighbour.
-          type: string
-          example: iscsi-sw-100-b.example.com
-        repeater:
-          description: Neighbor system's repeater capability.
-          title: NetworkInterfaceNeighborCapability
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
-        router:
-          description: IP router capability of the neighbor system.
-          title: NetworkInterfaceNeighborCapability
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
-        station_only:
-          description: Station only status of the neighbor system.
-          title: NetworkInterfaceNeighborCapability
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
-        telephone:
-          description: Telephone capability of the neighbor system.
-          title: NetworkInterfaceNeighborCapability
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
-        wlan_access_point:
-          description: WLAN access point capability of the neighbor system.
-          title: NetworkInterfaceNeighborCapability
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborCapability'
-    _networkInterfacePortDetailsStaticTxPowerThresholds:
-      description: 'The alarm low, warn low, warn high, alarm high thresholds for Tx output power in mW.
+          type: integer
+          format: int64
+          minimum: 0
+        received_crc_errors_per_sec:
+          description: 'Fibre Channel frame CRC errors per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+        received_frames_per_sec:
+          description: 'Fibre Channel frames received per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+        received_link_failures_per_sec:
+          description: 'Loss of connectivity errors per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+        received_loss_of_signal_per_sec:
+          description: 'Loss of signal errors on Fibre Channel port per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+        received_loss_of_sync_per_sec:
+          description: 'Loss of sync errors on Fibre Channel port per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+        total_errors_per_sec:
+          description: 'The sum of all reception and transmission errors per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+        transmitted_bytes_per_sec:
+          description: 'Bytes transmitted per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+        transmitted_frames_per_sec:
+          description: 'Fibre Channel frames transmitted per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+        transmitted_invalid_words_per_sec:
+          description: 'Bit errors in transmission word per second.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+    NetworkInterfaceResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of network interface objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkInterface_2'
+    NetworkInterfaceTrace:
+      description: 'Output from running the linux command ''traceroute'' directly
+
+        on the array with start and end location information.
 
         '
       type: object
       properties:
-        alarm_high:
-          description: The alarm high threshold for Tx output power in mW.
-          type: number
-          format: double
-        alarm_low:
-          description: The alarm low threshold for Tx output power in mW.
-          type: number
-          format: double
-        warn_high:
-          description: The warn high threshold for Tx output power in mW.
-          type: number
-          format: double
-        warn_low:
-          description: The warn low threshold for Tx output power in mW.
-          type: number
-          format: double
-    NetworkInterface:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - $ref: '#/components/schemas/_builtInResourceNoId'
-      - $ref: '#/components/schemas/_serverReference'
-      - type: object
-        properties:
-          attached_servers:
-            description: 'List of servers associated with the specified network interface for data ingress.
-
-              '
-            type: array
-            maxItems: 1
-            items:
-              $ref: '#/components/schemas/_fixedReferenceWithType'
-          enabled:
-            description: 'Returns a value of `true` if the specified network interface or Fibre
-
-              Channel port is enabled. Returns a value of `false` if the specified
-
-              network interface or Fibre Channel port is disabled.
-
-              '
-            type: boolean
-            readOnly: true
-          eth:
-            $ref: '#/components/schemas/_networkInterfaceEth'
-          fc:
-            $ref: '#/components/schemas/_networkInterfaceFc'
-          interface_type:
-            description: 'The interface type. Valid values are `eth` and `fc`.
-
-              '
-            type: string
-            readOnly: true
-          services:
-            description: 'The services provided by the specified network interface or Fibre Channel port.
-
-              '
-            type: array
-            readOnly: true
-            items:
-              type: string
-              description: 'Valid values include `iscsi`, `management`, `nvme-fc`, `nvme-roce`,
-
-                `nvme-tcp`, `offload`, `replication`, and `scsi-fc`.
-
-                '
-          speed:
-            description: 'Configured speed of the specified network interface or Fibre Channel
-
-              port (in Gb/s). Typically this is the maximum speed of the port or bond
-
-              represented by the network interface.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-    _networkInterfacePortDetailsTx_bias:
-      type: object
-      properties:
-        channel:
-          description: 'The channel number if the transceiver is a multilane transceiver.
-
-            If not specified, defaults to `null`.
-
-            '
-          type: integer
-          example: 0
-        measurement:
-          description: 'Tx bias current in mA.
-
-            '
-          type: number
-          format: double
-        status:
-          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
-
-            or low warning thresholds for Tx bias current.
-
-            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
-
-            '
-          type: string
-          example: ok
-    NetworkInterfacesPortDetailsResponse:
-      type: object
-      properties:
-        items:
-          description: 'A list of port details objects.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/NetworkInterfacesPortDetails'
-    _networkInterfacePortDetailsRx_power:
-      type: object
-      properties:
-        channel:
-          description: 'The channel number if the transceiver is a multilane transceiver.
-
-            If not specified, defaults to `null`.
-
-            '
-          type: integer
-          example: 0
-        measurement:
-          description: 'Rx input power in mW.
-
-            '
-          type: number
-          format: double
-        status:
-          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
-
-            or low warning thresholds for Rx input power.
-
-            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
-
-            '
-          type: string
-          example: ok
-    _networkInterfacePortDetailsTemperature:
-      type: object
-      properties:
-        channel:
-          description: 'The channel number if the diagnostic has an associated channel number.
-
-            If not specified, defaults to `null`.
-
-            '
-          type: integer
-          example: 0
-        measurement:
-          description: 'Temperature in degrees Celsius.
-
-            '
-          type: number
-          format: double
-        status:
-          description: 'Indicates whether the measurement is outside the high alarm, low alarm, high warning,
-
-            or low warning thresholds for temperature.
-
-            Valid values are `alarm low`, `alarm high`, `warn low`, `warn high`, and `ok`.
-
-            '
-          type: string
-          example: ok
-    NetworkInterfacePost:
-      allOf:
-      - $ref: '#/components/schemas/_builtInResourceNoId'
-      - type: object
-        properties:
-          attached_servers:
-            description: 'Applies only to Ethernet interfaces.
-
-              The list of servers to be associated with the specified network interface for data ingress.
-
-              At most one server can be specified for each interface.
-
-              To attach the network interface to a server, the name or id of the desired server must be provided.
-
-              If not specified and the interface is created at the array level, defaults to the _array_server instance.
-
-              If not specified and the interface is created within a server, defaults to that server.
-
-              To create a network interface that is not attached to any server, specify an empty list [].
-
-              '
-            type: array
-            maxItems: 1
-            items:
-              $ref: '#/components/schemas/_reference'
-          eth:
-            $ref: '#/components/schemas/_networkinterfacepostEth'
-          services:
-            description: 'The services provided by the specified network interface or Fibre Channel port.
-
-              '
-            type: array
-            items:
-              type: string
-              description: 'Valid values include `iscsi`, `management`, `nvme-fc`, `nvme-roce`,
-
-                `nvme-tcp`, `offload`, `replication` and `scsi-fc`.
-
-                '
-    _networkinterfacepatchEth:
-      description: Ethernet network interface properties.
-      type: object
-      properties:
-        add_subinterfaces:
-          description: 'Child devices to be added to the specified bond interface.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceNoId'
-        address:
-          description: 'The IPv4 or IPv6 address to be associated with the specified network interface.
-
-            '
-          type: string
-        gateway:
-          description: 'The IPv4 or IPv6 address of the gateway through which the specified network interface
-
-            is to communicate with the network.
-
-            '
-          type: string
-        mtu:
-          description: 'Maximum message transfer unit (packet) size for the network interface in bytes.
-
-            MTU setting cannot exceed the MTU of the corresponding physical interface.
-
-            '
-          type: integer
-          format: int32
-        netmask:
-          description: 'Netmask of the specified network interface that, when combined with the
-
-            address of the interface, determines the network address of the interface.
-
-            '
-          type: string
-        remove_subinterfaces:
-          description: 'Child devices to be removed from the specified bond interface.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceNoId'
-        subinterfaces:
-          description: 'Child devices to be added to the specified bond interface.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceNoId'
-        subnet:
-          description: 'Subnet that is associated with the specified network interface.
-
-            '
-          title: ReferenceNoId
-          allOf:
-          - $ref: '#/components/schemas/_referenceNoId'
-    _networkInterfaceFc:
-      description: Fibre Channel port properties.
-      type: object
-      properties:
-        wwn:
-          description: World Wide Name of the specified Fibre Channel port.
+        component_name:
+          description: Name of the component running the check.
           type: string
           readOnly: true
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
+          example: ch1-fm1
+        destination:
+          description: 'The destination address or hostname provided in the request that the operation is run against.
 
             '
           type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
+          readOnly: true
+          example: 181.44.543.12
+        details:
+          description: 'Giant text block that contains raw output of the operation and a client needs to parse.
 
             '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
           type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
+          readOnly: true
+        source:
+          description: 'The address where the check starts. Can be a subnet or IP inside the subnet.
+
+            '
+          type: string
+          readOnly: true
+          example: net1
     HardwareConnectorPerformance:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -2386,107 +2427,106 @@ components:
             minimum: 0
             readOnly: true
         x-readOnly: true
-    NetworkConnectionStatistics:
-      description: 'Returns the status of the network connections on the array at the time of the operation.
+    NetworkInterfacesConnectorsSetting:
+      description: The global network setting for all network connectors.
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          roce:
+            description: 'RoCE(RDMA over Converged Ethernet) configuration for network connectors.
 
-        '
+              '
+            title: NetworkInterfacesConnectorsSettingRoce
+            allOf:
+            - $ref: '#/components/schemas/NetworkInterfacesConnectorsSettingRoce'
+    _networkInterfaceInfo:
       type: object
       properties:
-        current_state:
-          description: 'Valid values include `CLOSE_WAIT`, `CLOSED`, `ESTABLISHED`, `FIN_WAIT_1`, `FIN_WAIT_2`,
-
-            `LAST_ACK`, `LISTEN`, `SYN_RECEIVED`, `SYN_SEND`, and `TIME_WAIT`
-
-            '
+        address:
+          description: The address of the network interface.
           type: string
           readOnly: true
-          example: TIME_WAIT
-        local:
-          description: 'The information of the array''s network interface to which the remote connection is bound.
-
-            '
-          title: NetworkInterfaceInfo
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceInfo'
-        remote:
-          description: 'Network information of the remote peer that has connected to the array''s network interface.
-
-            '
-          title: NetworkInterfaceInfo
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceInfo'
-        time:
-          description: The time the operation was run.
-          type: integer
-          format: int64
+          example: 168.192.0.1
+        port:
+          description: The port number of the network interface.
+          type: string
           readOnly: true
-          example: 1735596861
-    NetworkInterfaceGetResponse_2:
+          example: '8080'
+      x-readOnly: true
+    NetworkInterfacesConnectorsSettingRocePfc:
+      description: 'Default PFC(Priority Flow Control) configuration for network connectors.
+
+        '
       allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/NetworkInterfaceResponse_2'
-    NetworkInterfacePingResponse:
+      - type: object
+        properties:
+          port_buffer:
+            description: 'The buffer size in bytes reserved to absorb in-flight packets after XOFF threshold
+
+              is reached.
+
+              '
+            type: integer
+            format: int32
+            readOnly: true
+          xoff_threshold:
+            description: 'The PFC XOFF threshold value in bytes. When the buffer for a particular traffic class
+
+              reaches this threshold, the pause frame(XOFF) will be transimitted to the sender,
+
+              requesting it to stop sending packets for that class.
+
+              '
+            type: integer
+            format: int32
+            readOnly: true
+          xon_threshold:
+            description: 'The PFC XON threshold value in bytes. When the buffer for a particular traffic class
+
+              drops below this threshold, the un-pause frame(XON) will be transmitted to the sender,
+
+              requesting it to resume sending packets for that class.
+
+              '
+            type: integer
+            format: int32
+            readOnly: true
+    NetworkInterfacesConnectorsResponse:
       type: object
       properties:
         items:
-          description: A list of network ping run result.
+          description: A list of network connector objects.
           type: array
           items:
-            $ref: '#/components/schemas/NetworkInterfacePing'
+            $ref: '#/components/schemas/HardwareConnector'
+    NetworkInterfaceTraceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/NetworkInterfaceTraceResponse'
+    NetworkInterfacesConnectorsPerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - type: object
+        properties:
+          items:
+            description: A list of network connector performance objects.
+            type: array
+            items:
+              $ref: '#/components/schemas/NetworkInterfacesConnectorsPerformance'
+          total:
+            description: 'Total of all records after filtering.
+
+              If `total_only` query param is `true`, then no individual items will be returned.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/NetworkInterfacesConnectorsPerformance'
     NetworkInterfacePingGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
       - $ref: '#/components/schemas/NetworkInterfacePingResponse'
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    _reference_2:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
-
-            '
-          type: string
-          readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
     _realmsReference:
       type: object
       properties:
@@ -2502,63 +2542,6 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_fixedReference_2'
-    HardwareConnector:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          connector_type:
-            description: 'Form-factor of the interface.
-
-              Valid values include QSFP, QSFP+, QSFP28, QSFP56, QSFP-DD, RJ-45, and -.
-
-              '
-            type: string
-            readOnly: true
-            example: QSFP
-          lane_speed:
-            description: 'Configured speed of each lane in the connector in bits-per-second.
-
-              '
-            type: integer
-            format: int64
-            example: 10000000000
-          lanes_per_port:
-            description: Configured number of lanes comprising each port in the connector.
-            type: integer
-            format: int64
-            example: 4
-          port_count:
-            description: 'Configured number of ports in the connector (1/2/4 for QSFP).
-
-              '
-            type: integer
-            format: int64
-            example: 1
-          port_speed:
-            description: Configured speed of each port in the connector in bits-per-second.
-            type: integer
-            format: int64
-            example: 40000000000
-          transceiver_type:
-            description: 'Details about the transceiver which is plugged into the connector port.
-
-              Transceiver type will be read-only for pureuser. If nothing is plugged
-
-              into QSFP port, value will be `Unused` and type cannot be auto-detected,
-
-              and internal user has not specified a type - value will be `Unknown`.
-
-              If transceiver is plugged in, and type is auto-detected, and/or type
-
-              has been explicitly set by internal user - that value will be shown.
-
-              Transceiver type is not applicable for RJ-45 connectors.
-
-              '
-            type: string
-            readOnly: true
-            example: 40GBASE-LR4
     NetworkInterfacesConnectorsSettingRoce:
       description: 'RoCE(RDMA over Converged Ethernet) configuration for network connectors.
 
@@ -2599,6 +2582,168 @@ components:
 
               '
             type: string
+    NetworkInterfaceGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/NetworkInterfaceResponse_2'
+    NetworkInterfacesConnectorsSettingRoceEcn:
+      description: 'Default ECN(Explicit Network Notification) configuration for network connectors.
+
+        '
+      allOf:
+      - type: object
+        properties:
+          marking_probability:
+            description: 'The ECN marking probability when min ECN marked threshold is reached.
+
+              '
+            type: number
+            format: float
+            readOnly: true
+          max_ecn_marked_threshold:
+            description: 'The maximum threshold value in bytes at which the packets start being marked with ECN
+
+              at the highest probability or dropped.
+
+              '
+            type: integer
+            format: int32
+            readOnly: true
+          min_ecn_marked_threshold:
+            description: 'The minimum threshold value in bytes at which the packets start being marked with ECN.
+
+              '
+            type: integer
+            format: int32
+            readOnly: true
+    NetworkInterface_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          address:
+            description: 'The IPv4 or IPv6 address to be associated with the specified network
+
+              interface.
+
+              '
+            type: string
+          attached_servers:
+            description: 'List of servers that are using this interface for data ingress.
+
+              When services include ''data'' defaults to [_array_server], otherwise to [].
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_reference_2'
+          enabled:
+            description: 'Indicates if the specified network interface is enabled (`true`) or
+
+              disabled (`false`). If not specified, defaults to `true`.
+
+              '
+            type: boolean
+            readOnly: true
+          gateway:
+            description: Derived from `subnet.gateway`.
+            type: string
+            readOnly: true
+          mtu:
+            description: Derived from `subnet.mtu`.
+            type: integer
+            format: int32
+            readOnly: true
+          netmask:
+            description: Derived from `subnet.prefix`.
+            type: string
+            readOnly: true
+          services:
+            description: Services and protocols that are enabled on the interface.
+            type: array
+            items:
+              type: string
+              description: 'Valid values are `data`, `egress-only`, `management`, `replication`, and `support`.
+
+                '
+          subnet:
+            type: object
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+            - type: object
+              readOnly: true
+          type:
+            description: 'The only valid value is `vip`.
+
+              '
+            type: string
+          vlan:
+            description: Derived from `subnet.vlan`.
+            type: integer
+            format: int32
+            readOnly: true
+    NetworkInterfacesConnectorsSettingsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - type: object
+        properties:
+          items:
+            description: A list of global network settings for network connectors.
+            type: array
+            items:
+              $ref: '#/components/schemas/NetworkInterfacesConnectorsSetting'
+    NetworkInterfaceNeighbor_2:
+      type: object
+      properties:
+        initial_ttl_in_sec:
+          description: 'The initial time to live in seconds from when the local port received notice that the
+
+            neighbor information is regarded as valid. The time is not measured from when this endpoint
+
+            was queried.
+
+            '
+          type: integer
+          format: uint32
+          readOnly: true
+          example: 120
+        local_port:
+          description: 'A reference to the local network interface the neighbor is connected to.
+
+            '
+          title: NetworkInterfaceNeighborLocalPort
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborLocalPort'
+        neighbor_chassis:
+          title: NetworkInterfaceNeighborNeighborChassis
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborNeighborChassis'
+        neighbor_port:
+          title: NetworkInterfaceNeighborNeighborPort
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceNeighborNeighborPort'
+      x-readOnly: true
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     NetworkConnectionStatisticsResponse:
       type: object
       properties:
@@ -2609,6 +2754,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/NetworkConnectionStatistics'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+    NetworkInterfacesConnectorsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/NetworkInterfacesConnectorsResponse'
     NetworkInterfacePatch_2:
       type: object
       properties:
@@ -2642,23 +2808,26 @@ components:
             description: 'Valid values are `data`, `egress-only`, `management`, `replication`, and `support`.
 
               '
-    NetworkInterfacesConnectorsSettingsGetResponse:
+    _fixedReference_2:
       allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
       - type: object
         properties:
-          items:
-            description: A list of global network settings for network connectors.
-            type: array
-            items:
-              $ref: '#/components/schemas/NetworkInterfacesConnectorsSetting'
-    _networkInterfaceNeighborLocalPort:
-      type: object
-      properties:
-        name:
-          description: A name of the local port.
-          type: string
-          example: CH1.FM2.ETH1
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    NetworkConnectionStatisticsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/NetworkConnectionStatisticsResponse'
     NetworkInterfacesConnectorsPerformance:
       allOf:
       - $ref: '#/components/schemas/HardwareConnectorPerformance'
@@ -2757,97 +2926,14 @@ components:
             minimum: 0
             readOnly: true
         x-readOnly: true
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    NetworkInterfacesConnectorsResponse:
+    NetworkInterfacePingResponse:
       type: object
       properties:
         items:
-          description: A list of network connector objects.
+          description: A list of network ping run result.
           type: array
           items:
-            $ref: '#/components/schemas/HardwareConnector'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    NetworkInterfaceTraceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/NetworkInterfaceTraceResponse'
-    NetworkInterfacesConnectorsSettingRocePfc:
-      description: 'Default PFC(Priority Flow Control) configuration for network connectors.
-
-        '
-      allOf:
-      - type: object
-        properties:
-          port_buffer:
-            description: 'The buffer size in bytes reserved to absorb in-flight packets after XOFF threshold
-
-              is reached.
-
-              '
-            type: integer
-            format: int32
-            readOnly: true
-          xoff_threshold:
-            description: 'The PFC XOFF threshold value in bytes. When the buffer for a particular traffic class
-
-              reaches this threshold, the pause frame(XOFF) will be transimitted to the sender,
-
-              requesting it to stop sending packets for that class.
-
-              '
-            type: integer
-            format: int32
-            readOnly: true
-          xon_threshold:
-            description: 'The PFC XON threshold value in bytes. When the buffer for a particular traffic class
-
-              drops below this threshold, the un-pause frame(XON) will be transmitted to the sender,
-
-              requesting it to resume sending packets for that class.
-
-              '
-            type: integer
-            format: int32
-            readOnly: true
-    NetworkInterfaceTraceResponse:
-      type: object
-      properties:
-        items:
-          description: A list of network trace run result.
-          type: array
-          items:
-            $ref: '#/components/schemas/NetworkInterfaceTrace'
+            $ref: '#/components/schemas/NetworkInterfacePing'
     PageInfo_2:
       type: object
       properties:
@@ -2886,245 +2972,105 @@ components:
           description: 'A list of network LLDP neighbors
 
             '
-    _networkInterfaceInfo:
+    _networkInterfaceNeighborLocalPort:
       type: object
       properties:
-        address:
-          description: The address of the network interface.
+        name:
+          description: A name of the local port.
           type: string
-          readOnly: true
-          example: 168.192.0.1
-        port:
-          description: The port number of the network interface.
-          type: string
-          readOnly: true
-          example: '8080'
-      x-readOnly: true
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
+          example: CH1.FM2.ETH1
+    NetworkConnectionStatistics:
+      description: 'Returns the status of the network connections on the array at the time of the operation.
 
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    NetworkInterfaceResponse_2:
+        '
       type: object
       properties:
-        items:
-          description: A list of network interface objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/NetworkInterface_2'
-    NetworkInterfacesConnectorsSetting:
-      description: The global network setting for all network connectors.
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          roce:
-            description: 'RoCE(RDMA over Converged Ethernet) configuration for network connectors.
+        current_state:
+          description: 'Valid values include `CLOSE_WAIT`, `CLOSED`, `ESTABLISHED`, `FIN_WAIT_1`, `FIN_WAIT_2`,
 
-              '
-            title: NetworkInterfacesConnectorsSettingRoce
-            allOf:
-            - $ref: '#/components/schemas/NetworkInterfacesConnectorsSettingRoce'
-    NetworkInterfaceNeighbor_2:
-      type: object
-      properties:
-        initial_ttl_in_sec:
-          description: 'The initial time to live in seconds from when the local port received notice that the
-
-            neighbor information is regarded as valid. The time is not measured from when this endpoint
-
-            was queried.
+            `LAST_ACK`, `LISTEN`, `SYN_RECEIVED`, `SYN_SEND`, and `TIME_WAIT`
 
             '
+          type: string
+          readOnly: true
+          example: TIME_WAIT
+        local:
+          description: 'The information of the array''s network interface to which the remote connection is bound.
+
+            '
+          title: NetworkInterfaceInfo
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceInfo'
+        remote:
+          description: 'Network information of the remote peer that has connected to the array''s network interface.
+
+            '
+          title: NetworkInterfaceInfo
+          allOf:
+          - $ref: '#/components/schemas/_networkInterfaceInfo'
+        time:
+          description: The time the operation was run.
           type: integer
-          format: uint32
+          format: int64
           readOnly: true
-          example: 120
-        local_port:
-          description: 'A reference to the local network interface the neighbor is connected to.
-
-            '
-          title: NetworkInterfaceNeighborLocalPort
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborLocalPort'
-        neighbor_chassis:
-          title: NetworkInterfaceNeighborNeighborChassis
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborNeighborChassis'
-        neighbor_port:
-          title: NetworkInterfaceNeighborNeighborPort
-          allOf:
-          - $ref: '#/components/schemas/_networkInterfaceNeighborNeighborPort'
-      x-readOnly: true
-    NetworkInterfaceTrace:
-      description: 'Output from running the linux command ''traceroute'' directly
-
-        on the array with start and end location information.
-
-        '
-      type: object
-      properties:
-        component_name:
-          description: Name of the component running the check.
-          type: string
-          readOnly: true
-          example: ch1-fm1
-        destination:
-          description: 'The destination address or hostname provided in the request that the operation is run against.
-
-            '
-          type: string
-          readOnly: true
-          example: 181.44.543.12
-        details:
-          description: 'Giant text block that contains raw output of the operation and a client needs to parse.
-
-            '
-          type: string
-          readOnly: true
-        source:
-          description: 'The address where the check starts. Can be a subnet or IP inside the subnet.
-
-            '
-          type: string
-          readOnly: true
-          example: net1
-    NetworkConnectionStatisticsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/NetworkConnectionStatisticsResponse'
-    NetworkInterfacesConnectorsSettingRoceEcn:
-      description: 'Default ECN(Explicit Network Notification) configuration for network connectors.
-
-        '
-      allOf:
-      - type: object
-        properties:
-          marking_probability:
-            description: 'The ECN marking probability when min ECN marked threshold is reached.
-
-              '
-            type: number
-            format: float
-            readOnly: true
-          max_ecn_marked_threshold:
-            description: 'The maximum threshold value in bytes at which the packets start being marked with ECN
-
-              at the highest probability or dropped.
-
-              '
-            type: integer
-            format: int32
-            readOnly: true
-          min_ecn_marked_threshold:
-            description: 'The minimum threshold value in bytes at which the packets start being marked with ECN.
-
-              '
-            type: integer
-            format: int32
-            readOnly: true
-    NetworkInterface_2:
+          example: 1735596861
+    HardwareConnector:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_realmsReference'
       - type: object
         properties:
-          address:
-            description: 'The IPv4 or IPv6 address to be associated with the specified network
+          connector_type:
+            description: 'Form-factor of the interface.
 
-              interface.
+              Valid values include QSFP, QSFP+, QSFP28, QSFP56, QSFP-DD, RJ-45, and -.
 
               '
             type: string
-          attached_servers:
-            description: 'List of servers that are using this interface for data ingress.
-
-              When services include ''data'' defaults to [_array_server], otherwise to [].
+            readOnly: true
+            example: QSFP
+          lane_speed:
+            description: 'Configured speed of each lane in the connector in bits-per-second.
 
               '
-            type: array
-            items:
-              $ref: '#/components/schemas/_reference_2'
-          enabled:
-            description: 'Indicates if the specified network interface is enabled (`true`) or
-
-              disabled (`false`). If not specified, defaults to `true`.
-
-              '
-            type: boolean
-            readOnly: true
-          gateway:
-            description: Derived from `subnet.gateway`.
-            type: string
-            readOnly: true
-          mtu:
-            description: Derived from `subnet.mtu`.
             type: integer
-            format: int32
-            readOnly: true
-          netmask:
-            description: Derived from `subnet.prefix`.
-            type: string
-            readOnly: true
-          services:
-            description: Services and protocols that are enabled on the interface.
-            type: array
-            items:
-              type: string
-              description: 'Valid values are `data`, `egress-only`, `management`, `replication`, and `support`.
-
-                '
-          subnet:
-            type: object
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-            - type: object
-              readOnly: true
-          type:
-            description: 'The only valid value is `vip`.
-
-              '
-            type: string
-          vlan:
-            description: Derived from `subnet.vlan`.
+            format: int64
+            example: 10000000000
+          lanes_per_port:
+            description: Configured number of lanes comprising each port in the connector.
             type: integer
-            format: int32
-            readOnly: true
-    NetworkInterfacesConnectorsPerformanceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            description: A list of network connector performance objects.
-            type: array
-            items:
-              $ref: '#/components/schemas/NetworkInterfacesConnectorsPerformance'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no individual items will be returned.
+            format: int64
+            example: 4
+          port_count:
+            description: 'Configured number of ports in the connector (1/2/4 for QSFP).
 
               '
-            type: array
-            items:
-              $ref: '#/components/schemas/NetworkInterfacesConnectorsPerformance'
-    NetworkInterfacesConnectorsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/NetworkInterfacesConnectorsResponse'
+            type: integer
+            format: int64
+            example: 1
+          port_speed:
+            description: Configured speed of each port in the connector in bits-per-second.
+            type: integer
+            format: int64
+            example: 40000000000
+          transceiver_type:
+            description: 'Details about the transceiver which is plugged into the connector port.
+
+              Transceiver type will be read-only for pureuser. If nothing is plugged
+
+              into QSFP port, value will be `Unused` and type cannot be auto-detected,
+
+              and internal user has not specified a type - value will be `Unknown`.
+
+              If transceiver is plugged in, and type is auto-detected, and/or type
+
+              has been explicitly set by internal user - that value will be shown.
+
+              Transceiver type is not applicable for RJ-45 connectors.
+
+              '
+            type: string
+            readOnly: true
+            example: 40GBASE-LR4
     NetworkInterfacePing:
       description: 'Output from running the linux command ''ping'' directly
 
@@ -3158,49 +3104,68 @@ components:
           type: string
           readOnly: true
           example: net1
-    NetworkInterfaceGetResponse_3:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_3'
-      - $ref: '#/components/schemas/NetworkInterfaceResponse_3'
-    _arraysBuiltIn:
-      description: 'A built-in resource that exists on one or multiple arrays.
+    NetworkInterfaceTraceResponse:
+      type: object
+      properties:
+        items:
+          description: A list of network trace run result.
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkInterfaceTrace'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
 
-        '
-      allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - $ref: '#/components/schemas/_arrays'
-    _builtInAsOf:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _reference_2:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
 
-        settings). Some correspond to a piece of software, like an app, or hardware,
+            The ID cannot be modified.
 
-        like a controller. Others are created by the system in response to some event
+            '
+          type: string
+        name:
+          description: 'The resource name,
 
-        (e.g., alerts, audit records).
+            such as volume name, pod name, snapshot name, and so on.
 
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
 
-        Typically, a user can''t create, delete or rename a built-in resource. A few
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
 
-        can be created or deleted, but not renamed because the names are meaningful
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
 
-        to Purity (e.g., VIFs).
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
 
+            `policies/snapshot`, etc.
 
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 01c2889a-4124-49ff-8cbd-c33405ede123
-          name:
-            description: A non-modifiable, locally unique name chosen by the system.
-            type: string
-            readOnly: true
-            example: example_name
+            '
+          type: string
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
+    NetworkInterfaceResponse_3:
+      type: object
+      properties:
+        items:
+          description: A list of network interface objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkInterface_3'
     _errorErrors:
       type: object
       properties:
@@ -3210,120 +3175,16 @@ components:
         message:
           type: string
           example: Something was wrong
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_3'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
-    PageInfo_3:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the continuation_token
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
-        total_item_count:
-          description: Total number of items after applying filter params.
-          type: integer
-          format: int32
-          example: 1
-    Error:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered.
-          type: array
-          items:
-            $ref: '#/components/schemas/_errorErrors'
-    _fixedReference_3:
-      type: object
-      properties:
-        id:
-          description: The opaque and unique id of this resource.
-          type: string
-          readOnly: true
-          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-        name:
-          description: The name of this resource.
-          type: string
-          readOnly: true
-          example: example_name
-        resource_type:
-          description: 'The type of this resource represented by the name of its REST endpoint.
-
-            For example, "arrays", "network-interfaces", and "metrics".
-
-            The value may be `null` if the resource is not represented.
-
-            '
-          type: string
-          readOnly: true
-          example: example_resource_type
-      x-readOnly: true
     ErrorNoContext:
       type: object
       properties:
         message:
           type: string
           example: Something was wrong
-    NetworkInterfaceResponse_3:
-      type: object
-      properties:
-        items:
-          description: A list of network interface objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/NetworkInterface_3'
-    _arrays:
-      type: object
-      properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
-
-            some resources, such as pods, can be shared across multiple arrays.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
+    NetworkInterfaceGetResponse_3:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_3'
+      - $ref: '#/components/schemas/NetworkInterfaceResponse_3'
     NetworkInterface_3:
       allOf:
       - $ref: '#/components/schemas/_arraysBuiltIn'
@@ -3375,73 +3236,179 @@ components:
             items:
               type: string
               example: ct0.eth0
+    _arrays:
+      type: object
+      properties:
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_3'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    _fixedReference_3:
+      type: object
+      properties:
+        id:
+          description: The opaque and unique id of this resource.
+          type: string
+          readOnly: true
+          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+        name:
+          description: The name of this resource.
+          type: string
+          readOnly: true
+          example: example_name
+        resource_type:
+          description: 'The type of this resource represented by the name of its REST endpoint.
+
+            For example, "arrays", "network-interfaces", and "metrics".
+
+            The value may be `null` if the resource is not represented.
+
+            '
+          type: string
+          readOnly: true
+          example: example_resource_type
+      x-readOnly: true
+    _arraysBuiltIn:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - $ref: '#/components/schemas/_arrays'
+    PageInfo_3:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
+    _builtInAsOf:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 01c2889a-4124-49ff-8cbd-c33405ede123
+          name:
+            description: A non-modifiable, locally unique name chosen by the system.
+            type: string
+            readOnly: true
+            example: example_name
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
   parameters:
-    Names:
-      name: names
+    Sort:
+      name: sort
       in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Context_names:
-      name: context_names
+    Continuation_token:
+      name: continuation_token
       in: query
-      description: 'Performs the operation on the context specified.
+      description: 'A token used to retrieve the next page of data
 
+        with some consistency guaranteed.
 
-        If specified, the context names must be an array of size 1, and the single element
+        The token is a Base64 encoded value.
 
-        must be the name of an array in the same fleet or the name of the fleet itself. If
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
 
-        not specified, the context will default to the array that received this request.
+        header field of the response.
 
+        A query has reached its last page when the response does not include a token.
 
-        Other parameters provided with the request, such as names of volumes or snapshots,
+        Pagination requires the `limit` and `continuation_token`
 
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+        query parameters.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
+        type: string
     History_end_time:
       name: end_time
       in: query
@@ -3472,17 +3439,19 @@ components:
       schema:
         type: integer
         format: int64
-    Sort:
-      name: sort
+    Allow_errors:
+      name: allow_errors
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
       schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+        type: boolean
+        default: false
     History_resolution:
       name: resolution
       in: query
@@ -3534,112 +3503,6 @@ components:
         format: int64
         minimum: 0
       example: 30000
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Local_port_names:
-      name: local_port_names
-      in: query
-      description: 'Performs the operation on the unique local port name specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `ct0.eth0,ct1.eth0`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Total_item_count:
       name: total_item_count
       in: query
@@ -3658,6 +3521,22 @@ components:
         '
       schema:
         type: boolean
+    Local_port_names:
+      name: local_port_names
+      in: query
+      description: 'Performs the operation on the unique local port name specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `ct0.eth0,ct1.eth0`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     XRequestId:
       name: X-Request-ID
       in: header
@@ -3666,6 +3545,40 @@ components:
         '
       schema:
         type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
     History_start_time:
       name: start_time
       in: query
@@ -3696,28 +3609,363 @@ components:
       schema:
         type: integer
         format: int64
-    Continuation_token:
-      name: continuation_token
+    Limit:
+      name: limit
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        with some consistency guaranteed.
+        To return the total number of resources, set `limit=0`.
 
-        The token is a Base64 encoded value.
+        The total number of resources is returned as a `total_item_count` value.
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+        If the page size requested is larger than the system maximum limit,
 
-        header field of the response.
+        the server returns the maximum limit, disregarding the requested page size.
 
-        A query has reached its last page when the response does not include a token.
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
 
-        Pagination requires the `limit` and `continuation_token`
 
-        query parameters.
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Ping_trace_destination:
+      name: destination
+      in: query
+      description: 'A destination specified by user to run the network diagnosis against. Can be a hostname or an IP.
+
+        '
+      required: true
+      schema:
+        type: string
+      example: www.test.com
+    NetworkConnectionStatisticsLocal_host:
+      name: local_host
+      in: query
+      description: 'The local IP address to filter the results by. If specified, the results will
+
+        only include connections that are either to or from the specified local host.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Ping_trace_source:
+      name: source
+      in: query
+      description: 'Used by ping and trace to specify the property where to start
+
+        to run the specified operation. The property can be subnet or
+
+        IP.
 
         '
       schema:
         type: string
+    Fragment_packet:
+      name: fragment_packet
+      in: query
+      description: 'Used by trace to specify whether or not to
+
+        fragment packets. If not specified, defaults to true.
+
+        '
+      schema:
+        type: boolean
+    Method:
+      name: method
+      in: query
+      description: 'Used by trace to specify which method to use for trace operations. Valid
+
+        values are `icmp`, `tcp`, and `udp`. If not specified, defaults to ''udp''.
+
+        '
+      schema:
+        type: string
+    Start_time:
+      name: start_time
+      in: query
+      description: 'When the time window starts (in milliseconds since epoch).
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
+    End_time:
+      name: end_time
+      in: query
+      description: 'When the time window ends (in milliseconds since epoch).
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Port:
+      name: port
+      in: query
+      description: 'Used by trace to specify a destination port.
+
+        '
+      schema:
+        type: string
+    Local_port_names_2:
+      name: local_port_names
+      in: query
+      description: 'Performs the operation on the unique local port name specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `CH1.FM2.ETH1,CH1.FM1.ETH2`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    NetworkConnectionStatisticsRemote_host:
+      name: remote_host
+      in: query
+      description: 'The remote IP address to filter the results by. If specified, the results will
+
+        only include connections that are either to or from the specified remote host.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Print_latency:
+      name: print_latency
+      in: query
+      description: 'Used by ping to specify whether or not to print
+
+        the full user-to-user latency. If not specified, defaults to false.
+
+        '
+      schema:
+        type: boolean
+    NetworkConnectionStatisticsCurrent_state:
+      name: current_state
+      in: query
+      description: 'The state to filter the results by. If specified, the results will
+
+        only include connections which current state matches the specified states.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Packet_size:
+      name: packet_size
+      in: query
+      description: 'Used by ping to specify the number of data bytes to be sent per packet.
+
+        If not specified, defaults to 56.
+
+        '
+      schema:
+        type: integer
+        format: int32
+      example: 56
+    Mtu:
+      name: discover_mtu
+      in: query
+      description: 'Used by trace to specify whether or not to discover
+
+        the MTU along the path being traced. If not specified, defaults to false.
+
+        '
+      schema:
+        type: boolean
+    Resolution:
+      name: resolution
+      in: query
+      description: 'The desired ms between samples. Available resolutions may
+
+        depend on data type, `start_time` and `end_time`.
+
+        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
+
+        `86400000` are possible values.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Ping_trace_component:
+      name: component_name
+      in: query
+      description: 'Used by ping and trace to specify where to run the operation. Valid values are controllers
+
+        and blades from hardware list.
+
+        If not specified, defaults to all available controllers and selected blades.
+
+        '
+      schema:
+        type: string
+    NetworkConnectionStatisticsRemote_port:
+      name: remote_port
+      in: query
+      description: 'The remote port to filter the results by. If specified, the results will
+
+        only include connections that are either to or from the specified remote port.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: integer
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     NetworkConnectionStatisticsLocal_port:
       name: local_port
       in: query
@@ -3732,23 +3980,23 @@ components:
         type: array
         items:
           type: integer
-    Start_time:
-      name: start_time
+    Ping_count:
+      name: count
       in: query
-      description: 'When the time window starts (in milliseconds since epoch).
+      description: 'Used by ping to specify the number of packets to send.
+
+        If not specified, defaults to 1.
 
         '
       schema:
         type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
-    Print_latency:
-      name: print_latency
+        format: int32
+    Resolve_hostname:
+      name: resolve_hostname
       in: query
-      description: 'Used by ping to specify whether or not to print
+      description: 'Used by ping and trace to specify whether or not to
 
-        the full user-to-user latency. If not specified, defaults to false.
+        map IP addresses to host names. If not specified, defaults to true.
 
         '
       schema:
@@ -3771,315 +4019,6 @@ components:
         type: array
         items:
           type: string
-    Mtu:
-      name: discover_mtu
-      in: query
-      description: 'Used by trace to specify whether or not to discover
-
-        the MTU along the path being traced. If not specified, defaults to false.
-
-        '
-      schema:
-        type: boolean
-    Ping_trace_source:
-      name: source
-      in: query
-      description: 'Used by ping and trace to specify the property where to start
-
-        to run the specified operation. The property can be subnet or
-
-        IP.
-
-        '
-      schema:
-        type: string
-    NetworkConnectionStatisticsLocal_host:
-      name: local_host
-      in: query
-      description: 'The local IP address to filter the results by. If specified, the results will
-
-        only include connections that are either to or from the specified local host.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    NetworkConnectionStatisticsRemote_port:
-      name: remote_port
-      in: query
-      description: 'The remote port to filter the results by. If specified, the results will
-
-        only include connections that are either to or from the specified remote port.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: integer
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Port:
-      name: port
-      in: query
-      description: 'Used by trace to specify a destination port.
-
-        '
-      schema:
-        type: string
-    Packet_size:
-      name: packet_size
-      in: query
-      description: 'Used by ping to specify the number of data bytes to be sent per packet.
-
-        If not specified, defaults to 56.
-
-        '
-      schema:
-        type: integer
-        format: int32
-      example: 56
-    Ping_count:
-      name: count
-      in: query
-      description: 'Used by ping to specify the number of packets to send.
-
-        If not specified, defaults to 1.
-
-        '
-      schema:
-        type: integer
-        format: int32
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Fragment_packet:
-      name: fragment_packet
-      in: query
-      description: 'Used by trace to specify whether or not to
-
-        fragment packets. If not specified, defaults to true.
-
-        '
-      schema:
-        type: boolean
-    Ping_trace_destination:
-      name: destination
-      in: query
-      description: 'A destination specified by user to run the network diagnosis against. Can be a hostname or an IP.
-
-        '
-      required: true
-      schema:
-        type: string
-      example: www.test.com
-    Method:
-      name: method
-      in: query
-      description: 'Used by trace to specify which method to use for trace operations. Valid
-
-        values are `icmp`, `tcp`, and `udp`. If not specified, defaults to ''udp''.
-
-        '
-      schema:
-        type: string
-    NetworkConnectionStatisticsRemote_host:
-      name: remote_host
-      in: query
-      description: 'The remote IP address to filter the results by. If specified, the results will
-
-        only include connections that are either to or from the specified remote host.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Ping_trace_component:
-      name: component_name
-      in: query
-      description: 'Used by ping and trace to specify where to run the operation. Valid values are controllers
-
-        and blades from hardware list.
-
-        If not specified, defaults to all available controllers and selected blades.
-
-        '
-      schema:
-        type: string
-    Resolve_hostname:
-      name: resolve_hostname
-      in: query
-      description: 'Used by ping and trace to specify whether or not to
-
-        map IP addresses to host names. If not specified, defaults to true.
-
-        '
-      schema:
-        type: boolean
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Resolution:
-      name: resolution
-      in: query
-      description: 'The desired ms between samples. Available resolutions may
-
-        depend on data type, `start_time` and `end_time`.
-
-        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
-
-        `86400000` are possible values.
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Local_port_names_2:
-      name: local_port_names
-      in: query
-      description: 'Performs the operation on the unique local port name specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `CH1.FM2.ETH1,CH1.FM1.ETH2`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    NetworkConnectionStatisticsCurrent_state:
-      name: current_state
-      in: query
-      description: 'The state to filter the results by. If specified, the results will
-
-        only include connections which current state matches the specified states.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    End_time:
-      name: end_time
-      in: query
-      description: 'When the time window ends (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
     Sort_3:
       name: sort
       in: query
@@ -4117,6 +4056,26 @@ components:
         '
       schema:
         type: string
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
     Offset_3:
       name: offset
       in: query
@@ -4127,6 +4086,26 @@ components:
         type: integer
         format: int32
         minimum: 0
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
     Continuation_token_2:
       name: continuation_token
       in: query
@@ -4143,9 +4122,30 @@ components:
         type: string
         x-quoted: true
       x-quoted: true
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
   responses:
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error400:
+      description: BAD REQUEST
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -4206,17 +4206,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error403:
-      description: FORBIDDEN
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorNoContext'
     Error404:
       description: NOT FOUND
       headers:
@@ -4248,8 +4237,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error400:
-      description: BAD REQUEST
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -4279,6 +4268,17 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

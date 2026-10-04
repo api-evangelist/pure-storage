@@ -966,264 +966,361 @@ paths:
       operationId: patchApi226ManagementAccessPoliciesRules
       x-operation-id-source: derived
 components:
-  schemas:
-    PolicyMemberGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberResponse'
-    ManagementAccessPolicyRolePermissionSupportedResource:
-      allOf:
-      - $ref: '#/components/schemas/_policyManagementAccessRolePermissionSupportedResource'
-    ManagementAccessPolicyRuleBase:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - properties:
-          role:
-            description: 'Role defines a set of permissions applicable in a scope. `viewer` grants users
+  parameters:
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-              the ability to read within a scope. `support` grants the ability to perform general
+        is appended to the field name).
 
-              support-related actions as well as read within a scope. `storage` grants access
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-              to all storage operations within a scope. `admin` grants access to all operations.
+        the response.
 
-              '
-            title: ReferenceWritable
-            allOf:
-            - $ref: '#/components/schemas/_referenceWritable'
-          scope:
-            description: 'Reference to the resource (e.g. arrays, realms) which specifies the scope that
-
-              the role applies. One of `id` or `name` parameter is required, and `resource_type`
-
-              must be set.
-
-              '
-            title: ReferenceWritable
-            allOf:
-            - $ref: '#/components/schemas/_referenceWritable'
-    PolicyBaseContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - $ref: '#/components/schemas/_context'
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    _version:
-      type: object
-      properties:
-        version:
-          description: 'A hash of the other properties of this resource. This can be used when
-
-            updating the resource to ensure there aren''t any updates since the
-
-            resource was read.
-
-            '
-          type: string
-          readOnly: true
-    ManagementAccessPolicyRolePermissionPost:
-      allOf:
-      - $ref: '#/components/schemas/_policyManagementAccessRolePermissionPost'
-    _policyRuleIndex:
-      type: object
-      properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
-
-            NOTE: It is recommended to use the query param `before_rule_id` to do reordering to
-
-            avoid concurrency issues, but changing `index` is also supported. `index` can not be
-
-            changed if `before_rule_id` or `before_rule_name` are specified.
-
-            '
-          type: integer
-          format: int32
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference'
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    _policyRuleIndexInPolicy:
-      type: object
-      properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
-
-            '
-          type: integer
-          format: int32
-          readOnly: true
-    ManagementAccessPolicyRolesResponse:
-      type: object
-      properties:
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
         items:
-          description: 'Displays a list of all items after filtering.
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
 
-            If applicable, the values are displayed for each name.
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
 
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/ManagementAccessPolicyRole'
-    ManagementAccessPolicyRuleGetResponse:
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Management_access_role_ids:
+      name: role_ids
+      in: query
+      description: 'A comma-separated list of management access policy roles ids.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `role_ids`, then an error is returned.
+
+        This cannot be provided together with the `ids`, `names` or
+
+        `role_names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Before_rule_id:
+      name: before_rule_id
+      in: query
+      description: 'The id of the rule to insert or move a rule before.
+
+        This cannot be provided together with the `before_rule_name` query parameter.
+
+        '
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Before_rule_name:
+      name: before_rule_name
+      in: query
+      description: 'The name of the rule to insert or move a rule before.
+
+        This cannot be provided together with the `before_rule_id` query parameter.
+
+        '
+      schema:
+        type: string
+    Concurrency_versions:
+      name: versions
+      in: query
+      description: 'A comma-separated list of versions. This is an optional query param used for concurrency control.
+
+        The ordering should match the names or ids query param.
+
+        This will fail with a 412 Precondition failed if the resource was changed and the current
+
+        version of the resource doesn''t match the value in the query param.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `policy_ids`, then an error is returned.
+
+        This cannot be provided together with the `policy_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `member_ids`, then an error is returned.
+
+        This cannot be provided together with the `member_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Management_access_role_names:
+      name: role_names
+      in: query
+      description: 'A comma-separated list of management access policy roles names.
+
+        If there is not at least one resource that matches
+
+        each of the elements of `role_names`, then an error is returned.
+
+        This cannot be provided together with the `ids`, `names`,
+
+        or `role_ids` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+  schemas:
+    ManagementAccessPoliciesGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ManagementAccessPolicyRuleResponse'
+      - $ref: '#/components/schemas/ManagementAccessPoliciesResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
-    ManagementAccessPolicyRolePermissionSupportedResourcesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ManagementAccessPolicyRolePermissionSupportedResourcesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    ManagementAccessPolicyRolePost:
-      allOf:
-      - $ref: '#/components/schemas/_policyManagementAccessRolePost'
-    PolicyMember:
-      type: object
-      properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    ManagementAccessPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseContext'
-      - $ref: '#/components/schemas/_version'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          aggregation_strategy:
-            description: 'When this is set to `least-common-permissions`, any users to whom this policy applies can
-
-              receive no access rights exceeding those defined in this policy''s capability and resource.
-
-              When this is set to `all-permissions`, any users to whom this policy applies are capable of
-
-              receiving additional access rights from other policies that apply to them.
-
-              If not specified, defaults to `all-permissions`.
-
-              '
-            type: string
-          rules:
-            type: array
-            maxItems: 200
-            items:
-              $ref: '#/components/schemas/ManagementAccessPolicyRuleInPolicy'
-            description: 'All of the rules that are part of this policy. The order is the evaluation order.
-
-              '
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    PolicyMemberContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context'
-    _policyManagementAccessRole:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          description:
-            description: 'Optional description of the role. Maximum 256 characters.
-
-              '
-            type: string
-            maxLength: 256
-            example: Manages file system snapshots and restores
-          pure_defined:
-            description: 'If `true`, then the role is system-created (Pure-defined), such as `admin`, `storage`, `support`, or `viewer`.
-
-              If `false`, then the role is customer-defined.
-
-              '
-            type: boolean
-            readOnly: true
-    ManagementAccessPolicyRuleInPolicy:
-      allOf:
-      - $ref: '#/components/schemas/ManagementAccessPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
     PolicyBaseRenameable:
       allOf:
       - $ref: '#/components/schemas/_resource'
@@ -1256,11 +1353,58 @@ components:
               '
             type: string
             readOnly: true
-    ManagementAccessPolicyRolePermission:
+    _policyManagementAccessRolePermissionSupportedResource:
       allOf:
-      - $ref: '#/components/schemas/_policyManagementAccessRolePermission'
-      - $ref: '#/components/schemas/_builtIn'
-    ManagementAccessPolicyRolePermissionsResponse:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          description:
+            description: 'Description of what this resource controls.
+
+              '
+            type: string
+            readOnly: true
+            example: Manage membership of management access policies with admins and directory roles.
+          name:
+            description: 'The canonical resource term to use when configuring management access policy role permissions.
+
+              '
+            type: string
+            readOnly: true
+            example: policies/management-access/member
+          supported_actions:
+            description: 'List of supported actions for this resource. Case insensitive.
+
+              Values include `get`, `post`, `patch`, `delete`.
+
+              Note that `all` is supported by default and not listed here.
+
+              '
+            type: array
+            items:
+              type: string
+            example:
+            - get
+            - post
+    ManagementAccessPolicyRuleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ManagementAccessPolicyRuleResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    ManagementAccessPolicyRolePermissionPost:
+      allOf:
+      - $ref: '#/components/schemas/_policyManagementAccessRolePermissionPost'
+    _policyManagementAccessRolePost:
+      type: object
+      properties:
+        description:
+          description: 'Optional description of the role. Maximum 256 characters.
+
+            '
+          type: string
+          maxLength: 256
+          example: Manages file system snapshots and restores
+    ManagementAccessPolicyRolePermissionSupportedResourcesResponse:
       type: object
       properties:
         items:
@@ -1271,7 +1415,24 @@ components:
             '
           type: array
           items:
-            $ref: '#/components/schemas/ManagementAccessPolicyRolePermission'
+            $ref: '#/components/schemas/ManagementAccessPolicyRolePermissionSupportedResource'
+    ManagementAccessPolicyRuleInPolicy:
+      allOf:
+      - $ref: '#/components/schemas/ManagementAccessPolicyRuleBase'
+      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
+    _version:
+      type: object
+      properties:
+        version:
+          description: 'A hash of the other properties of this resource. This can be used when
+
+            updating the resource to ensure there aren''t any updates since the
+
+            resource was read.
+
+            '
+          type: string
+          readOnly: true
     _policyManagementAccessRolePermission:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -1309,6 +1470,154 @@ components:
             title: FixedReference
             allOf:
             - $ref: '#/components/schemas/_fixedReference'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    ManagementAccessPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseContext'
+      - $ref: '#/components/schemas/_version'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          aggregation_strategy:
+            description: 'When this is set to `least-common-permissions`, any users to whom this policy applies can
+
+              receive no access rights exceeding those defined in this policy''s capability and resource.
+
+              When this is set to `all-permissions`, any users to whom this policy applies are capable of
+
+              receiving additional access rights from other policies that apply to them.
+
+              If not specified, defaults to `all-permissions`.
+
+              '
+            type: string
+          rules:
+            type: array
+            maxItems: 200
+            items:
+              $ref: '#/components/schemas/ManagementAccessPolicyRuleInPolicy'
+            description: 'All of the rules that are part of this policy. The order is the evaluation order.
+
+              '
+    ManagementAccessPoliciesResponse:
+      type: object
+      properties:
+        items:
+          description: A list of management access policy configuration objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagementAccessPolicy'
+    ManagementAccessPolicyRolePermission:
+      allOf:
+      - $ref: '#/components/schemas/_policyManagementAccessRolePermission'
+      - $ref: '#/components/schemas/_builtIn'
+    _policyRuleIndexInPolicy:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            '
+          type: integer
+          format: int32
+          readOnly: true
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _policyRuleIndex:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            NOTE: It is recommended to use the query param `before_rule_id` to do reordering to
+
+            avoid concurrency issues, but changing `index` is also supported. `index` can not be
+
+            changed if `before_rule_id` or `before_rule_name` are specified.
+
+            '
+          type: integer
+          format: int32
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     _policyManagementAccessRolePermissionPatch:
       type: object
       properties:
@@ -1328,6 +1637,168 @@ components:
           example:
           - get
           - post
+    ManagementAccessPolicyRolePermissionSupportedResourcesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ManagementAccessPolicyRolePermissionSupportedResourcesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+    ManagementAccessPolicyRolePermissionPatch:
+      allOf:
+      - $ref: '#/components/schemas/_policyManagementAccessRolePermissionPatch'
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+    ManagementAccessPolicyRole:
+      allOf:
+      - $ref: '#/components/schemas/_policyManagementAccessRole'
+      - $ref: '#/components/schemas/_builtIn'
+    PolicyMemberContextResponse:
+      type: object
+      properties:
+        items:
+          description: A list of members for policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    ManagementAccessPolicyRolePermissionSupportedResource:
+      allOf:
+      - $ref: '#/components/schemas/_policyManagementAccessRolePermissionSupportedResource'
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    ManagementAccessPolicyRolesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ManagementAccessPolicyRolesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _policyManagementAccessRole:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          description:
+            description: 'Optional description of the role. Maximum 256 characters.
+
+              '
+            type: string
+            maxLength: 256
+            example: Manages file system snapshots and restores
+          pure_defined:
+            description: 'If `true`, then the role is system-created (Pure-defined), such as `admin`, `storage`, `support`, or `viewer`.
+
+              If `false`, then the role is customer-defined.
+
+              '
+            type: boolean
+            readOnly: true
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
     _errorContextResponse:
       type: object
       properties:
@@ -1337,11 +1808,69 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_errorContextResponseErrors'
-    ManagementAccessPoliciesGetResponse:
+    ManagementAccessPolicyRuleResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagementAccessPolicyRule'
+    PolicyMemberContext:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ManagementAccessPoliciesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context'
+    ManagementAccessPolicyRule:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/ManagementAccessPolicyRuleBase'
+      - $ref: '#/components/schemas/_policyRuleIndex'
+      - type: object
+        properties:
+          policy:
+            description: The policy to which this rule belongs.
+            readOnly: true
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_version:
+            description: 'The policy''s version. This can be used when updating the
+
+              resource to ensure there aren''t any updates to the policy since the resource was read.
+
+              '
+            type: string
+            readOnly: true
+    ManagementAccessPolicyPost:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - properties:
+          aggregation_strategy:
+            description: 'When this is set to `least-common-permissions`, any users to whom this policy applies can
+
+              receive no access rights exceeding those defined in this policy''s capability and resource.
+
+              When this is set to `all-permissions`, any users to whom this policy applies are capable of
+
+              receiving additional access rights from other policies that apply to them.
+
+              If not specified, defaults to `all-permissions`.
+
+              '
+            type: string
+          rules:
+            type: array
+            maxItems: 200
+            items:
+              $ref: '#/components/schemas/ManagementAccessPolicyRuleInPolicy'
+            description: 'All of the rules that are part of this policy. The order is the evaluation order.
+
+              '
+    ManagementAccessPolicyRolePost:
+      allOf:
+      - $ref: '#/components/schemas/_policyManagementAccessRolePost'
     _policyManagementAccessRolePermissionPost:
       type: object
       properties:
@@ -1375,210 +1904,35 @@ components:
             '
           type: string
           example: purestorage.com/api/v2/certificates, certificates
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    _policyManagementAccessRolePermissionSupportedResource:
+    ManagementAccessPolicyRuleBase:
       allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          description:
-            description: 'Description of what this resource controls.
-
-              '
-            type: string
-            readOnly: true
-            example: Manage membership of management access policies with admins and directory roles.
-          name:
-            description: 'The canonical resource term to use when configuring management access policy role permissions.
-
-              '
-            type: string
-            readOnly: true
-            example: policies/management-access/member
-          supported_actions:
-            description: 'List of supported actions for this resource. Case insensitive.
-
-              Values include `get`, `post`, `patch`, `delete`.
-
-              Note that `all` is supported by default and not listed here.
-
-              '
-            type: array
-            items:
-              type: string
-            example:
-            - get
-            - post
-    ManagementAccessPolicyRolePermissionPatch:
-      allOf:
-      - $ref: '#/components/schemas/_policyManagementAccessRolePermissionPatch'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    ManagementAccessPolicyRolePermissionsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ManagementAccessPolicyRolePermissionsResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _policyManagementAccessRolePost:
-      type: object
-      properties:
-        description:
-          description: 'Optional description of the role. Maximum 256 characters.
-
-            '
-          type: string
-          maxLength: 256
-          example: Manages file system snapshots and restores
-    ManagementAccessPolicyPost:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
+      - $ref: '#/components/schemas/_builtIn'
       - properties:
-          aggregation_strategy:
-            description: 'When this is set to `least-common-permissions`, any users to whom this policy applies can
+          role:
+            description: 'Role defines a set of permissions applicable in a scope. `viewer` grants users
 
-              receive no access rights exceeding those defined in this policy''s capability and resource.
+              the ability to read within a scope. `support` grants the ability to perform general
 
-              When this is set to `all-permissions`, any users to whom this policy applies are capable of
+              support-related actions as well as read within a scope. `storage` grants access
 
-              receiving additional access rights from other policies that apply to them.
-
-              If not specified, defaults to `all-permissions`.
+              to all storage operations within a scope. `admin` grants access to all operations.
 
               '
-            type: string
-          rules:
-            type: array
-            maxItems: 200
-            items:
-              $ref: '#/components/schemas/ManagementAccessPolicyRuleInPolicy'
-            description: 'All of the rules that are part of this policy. The order is the evaluation order.
+            title: ReferenceWritable
+            allOf:
+            - $ref: '#/components/schemas/_referenceWritable'
+          scope:
+            description: 'Reference to the resource (e.g. arrays, realms) which specifies the scope that
+
+              the role applies. One of `id` or `name` parameter is required, and `resource_type`
+
+              must be set.
 
               '
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    ManagementAccessPolicyRuleResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after filtering.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/ManagementAccessPolicyRule'
-    ManagementAccessPoliciesResponse:
-      type: object
-      properties:
-        items:
-          description: A list of management access policy configuration objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/ManagementAccessPolicy'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    PolicyMemberContextResponse:
-      type: object
-      properties:
-        items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-    ManagementAccessPolicyRolesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ManagementAccessPolicyRolesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    ManagementAccessPolicyRolePermissionSupportedResourcesResponse:
+            title: ReferenceWritable
+            allOf:
+            - $ref: '#/components/schemas/_referenceWritable'
+    ManagementAccessPolicyRolePermissionsResponse:
       type: object
       properties:
         items:
@@ -1589,37 +1943,24 @@ components:
             '
           type: array
           items:
-            $ref: '#/components/schemas/ManagementAccessPolicyRolePermissionSupportedResource'
-    ManagementAccessPolicyRule:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - $ref: '#/components/schemas/ManagementAccessPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndex'
-      - type: object
-        properties:
-          policy:
-            description: The policy to which this rule belongs.
-            readOnly: true
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_version:
-            description: 'The policy''s version. This can be used when updating the
-
-              resource to ensure there aren''t any updates to the policy since the resource was read.
-
-              '
-            type: string
-            readOnly: true
-    ManagementAccessPolicyRole:
-      allOf:
-      - $ref: '#/components/schemas/_policyManagementAccessRole'
-      - $ref: '#/components/schemas/_builtIn'
-    PolicyMemberContextGetResponse:
+            $ref: '#/components/schemas/ManagementAccessPolicyRolePermission'
+    PolicyMemberGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberContextResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/PolicyMemberResponse'
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
     PolicyMemberResponse:
       type: object
       properties:
@@ -1628,386 +1969,45 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PolicyMember'
-    _errorContextResponseErrors:
+    PolicyBaseContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - $ref: '#/components/schemas/_context'
+    ManagementAccessPolicyRolesResponse:
       type: object
       properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
+        items:
+          description: 'Displays a list of all items after filtering.
 
-            or the name of the object that was being processed when the error was encountered.
+            If applicable, the values are displayed for each name.
 
-            This may be `null` for more general errors.
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagementAccessPolicyRole'
+    PolicyMemberContextGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberContextResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
 
             '
           type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        message:
-          description: A description of the error which occurred.
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
           type: string
-          example: Resource does not exist.
-  parameters:
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'A comma-separated list of member IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `member_ids`, then an error is returned.
-
-        This cannot be provided together with the `member_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Management_access_role_names:
-      name: role_names
-      in: query
-      description: 'A comma-separated list of management access policy roles names.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `role_names`, then an error is returned.
-
-        This cannot be provided together with the `ids`, `names`,
-
-        or `role_ids` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Policy_ids:
-      name: policy_ids
-      in: query
-      description: 'A comma-separated list of policy IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `policy_ids`, then an error is returned.
-
-        This cannot be provided together with the `policy_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Concurrency_versions:
-      name: versions
-      in: query
-      description: 'A comma-separated list of versions. This is an optional query param used for concurrency control.
-
-        The ordering should match the names or ids query param.
-
-        This will fail with a 412 Precondition failed if the resource was changed and the current
-
-        version of the resource doesn''t match the value in the query param.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Management_access_role_ids:
-      name: role_ids
-      in: query
-      description: 'A comma-separated list of management access policy roles ids.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `role_ids`, then an error is returned.
-
-        This cannot be provided together with the `ids`, `names` or
-
-        `role_names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Before_rule_id:
-      name: before_rule_id
-      in: query
-      description: 'The id of the rule to insert or move a rule before.
-
-        This cannot be provided together with the `before_rule_name` query parameter.
-
-        '
-      schema:
-        type: string
-    Before_rule_name:
-      name: before_rule_name
-      in: query
-      description: 'The name of the rule to insert or move a rule before.
-
-        This cannot be provided together with the `before_rule_id` query parameter.
-
-        '
-      schema:
-        type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
+          readOnly: true
+    ManagementAccessPolicyRolePermissionsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ManagementAccessPolicyRolePermissionsResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

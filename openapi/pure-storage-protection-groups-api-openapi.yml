@@ -857,405 +857,640 @@ paths:
       operationId: deleteApi252ProtectionGroupsVolumes
       x-operation-id-source: derived
 components:
-  schemas:
-    ProtectionGroupResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after filtering.
+  parameters:
+    Include_remote:
+      name: include_remote
+      in: query
+      description: 'If set to `true` the response will include remote membership for protection groups that belong
 
-            If applicable, the values are displayed for each name.
+        to the remote arrays or realms as well as local volumes.
 
-            If `total_only=true`, the `items` list will be empty.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/ProtectionGroup'
-    _time_window:
-      type: object
-      properties:
-        end:
-          description: The window end time. Measured in milliseconds since midnight. The time must be set on the hour. (e.g., `28800000`, which is equal to 8:00 AM).
-          type: integer
-          format: int64
-          example: 46800000
-        start:
-          description: The window start time. Measured in milliseconds since midnight. The time must be set on the hour. (e.g., `18000000`, which is equal to 5:00 AM).
-          type: integer
-          format: int64
-          example: 3600000
-    ResourceSpace:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          space:
-            description: 'Displays size and space consumption information.
-
-              '
-            title: Space
-            allOf:
-            - $ref: '#/components/schemas/_space'
-          time:
-            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-        x-readOnly: true
-    Tag:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          copyable:
-            description: 'Specifies whether or not to include the tag when copying the parent resource.
-
-              If set to `true`, the tag is included in resource copying.
-
-              If set to `false`, the tag is not included.
-
-              If not specified, defaults to `true`.
-
-              '
-            type: boolean
-            example: true
-          key:
-            description: 'Key of the tag. Supports up to 64 Unicode characters.
-
-              '
-            type: string
-            example: environment
-          namespace:
-            description: 'Optional namespace of the tag.
-
-              Namespace identifies the category of the tag. Omitting the namespace
-
-              defaults to the namespace `default`. The `pure&#42;` namespaces are
-
-              reserved for plugins and integration partners. It is recommended
-
-              that customers avoid using reserved namespaces.
-
-              '
-            type: string
-            example: default
-          resource:
-            $ref: '#/components/schemas/_fixedReference'
-          value:
-            description: 'Value of the tag. Supports up to 256 Unicode characters.
-
-              '
-            type: string
-            example: staging
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    ProtectionGroupPost:
-      type: object
-      properties:
-        tags:
-          description: 'The list of tags to be upserted with the object.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Tag'
-    ProtectionGroup:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - $ref: '#/components/schemas/_resource'
-      - description: 'A protection group defines a set of either volumes, hosts, or host groups
-
-          (called members) that are protected together through snapshots with
-
-          point-in-time consistency across the member volumes. The members within the
-
-          protection group have common data protection requirements and share the
-
-          same snapshot, replication, and retention schedules.
-
-          '
-        type: object
-        properties:
-          destroyed:
-            description: 'Has this protection group been destroyed?
-
-              To destroy a protection group, patch to `true`.
-
-              To recover a destroyed protection group, patch to `false`.
-
-              If not specified, defaults to `false`.
-
-              '
-            type: boolean
-          eradication_config:
-            $ref: '#/components/schemas/ProtectionGroupEradicationConfig'
-          host_count:
-            description: Number of hosts in this protection group.
-            type: integer
-            format: int64
-            readOnly: true
-            example: 3
-          host_group_count:
-            description: Number of host groups in this protection group.
-            type: integer
-            format: int64
-            readOnly: true
-            example: 3
-          is_local:
-            description: 'If set to `true`, the protection group belongs to the local array.
-
-              If set to `false`, the protection group belongs to the remote array.
-
-              '
-            type: boolean
-            readOnly: true
-          pod:
-            description: The pod in which the protection group resides.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          replication_schedule:
-            description: The schedule settings for asynchronous replication.
-            title: Replication_schedule
-            allOf:
-            - $ref: '#/components/schemas/_replication_schedule'
-          retention_lock:
-            description: 'The valid values are `ratcheted` and `unlocked`.
-
-              The default value for a newly created protection group is `unlocked`.
-
-              Set `retention_lock` to `ratcheted` to enable SafeMode restrictions on the protection group.
-
-              Contact Pure Technical Services to change `retention_lock` to `unlocked`.
-
-              '
-            type: string
-            example: unlocked
-          snapshot_schedule:
-            description: The schedule settings for protection group snapshots.
-            title: Snapshot_schedule
-            allOf:
-            - $ref: '#/components/schemas/_snapshot_schedule'
-          source:
-            description: The array or pod on which the protection group was created.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          source_retention:
-            description: 'The retention policy for the source array of the protection group.
-
-              '
-            title: RetentionPolicy
-            allOf:
-            - $ref: '#/components/schemas/_retentionPolicy'
-          space:
-            description: 'Displays provisioned size and physical storage consumption data
-
-              for each protection group.
-
-              '
-            title: Space
-            allOf:
-            - $ref: '#/components/schemas/_space'
-          target_count:
-            description: The number of targets to where this protection group replicates.
-            type: integer
-            format: int64
-            readOnly: true
-            example: 3
-          target_retention:
-            description: 'The retention policy for the target(s) of the protection group.
-
-              '
-            title: RetentionPolicy
-            allOf:
-            - $ref: '#/components/schemas/_retentionPolicy'
-          time_remaining:
-            description: 'The amount of time left until the destroyed protection group is permanently eradicated.
-
-              Measured in milliseconds.
-
-              Before the `time_remaining` period has elapsed, the destroyed protection group
-
-              can be recovered by setting `destroyed=false`.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          volume_count:
-            description: The number of volumes in the protection group.
-            type: integer
-            format: int64
-            readOnly: true
-            example: 3
-          workload:
-            $ref: '#/components/schemas/_workloadConfigurationFixedReference'
-    ProtectionGroupsVolumesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProtectionGroupsVolumes'
-    _snapshot_schedule:
-      description: The replication or snapshot schedule.
-      type: object
-      properties:
-        at:
-          description: 'The time of day the snapshot is scheduled to be taken
-
-            and retained on the local array or immediately replicated to the target(s).
-
-            Measured in seconds since midnight.
-
-            The `at` value is only used if the `frequency` parameter is in days
-
-            (e.g., `259200000`, which is equal to 3 days).
-
-            '
-          type: integer
-          format: int64
-          example: 7200
-          x-minimum: 0
-          x-maximum: 86399
-        enabled:
-          description: If set to `true`, the policy is enabled.
-          type: boolean
-          example: false
-        frequency:
-          description: The frequency of the scheduled action. Measured in milliseconds.
-          type: integer
-          format: int64
-          example: 259200000
-          x-minimum: 300000
-          x-maximum: 34560000000
-    ProtectionGroupTargetGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ProtectionGroupTargetResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _replication_schedule:
-      allOf:
-      - $ref: '#/components/schemas/_snapshot_schedule'
-      - description: 'The schedule of a replication action.
-
-          '
-        type: object
-        properties:
-          blackout:
-            description: 'The range of time when to suspend replication.
-
-              To clear the blackout period, set to an empty string ("").
-
-              '
-            title: Time_window
-            allOf:
-            - $ref: '#/components/schemas/_time_window'
-    ProtectionGroupPerformanceArrayResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          items:
-            description: 'Lists performance data, broken down by array.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/ProtectionGroupPerformanceArray'
-    _referenceNoId:
-      type: object
-      properties:
-        name:
-          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
+        Defaults to `false`.
 
         '
+      schema:
+        type: boolean
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Keys:
+      name: keys
+      in: query
+      description: 'A comma-separated list of tag keys.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Protection_group_source_ids:
+      name: source_ids
+      in: query
+      description: 'The id of the protection group or protection group snapshot to be copied
+
+        into a new or existing protection group. If the destination protection group
+
+        and all of its volumes already exist, include the `overwrite` parameter to
+
+        overwrite all of the existing volumes with the snapshot contents.
+
+        If including the `overwrite` parameter, the names of the volumes that are
+
+        being overwritten must match the names of the volumes that are being restored.
+
+        If the source is a protection group, the latest snapshot of the protection group
+
+        will be used as the source during the copy operation.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Resource_destroyed:
+      name: resource_destroyed
+      in: query
+      description: 'If set to `true`, returns only objects from destroyed resources. Returns an error if
+
+        the name of a live resource is specified in the `resource_names` query parameter.
+
+        If set to `false`, returns only objects from live resources. Returns an error if the
+
+        name of a destroyed resource is specified in the `resource_names` query parameter.
+
+        '
+      schema:
+        type: boolean
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Protection_group_source_names:
+      name: source_names
+      in: query
+      description: 'The name of the protection group or protection group snapshot to be copied
+
+        into a new or existing protection group. If the destination protection group
+
+        and all of its volumes already exist, include the `overwrite` parameter to
+
+        overwrite all of the existing volumes with the snapshot contents.
+
+        If including the `overwrite` parameter, the names of the volumes that are
+
+        being overwritten must match the names of the volumes that are being restored.
+
+        If the source is a protection group, the latest snapshot of the protection group
+
+        will be used as the source during the copy operation.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Group_names:
+      name: group_names
+      in: query
+      description: 'Performs the operation on the unique group name specified.
+
+        Examples of groups include host groups, pods, protection groups, and volume groups.
+
+        Enter multiple names in comma-separated format. For example, `hgroup01,hgroup02`.
+
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'Performs the operation on the unique member name specified.
+
+        Examples of members include volumes, hosts, host groups, and directories.
+
+        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_destroyed:
+      name: member_destroyed
+      in: query
+      description: 'If true, returns only destroyed member objects. Returns an error if
+
+        a name of a live member object is specified in the member_names query param.
+
+        If false, returns only live member objects. Returns an error if
+
+        a name of a destroyed member object is specified in the member_names
+
+        query param.
+
+        '
+      schema:
+        type: boolean
+    Resource_names:
+      name: resource_names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Resource_ids:
+      name: resource_ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Overwrite:
+      name: overwrite
+      in: query
+      description: 'If set to `true`,
+
+        overwrites an existing object during an object copy operation.
+
+        If set to `false` or not set at all and the target name is an existing object,
+
+        the copy operation fails.
+
+        Required if the `source` body parameter is set
+
+        and the source overwrites an existing object during the copy operation.
+
+        '
+      schema:
+        type: boolean
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'Performs the operation on the unique member IDs specified.
+
+        Enter multiple member IDs in comma-separated format.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    History_end_time:
+      name: end_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Namespaces_delete:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Pgroup_group_ids:
+      name: group_ids
+      in: query
+      description: 'Performs the operation on the unique group id specified.
+
+        Provide multiple resource IDs in comma-separated format.
+
+        The group_ids or names parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    History_resolution:
+      name: resolution
+      in: query
+      description: 'The number of milliseconds between samples of historical data.
+
+        For array-wide performance metrics (`/arrays/performance` endpoint),
+
+        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
+
+        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For performance metrics on storage objects (`<object name>/performance` endpoint),
+
+        such as volumes,
+
+        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
+
+        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For space metrics, (`<object name>/space` endpoint),
+
+        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
+
+        `28800000` (8 hours), and `86400000` (24 hours).
+
+        Include the `start_time` parameter to display the performance data
+
+        starting at the specified start time.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        Include the `end_time` parameter to display the performance data until the specified end time.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        If the `resolution` parameter is not specified
+
+        but either the `start_time` or `end_time` parameter is,
+
+        then `resolution` will default to the lowest valid resolution.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Namespaces:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Group_ids:
+      name: group_ids
+      in: query
+      description: 'A comma-separated list of group IDs.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    History_start_time:
+      name: start_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+  schemas:
+    TargetProtectionGroupPostPatch:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+        allowed:
+          description: 'If set to `true`, the target array has allowed the source array
 
-            The ID cannot be modified and cannot refer to another resource.
+            to replicate protection group data to the target array.
 
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
+            If set to `false`, the target array has not allowed the source array
+
+            to replicate protection group data to the target.
 
             '
-          type: string
-          readOnly: true
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
+          type: boolean
+          example: true
+        protection_group:
+          $ref: '#/components/schemas/_fixedReference'
+        target:
+          $ref: '#/components/schemas/_fixedReferenceNoId'
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -1283,15 +1518,68 @@ components:
 
             '
           type: string
-    ProtectionGroupsVolumes:
+    _fixedReferenceWithType:
       allOf:
-      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_fixedReference'
       - type: object
         properties:
-          group:
-            $ref: '#/components/schemas/_reference'
-          member:
-            $ref: '#/components/schemas/_protectionGroupsVolumesMember'
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _workloadConfigurationFixedReference:
+      description: 'The reference to the workload managing the resource. The `name` and `configuration` values
+
+        may display as the string `(unknown)` briefly following a failover.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithType'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
+
+              '
+            type: string
+            readOnly: true
+    ProtectionGroupsVolumesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtectionGroupsVolumes'
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
     ProtectionGroupPerformanceArray:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -1321,28 +1609,119 @@ components:
             format: int64
             readOnly: true
         x-readOnly: true
-    MemberNoIdMemberResponse:
+    _protectionGroupsVolumesMember:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          destroyed:
+            description: 'Returns a value of `true` if the volume has been destroyed and is pending eradication.
+
+              Through the `volumes` endpoint, the user can see `time_remaining` of the destroyed
+
+              volume, recover, or eradicate the destroyed volume.
+
+              '
+            type: boolean
+    TagResponse:
       type: object
       properties:
         items:
-          description: 'Displays a list of all items after filtering.
-
-            The values are displayed for each name, if meaningful.
-
-            '
           type: array
           items:
-            $ref: '#/components/schemas/MemberNoIdMember'
-    _aggregate_replication_performance:
+            $ref: '#/components/schemas/Tag'
+    _referenceNoId:
       type: object
       properties:
-        bytes_per_sec:
-          description: The total number of bytes of replication data transmitted and received per second.
-          type: integer
-          format: int64
-          minimum: 0
+        name:
+          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+    ProtectionGroupsVolumes:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          group:
+            $ref: '#/components/schemas/_reference'
+          member:
+            $ref: '#/components/schemas/_protectionGroupsVolumesMember'
+    ResourceSpaceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Displays a list of all items after filtering.
+
+              If applicable, the values are displayed for each name.
+
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceSpace'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              Where it makes more sense, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourceSpace'
+    _fixedReferenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
           readOnly: true
       x-readOnly: true
+    _replication_schedule:
+      allOf:
+      - $ref: '#/components/schemas/_snapshot_schedule'
+      - description: 'The schedule of a replication action.
+
+          '
+        type: object
+        properties:
+          blackout:
+            description: 'The range of time when to suspend replication.
+
+              To clear the blackout period, set to an empty string ("").
+
+              '
+            title: Time_window
+            allOf:
+            - $ref: '#/components/schemas/_time_window'
+    ProtectionGroupGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ProtectionGroupResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              When applicable, the average value is displayed instead.
+
+              If applicable, the values are displayed for each field.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ProtectionGroup'
     _space:
       type: object
       properties:
@@ -1543,70 +1922,6 @@ components:
           format: int64
           minimum: 0
           readOnly: true
-    _workloadConfigurationFixedReference:
-      description: 'The reference to the workload managing the resource. The `name` and `configuration` values
-
-        may display as the string `(unknown)` briefly following a failover.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithType'
-      - type: object
-        properties:
-          configuration:
-            description: 'The name of the preset configuration object.
-
-              '
-            type: string
-            readOnly: true
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    ProtectionGroupsVolumesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ProtectionGroupsVolumesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    TargetProtectionGroupPostPatch:
-      type: object
-      properties:
-        allowed:
-          description: 'If set to `true`, the target array has allowed the source array
-
-            to replicate protection group data to the target array.
-
-            If set to `false`, the target array has not allowed the source array
-
-            to replicate protection group data to the target.
-
-            '
-          type: boolean
-          example: true
-        protection_group:
-          $ref: '#/components/schemas/_fixedReference'
-        target:
-          $ref: '#/components/schemas/_fixedReferenceNoId'
-    MemberNoIdMemberGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/MemberNoIdMemberResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
     PageInfo:
       type: object
       properties:
@@ -1649,27 +1964,107 @@ components:
             '
           type: integer
           format: int32
-    TagResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Tag'
-    _protectionGroupsVolumesMember:
+    MemberNoIdMemberGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_reference'
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/MemberNoIdMemberResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    Tag:
+      allOf:
+      - $ref: '#/components/schemas/_context'
       - type: object
         properties:
-          destroyed:
-            description: 'Returns a value of `true` if the volume has been destroyed and is pending eradication.
+          copyable:
+            description: 'Specifies whether or not to include the tag when copying the parent resource.
 
-              Through the `volumes` endpoint, the user can see `time_remaining` of the destroyed
+              If set to `true`, the tag is included in resource copying.
 
-              volume, recover, or eradicate the destroyed volume.
+              If set to `false`, the tag is not included.
+
+              If not specified, defaults to `true`.
 
               '
             type: boolean
+            example: true
+          key:
+            description: 'Key of the tag. Supports up to 64 Unicode characters.
+
+              '
+            type: string
+            example: environment
+          namespace:
+            description: 'Optional namespace of the tag.
+
+              Namespace identifies the category of the tag. Omitting the namespace
+
+              defaults to the namespace `default`. The `pure&#42;` namespaces are
+
+              reserved for plugins and integration partners. It is recommended
+
+              that customers avoid using reserved namespaces.
+
+              '
+            type: string
+            example: default
+          resource:
+            $ref: '#/components/schemas/_fixedReference'
+          value:
+            description: 'Value of the tag. Supports up to 256 Unicode characters.
+
+              '
+            type: string
+            example: staging
+    _snapshot_schedule:
+      description: The replication or snapshot schedule.
+      type: object
+      properties:
+        at:
+          description: 'The time of day the snapshot is scheduled to be taken
+
+            and retained on the local array or immediately replicated to the target(s).
+
+            Measured in seconds since midnight.
+
+            The `at` value is only used if the `frequency` parameter is in days
+
+            (e.g., `259200000`, which is equal to 3 days).
+
+            '
+          type: integer
+          format: int64
+          example: 7200
+          x-minimum: 0
+          x-maximum: 86399
+        enabled:
+          description: If set to `true`, the policy is enabled.
+          type: boolean
+          example: false
+        frequency:
+          description: The frequency of the scheduled action. Measured in milliseconds.
+          type: integer
+          format: int64
+          example: 259200000
+          x-minimum: 300000
+          x-maximum: 34560000000
+    MemberNoIdMember:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          group:
+            description: 'The resource in which the host, volume, or other item in the environment is a member.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          member:
+            description: 'The member of the resource.
+
+              '
+            title: ReferenceNoId
+            allOf:
+            - $ref: '#/components/schemas/_referenceNoId'
     _context:
       type: object
       properties:
@@ -1691,71 +2086,78 @@ components:
           title: FixedReferenceWithType
           allOf:
           - $ref: '#/components/schemas/_fixedReferenceWithType'
-    ProtectionGroupPerformance:
+    ResourceSpace:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_aggregate_replication_performance'
       - $ref: '#/components/schemas/_context'
       - type: object
         properties:
-          time:
-            description: 'The time when the sample performance data was taken.
+          space:
+            description: 'Displays size and space consumption information.
 
-              Measured in milliseconds since the UNIX epoch.
+              '
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space'
+          time:
+            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
 
               '
             type: integer
             format: int64
             readOnly: true
         x-readOnly: true
-    MemberNoIdMember:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          group:
-            description: 'The resource in which the host, volume, or other item in the environment is a member.
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
 
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          member:
-            description: 'The member of the resource.
+            or the name of the object that was being processed when the error was encountered.
 
-              '
-            title: ReferenceNoId
-            allOf:
-            - $ref: '#/components/schemas/_referenceNoId'
-    ResourceSpaceGetResponse:
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    MemberNoIdMemberResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            The values are displayed for each name, if meaningful.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberNoIdMember'
+    ProtectionGroupTargetGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ProtectionGroupTargetResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          items:
-            description: 'Displays a list of all items after filtering.
-
-              If applicable, the values are displayed for each name.
-
-              If `total_only=true`, the `items` list will be empty.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourceSpace'
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              Where it makes more sense, the average value is displayed instead.
-
-              If applicable, the values are displayed for each field.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourceSpace'
-    ProtectionGroupTargetResponse:
+    ProtectionGroupResponse:
       type: object
       properties:
         items:
@@ -1763,22 +2165,21 @@ components:
 
             If applicable, the values are displayed for each name.
 
+            If `total_only=true`, the `items` list will be empty.
+
             '
           type: array
           items:
-            $ref: '#/components/schemas/TargetProtectionGroup'
-    _fixedReferenceNoId:
+            $ref: '#/components/schemas/ProtectionGroup'
+    _errorContextResponse:
       type: object
       properties:
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
           readOnly: true
-      x-readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
     TargetProtectionGroup:
       allOf:
       - $ref: '#/components/schemas/_context'
@@ -1820,6 +2221,34 @@ components:
               '
             type: string
             example: suspended
+    _aggregate_replication_performance:
+      type: object
+      properties:
+        bytes_per_sec:
+          description: The total number of bytes of replication data transmitted and received per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    ProtectionGroupsVolumesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ProtectionGroupsVolumesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    ProtectionGroupPerformanceArrayResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Lists performance data, broken down by array.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ProtectionGroupPerformanceArray'
     _retentionPolicy:
       description: The snapshot retention policy.
       type: object
@@ -1883,6 +2312,37 @@ components:
           type: integer
           format: int64
           example: 86400000
+    _time_window:
+      type: object
+      properties:
+        end:
+          description: The window end time. Measured in milliseconds since midnight. The time must be set on the hour. (e.g., `28800000`, which is equal to 8:00 AM).
+          type: integer
+          format: int64
+          example: 46800000
+        start:
+          description: The window start time. Measured in milliseconds since midnight. The time must be set on the hour. (e.g., `18000000`, which is equal to 5:00 AM).
+          type: integer
+          format: int64
+          example: 3600000
+    ProtectionGroupPerformanceResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'A list of protection group performance objects.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ProtectionGroupPerformance'
+    TagGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TagResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     _fixedReference:
       type: object
       properties:
@@ -1953,6 +2413,23 @@ components:
             '
           type: string
           example: staging
+    ProtectionGroupPerformance:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_aggregate_replication_performance'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          time:
+            description: 'The time when the sample performance data was taken.
+
+              Measured in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+        x-readOnly: true
     ProtectionGroupEradicationConfig:
       description: The configuration of the eradication feature.
       type: object
@@ -1971,686 +2448,209 @@ components:
           readOnly: true
           example: enabled
       x-readOnly: true
-    TagGetResponse:
+    ProtectionGroup:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TagResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    ProtectionGroupPerformanceResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
+      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_resource'
+      - description: 'A protection group defines a set of either volumes, hosts, or host groups
+
+          (called members) that are protected together through snapshots with
+
+          point-in-time consistency across the member volumes. The members within the
+
+          protection group have common data protection requirements and share the
+
+          same snapshot, replication, and retention schedules.
+
+          '
+        type: object
         properties:
-          items:
-            description: 'A list of protection group performance objects.
+          destroyed:
+            description: 'Has this protection group been destroyed?
+
+              To destroy a protection group, patch to `true`.
+
+              To recover a destroyed protection group, patch to `false`.
+
+              If not specified, defaults to `false`.
 
               '
-            type: array
-            items:
-              $ref: '#/components/schemas/ProtectionGroupPerformance'
-    ProtectionGroupGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ProtectionGroupResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          total:
-            description: 'The aggregate value of all items after filtering.
+            type: boolean
+          eradication_config:
+            $ref: '#/components/schemas/ProtectionGroupEradicationConfig'
+          host_count:
+            description: Number of hosts in this protection group.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 3
+          host_group_count:
+            description: Number of host groups in this protection group.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 3
+          is_local:
+            description: 'If set to `true`, the protection group belongs to the local array.
 
-              When applicable, the average value is displayed instead.
-
-              If applicable, the values are displayed for each field.
+              If set to `false`, the protection group belongs to the remote array.
 
               '
-            type: array
-            items:
-              $ref: '#/components/schemas/ProtectionGroup'
-    _errorcontextresponseErrors:
+            type: boolean
+            readOnly: true
+          pod:
+            description: The pod in which the protection group resides.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          replication_schedule:
+            description: The schedule settings for asynchronous replication.
+            title: Replication_schedule
+            allOf:
+            - $ref: '#/components/schemas/_replication_schedule'
+          retention_lock:
+            description: 'The valid values are `ratcheted` and `unlocked`.
+
+              The default value for a newly created protection group is `unlocked`.
+
+              Set `retention_lock` to `ratcheted` to enable SafeMode restrictions on the protection group.
+
+              Contact Pure Technical Services to change `retention_lock` to `unlocked`.
+
+              '
+            type: string
+            example: unlocked
+          snapshot_schedule:
+            description: The schedule settings for protection group snapshots.
+            title: Snapshot_schedule
+            allOf:
+            - $ref: '#/components/schemas/_snapshot_schedule'
+          source:
+            description: The array or pod on which the protection group was created.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          source_retention:
+            description: 'The retention policy for the source array of the protection group.
+
+              '
+            title: RetentionPolicy
+            allOf:
+            - $ref: '#/components/schemas/_retentionPolicy'
+          space:
+            description: 'Displays provisioned size and physical storage consumption data
+
+              for each protection group.
+
+              '
+            title: Space
+            allOf:
+            - $ref: '#/components/schemas/_space'
+          target_count:
+            description: The number of targets to where this protection group replicates.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 3
+          target_retention:
+            description: 'The retention policy for the target(s) of the protection group.
+
+              '
+            title: RetentionPolicy
+            allOf:
+            - $ref: '#/components/schemas/_retentionPolicy'
+          time_remaining:
+            description: 'The amount of time left until the destroyed protection group is permanently eradicated.
+
+              Measured in milliseconds.
+
+              Before the `time_remaining` period has elapsed, the destroyed protection group
+
+              can be recovered by setting `destroyed=false`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          volume_count:
+            description: The number of volumes in the protection group.
+            type: integer
+            format: int64
+            readOnly: true
+            example: 3
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationFixedReference'
+    ProtectionGroupTargetResponse:
       type: object
       properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
+        items:
+          description: 'Displays a list of all items after filtering.
 
-            or the name of the object that was being processed when the error was encountered.
+            If applicable, the values are displayed for each name.
 
-            This may be `null` for more general errors.
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/TargetProtectionGroup'
+    ProtectionGroupPost:
+      type: object
+      properties:
+        tags:
+          description: 'The list of tags to be upserted with the object.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
 
             '
           type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
 
             '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
           type: string
-          example: Resource does not exist.
+          readOnly: true
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
       x-aliases:
-      - _errorContextResponseErrors
-  parameters:
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Namespaces_delete:
-      name: namespaces
-      in: query
-      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Group_ids:
-      name: group_ids
-      in: query
-      description: 'A comma-separated list of group IDs.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'Performs the operation on the unique member IDs specified.
-
-        Enter multiple member IDs in comma-separated format.
-
-        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Group_names:
-      name: group_names
-      in: query
-      description: 'Performs the operation on the unique group name specified.
-
-        Examples of groups include host groups, pods, protection groups, and volume groups.
-
-        Enter multiple names in comma-separated format. For example, `hgroup01,hgroup02`.
-
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    History_end_time:
-      name: end_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Member_destroyed:
-      name: member_destroyed
-      in: query
-      description: 'If true, returns only destroyed member objects. Returns an error if
-
-        a name of a live member object is specified in the member_names query param.
-
-        If false, returns only live member objects. Returns an error if
-
-        a name of a destroyed member object is specified in the member_names
-
-        query param.
-
-        '
-      schema:
-        type: boolean
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Destroyed:
-      name: destroyed
-      in: query
-      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
-
-        If set to `false`, lists only objects that are not destroyed.
-
-        If not set, lists both objects that are destroyed and those that are not destroyed.
-
-
-        For destroyed objects, the time remaining is displayed in milliseconds.
-
-
-        If object name(s) or id(s) are specified, then each object referenced must exist.
-
-        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
-
-        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
-
-        An error is returned if any of these conditions are not met.
-
-        '
-      schema:
-        type: boolean
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Resource_ids:
-      name: resource_ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'Performs the operation on the unique member name specified.
-
-        Examples of members include volumes, hosts, host groups, and directories.
-
-        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Pgroup_group_ids:
-      name: group_ids
-      in: query
-      description: 'Performs the operation on the unique group id specified.
-
-        Provide multiple resource IDs in comma-separated format.
-
-        The group_ids or names parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Keys:
-      name: keys
-      in: query
-      description: 'A comma-separated list of tag keys.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Resource_names:
-      name: resource_names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Overwrite:
-      name: overwrite
-      in: query
-      description: 'If set to `true`,
-
-        overwrites an existing object during an object copy operation.
-
-        If set to `false` or not set at all and the target name is an existing object,
-
-        the copy operation fails.
-
-        Required if the `source` body parameter is set
-
-        and the source overwrites an existing object during the copy operation.
-
-        '
-      schema:
-        type: boolean
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Include_remote:
-      name: include_remote
-      in: query
-      description: 'If set to `true` the response will include remote membership for protection groups that belong
-
-        to the remote arrays or realms as well as local volumes.
-
-        Defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Protection_group_source_ids:
-      name: source_ids
-      in: query
-      description: 'The id of the protection group or protection group snapshot to be copied
-
-        into a new or existing protection group. If the destination protection group
-
-        and all of its volumes already exist, include the `overwrite` parameter to
-
-        overwrite all of the existing volumes with the snapshot contents.
-
-        If including the `overwrite` parameter, the names of the volumes that are
-
-        being overwritten must match the names of the volumes that are being restored.
-
-        If the source is a protection group, the latest snapshot of the protection group
-
-        will be used as the source during the copy operation.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Protection_group_source_names:
-      name: source_names
-      in: query
-      description: 'The name of the protection group or protection group snapshot to be copied
-
-        into a new or existing protection group. If the destination protection group
-
-        and all of its volumes already exist, include the `overwrite` parameter to
-
-        overwrite all of the existing volumes with the snapshot contents.
-
-        If including the `overwrite` parameter, the names of the volumes that are
-
-        being overwritten must match the names of the volumes that are being restored.
-
-        If the source is a protection group, the latest snapshot of the protection group
-
-        will be used as the source during the copy operation.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    History_resolution:
-      name: resolution
-      in: query
-      description: 'The number of milliseconds between samples of historical data.
-
-        For array-wide performance metrics (`/arrays/performance` endpoint),
-
-        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
-
-        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For performance metrics on storage objects (`<object name>/performance` endpoint),
-
-        such as volumes,
-
-        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
-
-        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For space metrics, (`<object name>/space` endpoint),
-
-        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
-
-        `28800000` (8 hours), and `86400000` (24 hours).
-
-        Include the `start_time` parameter to display the performance data
-
-        starting at the specified start time.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        Include the `end_time` parameter to display the performance data until the specified end time.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        If the `resolution` parameter is not specified
-
-        but either the `start_time` or `end_time` parameter is,
-
-        then `resolution` will default to the lowest valid resolution.
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Resource_destroyed:
-      name: resource_destroyed
-      in: query
-      description: 'If set to `true`, returns only objects from destroyed resources. Returns an error if
-
-        the name of a live resource is specified in the `resource_names` query parameter.
-
-        If set to `false`, returns only objects from live resources. Returns an error if the
-
-        name of a destroyed resource is specified in the `resource_names` query parameter.
-
-        '
-      schema:
-        type: boolean
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    History_start_time:
-      name: start_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Namespaces:
-      name: namespaces
-      in: query
-      description: 'A comma-separated list of namespaces.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
+      - _referenceWithoutType

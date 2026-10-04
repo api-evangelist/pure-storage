@@ -374,41 +374,51 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    _fixedNameResourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named, or
-
-        deleted by the user. This might be a virtual resource (e.g., a
-
-        volume) or correspond to something in the environment, like a host or server.
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and cannot be changed.
-
-            '
-          type: string
-          readOnly: true
-    LogTargetFileResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/LogTargetFile'
-    TestResultWithResourceGetResponse:
+    LogTargetFile:
       allOf:
-      - $ref: '#/components/schemas/TotalItemCountResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
+      - $ref: '#/components/schemas/LogTarget'
+      - description: A file log target
+        type: object
         properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/TestResultWithResource'
+          directory:
+            description: 'Directory name to be used as log target.
+
+              '
+            title: ReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_referenceWithType'
+          keep_for:
+            description: 'Specifies the period that audit logs are retained before they are deleted,
+
+              in milliseconds.
+
+              Default value is `null` which means size based retention does not apply.
+
+              Use 0 to reset the value to `null`.
+
+              At least one of the `keep_for` or `keep_size` parameters is required,
+
+              and they can be set together.
+
+              '
+            type: integer
+            format: int64
+            minimum: 86400000
+            example: 86400000
+          keep_size:
+            description: 'Specifies the maximum size of audit logs to be retained.
+
+              Measured in bytes. When exceeded, older logs will be deleted.
+
+              Default value is `null` which means size-based retention does not apply.
+
+              Use 0 to reset the value to `null`.
+
+              '
+            type: integer
+            format: int64
+            minimum: 1000000
+            example: 1000000
     TestResult:
       type: object
       properties:
@@ -465,97 +475,6 @@ components:
             '
           type: string
           example: phonehome
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    LogTargetsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/LogTargetsResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    TotalItemCountResponse:
-      type: object
-      properties:
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
-    LogTargetFile:
-      allOf:
-      - $ref: '#/components/schemas/LogTarget'
-      - description: A file log target
-        type: object
-        properties:
-          directory:
-            description: 'Directory name to be used as log target.
-
-              '
-            title: ReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_referenceWithType'
-          keep_for:
-            description: 'Specifies the period that audit logs are retained before they are deleted,
-
-              in milliseconds.
-
-              Default value is `null` which means size based retention does not apply.
-
-              Use 0 to reset the value to `null`.
-
-              At least one of the `keep_for` or `keep_size` parameters is required,
-
-              and they can be set together.
-
-              '
-            type: integer
-            format: int64
-            minimum: 86400000
-            example: 86400000
-          keep_size:
-            description: 'Specifies the maximum size of audit logs to be retained.
-
-              Measured in bytes. When exceeded, older logs will be deleted.
-
-              Default value is `null` which means size-based retention does not apply.
-
-              Use 0 to reset the value to `null`.
-
-              '
-            type: integer
-            format: int64
-            minimum: 1000000
-            example: 1000000
-    SyslogServerResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SyslogServer'
     LogTarget:
       allOf:
       - $ref: '#/components/schemas/_fixedNameResourceNoId'
@@ -569,45 +488,57 @@ components:
             type: string
             readOnly: true
             example: syslog
-    _fixedReferenceWithType:
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _fixedReferenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    LogTargetFileResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogTargetFile'
+    TestResultWithResource:
       allOf:
-      - $ref: '#/components/schemas/_fixedReference'
+      - $ref: '#/components/schemas/TestResult'
+      - $ref: '#/components/schemas/_context'
       - type: object
         properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
+          resource:
+            description: A reference to the object being tested.
+            title: FixedReferenceNoId
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceNoId'
     SyslogServerSettings:
       description: Global settings for syslog servers.
       allOf:
@@ -641,25 +572,39 @@ components:
 
               '
             type: boolean
-    SyslogServerSettingsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SyslogServerSettingsResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    SyslogServerGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SyslogServerResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _errorContextResponse:
+    _errorcontextresponseErrors:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
     SyslogServer:
       allOf:
       - $ref: '#/components/schemas/LogTarget'
@@ -681,29 +626,88 @@ components:
               '
             type: string
             example: tcp://my.syslogserver.com
-    TestResultWithResource:
-      allOf:
-      - $ref: '#/components/schemas/TestResult'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          resource:
-            description: A reference to the object being tested.
-            title: FixedReferenceNoId
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceNoId'
-    _fixedReferenceNoId:
+    SyslogServerResponse:
       type: object
       properties:
-        name:
-          description: 'The resource name,
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyslogServer'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-            such as volume name, pod name, snapshot name, and so on.
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
 
             '
           type: string
           readOnly: true
       x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    SyslogServerSettingsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyslogServerSettings'
+    LogTargetsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogTarget'
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
     PageInfo:
       type: object
       properties:
@@ -746,14 +750,79 @@ components:
             '
           type: integer
           format: int32
-    LogTargetsResponse:
+    _errorContextResponse:
       type: object
       properties:
-        items:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
           type: array
+          readOnly: true
           items:
-            $ref: '#/components/schemas/LogTarget'
-    _fixedReference:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    TotalItemCountResponse:
+      type: object
+      properties:
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    SyslogServerGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SyslogServerResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    SyslogServerSettingsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SyslogServerSettingsResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    LogTargetsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/LogTargetsResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    TestResultWithResourceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/TotalItemCountResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/TestResultWithResource'
+    LogTargetFileGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/LogTargetFileResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _fixedNameResourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named, or
+
+        deleted by the user. This might be a virtual resource (e.g., a
+
+        volume) or correspond to something in the environment, like a host or server.
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and cannot be changed.
+
+            '
+          type: string
+          readOnly: true
+    _reference:
       type: object
       properties:
         id:
@@ -763,108 +832,86 @@ components:
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
+          description: 'The resource name, such as volume name, pod name,
 
             snapshot name, and so on.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
       x-aliases:
-      - _fixedReferenceWithoutType
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    SyslogServerSettingsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SyslogServerSettings'
-    LogTargetFileGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/LogTargetFileResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
+      - _referenceWithoutType
   parameters:
-    Names:
-      name: names
+    Sort:
+      name: sort
       in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
     Context_names:
       name: context_names
       in: query
@@ -889,35 +936,28 @@ components:
         type: array
         items:
           type: string
-    Limit:
-      name: limit
+    Names:
+      name: names
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
+      description: 'Performs the operation on the unique names specified.
 
-        To return the total number of resources, set `limit=0`.
+        Enter multiple names in comma-separated format.
 
-        The total number of resources is returned as a `total_item_count` value.
+        For example, `name01,name02`.
 
-        If the page size requested is larger than the system maximum limit,
 
-        the server returns the maximum limit, disregarding the requested page size.
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
 
         '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Context_names_get:
       name: context_names
@@ -949,39 +989,6 @@ components:
         type: array
         items:
           type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
     Offset:
       name: offset
       in: query
@@ -995,32 +1002,6 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -1043,3 +1024,22 @@ components:
         '
       schema:
         type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10

@@ -107,40 +107,6 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
-    _builtInResourceNoId:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    ControllerGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Controller'
     Controller:
       allOf:
       - $ref: '#/components/schemas/_builtInResourceNoId'
@@ -186,6 +152,40 @@ components:
             type: string
             readOnly: true
             example: 5.0.0
+    _builtInResourceNoId:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    ControllerGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Controller'
     PageInfo:
       type: object
       properties:
@@ -228,13 +228,68 @@ components:
             '
           type: integer
           format: int32
-    _arraysBuiltIn:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    ControllerResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Controller_2'
+    ControllerGetResponse_2:
       allOf:
-      - $ref: '#/components/schemas/_builtInAsOf'
-      - $ref: '#/components/schemas/_arrays'
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/ControllerResponse'
+    _arrays:
+      type: object
+      properties:
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
     Controller_2:
       allOf:
       - $ref: '#/components/schemas/_arraysBuiltIn'
@@ -271,6 +326,68 @@ components:
             description: Version of the controller.
             type: string
             example: 5.0.0
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: The opaque and unique id of this resource.
+          type: string
+          readOnly: true
+          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+        name:
+          description: The name of this resource.
+          type: string
+          readOnly: true
+          example: example_name
+        resource_type:
+          description: 'The type of this resource represented by the name of its REST endpoint.
+
+            For example, "arrays", "network-interfaces", and "metrics".
+
+            The value may be `null` if the resource is not represented.
+
+            '
+          type: string
+          readOnly: true
+          example: example_resource_type
+      x-readOnly: true
+    _arraysBuiltIn:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_builtInAsOf'
+      - $ref: '#/components/schemas/_arrays'
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the continuation_token
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
+        total_item_count:
+          description: Total number of items after applying filter params.
+          type: integer
+          format: int32
+          example: 1
     _builtInAsOf:
       description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
 
@@ -303,15 +420,6 @@ components:
             type: string
             readOnly: true
             example: example_name
-    _errorErrors:
-      type: object
-      properties:
-        context:
-          type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
     _timeAware:
       type: object
       properties:
@@ -321,125 +429,7 @@ components:
           format: int64
           readOnly: true
           example: 1502729489760
-    ControllerResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Controller_2'
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the continuation_token
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-          example: MThkMzJmYWUtZDI3OS00ODEzLWIzODYtMmM3NmFhMTMwM2My
-        total_item_count:
-          description: Total number of items after applying filter params.
-          type: integer
-          format: int32
-          example: 1
-    Error:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered.
-          type: array
-          items:
-            $ref: '#/components/schemas/_errorErrors'
-    _fixedReference:
-      type: object
-      properties:
-        id:
-          description: The opaque and unique id of this resource.
-          type: string
-          readOnly: true
-          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-        name:
-          description: The name of this resource.
-          type: string
-          readOnly: true
-          example: example_name
-        resource_type:
-          description: 'The type of this resource represented by the name of its REST endpoint.
-
-            For example, "arrays", "network-interfaces", and "metrics".
-
-            The value may be `null` if the resource is not represented.
-
-            '
-          type: string
-          readOnly: true
-          example: example_resource_type
-      x-readOnly: true
-    ErrorNoContext:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Something was wrong
-    _arrays:
-      type: object
-      properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
-
-            some resources, such as pods, can be shared across multiple arrays.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
-    ControllerGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/ControllerResponse'
   parameters:
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
     Sort:
       name: sort
       in: query
@@ -451,19 +441,6 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Total_item_count:
       name: total_item_count
       in: query
@@ -505,26 +482,12 @@ components:
         type: array
         items:
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
+    Offset:
+      name: offset
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
+      description: 'The starting position based on the results of the query
 
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+        in relation to the full set of response objects returned.
 
         '
       schema:
@@ -532,12 +495,10 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
@@ -564,67 +525,45 @@ components:
         '
       schema:
         type: string
-    Ids:
-      name: ids
+    Filter:
+      name: filter
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Narrows down the results to only the response objects
 
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
+        that satisfy the filter criteria.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
 
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Limit_2:
+        type: string
+    Limit:
       name: limit
       in: query
-      description: 'Limit the size of the response to the specified number of resources.
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        A limit of 0 can be used to get the number of resources without getting
+        To return the total number of resources, set `limit=0`.
 
-        all of the resources. It will be returned in the total_item_count field.
+        The total number of resources is returned as a `total_item_count` value.
 
-        If a client asks for a page size larger than the maximum number, the request
+        If the page size requested is larger than the system maximum limit,
 
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
       schema:
         type: integer
         format: int32
+        minimum: 0
+      example: 10
     Sort_2:
       name: sort
       in: query
@@ -662,6 +601,26 @@ components:
         '
       schema:
         type: string
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
     Offset_2:
       name: offset
       in: query
@@ -672,6 +631,26 @@ components:
         type: integer
         format: int32
         minimum: 0
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
     Continuation_token_2:
       name: continuation_token
       in: query
@@ -688,9 +667,30 @@ components:
         type: string
         x-quoted: true
       x-quoted: true
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
   responses:
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error400:
+      description: BAD REQUEST
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -751,17 +751,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error403:
-      description: FORBIDDEN
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorNoContext'
     Error404:
       description: NOT FOUND
       headers:
@@ -793,8 +782,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error400:
-      description: BAD REQUEST
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -824,6 +813,17 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

@@ -869,180 +869,1369 @@ paths:
     servers:
     - url: https://api-staging.pure1.purestorage.com/
 components:
+  parameters:
+    Base_name:
+      name: base_name
+      in: query
+      description: 'Name of the volume or volume snapshot that the diff comparison is based on.
+
+        If a base volume or volume snapshot is not specified,
+
+        all mapped blocks for the volume or volume snapshot are displayed.
+
+        The `base_name` or `base_id` parameter is required, but they cannot be set together.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Keys:
+      name: keys
+      in: query
+      description: 'A comma-separated list of tag keys.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Allow_throttle_operation:
+      name: allow_throttle
+      in: query
+      description: 'If set to `true`, allows operation to fail if array health is not optimal.
+
+        '
+      schema:
+        type: boolean
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Resource_destroyed:
+      name: resource_destroyed
+      in: query
+      description: 'If set to `true`, returns only objects from destroyed resources. Returns an error if
+
+        the name of a live resource is specified in the `resource_names` query parameter.
+
+        If set to `false`, returns only objects from live resources. Returns an error if the
+
+        name of a destroyed resource is specified in the `resource_names` query parameter.
+
+        '
+      schema:
+        type: boolean
+    Destroyed:
+      name: destroyed
+      in: query
+      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
+
+        If set to `false`, lists only objects that are not destroyed.
+
+        If not set, lists both objects that are destroyed and those that are not destroyed.
+
+
+        For destroyed objects, the time remaining is displayed in milliseconds.
+
+
+        If object name(s) or id(s) are specified, then each object referenced must exist.
+
+        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
+
+        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
+
+        An error is returned if any of these conditions are not met.
+
+        '
+      schema:
+        type: boolean
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Group_names:
+      name: group_names
+      in: query
+      description: 'Performs the operation on the unique group name specified.
+
+        Examples of groups include host groups, pods, protection groups, and volume groups.
+
+        Enter multiple names in comma-separated format. For example, `hgroup01,hgroup02`.
+
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Add_to_protection_group_ids:
+      name: add_to_protection_group_ids
+      in: query
+      description: 'The volumes will be added to the specified protection groups along with creation or movement
+
+        across pods and array.
+
+        When a volume is moved, the specified protection groups must be in the target pod or array.
+
+        Enter multiple ids in comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Base_id:
+      name: base_id
+      in: query
+      description: 'ID of the volume or volume snapshot that the diff comparison is based on.
+
+        If a base volume or volume snapshot is not specified,
+
+        all mapped blocks for the volume or volume snapshot are displayed.
+
+        The `base_name` or `base_id` parameter is required, but they cannot be set together.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'Performs the operation on the unique member name specified.
+
+        Examples of members include volumes, hosts, host groups, and directories.
+
+        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Truncate:
+      name: truncate
+      in: query
+      description: 'If set to `true`, reduces the size of a volume
+
+        during a volume resize operation.
+
+        When a volume is truncated, Purity automatically takes an undo snapshot,
+
+        providing a 24-hour window during which the previous contents
+
+        can be retrieved. After truncating a volume,
+
+        its provisioned size can be subsequently increased,
+
+        but the data in truncated sectors cannot be retrieved.
+
+        If set to `false` or not set at all and the volume is being reduced in size,
+
+        the volume copy operation fails.
+
+        Required if the `provisioned` parameter is set to a volume size
+
+        that is smaller than the original size.
+
+        '
+      schema:
+        type: boolean
+    Remove_from_protection_group_ids:
+      name: remove_from_protection_group_ids
+      in: query
+      description: 'The volumes will be removed from the specified protection groups in the source pod or array along
+
+        with the move.
+
+        This can only be used when moving volumes across pods and arrays and must include all protection
+
+        groups that the volumes are members of before the move.
+
+        Enter multiple ids in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_destroyed:
+      name: member_destroyed
+      in: query
+      description: 'If true, returns only destroyed member objects. Returns an error if
+
+        a name of a live member object is specified in the member_names query param.
+
+        If false, returns only live member objects. Returns an error if
+
+        a name of a destroyed member object is specified in the member_names
+
+        query param.
+
+        '
+      schema:
+        type: boolean
+    Resource_names:
+      name: resource_names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Resource_ids:
+      name: resource_ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Next_allocated_block_hint:
+      name: next_allocated_block_hint
+      in: query
+      description: 'If set to `true`, appends offset of the next allocated block in bytes
+
+        for the volume specified in `names` or `ids` to the output `items`.
+
+        `base_name` or `base_id` must not be specified if this is set to `true`.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Remove_from_protection_group_names:
+      name: remove_from_protection_group_names
+      in: query
+      description: 'The volumes will be removed from the specified protection groups in the source pod or array along
+
+        with the move.
+
+        This can only be used when moving volumes across pods and arrays and must include all protection
+
+        groups that the volumes are members of before the move.
+
+        Enter multiple names in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Overwrite:
+      name: overwrite
+      in: query
+      description: 'If set to `true`,
+
+        overwrites an existing object during an object copy operation.
+
+        If set to `false` or not set at all and the target name is an existing object,
+
+        the copy operation fails.
+
+        Required if the `source` body parameter is set
+
+        and the source overwrites an existing object during the copy operation.
+
+        '
+      schema:
+        type: boolean
+    Member_ids:
+      name: member_ids
+      in: query
+      description: 'Performs the operation on the unique member IDs specified.
+
+        Enter multiple member IDs in comma-separated format.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Segment_length:
+      name: segment_length
+      in: query
+      description: 'Length of the segment, in bytes, to compare.
+
+        '
+      required: true
+      schema:
+        type: integer
+        format: int64
+    History_end_time:
+      name: end_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    With_default_protection:
+      name: with_default_protection
+      in: query
+      description: 'If specified as `true`, the initial protection of the newly created volumes will be
+
+        the union of the container default protection configuration and
+
+        `add_to_protection_group_names`.
+
+        If specified as `false`, the default protection of the container will not be applied
+
+        automatically. The initial protection of the newly created volumes will be configured
+
+        by `add_to_protection_group_names`.
+
+        If not specified, defaults to `true`.
+
+        '
+      schema:
+        type: boolean
+    Namespaces_delete:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Block_size:
+      name: block_size
+      in: query
+      description: 'Granularity at which to compare, in bytes. Must be a multiple of 512.
+
+        '
+      required: true
+      schema:
+        type: integer
+        format: int64
+    Add_to_protection_group_names:
+      name: add_to_protection_group_names
+      in: query
+      description: 'The volumes will be added to the specified protection groups along with creation or movement
+
+        across pods and array.
+
+        When a volume is moved, the specified protection groups must be in the target pod or array.
+
+        Enter multiple names in a comma-separated format.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    History_resolution:
+      name: resolution
+      in: query
+      description: 'The number of milliseconds between samples of historical data.
+
+        For array-wide performance metrics (`/arrays/performance` endpoint),
+
+        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
+
+        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For performance metrics on storage objects (`<object name>/performance` endpoint),
+
+        such as volumes,
+
+        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
+
+        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
+
+        For space metrics, (`<object name>/space` endpoint),
+
+        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
+
+        `28800000` (8 hours), and `86400000` (24 hours).
+
+        Include the `start_time` parameter to display the performance data
+
+        starting at the specified start time.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        Include the `end_time` parameter to display the performance data until the specified end time.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        If the `resolution` parameter is not specified
+
+        but either the `start_time` or `end_time` parameter is,
+
+        then `resolution` will default to the lowest valid resolution.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Segment_offset:
+      name: segment_offset
+      in: query
+      description: 'Absolute offset, in bytes, of the segment to compare.
+
+        Must be a multiple of block_size.
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Namespaces:
+      name: namespaces
+      in: query
+      description: 'A comma-separated list of namespaces.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Group_ids:
+      name: group_ids
+      in: query
+      description: 'A comma-separated list of group IDs.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
+
+        Where it makes more sense, the average value is displayed instead.
+
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    History_start_time:
+      name: start_time
+      in: query
+      description: 'Displays historical performance data for the specified time window,
+
+        where `start_time` is the beginning of the time window,
+
+        and `end_time` is the end of the time window.
+
+        The `start_time` and `end_time` parameters
+
+        are specified in milliseconds since the UNIX epoch.
+
+        If `start_time` is not specified,
+
+        the start time will default to one resolution before the end time,
+
+        meaning that the most recent sample of performance data will be displayed.
+
+        If `end_time`is not specified, the end time will default to the current time.
+
+        Include the `resolution` parameter to display the performance data at the specified resolution.
+
+        If not specified, `resolution` defaults to the lowest valid resolution.
+
+
+        '
+      schema:
+        type: integer
+        format: int64
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter_2:
+      name: filter
+      in: query
+      description: 'Exclude resources that don''t match the specified criteria.
+
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Authorization_2:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Names_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        If there is not at least one resource that matches each `name` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If there is not at least one resource that matches each `id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+        x-quoted: true
+      x-quoted: true
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
   schemas:
-    _newName:
+    TestResult:
       type: object
       properties:
-        name:
-          description: The new name for the resource.
+        component_address:
+          description: Address of the component running the test.
           type: string
-    _referenceWithFixedType:
+          example: 10.230.94.21
+        component_name:
+          description: Name of the component running the test.
+          type: string
+          example: CT0
+        description:
+          description: What the test is doing.
+          type: string
+          example: Testing phonehome connectivity
+        destination:
+          description: The URI of the target server being tested.
+          type: string
+          example: ra.cloud-support.purestorage.com
+        enabled:
+          description: 'Whether the object being tested is enabled or not.
+
+            Returns a value of `true` if the the service is enabled.
+
+            Returns a value of `false` if the service is disabled.
+
+            '
+          type: boolean
+          example: true
+        result_details:
+          description: Additional information about the test result.
+          type: string
+          example: Timeout connecting to phonehome endpoint
+        success:
+          description: 'Whether the object being tested passed the test or not.
+
+            Returns a value of `true` if the specified test has succeeded.
+
+            Returns a value of `false` if the specified test has failed.
+
+            '
+          type: boolean
+        test_type:
+          description: 'Displays the type of test being performed. The returned values are determined
+
+            by the `resource` being tested and its configuration.
+
+            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
+
+            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
+
+            `storage-admin-group-searching`, and `validate-ntp-configuration`.
+
+            '
+          type: string
+          example: phonehome
+    _protocol_endpoint:
+      type: object
+      properties:
+        container_version:
+          description: 'Defines vCenter and EXSi host compatibility of the protocol endpoint
+
+            and its associated container.
+
+            Valid values include: `1`, `2`, `3`.
+
+            When `container_version` is set to `1`, it''s compatible with vSphere version 7.0.1 or higher.
+
+            When `container_version` is set to `2`, it''s compatible with vSphere version 8.0.0 or higher.
+
+            When `container_version` is set to `3`, it''s compatible with vSphere version 8.0.1 or higher.
+
+            The default `container_version` is `1`.
+
+            '
+          type: string
+          example: '1'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
       type: object
       properties:
         id:
           description: 'A globally unique, system-generated ID.
 
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
+            The ID cannot be modified and cannot refer to another resource.
 
             '
           type: string
           readOnly: true
-    Volume:
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _volumeCommon:
       allOf:
-      - $ref: '#/components/schemas/_volumeCommon'
-      - $ref: '#/components/schemas/_context'
-      - type: object
+      - $ref: '#/components/schemas/_resource'
+      - description: 'A random access virtual storage device that a FlashArray exports to hosts via a
+
+          logical unit number (LUN). For a host, a volume contains a number of 512-byte sectors in which
+
+          data can be written and from which it can be read.
+
+          '
+        type: object
         properties:
-          pod:
-            description: 'A reference to the pod.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          priority:
-            description: 'The current priority value. Priority is calculated by combining all applicable relative
-
-              `priority_adjustment` values or taking the exact value if the volume has an absolute
-
-              `priority_adjustment` (specified by an `=` `priority_adjustment_operator`).
+          connection_count:
+            description: 'The total number of hosts and host groups connected to the volume.
 
               '
             type: integer
-            format: int32
+            format: int64
             readOnly: true
-          promotion_status:
-            description: 'Current promotion status of a volume. Values include `promoted` and `demoted`.
+          created:
+            description: 'The volume creation time, measured in milliseconds since the UNIX epoch.
 
-              A status of `promoted` indicates that the volume has been promoted and can accept write
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          destroyed:
+            description: 'Returns a value of `true` if the volume has been destroyed and is pending eradication.
 
-              requests from hosts. This is the default status for a volume when it is created.
+              The `time_remaining` value displays the amount of time left until the destroyed volume is
 
-              A status of `demoted` indicates that the volume has been demoted and no longer accepts write
+              permanently eradicated.
 
-              requests.
+              Before the `time_remaining` period has elapsed, the destroyed volume can be recovered
+
+              by setting `destroyed=false`.
+
+              Once the `time_remaining` period has elapsed, the volume is permanently eradicated and can
+
+              no longer be recovered.
+
+              '
+            type: boolean
+          host_encryption_key_status:
+            description: 'The host encryption key status for this volume.
+
+              Values include `none`, `detected`, and `fetched`.
 
               '
             type: string
+            readOnly: true
+            example: detected
+          priority_adjustment:
+            description: 'Priority adjustment operator and value.
+
+              '
+            title: PriorityAdjustment
+            allOf:
+            - $ref: '#/components/schemas/_priorityAdjustment'
+          provisioned:
+            description: 'The virtual size of the volume as a multiple of 512, measured in bytes.
+
+              The maximum size is 4503599627370496 (4PB).
+
+              '
+            type: integer
+            format: int64
+          qos:
+            description: 'Displays QoS limit information.
+
+              '
+            title: Qos
+            allOf:
+            - $ref: '#/components/schemas/_qos'
+          serial:
+            description: 'A globally unique serial number generated by the FlashArray when the volume is created.
+
+              '
+            type: string
+            readOnly: true
+          space:
+            description: 'Displays size and space consumption information.
+
+              '
+            title: VolumeSpaceCommon
+            allOf:
+            - $ref: '#/components/schemas/_volumeSpaceCommon'
+          time_remaining:
+            description: 'The amount of time left until the destroyed volume is permanently eradicated,
+
+              measured in milliseconds.
+
+              Before the `time_remaining` period has elapsed, the destroyed volume can be recovered
+
+              by setting `destroyed=false`.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+    TestResultWithResourceWithIdPostResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestResultWithResourceWithId'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    ProtectionGroupsVolumesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtectionGroupsVolumes'
+    _performance_others:
+      type: object
+      properties:
+        mirrored_others_per_sec:
+          description: The number of mirrored other requests processed per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        others_per_sec:
+          description: The number of other requests processed per second.
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        usec_per_mirrored_other_op:
+          description: 'The average time it takes the array to process a mirrored I/O other request, measured in
+
+            microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+        usec_per_other_op:
+          description: 'The average time it takes the array to process an I/O other request, measured in
+
+            microseconds.
+
+            '
+          type: integer
+          format: int64
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    _volumePostBase:
+      allOf:
+      - $ref: '#/components/schemas/_destroyedPatchPost'
+      - type: object
+        properties:
+          priority_adjustment:
+            description: Adjusts volume priority.
+            title: PriorityAdjustment
+            allOf:
+            - $ref: '#/components/schemas/_priorityAdjustment'
           protocol_endpoint:
-            description: 'Properties that are specific to volumes of `subtype=protocol_endpoint`.
+            description: 'Sets the properties that are specific to protocol endpoints.
+
+              This can only be used in conjunction to `subtype=protocol_endpoint`.
 
               '
             title: Protocol_endpoint
             allOf:
             - $ref: '#/components/schemas/_protocol_endpoint'
-          requested_promotion_state:
-            description: 'Values include `promoted` and `demoted`.
-
-              Patch `requested_promotion_state` to `demoted` to demote the volume so that the volume
-
-              stops accepting write requests.
-
-              Patch `requested_promotion_state` to `promoted` to promote the volume so that the volume
-
-              starts accepting write requests.
+          provisioned:
+            description: 'Sets the virtual size of the volume, measured in bytes.
 
               '
-            type: string
-          source:
-            description: 'A reference to the originating volume as a result of a volume copy.
-
-              '
-            title: FixedReference
+            type: integer
+            format: int64
+            maximum: 4503599627370496
+          qos:
+            description: Sets QoS limits.
+            title: Qos
             allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          subtype:
-            description: 'The type of volume. Values include `protocol_endpoint` and `regular`.
-
-              '
-            type: string
-            readOnly: true
-          volume_group:
-            description: 'A reference to the volume group.
-
-              '
+            - $ref: '#/components/schemas/_qos'
+          source:
+            description: The source volume of a volume copy.
             title: Reference
             allOf:
             - $ref: '#/components/schemas/_reference'
-          workload:
-            $ref: '#/components/schemas/_workloadConfigurationReference'
-    Tag:
+          subtype:
+            description: 'The type of volume. Valid values are `protocol_endpoint` and `regular`.
+
+              '
+            type: string
+          tags:
+            description: 'The list of tags to be upserted with the object.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/Tag'
+    _volumeSpaceCommon:
+      allOf:
+      - $ref: '#/components/schemas/_space'
+      - type: object
+        properties:
+          snapshots_effective:
+            description: 'This field has been deprecated.
+
+              The effective space contributed by data unique to one or more snapshots,
+
+              measured in bytes.
+
+              Use the `snapshots` field in the future, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          total_effective:
+            description: 'This field has been deprecated.
+
+              The total effective space contributed by customer data, measured in bytes.
+
+              Use the `total_physical` field in the future, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+          unique_effective:
+            description: 'This field has been deprecated.
+
+              The effective space contributed by unique customer data.
+
+              Unique data does not include shared space, snapshots, and internal array metadata, measured
+
+              in bytes.
+
+              Use the `unique` field in the future, as it contains the same information
+
+              for Evergreen//One arrays.
+
+              '
+            type: integer
+            format: int64
+            minimum: 0
+            readOnly: true
+    QosMetricsCeilings:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_containerQosCeilings'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          time:
+            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+        x-readOnly: true
+    VolumeDiff:
       allOf:
       - $ref: '#/components/schemas/_context'
       - type: object
         properties:
-          copyable:
-            description: 'Specifies whether or not to include the tag when copying the parent resource.
+          length:
+            description: 'Length of the chunk that is different, in bytes.
 
-              If set to `true`, the tag is included in resource copying.
+              '
+            type: integer
+            format: int64
+            readOnly: true
+          offset:
+            description: 'Absolute offset of the chunk that is different, in bytes.
 
-              If set to `false`, the tag is not included.
+              '
+            type: integer
+            format: int64
+            readOnly: true
+    ResourcePerformance:
+      allOf:
+      - $ref: '#/components/schemas/_performance'
+      - $ref: '#/components/schemas/_performance_others'
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+    ResourcePerformanceGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - type: object
+        properties:
+          items:
+            description: 'Performance data.
 
-              If not specified, defaults to `true`.
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePerformance'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              Where it makes more sense, the average value is displayed instead.
+
+              The values are displayed for each field where meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePerformance'
+    _protectionGroupsVolumesMember:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          destroyed:
+            description: 'Returns a value of `true` if the volume has been destroyed and is pending eradication.
+
+              Through the `volumes` endpoint, the user can see `time_remaining` of the destroyed
+
+              volume, recover, or eradicate the destroyed volume.
 
               '
             type: boolean
-            example: true
-          key:
-            description: 'Key of the tag. Supports up to 64 Unicode characters.
+    _workloadConfigurationReferencePatch:
+      type: object
+      description: 'The instruction for removing the resource from the workload. Setting the `id` or `name` of the
 
-              '
-            type: string
-            example: environment
-          namespace:
-            description: 'Optional namespace of the tag.
+        workload to an empty string (`""`) removes the resource.
 
-              Namespace identifies the category of the tag. Omitting the namespace
-
-              defaults to the namespace `default`. The `pure&#42;` namespaces are
-
-              reserved for plugins and integration partners. It is recommended
-
-              that customers avoid using reserved namespaces.
-
-              '
-            type: string
-            example: default
-          resource:
-            $ref: '#/components/schemas/_fixedReference'
-          value:
-            description: 'Value of the tag. Supports up to 256 Unicode characters.
-
-              '
-            type: string
-            example: staging
-    VolumesBatchResponse:
+        '
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithFixedType'
+    TagResponse:
       type: object
       properties:
         items:
-          description: 'Displays a list of all items.
-
-            If applicable, the values are displayed for each name.
-
-            '
           type: array
           items:
-            $ref: '#/components/schemas/Volume'
+            $ref: '#/components/schemas/Tag'
+    _workloadConfigurationReferencePost:
+      type: object
+      description: 'The workload to which the resource is added.
+
+        Set one of `id` or `name`, and `configuration` to add the resource to the workload
+
+        and configure it based on the `configuration` from the preset revision the workload was
+
+        originally provisioned from.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithFixedType'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
+
+              '
+            type: string
+    ProtectionGroupsVolumes:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          group:
+            $ref: '#/components/schemas/_reference'
+          member:
+            $ref: '#/components/schemas/_protectionGroupsVolumesMember'
     _performance:
       type: object
       properties:
@@ -1407,219 +2596,35 @@ components:
           minimum: 0
           readOnly: true
       x-readOnly: true
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _qos:
+    _qos_patch:
       type: object
       properties:
         bandwidth_limit:
-          description: 'The maximum QoS bandwidth limit for the volume.
+          description: 'The maximum QoS bandwidth limit for the volume, measured in `bytes per second`.
 
-            Whenever throughput exceeds the bandwidth limit, throttling occurs.
+            Throttling occurs when throughput exceeds this limit. The maximum supported
 
-            Measured in bytes per second. Maximum limit is 512 GB/s.
+            limit is `512 GB/s`. Specifying an empty string `""` unsets the limit.
 
             '
-          title: Qos_bw_limit_type
-          allOf:
+          title: QosBandwidthLimitPatch
+          oneOf:
           - $ref: '#/components/schemas/_qos_bw_limit_type'
+          - $ref: '#/components/schemas/_limit_unset_value'
         iops_limit:
-          description: 'The QoS IOPs limit for the volume.
+          description: 'The QoS `IOPS` limit for the volume. Specifying an empty string `""`
+
+            unsets the limit.
 
             '
-          title: Qos_iops_limit_type
-          allOf:
+          title: QosIopsLimitPatch
+          oneOf:
           - $ref: '#/components/schemas/_qos_iops_limit_type'
-    _destroyedPatchPost:
-      type: object
-      properties:
-        destroyed:
-          description: 'If set to `true`, destroys a resource. Once set to `true`,
-
-            the `time_remaining` value will display the amount of time left
-
-            until the destroyed resource is permanently eradicated.
-
-            Before the `time_remaining` period has elapsed, the destroyed resource
-
-            can be recovered by setting `destroyed=false`.
-
-            Once the `time_remaining` period has elapsed,
-
-            the resource is permanently eradicated and can no longer be recovered.
-
-            '
-          type: boolean
-    VolumeBatchPost:
-      allOf:
-      - $ref: '#/components/schemas/_volumePostBase'
-      - type: object
-        properties:
-          add_to_protection_groups:
-            description: 'Specifies a list of protection groups that will compose
-
-              the initial protection for the volume.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_reference'
-          name:
-            description: 'Specifies the name of the volume.
-
-              '
-            type: string
-    VolumeSpaceGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          items:
-            description: 'Displays a list of all items after filtering.
-
-              If applicable, the values are displayed for each name.
-
-              If `total_only=true`, the `items` list will be empty.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/VolumeSpace'
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              Where it makes more sense, the average value is displayed instead.
-
-              If applicable, the values are displayed for each field.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/VolumeSpace'
-    VolumePatch:
-      allOf:
-      - $ref: '#/components/schemas/_destroyedPatchPost'
-      - $ref: '#/components/schemas/_newName'
-      - type: object
-        properties:
-          pod:
-            description: Moves the volume into the specified pod.
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          priority_adjustment:
-            description: Adjusts volume priority.
-            title: PriorityAdjustment
-            allOf:
-            - $ref: '#/components/schemas/_priorityAdjustment'
-          protocol_endpoint:
-            description: 'Sets the properties that are specific to protocol endpoints.
-
-              This can only be used in conjunction to `subtype=protocol_endpoint`.
-
-              '
-            title: Protocol_endpoint
-            allOf:
-            - $ref: '#/components/schemas/_protocol_endpoint'
-          provisioned:
-            description: Updates the virtual size of the volume, measured in bytes.
-            type: integer
-            format: int64
-            maximum: 4503599627370496
-          qos:
-            description: Sets QoS limits.
-            title: Qos_patch
-            allOf:
-            - $ref: '#/components/schemas/_qos_patch'
-          requested_promotion_state:
-            description: 'Valid values are `promoted` and `demoted`.
-
-              Patch `requested_promotion_state` to `demoted` to demote the volume so that the volume
-
-              stops accepting write requests.
-
-              Patch `requested_promotion_state` to `promoted` to promote the volume so that the volume
-
-              starts accepting write requests.
-
-              '
-            type: string
-          volume_group:
-            description: Adds the volume to the specified volume group.
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          workload:
-            $ref: '#/components/schemas/_workloadConfigurationReferencePatch'
-    ProtectionGroupsVolumesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProtectionGroupsVolumes'
-    TestResultWithResourceWithIdPostResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TestResultWithResourceWithId'
-    _workloadConfigurationReference:
-      type: object
-      description: 'A reference to the workload that is managing this resource.
-
-        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithFixedType'
-      - type: object
-        properties:
-          configuration:
-            description: 'The name of the preset configuration object.
-
-              '
-            type: string
-    _protocol_endpoint:
-      type: object
-      properties:
-        container_version:
-          description: 'Defines vCenter and EXSi host compatibility of the protocol endpoint
-
-            and its associated container.
-
-            Valid values include: `1`, `2`, `3`.
-
-            When `container_version` is set to `1`, it''s compatible with vSphere version 7.0.1 or higher.
-
-            When `container_version` is set to `2`, it''s compatible with vSphere version 8.0.0 or higher.
-
-            When `container_version` is set to `3`, it''s compatible with vSphere version 8.0.1 or higher.
-
-            The default `container_version` is `1`.
-
-            '
-          type: string
-          example: '1'
+          - $ref: '#/components/schemas/_limit_unset_value'
+    _limit_unset_value:
+      type: string
+      minLength: 0
+      maxLength: 0
     _containerQosCeilings:
       type: object
       properties:
@@ -1641,44 +2646,6 @@ components:
           title: Qos_iops_limit_type
           allOf:
           - $ref: '#/components/schemas/_qos_iops_limit_type'
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _qos_iops_limit_type:
-      type: integer
-      format: int64
-      minimum: 100
-      maximum: 100000000
     VolumeGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
@@ -1697,197 +2664,60 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/Volume'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    _performance_others:
-      type: object
-      properties:
-        mirrored_others_per_sec:
-          description: The number of mirrored other requests processed per second.
-          type: integer
-          format: int64
-          minimum: 0
-          readOnly: true
-        others_per_sec:
-          description: The number of other requests processed per second.
-          type: integer
-          format: int64
-          minimum: 0
-          readOnly: true
-        usec_per_mirrored_other_op:
-          description: 'The average time it takes the array to process a mirrored I/O other request, measured in
-
-            microseconds.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-          readOnly: true
-        usec_per_other_op:
-          description: 'The average time it takes the array to process an I/O other request, measured in
-
-            microseconds.
-
-            '
-          type: integer
-          format: int64
-          minimum: 0
-          readOnly: true
-      x-readOnly: true
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    VolumeDiff:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          length:
-            description: 'Length of the chunk that is different, in bytes.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          offset:
-            description: 'Absolute offset of the chunk that is different, in bytes.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-    ResourcePerformanceByArray:
-      allOf:
-      - $ref: '#/components/schemas/ResourcePerformance'
-      - type: object
-        properties:
-          array:
-            description: 'The array on which the performance metrics were recorded.
-
-              '
-            title: Resource
-            allOf:
-            - $ref: '#/components/schemas/_resource'
-    ProtectionGroupsVolumes:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          group:
-            $ref: '#/components/schemas/_reference'
-          member:
-            $ref: '#/components/schemas/_protectionGroupsVolumesMember'
-    Member:
-      allOf:
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          group:
-            $ref: '#/components/schemas/_reference'
-          member:
-            $ref: '#/components/schemas/_reference'
-    VolumesDiffGetResponse:
+    ResourcePerformanceByArrayGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/VolumesDiffResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
-    TestResult:
+      - type: object
+        properties:
+          items:
+            description: 'Performance data, broken down by array.
+
+              If `total_only=true`, the `items` list will be empty.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePerformanceByArray'
+          total:
+            description: 'The aggregate value of all items after filtering.
+
+              Where it makes more sense, the average value is displayed instead.
+
+              The values are displayed for each field where meaningful.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ResourcePerformanceByArray'
+    VolumesBatchResponse:
       type: object
       properties:
-        component_address:
-          description: Address of the component running the test.
-          type: string
-          example: 10.230.94.21
-        component_name:
-          description: Name of the component running the test.
-          type: string
-          example: CT0
-        description:
-          description: What the test is doing.
-          type: string
-          example: Testing phonehome connectivity
-        destination:
-          description: The URI of the target server being tested.
-          type: string
-          example: ra.cloud-support.purestorage.com
-        enabled:
-          description: 'Whether the object being tested is enabled or not.
+        items:
+          description: 'Displays a list of all items.
 
-            Returns a value of `true` if the the service is enabled.
-
-            Returns a value of `false` if the service is disabled.
+            If applicable, the values are displayed for each name.
 
             '
-          type: boolean
-          example: true
-        result_details:
-          description: Additional information about the test result.
-          type: string
-          example: Timeout connecting to phonehome endpoint
-        success:
-          description: 'Whether the object being tested passed the test or not.
-
-            Returns a value of `true` if the specified test has succeeded.
-
-            Returns a value of `false` if the specified test has failed.
-
-            '
-          type: boolean
-        test_type:
-          description: 'Displays the type of test being performed. The returned values are determined
-
-            by the `resource` being tested and its configuration.
-
-            Values include `array-admin-group-searching`, `binding`, `connecting`, `phonehome`,
-
-            `phonehome-ping`, `remote-assist`, `rootdse-searching`, `read-only-group-searching`,
-
-            `storage-admin-group-searching`, and `validate-ntp-configuration`.
-
-            '
-          type: string
-          example: phonehome
-    _workloadConfigurationReferencePatch:
+          type: array
+          items:
+            $ref: '#/components/schemas/Volume'
+    _workloadConfigurationReference:
       type: object
-      description: 'The instruction for removing the resource from the workload. Setting the `id` or `name` of the
+      description: 'A reference to the workload that is managing this resource.
 
-        workload to an empty string (`""`) removes the resource.
+        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
 
         '
       allOf:
       - $ref: '#/components/schemas/_referenceWithFixedType'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
+
+              '
+            type: string
     _space:
       type: object
       properties:
@@ -2088,197 +2918,6 @@ components:
           format: int64
           minimum: 0
           readOnly: true
-    _workloadConfigurationReferencePost:
-      type: object
-      description: 'The workload to which the resource is added.
-
-        Set one of `id` or `name`, and `configuration` to add the resource to the workload
-
-        and configure it based on the `configuration` from the preset revision the workload was
-
-        originally provisioned from.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithFixedType'
-      - type: object
-        properties:
-          configuration:
-            description: 'The name of the preset configuration object.
-
-              '
-            type: string
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    MemberGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/MemberResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    ProtectionGroupsVolumesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ProtectionGroupsVolumesResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    QosMetricsCeilings:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_containerQosCeilings'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          time:
-            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-        x-readOnly: true
-    _volumeCommon:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - description: 'A random access virtual storage device that a FlashArray exports to hosts via a
-
-          logical unit number (LUN). For a host, a volume contains a number of 512-byte sectors in which
-
-          data can be written and from which it can be read.
-
-          '
-        type: object
-        properties:
-          connection_count:
-            description: 'The total number of hosts and host groups connected to the volume.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          created:
-            description: 'The volume creation time, measured in milliseconds since the UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-          destroyed:
-            description: 'Returns a value of `true` if the volume has been destroyed and is pending eradication.
-
-              The `time_remaining` value displays the amount of time left until the destroyed volume is
-
-              permanently eradicated.
-
-              Before the `time_remaining` period has elapsed, the destroyed volume can be recovered
-
-              by setting `destroyed=false`.
-
-              Once the `time_remaining` period has elapsed, the volume is permanently eradicated and can
-
-              no longer be recovered.
-
-              '
-            type: boolean
-          host_encryption_key_status:
-            description: 'The host encryption key status for this volume.
-
-              Values include `none`, `detected`, and `fetched`.
-
-              '
-            type: string
-            readOnly: true
-            example: detected
-          priority_adjustment:
-            description: 'Priority adjustment operator and value.
-
-              '
-            title: PriorityAdjustment
-            allOf:
-            - $ref: '#/components/schemas/_priorityAdjustment'
-          provisioned:
-            description: 'The virtual size of the volume as a multiple of 512, measured in bytes.
-
-              The maximum size is 4503599627370496 (4PB).
-
-              '
-            type: integer
-            format: int64
-          qos:
-            description: 'Displays QoS limit information.
-
-              '
-            title: Qos
-            allOf:
-            - $ref: '#/components/schemas/_qos'
-          serial:
-            description: 'A globally unique serial number generated by the FlashArray when the volume is created.
-
-              '
-            type: string
-            readOnly: true
-          space:
-            description: 'Displays size and space consumption information.
-
-              '
-            title: VolumeSpaceCommon
-            allOf:
-            - $ref: '#/components/schemas/_volumeSpaceCommon'
-          time_remaining:
-            description: 'The amount of time left until the destroyed volume is permanently eradicated,
-
-              measured in milliseconds.
-
-              Before the `time_remaining` period has elapsed, the destroyed volume can be recovered
-
-              by setting `destroyed=false`.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-    VolumeResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after filtering.
-
-            If applicable, the values are displayed for each name.
-
-            If `total_only=true`, the `items` list is empty.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Volume'
-    VolumeQosGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
-          items:
-            description: 'QoS configuration data.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/QosMetricsCeilings'
     PageInfo:
       type: object
       properties:
@@ -2321,199 +2960,34 @@ components:
             '
           type: integer
           format: int32
-    TagResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Tag'
-    _protectionGroupsVolumesMember:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          destroyed:
-            description: 'Returns a value of `true` if the volume has been destroyed and is pending eradication.
-
-              Through the `volumes` endpoint, the user can see `time_remaining` of the destroyed
-
-              volume, recover, or eradicate the destroyed volume.
-
-              '
-            type: boolean
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-    VolumeSpace:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          space:
-            description: 'Displays size and space consumption information.
-
-              '
-            title: VolumeSpaceCommon
-            allOf:
-            - $ref: '#/components/schemas/_volumeSpaceCommon'
-          time:
-            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-        x-readOnly: true
-    VolumePost:
-      allOf:
-      - $ref: '#/components/schemas/_volumePostBase'
-      - type: object
-        properties:
-          workload:
-            $ref: '#/components/schemas/_workloadConfigurationReferencePost'
-    _qos_patch:
-      type: object
-      properties:
-        bandwidth_limit:
-          description: 'The maximum QoS bandwidth limit for the volume, measured in `bytes per second`.
-
-            Throttling occurs when throughput exceeds this limit. The maximum supported
-
-            limit is `512 GB/s`. Specifying an empty string `""` unsets the limit.
-
-            '
-          title: QosBandwidthLimitPatch
-          oneOf:
-          - $ref: '#/components/schemas/_qos_bw_limit_type'
-          - $ref: '#/components/schemas/_limit_unset_value'
-        iops_limit:
-          description: 'The QoS `IOPS` limit for the volume. Specifying an empty string `""`
-
-            unsets the limit.
-
-            '
-          title: QosIopsLimitPatch
-          oneOf:
-          - $ref: '#/components/schemas/_qos_iops_limit_type'
-          - $ref: '#/components/schemas/_limit_unset_value'
-    _qos_bw_limit_type:
-      type: integer
-      format: int64
-      minimum: 1048576
-      maximum: 549755813888
-    _volumeSpaceCommon:
-      allOf:
-      - $ref: '#/components/schemas/_space'
-      - type: object
-        properties:
-          snapshots_effective:
-            description: 'This field has been deprecated.
-
-              The effective space contributed by data unique to one or more snapshots,
-
-              measured in bytes.
-
-              Use the `snapshots` field in the future, as it contains the same information
-
-              for Evergreen//One arrays.
-
-              '
-            type: integer
-            format: int64
-            minimum: 0
-            readOnly: true
-          total_effective:
-            description: 'This field has been deprecated.
-
-              The total effective space contributed by customer data, measured in bytes.
-
-              Use the `total_physical` field in the future, as it contains the same information
-
-              for Evergreen//One arrays.
-
-              '
-            type: integer
-            format: int64
-            minimum: 0
-            readOnly: true
-          unique_effective:
-            description: 'This field has been deprecated.
-
-              The effective space contributed by unique customer data.
-
-              Unique data does not include shared space, snapshots, and internal array metadata, measured
-
-              in bytes.
-
-              Use the `unique` field in the future, as it contains the same information
-
-              for Evergreen//One arrays.
-
-              '
-            type: integer
-            format: int64
-            minimum: 0
-            readOnly: true
-    MemberResponse:
-      type: object
-      properties:
-        items:
-          description: 'Displays a list of all items after filtering.
-
-            The values are displayed for each name where meaningful.
-
-            If `total_only=true`, the `items` list will be empty.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Member'
-    ResourcePerformanceByArrayGetResponse:
+    VolumeSpaceGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/_errorContextResponse'
       - type: object
         properties:
           items:
-            description: 'Performance data, broken down by array.
+            description: 'Displays a list of all items after filtering.
+
+              If applicable, the values are displayed for each name.
 
               If `total_only=true`, the `items` list will be empty.
 
               '
             type: array
             items:
-              $ref: '#/components/schemas/ResourcePerformanceByArray'
+              $ref: '#/components/schemas/VolumeSpace'
           total:
             description: 'The aggregate value of all items after filtering.
 
               Where it makes more sense, the average value is displayed instead.
 
-              The values are displayed for each field where meaningful.
+              If applicable, the values are displayed for each field.
 
               '
             type: array
             items:
-              $ref: '#/components/schemas/ResourcePerformanceByArray'
+              $ref: '#/components/schemas/VolumeSpace'
     _priorityAdjustment:
       type: object
       properties:
@@ -2544,6 +3018,56 @@ components:
             '
           type: integer
           format: int32
+    _qos_bw_limit_type:
+      type: integer
+      format: int64
+      minimum: 1048576
+      maximum: 549755813888
+    Tag:
+      allOf:
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          copyable:
+            description: 'Specifies whether or not to include the tag when copying the parent resource.
+
+              If set to `true`, the tag is included in resource copying.
+
+              If set to `false`, the tag is not included.
+
+              If not specified, defaults to `true`.
+
+              '
+            type: boolean
+            example: true
+          key:
+            description: 'Key of the tag. Supports up to 64 Unicode characters.
+
+              '
+            type: string
+            example: environment
+          namespace:
+            description: 'Optional namespace of the tag.
+
+              Namespace identifies the category of the tag. Omitting the namespace
+
+              defaults to the namespace `default`. The `pure&#42;` namespaces are
+
+              reserved for plugins and integration partners. It is recommended
+
+              that customers avoid using reserved namespaces.
+
+              '
+            type: string
+            example: default
+          resource:
+            $ref: '#/components/schemas/_fixedReference'
+          value:
+            description: 'Value of the tag. Supports up to 256 Unicode characters.
+
+              '
+            type: string
+            example: staging
     TestResultWithResourceWithId:
       allOf:
       - $ref: '#/components/schemas/TestResult'
@@ -2557,11 +3081,256 @@ components:
             title: FixedReference
             allOf:
             - $ref: '#/components/schemas/_fixedReference'
-    _volumePostBase:
+    VolumesDiffGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_destroyedPatchPost'
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/VolumesDiffResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    ResourcePerformanceByArray:
+      allOf:
+      - $ref: '#/components/schemas/ResourcePerformance'
       - type: object
         properties:
+          array:
+            description: 'The array on which the performance metrics were recorded.
+
+              '
+            title: Resource
+            allOf:
+            - $ref: '#/components/schemas/_resource'
+    VolumeResponse:
+      type: object
+      properties:
+        items:
+          description: 'Displays a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            If `total_only=true`, the `items` list is empty.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Volume'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    Volume:
+      allOf:
+      - $ref: '#/components/schemas/_volumeCommon'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          pod:
+            description: 'A reference to the pod.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          priority:
+            description: 'The current priority value. Priority is calculated by combining all applicable relative
+
+              `priority_adjustment` values or taking the exact value if the volume has an absolute
+
+              `priority_adjustment` (specified by an `=` `priority_adjustment_operator`).
+
+              '
+            type: integer
+            format: int32
+            readOnly: true
+          promotion_status:
+            description: 'Current promotion status of a volume. Values include `promoted` and `demoted`.
+
+              A status of `promoted` indicates that the volume has been promoted and can accept write
+
+              requests from hosts. This is the default status for a volume when it is created.
+
+              A status of `demoted` indicates that the volume has been demoted and no longer accepts write
+
+              requests.
+
+              '
+            type: string
+          protocol_endpoint:
+            description: 'Properties that are specific to volumes of `subtype=protocol_endpoint`.
+
+              '
+            title: Protocol_endpoint
+            allOf:
+            - $ref: '#/components/schemas/_protocol_endpoint'
+          requested_promotion_state:
+            description: 'Values include `promoted` and `demoted`.
+
+              Patch `requested_promotion_state` to `demoted` to demote the volume so that the volume
+
+              stops accepting write requests.
+
+              Patch `requested_promotion_state` to `promoted` to promote the volume so that the volume
+
+              starts accepting write requests.
+
+              '
+            type: string
+          source:
+            description: 'A reference to the originating volume as a result of a volume copy.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          subtype:
+            description: 'The type of volume. Values include `protocol_endpoint` and `regular`.
+
+              '
+            type: string
+            readOnly: true
+          volume_group:
+            description: 'A reference to the volume group.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationReference'
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    VolumeBatchPost:
+      allOf:
+      - $ref: '#/components/schemas/_volumePostBase'
+      - type: object
+        properties:
+          add_to_protection_groups:
+            description: 'Specifies a list of protection groups that will compose
+
+              the initial protection for the volume.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_reference'
+          name:
+            description: 'Specifies the name of the volume.
+
+              '
+            type: string
+    ProtectionGroupsVolumesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ProtectionGroupsVolumesResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _newName:
+      type: object
+      properties:
+        name:
+          description: The new name for the resource.
+          type: string
+    MemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/MemberResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _referenceWithFixedType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+    VolumePatch:
+      allOf:
+      - $ref: '#/components/schemas/_destroyedPatchPost'
+      - $ref: '#/components/schemas/_newName'
+      - type: object
+        properties:
+          pod:
+            description: Moves the volume into the specified pod.
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
           priority_adjustment:
             description: Adjusts volume priority.
             title: PriorityAdjustment
@@ -2577,64 +3346,89 @@ components:
             allOf:
             - $ref: '#/components/schemas/_protocol_endpoint'
           provisioned:
-            description: 'Sets the virtual size of the volume, measured in bytes.
-
-              '
+            description: Updates the virtual size of the volume, measured in bytes.
             type: integer
             format: int64
             maximum: 4503599627370496
           qos:
             description: Sets QoS limits.
-            title: Qos
+            title: Qos_patch
             allOf:
-            - $ref: '#/components/schemas/_qos'
-          source:
-            description: The source volume of a volume copy.
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          subtype:
-            description: 'The type of volume. Valid values are `protocol_endpoint` and `regular`.
+            - $ref: '#/components/schemas/_qos_patch'
+          requested_promotion_state:
+            description: 'Valid values are `promoted` and `demoted`.
+
+              Patch `requested_promotion_state` to `demoted` to demote the volume so that the volume
+
+              stops accepting write requests.
+
+              Patch `requested_promotion_state` to `promoted` to promote the volume so that the volume
+
+              starts accepting write requests.
 
               '
             type: string
-          tags:
-            description: 'The list of tags to be upserted with the object.
+          volume_group:
+            description: Adds the volume to the specified volume group.
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationReferencePatch'
+    _qos:
+      type: object
+      properties:
+        bandwidth_limit:
+          description: 'The maximum QoS bandwidth limit for the volume.
 
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/Tag'
-    _limit_unset_value:
-      type: string
-      minLength: 0
-      maxLength: 0
-    ResourcePerformanceGetResponse:
+            Whenever throughput exceeds the bandwidth limit, throttling occurs.
+
+            Measured in bytes per second. Maximum limit is 512 GB/s.
+
+            '
+          title: Qos_bw_limit_type
+          allOf:
+          - $ref: '#/components/schemas/_qos_bw_limit_type'
+        iops_limit:
+          description: 'The QoS IOPs limit for the volume.
+
+            '
+          title: Qos_iops_limit_type
+          allOf:
+          - $ref: '#/components/schemas/_qos_iops_limit_type'
+    _destroyedPatchPost:
+      type: object
+      properties:
+        destroyed:
+          description: 'If set to `true`, destroys a resource. Once set to `true`,
+
+            the `time_remaining` value will display the amount of time left
+
+            until the destroyed resource is permanently eradicated.
+
+            Before the `time_remaining` period has elapsed, the destroyed resource
+
+            can be recovered by setting `destroyed=false`.
+
+            Once the `time_remaining` period has elapsed,
+
+            the resource is permanently eradicated and can no longer be recovered.
+
+            '
+          type: boolean
+    TagGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TagResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
-      - type: object
-        properties:
+    VolumesDiffResponse:
+      type: object
+      properties:
+        items:
+          description: A list of different chunks between specified volumes.
+          type: array
           items:
-            description: 'Performance data.
-
-              If `total_only=true`, the `items` list will be empty.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourcePerformance'
-          total:
-            description: 'The aggregate value of all items after filtering.
-
-              Where it makes more sense, the average value is displayed instead.
-
-              The values are displayed for each field where meaningful.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/ResourcePerformance'
+            $ref: '#/components/schemas/VolumeDiff'
     _fixedReference:
       type: object
       properties:
@@ -2657,6 +3451,32 @@ components:
       x-readOnly: true
       x-aliases:
       - _fixedReferenceWithoutType
+    _qos_iops_limit_type:
+      type: integer
+      format: int64
+      minimum: 100
+      maximum: 100000000
+    VolumeSpace:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          space:
+            description: 'Displays size and space consumption information.
+
+              '
+            title: VolumeSpaceCommon
+            allOf:
+            - $ref: '#/components/schemas/_volumeSpaceCommon'
+          time:
+            description: 'The timestamp of when the data was taken, measured in milliseconds since the UNIX epoch.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+        x-readOnly: true
     TagBatch:
       type: object
       properties:
@@ -2705,58 +3525,189 @@ components:
             '
           type: string
           example: staging
-    TagGetResponse:
+    VolumePost:
+      allOf:
+      - $ref: '#/components/schemas/_volumePostBase'
+      - type: object
+        properties:
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationReferencePost'
+    VolumeQosGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TagResponse'
       - $ref: '#/components/schemas/_errorContextResponse'
-    VolumesDiffResponse:
+      - type: object
+        properties:
+          items:
+            description: 'QoS configuration data.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/QosMetricsCeilings'
+    MemberResponse:
       type: object
       properties:
         items:
-          description: A list of different chunks between specified volumes.
+          description: 'Displays a list of all items after filtering.
+
+            The values are displayed for each name where meaningful.
+
+            If `total_only=true`, the `items` list will be empty.
+
+            '
           type: array
           items:
-            $ref: '#/components/schemas/VolumeDiff'
-    ResourcePerformance:
+            $ref: '#/components/schemas/Member'
+    Member:
       allOf:
-      - $ref: '#/components/schemas/_performance'
-      - $ref: '#/components/schemas/_performance_others'
-      - $ref: '#/components/schemas/_resource'
       - $ref: '#/components/schemas/_context'
-    _errorcontextresponseErrors:
+      - type: object
+        properties:
+          group:
+            $ref: '#/components/schemas/_reference'
+          member:
+            $ref: '#/components/schemas/_reference'
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _errorErrors:
       type: object
       properties:
         context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
           type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
+          example: Error with ...
         message:
-          description: A description of the error which occurred.
           type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
+          example: Something was wrong
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    VolumeResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Volume_2'
+    _resource_2:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed, or deleted by the user. This might be a virtual resource (e.g.,
+
+        a volume), or correspond to something in the physical environment, like a
+
+        host or a server.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+          name:
+            description: A modifiable, locally unique name chosen by the user.
+            type: string
+            example: example_name
+    _arrays:
+      type: object
+      properties:
+        arrays:
+          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
+
+            some resources, such as pods, can be shared across multiple arrays.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+      x-readOnly: true
+    _arraysResource:
+      description: 'A built-in resource that exists on one or multiple arrays.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_resource_2'
+      - $ref: '#/components/schemas/_arrays'
+    Error:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered.
+          type: array
+          items:
+            $ref: '#/components/schemas/_errorErrors'
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
     Volume_2:
       allOf:
       - $ref: '#/components/schemas/_arraysResource'
@@ -2815,56 +3766,35 @@ components:
             title: FixedReference
             allOf:
             - $ref: '#/components/schemas/_fixedReference_2'
-    _errorErrors:
+    _fixedReference_2:
       type: object
       properties:
-        context:
+        id:
+          description: The opaque and unique id of this resource.
           type: string
-          example: Error with ...
-        message:
-          type: string
-          example: Something was wrong
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
           readOnly: true
-          example: 1502729489760
+          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+        name:
+          description: The name of this resource.
+          type: string
+          readOnly: true
+          example: example_name
+        resource_type:
+          description: 'The type of this resource represented by the name of its REST endpoint.
+
+            For example, "arrays", "network-interfaces", and "metrics".
+
+            The value may be `null` if the resource is not represented.
+
+            '
+          type: string
+          readOnly: true
+          example: example_resource_type
+      x-readOnly: true
     VolumeGetResponse_2:
       allOf:
       - $ref: '#/components/schemas/PageInfo_2'
       - $ref: '#/components/schemas/VolumeResponse_2'
-    VolumeResponse_2:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Volume_2'
-    _arraysResource:
-      description: 'A built-in resource that exists on one or multiple arrays.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_resource_2'
-      - $ref: '#/components/schemas/_arrays'
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
     PageInfo_2:
       type: object
       properties:
@@ -2895,948 +3825,18 @@ components:
           type: integer
           format: int32
           example: 1
-    _resource_2:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed, or deleted by the user. This might be a virtual resource (e.g.,
-
-        a volume), or correspond to something in the physical environment, like a
-
-        host or a server.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-          name:
-            description: A modifiable, locally unique name chosen by the user.
-            type: string
-            example: example_name
-    Error:
+    _timeAware:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered.
-          type: array
-          items:
-            $ref: '#/components/schemas/_errorErrors'
-    _fixedReference_2:
-      type: object
-      properties:
-        id:
-          description: The opaque and unique id of this resource.
-          type: string
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
           readOnly: true
-          example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-        name:
-          description: The name of this resource.
-          type: string
-          readOnly: true
-          example: example_name
-        resource_type:
-          description: 'The type of this resource represented by the name of its REST endpoint.
-
-            For example, "arrays", "network-interfaces", and "metrics".
-
-            The value may be `null` if the resource is not represented.
-
-            '
-          type: string
-          readOnly: true
-          example: example_resource_type
-      x-readOnly: true
-    ErrorNoContext:
-      type: object
-      properties:
-        message:
-          type: string
-          example: Something was wrong
-    _arrays:
-      type: object
-      properties:
-        arrays:
-          description: 'The list of arrays where this resource exists. Many resources are on a single array, but
-
-            some resources, such as pods, can be shared across multiple arrays.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-      x-readOnly: true
-  parameters:
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Namespaces_delete:
-      name: namespaces
-      in: query
-      description: 'A comma-separated list of namespaces. Only one namespace is allowed per delete request.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Remove_from_protection_group_ids:
-      name: remove_from_protection_group_ids
-      in: query
-      description: 'The volumes will be removed from the specified protection groups in the source pod or array along
-
-        with the move.
-
-        This can only be used when moving volumes across pods and arrays and must include all protection
-
-        groups that the volumes are members of before the move.
-
-        Enter multiple ids in a comma-separated format.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Allow_throttle_operation:
-      name: allow_throttle
-      in: query
-      description: 'If set to `true`, allows operation to fail if array health is not optimal.
-
-        '
-      schema:
-        type: boolean
-    Group_ids:
-      name: group_ids
-      in: query
-      description: 'A comma-separated list of group IDs.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Block_size:
-      name: block_size
-      in: query
-      description: 'Granularity at which to compare, in bytes. Must be a multiple of 512.
-
-        '
-      required: true
-      schema:
-        type: integer
-        format: int64
-    Segment_length:
-      name: segment_length
-      in: query
-      description: 'Length of the segment, in bytes, to compare.
-
-        '
-      required: true
-      schema:
-        type: integer
-        format: int64
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Add_to_protection_group_ids:
-      name: add_to_protection_group_ids
-      in: query
-      description: 'The volumes will be added to the specified protection groups along with creation or movement
-
-        across pods and array.
-
-        When a volume is moved, the specified protection groups must be in the target pod or array.
-
-        Enter multiple ids in comma-separated format.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'Performs the operation on the unique member IDs specified.
-
-        Enter multiple member IDs in comma-separated format.
-
-        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Segment_offset:
-      name: segment_offset
-      in: query
-      description: 'Absolute offset, in bytes, of the segment to compare.
-
-        Must be a multiple of block_size.
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Group_names:
-      name: group_names
-      in: query
-      description: 'Performs the operation on the unique group name specified.
-
-        Examples of groups include host groups, pods, protection groups, and volume groups.
-
-        Enter multiple names in comma-separated format. For example, `hgroup01,hgroup02`.
-
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Base_name:
-      name: base_name
-      in: query
-      description: 'Name of the volume or volume snapshot that the diff comparison is based on.
-
-        If a base volume or volume snapshot is not specified,
-
-        all mapped blocks for the volume or volume snapshot are displayed.
-
-        The `base_name` or `base_id` parameter is required, but they cannot be set together.
-
-        '
-      schema:
-        type: string
-    History_end_time:
-      name: end_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    Member_destroyed:
-      name: member_destroyed
-      in: query
-      description: 'If true, returns only destroyed member objects. Returns an error if
-
-        a name of a live member object is specified in the member_names query param.
-
-        If false, returns only live member objects. Returns an error if
-
-        a name of a destroyed member object is specified in the member_names
-
-        query param.
-
-        '
-      schema:
-        type: boolean
-    Base_id:
-      name: base_id
-      in: query
-      description: 'ID of the volume or volume snapshot that the diff comparison is based on.
-
-        If a base volume or volume snapshot is not specified,
-
-        all mapped blocks for the volume or volume snapshot are displayed.
-
-        The `base_name` or `base_id` parameter is required, but they cannot be set together.
-
-        '
-      schema:
-        type: string
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Destroyed:
-      name: destroyed
-      in: query
-      description: 'If set to `true`, lists only destroyed objects that are in the eradication pending state.
-
-        If set to `false`, lists only objects that are not destroyed.
-
-        If not set, lists both objects that are destroyed and those that are not destroyed.
-
-
-        For destroyed objects, the time remaining is displayed in milliseconds.
-
-
-        If object name(s) or id(s) are specified, then each object referenced must exist.
-
-        If `destroyed` is set to `true`, then each object referenced must also be destroyed.
-
-        If `destroyed` is set to `false`, then each object referenced must also not be destroyed.
-
-        An error is returned if any of these conditions are not met.
-
-        '
-      schema:
-        type: boolean
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Resource_ids:
-      name: resource_ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Remove_from_protection_group_names:
-      name: remove_from_protection_group_names
-      in: query
-      description: 'The volumes will be removed from the specified protection groups in the source pod or array along
-
-        with the move.
-
-        This can only be used when moving volumes across pods and arrays and must include all protection
-
-        groups that the volumes are members of before the move.
-
-        Enter multiple names in a comma-separated format.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'Performs the operation on the unique member name specified.
-
-        Examples of members include volumes, hosts, host groups, and directories.
-
-        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Namespaces:
-      name: namespaces
-      in: query
-      description: 'A comma-separated list of namespaces.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Keys:
-      name: keys
-      in: query
-      description: 'A comma-separated list of tag keys.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Resource_names:
-      name: resource_names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        The `resource_ids` or `resource_names` parameter is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Truncate:
-      name: truncate
-      in: query
-      description: 'If set to `true`, reduces the size of a volume
-
-        during a volume resize operation.
-
-        When a volume is truncated, Purity automatically takes an undo snapshot,
-
-        providing a 24-hour window during which the previous contents
-
-        can be retrieved. After truncating a volume,
-
-        its provisioned size can be subsequently increased,
-
-        but the data in truncated sectors cannot be retrieved.
-
-        If set to `false` or not set at all and the volume is being reduced in size,
-
-        the volume copy operation fails.
-
-        Required if the `provisioned` parameter is set to a volume size
-
-        that is smaller than the original size.
-
-        '
-      schema:
-        type: boolean
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Overwrite:
-      name: overwrite
-      in: query
-      description: 'If set to `true`,
-
-        overwrites an existing object during an object copy operation.
-
-        If set to `false` or not set at all and the target name is an existing object,
-
-        the copy operation fails.
-
-        Required if the `source` body parameter is set
-
-        and the source overwrites an existing object during the copy operation.
-
-        '
-      schema:
-        type: boolean
-    Add_to_protection_group_names:
-      name: add_to_protection_group_names
-      in: query
-      description: 'The volumes will be added to the specified protection groups along with creation or movement
-
-        across pods and array.
-
-        When a volume is moved, the specified protection groups must be in the target pod or array.
-
-        Enter multiple names in a comma-separated format.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Next_allocated_block_hint:
-      name: next_allocated_block_hint
-      in: query
-      description: 'If set to `true`, appends offset of the next allocated block in bytes
-
-        for the volume specified in `names` or `ids` to the output `items`.
-
-        `base_name` or `base_id` must not be specified if this is set to `true`.
-
-        If not specified, defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    History_resolution:
-      name: resolution
-      in: query
-      description: 'The number of milliseconds between samples of historical data.
-
-        For array-wide performance metrics (`/arrays/performance` endpoint),
-
-        valid values are `1000` (1 second), `30000` (30 seconds), `300000` (5 minutes),
-
-        `1800000` (30 minutes), `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For performance metrics on storage objects (`<object name>/performance` endpoint),
-
-        such as volumes,
-
-        valid values are `30000` (30 seconds), `300000` (5 minutes), `1800000` (30 minutes),
-
-        `7200000` (2 hours), `28800000` (8 hours), and `86400000` (24 hours).
-
-        For space metrics, (`<object name>/space` endpoint),
-
-        valid values are `300000` (5 minutes), `1800000` (30 minutes), `7200000` (2 hours),
-
-        `28800000` (8 hours), and `86400000` (24 hours).
-
-        Include the `start_time` parameter to display the performance data
-
-        starting at the specified start time.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        Include the `end_time` parameter to display the performance data until the specified end time.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        If the `resolution` parameter is not specified
-
-        but either the `start_time` or `end_time` parameter is,
-
-        then `resolution` will default to the lowest valid resolution.
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    Resource_destroyed:
-      name: resource_destroyed
-      in: query
-      description: 'If set to `true`, returns only objects from destroyed resources. Returns an error if
-
-        the name of a live resource is specified in the `resource_names` query parameter.
-
-        If set to `false`, returns only objects from live resources. Returns an error if the
-
-        name of a destroyed resource is specified in the `resource_names` query parameter.
-
-        '
-      schema:
-        type: boolean
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    History_start_time:
-      name: start_time
-      in: query
-      description: 'Displays historical performance data for the specified time window,
-
-        where `start_time` is the beginning of the time window,
-
-        and `end_time` is the end of the time window.
-
-        The `start_time` and `end_time` parameters
-
-        are specified in milliseconds since the UNIX epoch.
-
-        If `start_time` is not specified,
-
-        the start time will default to one resolution before the end time,
-
-        meaning that the most recent sample of performance data will be displayed.
-
-        If `end_time`is not specified, the end time will default to the current time.
-
-        Include the `resolution` parameter to display the performance data at the specified resolution.
-
-        If not specified, `resolution` defaults to the lowest valid resolution.
-
-
-        '
-      schema:
-        type: integer
-        format: int64
-    With_default_protection:
-      name: with_default_protection
-      in: query
-      description: 'If specified as `true`, the initial protection of the newly created volumes will be
-
-        the union of the container default protection configuration and
-
-        `add_to_protection_group_names`.
-
-        If specified as `false`, the default protection of the container will not be applied
-
-        automatically. The initial protection of the newly created volumes will be configured
-
-        by `add_to_protection_group_names`.
-
-        If not specified, defaults to `true`.
-
-        '
-      schema:
-        type: boolean
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If there is not at least one resource that matches each `id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Names_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        If there is not at least one resource that matches each `name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        If you provide a sort you will not get a continuation token in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Filter_2:
-      name: filter
-      in: query
-      description: 'Exclude resources that don''t match the specified criteria.
-
-        Single quotes are required around all strings inside the filters.
-
-        '
-      schema:
-        type: string
-    Authorization_2:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-    Continuation_token_2:
-      name: continuation_token
-      in: query
-      description: 'An opaque token used to iterate over a collection.
-
-        The token to use on the next request is returned in the
-
-        `continuation_token` field of the result.
-
-        Single quotes are required around all strings.
-
-        '
-      schema:
-        type: string
-        x-quoted: true
-      x-quoted: true
+          example: 1502729489760
   responses:
-    Error500:
-      description: INTERNAL SERVER ERROR
+    Error400:
+      description: BAD REQUEST
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -3897,17 +3897,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error403:
-      description: FORBIDDEN
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorNoContext'
     Error404:
       description: NOT FOUND
       headers:
@@ -3939,8 +3928,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error400:
-      description: BAD REQUEST
+    Error500:
+      description: INTERNAL SERVER ERROR
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -3970,6 +3959,17 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

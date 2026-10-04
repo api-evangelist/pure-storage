@@ -285,42 +285,6 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    KmipPost:
-      type: object
-      properties:
-        ca_certificate:
-          description: The text of the CA certificate for the KMIP server.
-          type: string
-          maxLength: 3000
-          example: '-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----'
-        certificate:
-          description: 'The certificate used to verify FlashArray authenticity to the KMIP servers.
-
-            '
-          title: ReferenceNoId
-          allOf:
-          - $ref: '#/components/schemas/_referenceNoId'
-        uris:
-          description: List of URIs for the configured KMIP servers.
-          type: array
-          items:
-            type: string
-          example:
-          - 1.1.1.1:8888
-          - 2.2.2.2:9999
-    Kmip_object:
-      type: object
-      properties:
-        name:
-          description: 'Name of the KMIP object.
-
-            '
-          type: string
-        uid:
-          description: 'User ID of the KMIP object.
-
-            '
-          type: string
     _referenceNoId:
       type: object
       properties:
@@ -352,14 +316,81 @@ components:
           example:
           - 1.1.1.1:8888
           - 2.2.2.2:9999
-    Kmip_certificate:
+    KmipTestResult:
+      type: object
+      properties:
+        component_address:
+          description: Address of the component running the test.
+          type: string
+          example: 10.230.94.21
+        component_name:
+          description: Name of the component running the test.
+          type: string
+          example: kmip-test1
+        description:
+          description: Description of what is being tested.
+          type: string
+          example: Testing kmip connectivity.
+        destination:
+          description: The URI of the target server being tested.
+          type: string
+          example: kmip-test-server.dev.purestorage.com
+        enabled:
+          description: Expresses whether the service is enabled or not.
+          type: boolean
+          example: true
+        result_details:
+          description: Additional information about the test result.
+          type: string
+          example: KMIP test failed
+        success:
+          description: 'Expresses whether communication between the FlashArray and the KMIP server succeeded
+
+            or not.
+
+            '
+          type: boolean
+          example: true
+        test_type:
+          description: Description of what is being tested.
+          type: string
+          example: kmip
+    Kmip_object:
       type: object
       properties:
         name:
-          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+          description: 'Name of the KMIP object.
 
             '
           type: string
+        uid:
+          description: 'User ID of the KMIP object.
+
+            '
+          type: string
+    KmipPost:
+      type: object
+      properties:
+        ca_certificate:
+          description: The text of the CA certificate for the KMIP server.
+          type: string
+          maxLength: 3000
+          example: '-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----'
+        certificate:
+          description: 'The certificate used to verify FlashArray authenticity to the KMIP servers.
+
+            '
+          title: ReferenceNoId
+          allOf:
+          - $ref: '#/components/schemas/_referenceNoId'
+        uris:
+          description: List of URIs for the configured KMIP servers.
+          type: array
+          items:
+            type: string
+          example:
+          - 1.1.1.1:8888
+          - 2.2.2.2:9999
     PageInfo:
       type: object
       properties:
@@ -402,10 +433,34 @@ components:
             '
           type: integer
           format: int32
+    KmipTestResultGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/KmipTestResult'
     KmipGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/KmipResponse'
+    KmipResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Kmip'
+    Kmip_certificate:
+      type: object
+      properties:
+        name:
+          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
     Kmip:
       description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
 
@@ -462,68 +517,55 @@ components:
           example:
           - 1.1.1.1:8888
           - 2.2.2.2:9999
-    KmipTestResultGetResponse:
+    _fixedReference:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
       - type: object
         properties:
-          items:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    KmipServer:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          ca_certificate:
+            description: 'CA certificate used to validate the authenticity of the configured servers.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          ca_certificate_group:
+            description: 'A certificate group containing CA certificates that can be used to
+
+              validate the authenticity of the configured servers.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          uris:
+            description: List of URIs for the configured KMIP servers in the format [protocol://]hostname:port.
             type: array
+            minItems: 1
+            maxItems: 30
             items:
-              $ref: '#/components/schemas/KmipTestResult'
-    KmipTestResult:
-      type: object
-      properties:
-        component_address:
-          description: Address of the component running the test.
-          type: string
-          example: 10.230.94.21
-        component_name:
-          description: Name of the component running the test.
-          type: string
-          example: kmip-test1
-        description:
-          description: Description of what is being tested.
-          type: string
-          example: Testing kmip connectivity.
-        destination:
-          description: The URI of the target server being tested.
-          type: string
-          example: kmip-test-server.dev.purestorage.com
-        enabled:
-          description: Expresses whether the service is enabled or not.
-          type: boolean
-          example: true
-        result_details:
-          description: Additional information about the test result.
-          type: string
-          example: KMIP test failed
-        success:
-          description: 'Expresses whether communication between the FlashArray and the KMIP server succeeded
-
-            or not.
-
-            '
-          type: boolean
-          example: true
-        test_type:
-          description: Description of what is being tested.
-          type: string
-          example: kmip
-    KmipResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Kmip'
-    TestResultResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TestResult'
+              pattern: ^(tls://)?
+              type: string
+            example:
+            - my1.kmipserver.com:5696
+            - tls://my2.kmipserver.com:5696
     TestResult:
       type: object
       properties:
@@ -571,38 +613,13 @@ components:
             '
           type: string
           example: phonehome
-    KmipServer:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          ca_certificate:
-            description: 'CA certificate used to validate the authenticity of the configured servers.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          ca_certificate_group:
-            description: 'A certificate group containing CA certificates that can be used to
-
-              validate the authenticity of the configured servers.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          uris:
-            description: List of URIs for the configured KMIP servers in the format [protocol://]hostname:port.
-            type: array
-            minItems: 1
-            maxItems: 30
-            items:
-              pattern: ^(tls://)?
-              type: string
-            example:
-            - my1.kmipserver.com:5696
-            - tls://my2.kmipserver.com:5696
+    KmipServerResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/KmipServer'
     _builtIn:
       type: object
       properties:
@@ -616,6 +633,13 @@ components:
           description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
+    TestResultResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestResult'
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -669,53 +693,17 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
-    KmipServerResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/KmipServer'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
   parameters:
-    Names:
-      name: names
+    Sort:
+      name: sort
       in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Names_required:
       name: names
@@ -734,69 +722,6 @@ components:
         type: array
         items:
           type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Total_item_count:
       name: total_item_count
       in: query
@@ -823,6 +748,62 @@ components:
         '
       schema:
         type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Continuation_token:
       name: continuation_token
       in: query
@@ -845,6 +826,25 @@ components:
         '
       schema:
         type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Sort_2:
       name: sort
       in: query

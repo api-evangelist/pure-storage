@@ -320,10 +320,70 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    SmbClientPolicyRuleInPolicy:
+    SmbClientPolicyRulePostBase:
       allOf:
-      - $ref: '#/components/schemas/SmbClientPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          client:
+            description: 'Specifies the clients that will be permitted to access the export.
+
+              Accepted notation is a single IP address, subnet in CIDR notation,
+
+              or anonymous (`*`).
+
+              The default is `*` if not specified.
+
+              '
+            type: string
+            example: 1.2.3.4
+          encryption:
+            description: 'Specifies whether the remote client is required to use SMB encryption. Valid values are
+
+              `required`, `disabled`, and `optional`. If not specified, defaults to `optional`.
+
+              '
+            type: string
+            example: optional
+          permission:
+            description: 'Specifies which read-write client access permissions are allowed for the export.
+
+              Valid values are `rw` and `ro`. The default is `ro` if not specified.
+
+              '
+            type: string
+    PolicyBaseRenameable:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
+
+              '
+            type: string
+            readOnly: true
     _version:
       type: object
       properties:
@@ -337,22 +397,40 @@ components:
             '
           type: string
           readOnly: true
-    _workloadConfigurationFixedReference:
-      description: 'A reference to the workload that is managing this resource.
-
-        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
-
-        '
+    SmbClientPolicyGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_fixedReference'
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SmbClientPolicyResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    SmbClientPolicyPatch:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+      - $ref: '#/components/schemas/_version'
       - type: object
         properties:
-          configuration:
-            description: 'The name of the preset configuration object.
+          access_based_enumeration_enabled:
+            description: 'If set to `true`, enables access based enumeration on the policy.
+
+              When access based enumeration is enabled on a policy,
+
+              files and folders within exports that are attached to the policy
+
+              will be hidden from users who do not have permission to view them.
+
+              If not specified, defaults to `false`.
 
               '
-            type: string
-            readOnly: true
+            type: boolean
+          rules:
+            description: 'All of the rules that are part of this policy. The order is the
+
+              evaluation order.
+
+              '
+            type: array
+            maxItems: 200
+            items:
+              $ref: '#/components/schemas/SmbClientPolicyRuleInPolicy'
     _realmsReference:
       type: object
       properties:
@@ -368,6 +446,96 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/_fixedReference'
+    SmbClientPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+      - $ref: '#/components/schemas/_version'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          access_based_enumeration_enabled:
+            description: 'If set to `true`, enables access based enumeration on the policy.
+
+              When access based enumeration is enabled on a policy,
+
+              files and folders within exports that are attached to the policy
+
+              will be hidden from users who do not have permission to view them.
+
+              If not specified, defaults to `false`.
+
+              '
+            type: boolean
+          rules:
+            description: 'All of the rules that are part of this policy. The order is the
+
+              evaluation order.
+
+              '
+            type: array
+            maxItems: 200
+            items:
+              $ref: '#/components/schemas/SmbClientPolicyRuleInPolicy'
+          workload:
+            $ref: '#/components/schemas/_workloadConfigurationFixedReference'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _policyRuleIndexInPolicy:
+      type: object
+      properties:
+        index:
+          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+
+            '
+          type: integer
+          format: int32
+          readOnly: true
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
     _policyRuleIndex:
       type: object
       properties:
@@ -383,6 +551,26 @@ components:
             '
           type: integer
           format: int32
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
     SmbClientPolicyPost:
       allOf:
       - $ref: '#/components/schemas/PolicyBase'
@@ -411,16 +599,131 @@ components:
             maxItems: 200
             items:
               $ref: '#/components/schemas/SmbClientPolicyRulePostInPolicy'
-    _policyRuleIndexInPolicy:
+    _errorContextResponseErrors:
       type: object
       properties:
-        index:
-          description: 'The index within the policy. The `index` indicates the order the rules are evaluated.
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
 
             '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+    _workloadConfigurationFixedReference:
+      description: 'A reference to the workload that is managing this resource.
+
+        The `name` and `configuration` may show as the string "(unknown)" briefly after a failover.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          configuration:
+            description: 'The name of the preset configuration object.
+
+              '
+            type: string
+            readOnly: true
+    SmbClientPolicyRuleResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SmbClientPolicyRule'
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    SmbClientPolicyRuleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SmbClientPolicyRuleResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    SmbClientPolicyRule:
+      allOf:
+      - $ref: '#/components/schemas/SmbClientPolicyRuleBase'
+      - $ref: '#/components/schemas/_policyRuleIndex'
+      - $ref: '#/components/schemas/_context'
+    SmbClientPolicyRulePostInPolicy:
+      allOf:
+      - $ref: '#/components/schemas/SmbClientPolicyRulePostBase'
+      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
           type: integer
           format: int32
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
           readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     SmbClientPolicyRuleBase:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -467,50 +770,18 @@ components:
       allOf:
       - $ref: '#/components/schemas/SmbClientPolicyRulePostBase'
       - $ref: '#/components/schemas/_policyRuleIndex'
-    SmbClientPolicyRuleResponse:
+    SmbClientPolicyResponse:
       type: object
       properties:
         items:
+          description: A list of SMB Client policy objects.
           type: array
           items:
-            $ref: '#/components/schemas/SmbClientPolicyRule'
-    SmbClientPolicyRuleGetResponse:
+            $ref: '#/components/schemas/SmbClientPolicy'
+    SmbClientPolicyRuleInPolicy:
       allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SmbClientPolicyRuleResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    SmbClientPolicyRulePostBase:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          client:
-            description: 'Specifies the clients that will be permitted to access the export.
-
-              Accepted notation is a single IP address, subnet in CIDR notation,
-
-              or anonymous (`*`).
-
-              The default is `*` if not specified.
-
-              '
-            type: string
-            example: 1.2.3.4
-          encryption:
-            description: 'Specifies whether the remote client is required to use SMB encryption. Valid values are
-
-              `required`, `disabled`, and `optional`. If not specified, defaults to `optional`.
-
-              '
-            type: string
-            example: optional
-          permission:
-            description: 'Specifies which read-write client access permissions are allowed for the export.
-
-              Valid values are `rw` and `ro`. The default is `ro` if not specified.
-
-              '
-            type: string
+      - $ref: '#/components/schemas/SmbClientPolicyRuleBase'
+      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
     _builtIn:
       type: object
       properties:
@@ -524,278 +795,140 @@ components:
           description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
+  parameters:
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-            The ID cannot be modified.
+        is appended to the field name).
 
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    SmbClientPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SmbClientPolicyResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    PolicyBaseRenameable:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
-
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    SmbClientPolicyRule:
-      allOf:
-      - $ref: '#/components/schemas/SmbClientPolicyRuleBase'
-      - $ref: '#/components/schemas/_policyRuleIndex'
-      - $ref: '#/components/schemas/_context'
-    SmbClientPolicyResponse:
-      type: object
-      properties:
-        items:
-          description: A list of SMB Client policy objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/SmbClientPolicy'
-    SmbClientPolicyRulePostInPolicy:
-      allOf:
-      - $ref: '#/components/schemas/SmbClientPolicyRulePostBase'
-      - $ref: '#/components/schemas/_policyRuleIndexInPolicy'
-    SmbClientPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-      - $ref: '#/components/schemas/_version'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          access_based_enumeration_enabled:
-            description: 'If set to `true`, enables access based enumeration on the policy.
-
-              When access based enumeration is enabled on a policy,
-
-              files and folders within exports that are attached to the policy
-
-              will be hidden from users who do not have permission to view them.
-
-              If not specified, defaults to `false`.
-
-              '
-            type: boolean
-          rules:
-            description: 'All of the rules that are part of this policy. The order is the
-
-              evaluation order.
-
-              '
-            type: array
-            maxItems: 200
-            items:
-              $ref: '#/components/schemas/SmbClientPolicyRuleInPolicy'
-          workload:
-            $ref: '#/components/schemas/_workloadConfigurationFixedReference'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
+        the response.
 
         '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
 
-            The name must be locally unique and can be changed.
+        with some consistency guaranteed.
 
-            '
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
+    Policy_names:
+      name: policy_names
+      in: query
+      description: 'A comma-separated list of policy names.
 
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    SmbClientPolicyPatch:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-      - $ref: '#/components/schemas/_version'
-      - type: object
-        properties:
-          access_based_enumeration_enabled:
-            description: 'If set to `true`, enables access based enumeration on the policy.
-
-              When access based enumeration is enabled on a policy,
-
-              files and folders within exports that are attached to the policy
-
-              will be hidden from users who do not have permission to view them.
-
-              If not specified, defaults to `false`.
-
-              '
-            type: boolean
-          rules:
-            description: 'All of the rules that are part of this policy. The order is the
-
-              evaluation order.
-
-              '
-            type: array
-            maxItems: 200
-            items:
-              $ref: '#/components/schemas/SmbClientPolicyRuleInPolicy'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    _errorContextResponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
-            when the error occurred.
+        '
+      schema:
+        type: string
+    Workload_names:
+      name: workload_names
+      in: query
+      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
 
-            For example, this may be the name of an array in the same fleet.
+        resource that matches each of the elements, then an error is returned. This cannot be provided
 
-            This may be `null` for more general errors, or if no explicit `context` parameter
+        together with the `workload_ids` query parameter.
 
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        message:
-          description: A description of the error which occurred.
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-          example: Resource does not exist.
-  parameters:
+    Before_rule_id:
+      name: before_rule_id
+      in: query
+      description: 'The id of the rule to insert or move a rule before.
+
+        This cannot be provided together with the `before_rule_name` query parameter.
+
+        '
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Before_rule_name:
+      name: before_rule_name
+      in: query
+      description: 'The name of the rule to insert or move a rule before.
+
+        This cannot be provided together with the `before_rule_id` query parameter.
+
+        '
+      schema:
+        type: string
     Workload_ids:
       name: workload_ids
       in: query
@@ -804,65 +937,6 @@ components:
         resource that matches each of the elements, then an error is returned. This cannot be provided
 
         together with the `workload_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Versions:
-      name: versions
-      in: query
-      description: 'A comma-separated list of versions. This is an optional query param used for concurrency control.
-
-        The ordering should match the names or ids query param.
-
-        This will fail with a 412 Precondition failed if the resource was changed and the current
-
-        version of the resource doesn''t match the value in the query param.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -895,38 +969,6 @@ components:
         type: array
         items:
           type: string
-    Names_required:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Policy_ids:
       name: policy_ids
       in: query
@@ -945,14 +987,21 @@ components:
         type: array
         items:
           type: string
-    Workload_names:
-      name: workload_names
+    Names:
+      name: names
       in: query
-      description: 'A comma-separated list of workload names. If, after filtering, there is not at least one
+      description: 'Performs the operation on the unique names specified.
 
-        resource that matches each of the elements, then an error is returned. This cannot be provided
+        Enter multiple names in comma-separated format.
 
-        together with the `workload_ids` query parameter.
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
 
         '
       style: form
@@ -960,25 +1009,6 @@ components:
       schema:
         type: array
         items:
-          type: string
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Context_names_get:
       name: context_names
@@ -1010,29 +1040,6 @@ components:
         type: array
         items:
           type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
     Offset:
       name: offset
       in: query
@@ -1044,30 +1051,16 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Before_rule_id:
-      name: before_rule_id
+    Ids:
+      name: ids
       in: query
-      description: 'The id of the rule to insert or move a rule before.
+      description: 'A comma-separated list of resource IDs.
 
-        This cannot be provided together with the `before_rule_name` query parameter.
+        If after filtering, there is not at least one resource that matches
 
-        '
-      schema:
-        type: string
-    Before_rule_name:
-      name: before_rule_name
-      in: query
-      description: 'The name of the rule to insert or move a rule before.
+        each of the elements of `ids`, then an error is returned.
 
-        This cannot be provided together with the `before_rule_id` query parameter.
-
-        '
-      schema:
-        type: string
-    Policy_names:
-      name: policy_names
-      in: query
-      description: 'A comma-separated list of policy names.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -1076,36 +1069,43 @@ components:
         type: array
         items:
           type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Continuation_token:
-      name: continuation_token
+    Versions:
+      name: versions
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'A comma-separated list of versions. This is an optional query param used for concurrency control.
 
-        with some consistency guaranteed.
+        The ordering should match the names or ids query param.
 
-        The token is a Base64 encoded value.
+        This will fail with a 412 Precondition failed if the resource was changed and the current
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+        version of the resource doesn''t match the value in the query param.
 
-        header field of the response.
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        A query has reached its last page when the response does not include a token.
+        To return the total number of resources, set `limit=0`.
 
-        Pagination requires the `limit` and `continuation_token`
+        The total number of resources is returned as a `total_item_count` value.
 
-        query parameters.
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
       schema:
-        type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

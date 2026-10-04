@@ -492,50 +492,11 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    _time_window:
-      type: object
-      properties:
-        end:
-          description: The window end time. Measured in milliseconds since midnight. The time must be set on the hour. (e.g., `28800000`, which is equal to 8:00 AM).
-          type: integer
-          format: int64
-          example: 46800000
-        start:
-          description: The window start time. Measured in milliseconds since midnight. The time must be set on the hour. (e.g., `18000000`, which is equal to 5:00 AM).
-          type: integer
-          format: int64
-          example: 3600000
-    _throttle:
-      description: 'The bandwidth throttling for an array connection. Configurable on PATCH only.
-
-        '
-      type: object
-      properties:
-        default_limit:
-          description: 'Default maximum bandwidth threshold for outbound traffic in bytes. Once
-
-            exceeded, bandwidth throttling occurs.
-
-            '
-          type: integer
-          format: int64
-          example: 1073741824
-        window:
-          description: The time during which the `window_limit` threshold is in effect.
-          title: Time_window
-          allOf:
-          - $ref: '#/components/schemas/_time_window'
-        window_limit:
-          description: 'Maximum bandwidth threshold for outbound traffic during the specified
-
-            `window_limit` time range in bytes. Once exceeded, bandwidth throttling
-
-            occurs.
-
-            '
-          type: integer
-          format: int64
-          example: 2097152
+    ArrayConnectionPathGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ArrayConnectionPathResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
     ArrayConnectionPost:
       type: object
       properties:
@@ -593,201 +554,6 @@ components:
             '
           type: string
           example: async-replication
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    ArrayConnectionPathResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ArrayConnectionPath'
-    _builtInResourceNoId:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs).
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    ArrayConnectionResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ArrayConnection'
-    ArrayConnectionKeyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ArrayConnectionKey'
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorcontextresponseErrors'
-    ArrayConnectionPathGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ArrayConnectionPathResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token`
-
-            query param to get the next page of data.
-
-            If you use the continuation token to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The continuation token is generated if the limit is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        more_items_remaining:
-          description: 'Returns a value of `true` if subsequent items can be retrieved.
-
-            '
-          type: boolean
-          example: false
-        total_item_count:
-          description: 'The total number of records after applying all filter query parameters.
-
-            The `total_item_count` will be calculated if and only if the corresponding
-
-            query parameter `total_item_count` is set to `true`. If this query parameter
-
-            is not set or set to `false`, a value of `null` will be returned.
-
-            '
-          type: integer
-          format: int32
     ArrayConnectionKey:
       type: object
       properties:
@@ -798,28 +564,26 @@ components:
           type: string
           readOnly: true
           example: 6207d123-d123-0b5c-5fa1-95fabc5c7123
-    _fixedReference:
+    _time_window:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
+        end:
+          description: The window end time. Measured in milliseconds since midnight. The time must be set on the hour. (e.g., `28800000`, which is equal to 8:00 AM).
+          type: integer
+          format: int64
+          example: 46800000
+        start:
+          description: The window start time. Measured in milliseconds since midnight. The time must be set on the hour. (e.g., `18000000`, which is equal to 5:00 AM).
+          type: integer
+          format: int64
+          example: 3600000
+    ArrayConnectionResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArrayConnection'
     _context:
       type: object
       properties:
@@ -841,34 +605,6 @@ components:
           title: FixedReferenceWithType
           allOf:
           - $ref: '#/components/schemas/_fixedReferenceWithType'
-    _throttle_deprecated:
-      type: object
-      properties:
-        default_limit:
-          description: 'Deprecated. Default maximum bandwidth threshold for outbound traffic in bytes. Once
-
-            exceeded, bandwidth throttling occurs.
-
-            '
-          type: integer
-          format: int64
-          example: 1073741824
-        window:
-          description: Deprecated. The time during which the `window_limit` threshold is in effect.
-          title: Time_window
-          allOf:
-          - $ref: '#/components/schemas/_time_window'
-        window_limit:
-          description: 'Deprecated. Maximum bandwidth threshold for outbound traffic during the specified
-
-            `window_limit` time range in bytes. Once exceeded, bandwidth throttling
-
-            occurs.
-
-            '
-          type: integer
-          format: int64
-          example: 2097152
     ArrayConnectionPath:
       allOf:
       - $ref: '#/components/schemas/_builtInResourceNoId'
@@ -971,6 +707,279 @@ components:
 
               '
             type: string
+    _errorcontextresponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_fixedReferenceWithType'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+      x-aliases:
+      - _errorContextResponseErrors
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    ArrayConnectionPatch:
+      allOf:
+      - $ref: '#/components/schemas/_throttle_deprecated'
+      - type: object
+        properties:
+          connection_key:
+            description: 'The connection key of the target array.
+
+              It is required when `encryption` is changed,
+
+              or when `type` is changed from `async-replication` to `sync-replication`.
+
+              '
+            type: string
+            example: 6207d123-d123-0b5c-5fa1-95fabc5c7123
+          encryption:
+            description: 'If `encrypted`, encryption will be enabled for all traffic over this array connection.
+
+              If `unencrypted`, encryption will be disabled for all traffic over this array connection.
+
+              `connection_key` must be specified when encryption is changed.
+
+              If not specified, the current encryption option for the array connection will remain
+
+              unchanged.
+
+              '
+            type: string
+            example: encrypted
+          management_address:
+            description: 'Management IP address of the target array.
+
+              '
+            type: string
+            example: 10.202.101.78
+          replication_addresses:
+            description: 'IP addresses and FQDNs of the target arrays. Configurable only when
+
+              `replication_transport` is set to `ip`.
+
+              '
+            type: array
+            items:
+              type: string
+              example: 10.202.101.70
+          throttle:
+            $ref: '#/components/schemas/_throttle'
+          type:
+            description: 'The type of replication.
+
+              Valid values are `async-replication` and `sync-replication`.
+
+              '
+            type: string
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    ArrayConnectionGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/ArrayConnectionResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token`
+
+            query param to get the next page of data.
+
+            If you use the continuation token to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The continuation token is generated if the limit is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        more_items_remaining:
+          description: 'Returns a value of `true` if subsequent items can be retrieved.
+
+            '
+          type: boolean
+          example: false
+        total_item_count:
+          description: 'The total number of records after applying all filter query parameters.
+
+            The `total_item_count` will be calculated if and only if the corresponding
+
+            query parameter `total_item_count` is set to `true`. If this query parameter
+
+            is not set or set to `false`, a value of `null` will be returned.
+
+            '
+          type: integer
+          format: int32
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorcontextresponseErrors'
+    _builtInResourceNoId:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    _throttle_deprecated:
+      type: object
+      properties:
+        default_limit:
+          description: 'Deprecated. Default maximum bandwidth threshold for outbound traffic in bytes. Once
+
+            exceeded, bandwidth throttling occurs.
+
+            '
+          type: integer
+          format: int64
+          example: 1073741824
+        window:
+          description: Deprecated. The time during which the `window_limit` threshold is in effect.
+          title: Time_window
+          allOf:
+          - $ref: '#/components/schemas/_time_window'
+        window_limit:
+          description: 'Deprecated. Maximum bandwidth threshold for outbound traffic during the specified
+
+            `window_limit` time range in bytes. Once exceeded, bandwidth throttling
+
+            occurs.
+
+            '
+          type: integer
+          format: int64
+          example: 2097152
+    ArrayConnectionKeyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ArrayConnectionKey'
+    ArrayConnectionPathResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArrayConnectionPath'
     ArrayConnection:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -1067,100 +1076,8 @@ components:
             description: The Purity version on the target array.
             type: string
             example: 5.0.0
-    ArrayConnectionPatch:
-      allOf:
-      - $ref: '#/components/schemas/_throttle_deprecated'
-      - type: object
-        properties:
-          connection_key:
-            description: 'The connection key of the target array.
-
-              It is required when `encryption` is changed,
-
-              or when `type` is changed from `async-replication` to `sync-replication`.
-
-              '
-            type: string
-            example: 6207d123-d123-0b5c-5fa1-95fabc5c7123
-          encryption:
-            description: 'If `encrypted`, encryption will be enabled for all traffic over this array connection.
-
-              If `unencrypted`, encryption will be disabled for all traffic over this array connection.
-
-              `connection_key` must be specified when encryption is changed.
-
-              If not specified, the current encryption option for the array connection will remain
-
-              unchanged.
-
-              '
-            type: string
-            example: encrypted
-          management_address:
-            description: 'Management IP address of the target array.
-
-              '
-            type: string
-            example: 10.202.101.78
-          replication_addresses:
-            description: 'IP addresses and FQDNs of the target arrays. Configurable only when
-
-              `replication_transport` is set to `ip`.
-
-              '
-            type: array
-            items:
-              type: string
-              example: 10.202.101.70
-          throttle:
-            $ref: '#/components/schemas/_throttle'
-          type:
-            description: 'The type of replication.
-
-              Valid values are `async-replication` and `sync-replication`.
-
-              '
-            type: string
-    ArrayConnectionGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/ArrayConnectionResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _errorcontextresponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_fixedReferenceWithType'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-      x-aliases:
-      - _errorContextResponseErrors
-    _throttle_2:
-      description: 'The bandwidth throttling for an array connection or target.
+    _throttle:
+      description: 'The bandwidth throttling for an array connection. Configurable on PATCH only.
 
         '
       type: object
@@ -1175,7 +1092,7 @@ components:
           format: int64
           example: 1073741824
         window:
-          description: The time during which the window_limit threshold is in effect.
+          description: The time during which the `window_limit` threshold is in effect.
           title: Time_window
           allOf:
           - $ref: '#/components/schemas/_time_window'
@@ -1190,6 +1107,68 @@ components:
           type: integer
           format: int64
           example: 2097152
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    ArrayConnectionPathGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ArrayConnectionPath_2'
     ArrayConnectionPost_2:
       allOf:
       - $ref: '#/components/schemas/ArrayConnection_2'
@@ -1233,144 +1212,21 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    ArrayConnectionKeyResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ArrayConnectionKey_2'
-    _objectBacklog:
-      type: object
-      properties:
-        bytes_count:
-          description: 'The size of the objects in bytes that need to be replicated.
-
-            This does not include the size of custom metadata.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        delete_ops_count:
-          description: 'The number of DELETE operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        other_ops_count:
-          description: 'The number of other operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        put_ops_count:
-          description: 'The number of PUT operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    ArrayConnectionKeyGetResponse_2:
+    _continuousReplicationPerformance:
       allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/ArrayConnectionKeyResponse'
-    _errorContextResponse_2:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    ArrayConnectionPathGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/_errorContextResponse_2'
+      - $ref: '#/components/schemas/_replication_performance'
       - type: object
         properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ArrayConnectionPath_2'
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
+          object_backlog:
+            description: 'The total number of pending object operations
 
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    ConnectionRelationshipPerformanceReplicationGetResp:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/ConnectionRelationshipPerformanceReplication'
-          total:
-            description: 'Total of all records after filtering.
-
-              If `total_only` query param is `true`, then no items will be returned.
+              and their size that are currently in the backlog.
 
               '
-            type: array
-            items:
-              $ref: '#/components/schemas/ConnectionRelationshipPerformanceReplication'
-    _builtInRelationship:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
+            title: ObjectBacklog
+            allOf:
+            - $ref: '#/components/schemas/_objectBacklog'
+        x-readOnly: true
     ArrayConnectionKey_2:
       type: object
       properties:
@@ -1394,23 +1250,6 @@ components:
           format: int64
           readOnly: true
       x-readOnly: true
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
     _context_2:
       type: object
       properties:
@@ -1432,6 +1271,40 @@ components:
           title: FixedReference
           allOf:
           - $ref: '#/components/schemas/_fixedReference_2'
+    _replication_performance:
+      type: object
+      properties:
+        received_bytes_per_sec:
+          description: Total bytes received per second.
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+        transmitted_bytes_per_sec:
+          description: Total bytes transmitted per second.
+          type: number
+          format: double
+          minimum: 0
+          readOnly: true
+      x-readOnly: true
+    ConnectionRelationshipPerformanceReplicationGetResp:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ConnectionRelationshipPerformanceReplication'
+          total:
+            description: 'Total of all records after filtering.
+
+              If `total_only` query param is `true`, then no items will be returned.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/ConnectionRelationshipPerformanceReplication'
     ArrayConnectionPath_2:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
@@ -1491,6 +1364,153 @@ components:
 
               '
             type: string
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference_2'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    _objectBacklog:
+      type: object
+      properties:
+        bytes_count:
+          description: 'The size of the objects in bytes that need to be replicated.
+
+            This does not include the size of custom metadata.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        delete_ops_count:
+          description: 'The number of DELETE operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        other_ops_count:
+          description: 'The number of other operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        put_ops_count:
+          description: 'The number of PUT operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+    _builtInRelationship:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _errorContextResponse_2:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
     ConnectionRelationshipPerformanceReplication:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
@@ -1538,22 +1558,10 @@ components:
             format: int64
             readOnly: true
         x-readOnly: true
-    _replication_performance:
-      type: object
-      properties:
-        received_bytes_per_sec:
-          description: Total bytes received per second.
-          type: number
-          format: double
-          minimum: 0
-          readOnly: true
-        transmitted_bytes_per_sec:
-          description: Total bytes transmitted per second.
-          type: number
-          format: double
-          minimum: 0
-          readOnly: true
-      x-readOnly: true
+    ArrayConnectionKeyGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/ArrayConnectionKeyResponse'
     ArrayConnection_2:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
@@ -1661,57 +1669,191 @@ components:
             type: string
             readOnly: true
             example: 2.3.0
-    _continuousReplicationPerformance:
-      allOf:
-      - $ref: '#/components/schemas/_replication_performance'
-      - type: object
-        properties:
-          object_backlog:
-            description: 'The total number of pending object operations
+    _throttle_2:
+      description: 'The bandwidth throttling for an array connection or target.
 
-              and their size that are currently in the backlog.
-
-              '
-            title: ObjectBacklog
-            allOf:
-            - $ref: '#/components/schemas/_objectBacklog'
-        x-readOnly: true
-    _errorContextResponseErrors:
+        '
       type: object
       properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
+        default_limit:
+          description: 'Default maximum bandwidth threshold for outbound traffic in bytes. Once
 
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
+            exceeded, bandwidth throttling occurs.
 
             '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
+          type: integer
+          format: int64
+          example: 1073741824
+        window:
+          description: The time during which the window_limit threshold is in effect.
+          title: Time_window
           allOf:
-          - $ref: '#/components/schemas/_fixedReference_2'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
+          - $ref: '#/components/schemas/_time_window'
+        window_limit:
+          description: 'Maximum bandwidth threshold for outbound traffic during the specified
+
+            `window_limit` time range in bytes. Once exceeded, bandwidth throttling
+
+            occurs.
+
+            '
+          type: integer
+          format: int64
+          example: 2097152
+    ArrayConnectionKeyResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArrayConnectionKey_2'
   parameters:
-    Ids:
-      name: ids
+    Sort:
+      name: sort
       in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Remote_ids:
+      name: remote_ids
+      in: query
+      description: 'A comma-separated list of remote array IDs. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `remote_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Remote_names:
+      name: remote_names
+      in: query
+      description: 'A comma-separated list of remote array names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `remote_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Renew_encryption_key:
+      name: renew_encryption_key
+      in: query
+      description: 'If set to `true`, update array connection with a new encryption key.
+
+        If set to `true`, other array connection attributes may not be modified in requests.
+
+        Defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Encrypted:
+      name: encrypted
+      in: query
+      description: 'If `true`, the returned array connection key will encode an encryption key
+
+        used to establish trust and secure replication traffic.
+
+        If `false`, the returned array connection key will not encode an encryption key.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
       style: form
       explode: false
       schema:
@@ -1740,130 +1882,6 @@ components:
       schema:
         type: array
         items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Remote_names:
-      name: remote_names
-      in: query
-      description: 'A comma-separated list of remote array names. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `remote_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Remote_ids:
-      name: remote_ids
-      in: query
-      description: 'A comma-separated list of remote array IDs. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `remote_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Refresh:
-      name: refresh
-      in: query
-      description: 'If set to `true`, the array will attempt to communicate with
-
-        the connection peer in order to update
-
-        the connection attributes on both arrays with any changes that have occurred.
-
-        If set to `true`, other array connection attributes may not be modified in requests.
-
-        Default value is `false`.
-
-        '
-      schema:
-        type: boolean
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Context_names_get:
       name: context_names
@@ -1895,39 +1913,6 @@ components:
         type: array
         items:
           type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
-
-        Any errors will be returned in the `errors` field of the response.
-
-        If set to `false`, the operation will fail if there are any errors.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
     Offset:
       name: offset
       in: query
@@ -1941,58 +1926,104 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Renew_encryption_key:
-      name: renew_encryption_key
+    Ids:
+      name: ids
       in: query
-      description: 'If set to `true`, update array connection with a new encryption key.
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Refresh:
+      name: refresh
+      in: query
+      description: 'If set to `true`, the array will attempt to communicate with
+
+        the connection peer in order to update
+
+        the connection attributes on both arrays with any changes that have occurred.
 
         If set to `true`, other array connection attributes may not be modified in requests.
 
-        Defaults to `false`.
+        Default value is `false`.
 
         '
       schema:
         type: boolean
-    Total_item_count:
-      name: total_item_count
+    Continuation_token:
+      name: continuation_token
       in: query
-      description: 'If set to `true`, the `total_item_count` matching the
+      description: 'A token used to retrieve the next page of data
 
-        specified query parameters is calculated and returned in
+        with some consistency guaranteed.
 
-        the response. If set to `false`, the `total_item_count`
+        The token is a Base64 encoded value.
 
-        is `null` in the response. This may speed up queries
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
 
-        where the `total_item_count` is large. If not specified,
+        header field of the response.
 
-        defaults to `false`.
+        A query has reached its last page when the response does not include a token.
 
-        '
-      schema:
-        type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
 
         '
       schema:
         type: string
-    Encrypted:
-      name: encrypted
+    Limit:
+      name: limit
       in: query
-      description: 'If `true`, the returned array connection key will encode an encryption key
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        used to establish trust and secure replication traffic.
+        To return the total number of resources, set `limit=0`.
 
-        If `false`, the returned array connection key will not encode an encryption key.
+        The total number of resources is returned as a `total_item_count` value.
 
-        If not specified, defaults to `false`.
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
       schema:
-        type: boolean
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Type_for_performance:
+      name: type
+      in: query
+      description: 'Display the metric of a specified object type.
+
+        Valid values are `all`, `file-system`, and `object-store`.
+
+        If not specified, defaults to `all`.
+
+        '
+      schema:
+        type: string
     Start_time:
       name: start_time
       in: query
@@ -2004,16 +2035,56 @@ components:
         format: int64
         minimum: 0
       example: 1514764800000
-    Ids_2:
-      name: ids
+    End_time:
+      name: end_time
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'When the time window ends (in milliseconds since epoch).
 
-        If after filtering, there is not at least one resource that matches
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 1514764800000
+    Total_only:
+      name: total_only
+      in: query
+      description: 'If set to `true`, returns the aggregate value of all items after filtering.
 
-        each of the elements of `ids`, then an error is returned.
+        Where it makes more sense, the average value is displayed instead.
 
-        This cannot be provided together with the `name` or `names` query parameters.
+        The values are displayed for each name where meaningful.
+
+        If `total_only=true`, the `items` list will be empty.
+
+        '
+      schema:
+        type: boolean
+    Resolution:
+      name: resolution
+      in: query
+      description: 'The desired ms between samples. Available resolutions may
+
+        depend on data type, `start_time` and `end_time`.
+
+        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
+
+        `86400000` are possible values.
+
+        '
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+      example: 30000
+    Remote_names_deprecated:
+      name: remote_names
+      in: query
+      description: 'A comma-separated list of remote array names. Deprecated, best practice is to reference
+
+        connections with `ids`. If there is not at least one resource that matches each of the elements,
+
+        then an error is returned. This cannot be provided together with `remote_ids` query parameter.
 
         '
       style: form
@@ -2040,67 +2111,6 @@ components:
         type: array
         items:
           type: string
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Total_only:
-      name: total_only
-      in: query
-      description: 'If set to `true`, returns the aggregate value of all items after filtering.
-
-        Where it makes more sense, the average value is displayed instead.
-
-        The values are displayed for each name where meaningful.
-
-        If `total_only=true`, the `items` list will be empty.
-
-        '
-      schema:
-        type: boolean
-    Type_for_performance:
-      name: type
-      in: query
-      description: 'Display the metric of a specified object type.
-
-        Valid values are `all`, `file-system`, and `object-store`.
-
-        If not specified, defaults to `all`.
-
-        '
-      schema:
-        type: string
-    Remote_names_deprecated:
-      name: remote_names
-      in: query
-      description: 'A comma-separated list of remote array names. Deprecated, best practice is to reference
-
-        connections with `ids`. If there is not at least one resource that matches each of the elements,
-
-        then an error is returned. This cannot be provided together with `remote_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Offset_2:
       name: offset
       in: query
@@ -2112,34 +2122,24 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Resolution:
-      name: resolution
+    Ids_2:
+      name: ids
       in: query
-      description: 'The desired ms between samples. Available resolutions may
+      description: 'A comma-separated list of resource IDs.
 
-        depend on data type, `start_time` and `end_time`.
+        If after filtering, there is not at least one resource that matches
 
-        In general `1000`, `30000`, `300000`, `1800000`, `7200000`, and
+        each of the elements of `ids`, then an error is returned.
 
-        `86400000` are possible values.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
+      style: form
+      explode: false
       schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 30000
-    End_time:
-      name: end_time
-      in: query
-      description: 'When the time window ends (in milliseconds since epoch).
-
-        '
-      schema:
-        type: integer
-        format: int64
-        minimum: 0
-      example: 1514764800000
+        type: array
+        items:
+          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey
