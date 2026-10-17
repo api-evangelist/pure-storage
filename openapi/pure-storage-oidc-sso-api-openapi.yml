@@ -112,25 +112,6 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
     Names:
       name: names
       in: query
@@ -154,6 +135,35 @@ components:
         type: array
         items:
           type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
     Offset:
       name: offset
       in: query
@@ -165,24 +175,6 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     XRequestId:
       name: X-Request-ID
       in: header
@@ -213,16 +205,24 @@ components:
         '
       schema:
         type: string
-    Filter:
-      name: filter
+    Ids:
+      name: ids
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'A comma-separated list of resource IDs.
 
-        that satisfy the filter criteria.
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     Limit:
       name: limit
       in: query
@@ -256,99 +256,6 @@ components:
           description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
-    OidcSsoPost:
-      type: object
-      properties:
-        enabled:
-          description: If set to `true`, the OIDC SSO configuration is enabled.
-          type: boolean
-        idp:
-          $ref: '#/components/schemas/_oidcSsoPostIdp'
-        prn:
-          description: Pure Resource Name of the identity provider
-          type: string
-          readOnly: true
-          example: prn::iam:array-id/local::oidc-provider/myidp
-        services:
-          description: 'Services that the OIDC SSO authentication is used for.
-
-            Valid values: `object`.
-
-            '
-          type: array
-          items:
-            type: string
-    _oidcSsoPostIdp:
-      description: Identity Provider
-      type: object
-      properties:
-        provider_url:
-          description: 'URL of the Identity Provider server
-
-            '
-          type: string
-        provider_url_ca_certificate:
-          description: 'CA certificate used to validate the authenticity of the configured
-
-            Identity Provider server.
-
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-        provider_url_ca_certificate_group:
-          description: 'A certificate group containing CA certificates that can be used to
-
-            validate the authenticity of the configured Identity Provider server.
-
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference'
-    OidcSsoGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/OidcSsoResponse'
-    OidcSso:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/OidcSsoPost'
-    OidcSsoPatch:
-      allOf:
-      - $ref: '#/components/schemas/OidcSsoPost'
-      - type: object
-        properties:
-          name:
-            description: A new name for the provider
-            type: string
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
     OidcSsoResponse:
       type: object
       properties:
@@ -389,6 +296,99 @@ components:
           readOnly: true
       x-aliases:
       - _referenceWithFixedType
+    _oidcSsoPostIdp:
+      description: Identity Provider
+      type: object
+      properties:
+        provider_url:
+          description: 'URL of the Identity Provider server
+
+            '
+          type: string
+        provider_url_ca_certificate:
+          description: 'CA certificate used to validate the authenticity of the configured
+
+            Identity Provider server.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+        provider_url_ca_certificate_group:
+          description: 'A certificate group containing CA certificates that can be used to
+
+            validate the authenticity of the configured Identity Provider server.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference'
+    OidcSsoGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/OidcSsoResponse'
+    OidcSsoPatch:
+      allOf:
+      - $ref: '#/components/schemas/OidcSsoPost'
+      - type: object
+        properties:
+          name:
+            description: A new name for the provider
+            type: string
+    OidcSsoPost:
+      type: object
+      properties:
+        enabled:
+          description: If set to `true`, the OIDC SSO configuration is enabled.
+          type: boolean
+        idp:
+          $ref: '#/components/schemas/_oidcSsoPostIdp'
+        prn:
+          description: Pure Resource Name of the identity provider
+          type: string
+          readOnly: true
+          example: prn::iam:array-id/local::oidc-provider/myidp
+        services:
+          description: 'Services that the OIDC SSO authentication is used for.
+
+            Valid values: `object`.
+
+            '
+          type: array
+          items:
+            type: string
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    OidcSso:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/OidcSsoPost'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

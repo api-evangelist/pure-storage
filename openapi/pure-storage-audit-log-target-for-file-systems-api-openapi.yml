@@ -132,26 +132,157 @@ paths:
       operationId: patchApi226LogTargetsFileSystems
       x-operation-id-source: derived
 components:
-  parameters:
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+  schemas:
+    LogTargetsFileSystemsPost:
+      allOf:
+      - $ref: '#/components/schemas/LogTargetsFileSystems'
+    LogTargetsFileSystemsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/LogTargetsFileSystemsResponse'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
-        is appended to the field name).
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        file system), or correspond to something in the environment, like a host or a
 
-        the response.
+        server.
 
         '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
           type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    LogTargetsFileSystems:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - type: object
+        properties:
+          file_system:
+            description: The target filesystem where audit logs will be stored.
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          keep_for:
+            description: 'Specifies the period that audit logs are retained before they are deleted,
+
+              in milliseconds.
+
+              Default value is `null` which means time based retention does not apply.
+
+              Use 0 to reset the value to `null`.
+
+              At least one of the `keep_for` or `keep_size` parameters is required,
+
+              and they can be set together.
+
+              '
+            type: integer
+            format: int64
+            minimum: 86400000
+            example: 86400000
+          keep_size:
+            description: 'Specifies the maximum size of audit logs to be retained.
+
+              Measured in bytes. When exceeded, older logs will be deleted.
+
+              Default value is `null` which means size-based retention does not apply.
+
+              Use 0 to reset the value to `null`.
+
+              At least one of the `keep_for` or `keep_size` parameters is required,
+
+              and they can be set together.
+
+              '
+            type: integer
+            format: int64
+            minimum: 1000000
+            example: 1000000
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
+    LogTargetsFileSystemsResponse:
+      type: object
+      properties:
+        items:
+          description: A list of log target objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/LogTargetsFileSystems'
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+  parameters:
     Allow_errors:
       name: allow_errors
       in: query
@@ -165,53 +296,16 @@ components:
       schema:
         type: boolean
         default: false
-    Names_required:
-      name: names
+    Ids:
+      name: ids
       in: query
-      description: 'A comma-separated list of resource names.
+      description: 'A comma-separated list of resource IDs.
 
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
+        If after filtering, there is not at least one resource that matches
 
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
+        each of the elements of `ids`, then an error is returned.
 
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -284,16 +378,32 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Ids:
-      name: ids
+    Filter:
+      name: filter
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Narrows down the results to only the response objects
 
-        If after filtering, there is not at least one resource that matches
+        that satisfy the filter criteria.
 
-        each of the elements of `ids`, then an error is returned.
+        '
+      schema:
+        type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
 
-        This cannot be provided together with the `name` or `names` query parameters.
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -302,6 +412,44 @@ components:
         type: array
         items:
           type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Continuation_token:
       name: continuation_token
       in: query
@@ -324,175 +472,27 @@ components:
         '
       schema:
         type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-  schemas:
-    LogTargetsFileSystemsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/LogTargetsFileSystemsResponse'
-    LogTargetsFileSystems:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - type: object
-        properties:
-          file_system:
-            description: The target filesystem where audit logs will be stored.
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          keep_for:
-            description: 'Specifies the period that audit logs are retained before they are deleted,
-
-              in milliseconds.
-
-              Default value is `null` which means time based retention does not apply.
-
-              Use 0 to reset the value to `null`.
-
-              At least one of the `keep_for` or `keep_size` parameters is required,
-
-              and they can be set together.
-
-              '
-            type: integer
-            format: int64
-            minimum: 86400000
-            example: 86400000
-          keep_size:
-            description: 'Specifies the maximum size of audit logs to be retained.
-
-              Measured in bytes. When exceeded, older logs will be deleted.
-
-              Default value is `null` which means size-based retention does not apply.
-
-              Use 0 to reset the value to `null`.
-
-              At least one of the `keep_for` or `keep_size` parameters is required,
-
-              and they can be set together.
-
-              '
-            type: integer
-            format: int64
-            minimum: 1000000
-            example: 1000000
-    LogTargetsFileSystemsPost:
-      allOf:
-      - $ref: '#/components/schemas/LogTargetsFileSystems'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
+        type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
 
         '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    LogTargetsFileSystemsResponse:
-      type: object
-      properties:
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
         items:
-          description: A list of log target objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/LogTargetsFileSystems'
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
           type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
-
-            '
-          type: string
-          readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

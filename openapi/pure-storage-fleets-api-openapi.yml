@@ -542,32 +542,6 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    _fleetmemberpostMember:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (e.g. remote-arrays)
-
-            '
-          type: string
-      x-aliases:
-      - _fleetMemberPostMembersMember
-    FleetMemberGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/FleetMemberResponse'
     FleetMember:
       type: object
       properties:
@@ -601,21 +575,54 @@ components:
             '
           type: string
           example: cannot reach array
-    _referenceWithoutTypeWithIsLocal:
+    _fleetmemberpostMembers:
+      type: object
+      properties:
+        key:
+          description: 'Provide the `fleet key` generated from any array in the fleet.
+
+            '
+          type: string
+        member:
+          $ref: '#/components/schemas/_fleetmemberpostMember'
+      x-aliases:
+      - _fleetMemberPostMembers
+    Fleet:
       allOf:
-      - $ref: '#/components/schemas/_reference'
+      - $ref: '#/components/schemas/_resource'
       - type: object
         properties:
           is_local:
-            description: 'If set to `true`, the location reference is to the local array.
-
-              If set to `false`, the location reference is to a remote location,
-
-              such as a remote array or offload target.
+            description: 'If set to `true`, the current array is a member of the fleet.
 
               '
             type: boolean
-            readOnly: true
+    _fixedReference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
+    FleetMemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/FleetMemberResponse'
     FleetKeyResponse:
       type: object
       properties:
@@ -623,18 +630,44 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FleetKey'
-    FleetResponse:
-      type: object
-      properties:
-        items:
-          description: 'Returns a list of all items after filtering.
+    _fixedReferenceWithTypeAndLocation:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithType'
+      - $ref: '#/components/schemas/_referenceWithoutTypeWithIsLocal'
+      - type: object
+        properties:
+          resource_type:
+            description: "Type of the object (full name of the endpoint).\n  Valid values are the unique part of the resource's REST endpoint.\n  For example, a reference to a fleet would have a\n  `resource_type` of `fleets`.\n"
+            type: string
+      x-aliases:
+      - _fixedReferenceWithIsLocal
+    FleetKeyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/FleetKeyResponse'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-            If applicable, the values are displayed for each name.
+              Valid values are the unique part of the resource''s REST endpoint.
 
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Fleet'
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    FleetGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/FleetResponse'
+      - $ref: '#/components/schemas/PageInfo'
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -662,26 +695,22 @@ components:
 
             '
           type: string
-    _fixedReferenceWithType:
+    _referenceWithoutTypeWithIsLocal:
       allOf:
-      - $ref: '#/components/schemas/_fixedReference'
+      - $ref: '#/components/schemas/_reference'
       - type: object
         properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
+          is_local:
+            description: 'If set to `true`, the location reference is to the local array.
 
-              Valid values are the unique part of the resource''s REST endpoint.
+              If set to `false`, the location reference is to a remote location,
 
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
+              such as a remote array or offload target.
 
               '
-            type: string
+            type: boolean
             readOnly: true
-      x-aliases:
-      - _fixedReference
-    _fixedReference:
+    _fleetmemberpostMember:
       type: object
       properties:
         id:
@@ -691,28 +720,18 @@ components:
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
+          description: 'The resource name.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
-    FleetMemberPost:
-      type: object
-      properties:
-        members:
-          description: 'Info about the members being added to fleet.
+        resource_type:
+          description: 'Type of the object (e.g. remote-arrays)
 
             '
-          type: array
-          items:
-            $ref: '#/components/schemas/_fleetmemberpostMembers'
+          type: string
+      x-aliases:
+      - _fleetMemberPostMembersMember
     FleetMemberResponse:
       type: object
       properties:
@@ -725,14 +744,82 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FleetMember'
-    FleetPatch:
-      allOf:
-      - $ref: '#/components/schemas/_newName'
-      - type: object
-    FleetGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/FleetResponse'
-      - $ref: '#/components/schemas/PageInfo'
+    FleetResponse:
+      type: object
+      properties:
+        items:
+          description: 'Returns a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Fleet'
+    FleetKey:
+      type: object
+      properties:
+        created:
+          description: 'Creation time in milliseconds since UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1706850977
+        expires:
+          description: 'Expiration time in milliseconds since UNIX epoch.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1706854577
+        fleet_key:
+          description: 'Fleet key, used for fleet connections.
+
+            After creation, listing will only show ****.
+
+            '
+          type: string
+          readOnly: true
+          example: CAUSJDljMGM3MGY3LWFhZDEtNDRkZC05ZDQ2LTZlOTA3YzY3Yzg1YxokOWMwYzcwZjctYWFkMS00NGRkLTlkND
+      x-readOnly: true
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _newName:
+      type: object
+      properties:
+        name:
+          description: The new name for the resource.
+          type: string
+    FleetMemberPost:
+      type: object
+      properties:
+        members:
+          description: 'Info about the members being added to fleet.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_fleetmemberpostMembers'
     PageInfo:
       type: object
       properties:
@@ -775,97 +862,10 @@ components:
             '
           type: integer
           format: int32
-    Fleet:
+    FleetPatch:
       allOf:
-      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_newName'
       - type: object
-        properties:
-          is_local:
-            description: 'If set to `true`, the current array is a member of the fleet.
-
-              '
-            type: boolean
-    _fleetmemberpostMembers:
-      type: object
-      properties:
-        key:
-          description: 'Provide the `fleet key` generated from any array in the fleet.
-
-            '
-          type: string
-        member:
-          $ref: '#/components/schemas/_fleetmemberpostMember'
-      x-aliases:
-      - _fleetMemberPostMembers
-    FleetKeyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/FleetKeyResponse'
-    _fixedReferenceWithTypeAndLocation:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithType'
-      - $ref: '#/components/schemas/_referenceWithoutTypeWithIsLocal'
-      - type: object
-        properties:
-          resource_type:
-            description: "Type of the object (full name of the endpoint).\n  Valid values are the unique part of the resource's REST endpoint.\n  For example, a reference to a fleet would have a\n  `resource_type` of `fleets`.\n"
-            type: string
-      x-aliases:
-      - _fixedReferenceWithIsLocal
-    _newName:
-      type: object
-      properties:
-        name:
-          description: The new name for the resource.
-          type: string
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    FleetKey:
-      type: object
-      properties:
-        created:
-          description: 'Creation time in milliseconds since UNIX epoch.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1706850977
-        expires:
-          description: 'Expiration time in milliseconds since UNIX epoch.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1706854577
-        fleet_key:
-          description: 'Fleet key, used for fleet connections.
-
-            After creation, listing will only show ****.
-
-            '
-          type: string
-          readOnly: true
-          example: CAUSJDljMGM3MGY3LWFhZDEtNDRkZC05ZDQ2LTZlOTA3YzY3Yzg1YxokOWMwYzcwZjctYWFkMS00NGRkLTlkND
-      x-readOnly: true
     FleetMember_2:
       type: object
       properties:
@@ -899,20 +899,22 @@ components:
             '
           type: string
           example: cannot reach array
-    _referenceWithoutTypeWithIsLocal_2:
+    _fixedReference_2:
       allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
       - type: object
         properties:
-          is_local:
-            description: 'If set to `true`, the location reference is to the local array.
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-              If set to `false`, the location reference is to a remote location,
+              Valid values are the unique part of the resource''s REST endpoint.
 
-              such as a remote array or offload target.
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
 
               '
-            type: boolean
+            type: string
             readOnly: true
     _fleetMemberPostMembers:
       type: object
@@ -961,23 +963,30 @@ components:
 
             '
           type: string
-    _fixedReference_2:
+    _referenceWithoutTypeWithIsLocal_2:
       allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          is_local:
+            description: 'If set to `true`, the location reference is to the local array.
+
+              If set to `false`, the location reference is to a remote location,
+
+              such as a remote array or offload target.
+
+              '
+            type: boolean
+            readOnly: true
+    _fixedReferenceWithIsLocal:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - $ref: '#/components/schemas/_referenceWithoutTypeWithIsLocal_2'
       - type: object
         properties:
           resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
+            description: "Type of the object (full name of the endpoint).\n  Valid values are the unique part of the resource's REST endpoint.\n  For example, a reference to a fleet would have a\n  `resource_type` of `fleets`.\n"
             type: string
-            readOnly: true
     FleetMemberPost_2:
       type: object
       properties:
@@ -1036,37 +1045,27 @@ components:
 
             '
           type: string
-    _fixedReferenceWithIsLocal:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - $ref: '#/components/schemas/_referenceWithoutTypeWithIsLocal_2'
-      - type: object
-        properties:
-          resource_type:
-            description: "Type of the object (full name of the endpoint).\n  Valid values are the unique part of the resource's REST endpoint.\n  For example, a reference to a fleet would have a\n  `resource_type` of `fleets`.\n"
-            type: string
   parameters:
-    Sort:
-      name: sort
+    Member_ids:
+      name: member_ids
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      description: 'Performs the operation on the unique member IDs specified.
+
+        Enter multiple member IDs in comma-separated format.
+
+        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+
+        '
       style: form
       explode: false
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Member_names:
-      name: member_names
+    Ids:
+      name: ids
       in: query
-      description: 'Performs the operation on the unique member name specified.
-
-        Examples of members include volumes, hosts, host groups, and directories.
-
-        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
-
-        '
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
       style: form
       explode: false
       schema:
@@ -1091,79 +1090,18 @@ components:
         '
       schema:
         type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Unreachable:
-      name: unreachable
+    Fleet_ids:
+      name: fleet_ids
       in: query
-      description: 'If set to `true`, allows a one-sided disconnect when the connection
+      description: 'Performs the operation on the unique Fleet IDs specified.
 
-        status is `connecting` instead of `connected` or `partially connected`.
-
-        If set to `false`, it works just like normal coordinated disconnect.
-
-        If not specified, defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Fleet_names:
-      name: fleet_names
-      in: query
-      description: 'Performs the operation on the unique Fleet names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        This query currently accepts only 1 name.
+        This query currently accepts only 1 ID.
 
         '
       style: form
       explode: false
       schema:
         type: array
-        items:
-          type: string
-    Names_single:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique resource names specified.
-
-        Only one value is supported.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        maxLength: 1
         items:
           type: string
     Offset:
@@ -1179,6 +1117,31 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Names_single:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique resource names specified.
+
+        Only one value is supported.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        maxLength: 1
+        items:
+          type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
     Ids_single:
       name: ids
       in: query
@@ -1194,45 +1157,35 @@ components:
         maxLength: 1
         items:
           type: string
-    Ids:
-      name: ids
+    Limit:
+      name: limit
       in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Member_ids:
-      name: member_ids
-      in: query
-      description: 'Performs the operation on the unique member IDs specified.
+      description: 'Limits the size of the response to the specified number of objects on each page.
 
-        Enter multiple member IDs in comma-separated format.
+        To return the total number of resources, set `limit=0`.
 
-        The `member_ids` or `member_names` parameter is required, but they cannot be set together.
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
-    Fleet_ids:
-      name: fleet_ids
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
       in: query
-      description: 'Performs the operation on the unique Fleet IDs specified.
-
-        This query currently accepts only 1 ID.
-
-        '
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Continuation_token:
       name: continuation_token
@@ -1256,35 +1209,48 @@ components:
         '
       schema:
         type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Sort_2:
-      name: sort
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Unreachable:
+      name: unreachable
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'If set to `true`, allows a one-sided disconnect when the connection
 
-        is appended to the field name).
+        status is `connecting` instead of `connected` or `partially connected`.
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        If set to `false`, it works just like normal coordinated disconnect.
 
-        the response.
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Fleet_names:
+      name: fleet_names
+      in: query
+      description: 'Performs the operation on the unique Fleet names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        This query currently accepts only 1 name.
 
         '
       style: form
@@ -1292,12 +1258,33 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Member_names_2:
+    Member_names:
       name: member_names
       in: query
-      description: 'A comma-separated list of member names.
+      description: 'Performs the operation on the unique member name specified.
+
+        Examples of members include volumes, hosts, host groups, and directories.
+
+        Enter multiple names in comma-separated format. For example, `vol01,vol02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_ids_2:
+      name: member_ids
+      in: query
+      description: 'A comma-separated list of member IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `member_ids`, then an error is returned.
+
+        This cannot be provided together with the `member_names` query parameter.
 
         '
       style: form
@@ -1331,16 +1318,29 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Member_ids_2:
-      name: member_ids
+    Sort_2:
+      name: sort
       in: query
-      description: 'A comma-separated list of member IDs.
+      description: 'Sort the response by the specified fields (in descending order if ''-''
 
-        If after filtering, there is not at least one resource that matches
+        is appended to the field name).
 
-        each of the elements of `member_ids`, then an error is returned.
+        NOTE: If you provide a sort you will not get a `continuation_token` in
 
-        This cannot be provided together with the `member_names` query parameter.
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Member_names_2:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
 
         '
       style: form

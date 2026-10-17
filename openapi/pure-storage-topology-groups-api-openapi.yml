@@ -228,44 +228,23 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    TgroupMembersPostMember:
-      type: object
-      properties:
-        member:
-          title: ReferenceWritable
-          allOf:
-          - $ref: '#/components/schemas/_referenceWritable'
-    TgroupMember:
+    _fixedReference:
       allOf:
-      - $ref: '#/components/schemas/_context'
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
       - type: object
         properties:
-          member:
-            description: A reference to the topology group member.
-            title: ReferenceWritable
-            allOf:
-            - $ref: '#/components/schemas/_referenceWritable'
-          status:
-            description: 'Current topology group membership status
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-              Valid values are one of `joining`, `joined`, or `removing`.
+              Valid values are the unique part of the resource''s REST endpoint.
 
-              A status of `joining` indicates that the member is attempting to join the topology group.
+              For example, a reference to a file system would have a
 
-              A status of `joined` indicates that the member has joined the topology group.
-
-              A status of `removing` indicates that the member is being removed from the topology group.
+              `resource_type` of `file-systems`.
 
               '
             type: string
-          status_details:
-            description: Additional details about the member join status, if any.
-            type: string
-          topology_group:
-            description: A reference to the topology group.
-            title: ReferenceWritable
-            allOf:
-            - $ref: '#/components/schemas/_referenceWritable'
+            readOnly: true
     TgroupMemberResponse:
       type: object
       properties:
@@ -276,104 +255,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TgroupMember'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    TgroupMembersPost:
-      type: object
-      properties:
-        members:
-          description: The list of members to add to the topology group.
-          type: array
-          items:
-            $ref: '#/components/schemas/TgroupMembersPostMember'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    TgroupMemberGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TgroupMemberResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
     _errorContextResponseErrors:
       type: object
       properties:
@@ -405,23 +286,133 @@ components:
           description: A description of the error which occurred.
           type: string
           example: Resource does not exist.
-    _fixedReference:
+    TgroupMember:
       allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - $ref: '#/components/schemas/_context'
       - type: object
         properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
+          member:
+            description: A reference to the topology group member.
+            title: ReferenceWritable
+            allOf:
+            - $ref: '#/components/schemas/_referenceWritable'
+          status:
+            description: 'Current topology group membership status
 
-              Valid values are the unique part of the resource''s REST endpoint.
+              Valid values are one of `joining`, `joined`, or `removing`.
 
-              For example, a reference to a file system would have a
+              A status of `joining` indicates that the member is attempting to join the topology group.
 
-              `resource_type` of `file-systems`.
+              A status of `joined` indicates that the member has joined the topology group.
+
+              A status of `removing` indicates that the member is being removed from the topology group.
 
               '
             type: string
-            readOnly: true
+          status_details:
+            description: Additional details about the member join status, if any.
+            type: string
+          topology_group:
+            description: A reference to the topology group.
+            title: ReferenceWritable
+            allOf:
+            - $ref: '#/components/schemas/_referenceWritable'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+    Tgroup:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          parent_topology_group:
+            description: The topology group in which this group is a member.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
     _referenceWritable:
       allOf:
       - $ref: '#/components/schemas/_referenceWithoutType'
@@ -440,16 +431,53 @@ components:
             type: string
       x-aliases:
       - _reference
-    TgroupResponse:
+    _errorContextResponse:
       type: object
       properties:
-        items:
-          description: 'Displays a list of topology groups after the operation.
-
-            '
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    TgroupGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TgroupResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    TgroupMemberGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/TgroupMemberResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    TgroupMembersPost:
+      type: object
+      properties:
+        members:
+          description: The list of members to add to the topology group.
           type: array
           items:
-            $ref: '#/components/schemas/Tgroup'
+            $ref: '#/components/schemas/TgroupMembersPostMember'
+    TgroupMembersPostMember:
+      type: object
+      properties:
+        member:
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
+    _newName:
+      type: object
+      properties:
+        name:
+          description: The new name for the resource.
+          type: string
+    TgroupPatch:
+      type: object
+      properties:
+        topology_group:
+          title: NewName
+          allOf:
+          - $ref: '#/components/schemas/_newName'
     PageInfo:
       type: object
       properties:
@@ -478,84 +506,27 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    _errorContextResponse:
+    TgroupResponse:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
+        items:
+          description: 'Displays a list of topology groups after the operation.
+
+            '
           type: array
-          readOnly: true
           items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    TgroupPatch:
-      type: object
-      properties:
-        topology_group:
-          title: NewName
-          allOf:
-          - $ref: '#/components/schemas/_newName'
-    TgroupGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/TgroupResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    Tgroup:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          parent_topology_group:
-            description: The topology group in which this group is a member.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-    _newName:
-      type: object
-      properties:
-        name:
-          description: The new name for the resource.
-          type: string
+            $ref: '#/components/schemas/Tgroup'
   parameters:
-    Sort:
-      name: sort
+    Member_ids:
+      name: member_ids
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A comma-separated list of member IDs.
 
-        is appended to the field name).
+        If after filtering, there is not at least one resource that matches
 
-        NOTE: If you provide a sort you will not get a `continuation_token` in
+        each of the elements of `member_ids`, then an error is returned.
 
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    To_parent_topology_group_names:
-      name: to_parent_topology_group_names
-      in: query
-      description: 'Moves selected topology groups to the specified parent topology group by name.
-
-        One of the `to_parent_topology_group_ids` or `to_parent_topology_group_names` parameters is required,
-
-        but they cannot be set together.
+        This cannot be provided together with the `member_names` query parameter.
 
         '
       style: form
@@ -580,130 +551,16 @@ components:
         type: array
         items:
           type: string
-    Parent_topology_group_ids:
-      name: parent_topology_group_ids
+    Ids:
+      name: ids
       in: query
-      description: 'Assigns selected topology groups to the specified parent topology group by ID.
+      description: 'A comma-separated list of resource IDs.
 
-        One of the `parent_topology_group_ids` or `parent_topology_group_names` parameters is required,
+        If after filtering, there is not at least one resource that matches
 
-        but they cannot be set together.
+        each of the elements of `ids`, then an error is returned.
 
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Topology_group_names:
-      name: topology_group_names
-      in: query
-      description: 'Selects topology groups by name. Enter multiple names in comma-separated format.
-
-        One of the `topology_group_ids` or `topology_group_names` parameters is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Parent_topology_group_names:
-      name: parent_topology_group_names
-      in: query
-      description: 'Assigns selected topology groups to the specified parent topology group by name.
-
-        One of the `parent_topology_group_ids` or `parent_topology_group_names` parameters is required,
-
-        but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    List_all_parents:
-      name: list_all_parents
-      in: query
-      description: 'When set to `true`, the results returned are expanded to also include all ancestors of every topology group matching
-
-        `names` or `ids`. This may only be specified if `names` or `ids` is also specified.
-
-        If not specified, defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    Topology_group_ids:
-      name: topology_group_ids
-      in: query
-      description: 'Selects topology groups by ID. Enter multiple IDs in comma-separated format.
-
-        One of the `topology_group_ids` or `topology_group_names` parameters is required, but they cannot be set together.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -724,6 +581,24 @@ components:
         '
       schema:
         type: boolean
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
     Names:
       name: names
       in: query
@@ -739,6 +614,20 @@ components:
         each of the elements of `names`, then an error is returned,
 
         except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Topology_group_names:
+      name: topology_group_names
+      in: query
+      description: 'Selects topology groups by name. Enter multiple names in comma-separated format.
+
+        One of the `topology_group_ids` or `topology_group_names` parameters is required, but they cannot be set together.
 
         '
       style: form
@@ -788,16 +677,24 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Ids:
-      name: ids
+    Filter:
+      name: filter
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Narrows down the results to only the response objects
 
-        If after filtering, there is not at least one resource that matches
+        that satisfy the filter criteria.
 
-        each of the elements of `ids`, then an error is returned.
+        '
+      schema:
+        type: string
+    Parent_topology_group_names:
+      name: parent_topology_group_names
+      in: query
+      description: 'Assigns selected topology groups to the specified parent topology group by name.
 
-        This cannot be provided together with the `name` or `names` query parameters.
+        One of the `parent_topology_group_ids` or `parent_topology_group_names` parameters is required,
+
+        but they cannot be set together.
 
         '
       style: form
@@ -806,16 +703,22 @@ components:
         type: array
         items:
           type: string
-    Member_ids:
-      name: member_ids
+    Context_names:
+      name: context_names
       in: query
-      description: 'A comma-separated list of member IDs.
+      description: 'Performs the operation on the context specified.
 
-        If after filtering, there is not at least one resource that matches
 
-        each of the elements of `member_ids`, then an error is returned.
+        If specified, the context names must be an array of size 1, and the single element
 
-        This cannot be provided together with the `member_names` query parameter.
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -823,6 +726,44 @@ components:
       schema:
         type: array
         items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Continuation_token:
       name: continuation_token
@@ -846,25 +787,84 @@ components:
         '
       schema:
         type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
+        type: string
+    List_all_parents:
+      name: list_all_parents
+      in: query
+      description: 'When set to `true`, the results returned are expanded to also include all ancestors of every topology group matching
+
+        `names` or `ids`. This may only be specified if `names` or `ids` is also specified.
+
+        If not specified, defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Topology_group_ids:
+      name: topology_group_ids
+      in: query
+      description: 'Selects topology groups by ID. Enter multiple IDs in comma-separated format.
+
+        One of the `topology_group_ids` or `topology_group_names` parameters is required, but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Parent_topology_group_ids:
+      name: parent_topology_group_ids
+      in: query
+      description: 'Assigns selected topology groups to the specified parent topology group by ID.
+
+        One of the `parent_topology_group_ids` or `parent_topology_group_names` parameters is required,
+
+        but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    To_parent_topology_group_names:
+      name: to_parent_topology_group_names
+      in: query
+      description: 'Moves selected topology groups to the specified parent topology group by name.
+
+        One of the `to_parent_topology_group_ids` or `to_parent_topology_group_names` parameters is required,
+
+        but they cannot be set together.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

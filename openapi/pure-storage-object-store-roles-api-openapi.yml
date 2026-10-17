@@ -451,38 +451,501 @@ paths:
       operationId: patchApi226ObjectStoreRolesObjectStoreTrustPoliciesRules
       x-operation-id-source: derived
 components:
+  schemas:
+    _trustPolicyRuleCondition:
+      description: 'Identity-provider-specific condition that specifies who can assume the role.
+
+        '
+      type: object
+      properties:
+        key:
+          description: 'Key from the context of the role assuming request that will have its
+
+            value compared based on the operator specified in this condition to the
+
+            values provided in this condition.
+
+            '
+          type: string
+          example: saml:sub
+        operator:
+          description: 'Operator specifying the comparison to be done between the values from
+
+            the request context and the values provided in this condition.
+
+            Valid values: `StringEquals`.
+
+            '
+          type: string
+          example: StringEquals
+        values:
+          description: 'Values to be compared with the values in the role assuming request
+
+            context identified by the key. If multiple values are specified, it''s
+
+            sufficient if just one matches.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - something
+          - anything
+    ObjectStoreTrustPolicy:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBase'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+            readOnly: true
+          role:
+            description: Object Store Role to which the Trust Policy applies.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          rules:
+            description: List of rules establishing the trust policy
+            type: array
+            items:
+              $ref: '#/components/schemas/TrustPolicyRule'
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    ObjectStoreTrustPolicyResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectStoreTrustPolicy'
+    TrustPolicyRulePost:
+      type: object
+      properties:
+        actions:
+          description: 'The list of role-assumption actions granted by this rule to the respective role.
+
+            Currently we support `sts:AssumeRoleWithSAML` and `sts:AssumeRoleWithWebIdentity` actions.
+
+            '
+          type: array
+          items:
+            type: string
+          example:
+          - sts:AssumeRoleWithSAML
+        conditions:
+          description: 'Conditions used to limit the scope which this rule applies to.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_trustPolicyRuleCondition'
+        effect:
+          description: 'Effect of this rule.
+
+            When `allow`, the rule allows the given actions to be performed on the
+
+            given resources, subject to the given conditions.
+
+            Valid values include `allow`.
+
+            '
+          type: string
+          readOnly: true
+          example: allow
+        policy:
+          description: The policy to which this rule belongs.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        principals:
+          description: List of Identity Providers
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceWritable'
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+    PolicyMemberContextGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/PolicyMemberContextResponse'
+      - $ref: '#/components/schemas/_errorContextResponse'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    PolicyMemberContext:
+      allOf:
+      - $ref: '#/components/schemas/PolicyMember'
+      - $ref: '#/components/schemas/_context'
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference'
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    TrustPolicyRule:
+      allOf:
+      - $ref: '#/components/schemas/_builtInNoId'
+      - $ref: '#/components/schemas/_index'
+      - $ref: '#/components/schemas/TrustPolicyRulePost'
+    ObjectStoreTrustPolicyRuleResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrustPolicyRuleWithContext'
+    ObjectStoreTrustPolicyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreTrustPolicyResponse'
+    PolicyMember:
+      type: object
+      properties:
+        member:
+          description: Reference to the resource the policy is applied to.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        policy:
+          description: Reference to the policy.
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    ObjectStoreRoleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreRoleResponse'
+    PolicyBase:
+      allOf:
+      - $ref: '#/components/schemas/PolicyBaseRenameable'
+    ObjectStoreRole:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          account:
+            description: Reference of the associated account.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          created:
+            description: Creation timestamp of the object.
+            type: integer
+            format: int64
+            readOnly: true
+          max_session_duration:
+            description: 'The maximum session duration for the role in milliseconds
+
+              '
+            type: integer
+          prn:
+            description: Pure Resource Name of the role
+            type: string
+            readOnly: true
+            example: prn::iam:array-id/local:obj-account-id/123456789101112:role/myrole
+          trusted_entities:
+            description: List of trusted entities
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_fixedReference'
+    PolicyBaseRenameable:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/_realmsReference'
+      - type: object
+        properties:
+          enabled:
+            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+
+              '
+            type: boolean
+          is_local:
+            description: Whether the policy is defined on the local array.
+            type: boolean
+            readOnly: true
+          location:
+            description: Reference to the array where the policy is defined.
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference'
+          policy_type:
+            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+
+              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
+
+              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
+
+              `telemetry-metrics`.
+
+              '
+            type: string
+            readOnly: true
+    _builtInNoId:
+      type: object
+      properties:
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    ObjectStoreRoleResponse:
+      type: object
+      properties:
+        items:
+          description: A list of object store roles.
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectStoreRole'
+    ObjectStoreTrustPolicyRuleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/ObjectStoreTrustPolicyRuleResponse'
+    PolicyMemberContextResponse:
+      type: object
+      properties:
+        items:
+          description: A list of members for policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMemberContext'
+    ObjectStoreTrustPolicyIam:
+      description: Trust policy document in the AWS IAM format.
+      type: string
+      example: "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Action\": \"sts:AssumeRoleWithSAML\",\n    \"Effect\": \"Allow\",\n    \"Principal\": {\n      \"Federated\": \"arn:aws:iam:::saml-provider/example\"\n    },\n    \"Condition\": {\n      \"StringEquals\": {\n        \"saml:aud\": \"engineers\"\n      }\n    }\n  }]\n}"
+    PageInfo:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    _errorContextResponseErrors:
+      type: object
+      properties:
+        context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
+          type: string
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+        message:
+          description: A description of the error which occurred.
+          type: string
+          example: Resource does not exist.
+    _index:
+      type: object
+      properties:
+        index:
+          description: Index of the object in the containing array.
+          type: integer
+          readOnly: true
+    TrustPolicyRuleWithContext:
+      allOf:
+      - $ref: '#/components/schemas/TrustPolicyRule'
+      - $ref: '#/components/schemas/_context'
+    ObjectStoreRolePost:
+      type: object
+      properties:
+        max_session_duration:
+          description: 'Maximum session duration in milliseconds.
+
+            If not provided when creating the role, defaults to 1h, minimum is 1h, maximum is 12h.
+
+            '
+          type: integer
   parameters:
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Member_names:
-      name: member_names
-      in: query
-      description: 'A comma-separated list of member names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Allow_errors:
       name: allow_errors
       in: query
@@ -508,87 +971,16 @@ components:
         type: array
         items:
           type: string
-    Names_required:
-      name: names
+    Member_ids:
+      name: member_ids
       in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Object_store_role_ids:
-      name: role_ids
-      in: query
-      description: 'A comma-separated list of object store role IDs.
+      description: 'A comma-separated list of member IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `role_ids`, then an error is returned.
+        each of the elements of `member_ids`, then an error is returned.
 
-        This cannot be provided together with the `role_names` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Indices:
-      name: indices
-      in: query
-      description: 'A comma-separated list of resource indices.
-
-        If there is not at least one resource that matches
-
-        each of the elements of `indices`, then an error is returned.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: integer
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
+        This cannot be provided together with the `member_names` query parameter.
 
         '
       style: form
@@ -597,16 +989,16 @@ components:
         type: array
         items:
           type: string
-    Policy_ids:
-      name: policy_ids
+    Ids:
+      name: ids
       in: query
-      description: 'A comma-separated list of policy IDs.
+      description: 'A comma-separated list of resource IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `policy_ids`, then an error is returned.
+        each of the elements of `ids`, then an error is returned.
 
-        This cannot be provided together with the `policy_names` query parameter.
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -679,16 +1071,32 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Ids:
-      name: ids
+    Filter:
+      name: filter
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Narrows down the results to only the response objects
 
-        If after filtering, there is not at least one resource that matches
+        that satisfy the filter criteria.
 
-        each of the elements of `ids`, then an error is returned.
+        '
+      schema:
+        type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
 
-        This cannot be provided together with the `name` or `names` query parameters.
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
 
         '
       style: form
@@ -697,16 +1105,84 @@ components:
         type: array
         items:
           type: string
-    Member_ids:
-      name: member_ids
+    Limit:
+      name: limit
       in: query
-      description: 'A comma-separated list of member IDs.
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Policy_ids:
+      name: policy_ids
+      in: query
+      description: 'A comma-separated list of policy IDs.
 
         If after filtering, there is not at least one resource that matches
 
-        each of the elements of `member_ids`, then an error is returned.
+        each of the elements of `policy_ids`, then an error is returned.
 
-        This cannot be provided together with the `member_names` query parameter.
+        This cannot be provided together with the `policy_names` query parameter.
 
         '
       style: form
@@ -733,541 +1209,65 @@ components:
         type: array
         items:
           type: string
-    Continuation_token:
-      name: continuation_token
+    Object_store_role_ids:
+      name: role_ids
       in: query
-      description: 'A token used to retrieve the next page of data
+      description: 'A comma-separated list of object store role IDs.
 
-        with some consistency guaranteed.
+        If after filtering, there is not at least one resource that matches
 
-        The token is a Base64 encoded value.
+        each of the elements of `role_ids`, then an error is returned.
 
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
+        This cannot be provided together with the `role_names` query parameter.
 
         '
+      style: form
+      explode: false
       schema:
-        type: string
-    Limit:
-      name: limit
+        type: array
+        items:
+          type: string
+    Names_required:
+      name: names
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+      description: 'A comma-separated list of resource names.
 
         '
+      required: true
+      style: form
+      explode: false
       schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-  schemas:
-    PolicyBaseRenameable:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/_realmsReference'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
+        type: array
+        items:
+          type: string
+    Indices:
+      name: indices
+      in: query
+      description: 'A comma-separated list of resource indices.
 
-              '
-            type: boolean
-          is_local:
-            description: Whether the policy is defined on the local array.
-            type: boolean
-            readOnly: true
-          location:
-            description: Reference to the array where the policy is defined.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          policy_type:
-            description: 'Type of the policy. Valid values include `alert`, `audit`, `bucket-access`,
+        If there is not at least one resource that matches
 
-              `cross-origin-resource-sharing`, `network-access`, `nfs`, `object-access`,
-
-              `s3-export`, smb-client`, `smb-share`, `ssh-certificate-authority`, and
-
-              `telemetry-metrics`.
-
-              '
-            type: string
-            readOnly: true
-    ObjectStoreTrustPolicyRuleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreTrustPolicyRuleResponse'
-    TrustPolicyRule:
-      allOf:
-      - $ref: '#/components/schemas/_builtInNoId'
-      - $ref: '#/components/schemas/_index'
-      - $ref: '#/components/schemas/TrustPolicyRulePost'
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference'
-    ObjectStoreRole:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          account:
-            description: Reference of the associated account.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          created:
-            description: Creation timestamp of the object.
-            type: integer
-            format: int64
-            readOnly: true
-          max_session_duration:
-            description: 'The maximum session duration for the role in milliseconds
-
-              '
-            type: integer
-          prn:
-            description: Pure Resource Name of the role
-            type: string
-            readOnly: true
-            example: prn::iam:array-id/local:obj-account-id/123456789101112:role/myrole
-          trusted_entities:
-            description: List of trusted entities
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_fixedReference'
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    ObjectStoreTrustPolicyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreTrustPolicyResponse'
-    ObjectStoreRoleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/ObjectStoreRoleResponse'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
+        each of the elements of `indices`, then an error is returned.
 
         '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    _errorContextResponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
-
-            or the name of the object that was being processed when the error was encountered.
-
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    PolicyMemberContextResponse:
-      type: object
-      properties:
+      style: form
+      explode: false
+      schema:
+        type: array
         items:
-          description: A list of members for policies.
-          type: array
-          items:
-            $ref: '#/components/schemas/PolicyMemberContext'
-    PolicyBase:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBaseRenameable'
-    ObjectStoreTrustPolicyResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectStoreTrustPolicy'
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    TrustPolicyRulePost:
-      type: object
-      properties:
-        actions:
-          description: 'The list of role-assumption actions granted by this rule to the respective role.
-
-            Currently we support `sts:AssumeRoleWithSAML` and `sts:AssumeRoleWithWebIdentity` actions.
-
-            '
-          type: array
-          items:
-            type: string
-          example:
-          - sts:AssumeRoleWithSAML
-        conditions:
-          description: 'Conditions used to limit the scope which this rule applies to.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_trustPolicyRuleCondition'
-        effect:
-          description: 'Effect of this rule.
-
-            When `allow`, the rule allows the given actions to be performed on the
-
-            given resources, subject to the given conditions.
-
-            Valid values include `allow`.
-
-            '
-          type: string
-          readOnly: true
-          example: allow
-        policy:
-          description: The policy to which this rule belongs.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        principals:
-          description: List of Identity Providers
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceWritable'
-    _index:
-      type: object
-      properties:
-        index:
-          description: Index of the object in the containing array.
           type: integer
-          readOnly: true
-    ObjectStoreTrustPolicy:
-      allOf:
-      - $ref: '#/components/schemas/PolicyBase'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          enabled:
-            description: 'If `true`, the policy is enabled. If not specified, defaults to `true`.
-
-              '
-            type: boolean
-            readOnly: true
-          role:
-            description: Object Store Role to which the Trust Policy applies.
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference'
-          rules:
-            description: List of rules establishing the trust policy
-            type: array
-            items:
-              $ref: '#/components/schemas/TrustPolicyRule'
-    PageInfo:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    PolicyMemberContext:
-      allOf:
-      - $ref: '#/components/schemas/PolicyMember'
-      - $ref: '#/components/schemas/_context'
-    ObjectStoreTrustPolicyIam:
-      description: Trust policy document in the AWS IAM format.
-      type: string
-      example: "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Action\": \"sts:AssumeRoleWithSAML\",\n    \"Effect\": \"Allow\",\n    \"Principal\": {\n      \"Federated\": \"arn:aws:iam:::saml-provider/example\"\n    },\n    \"Condition\": {\n      \"StringEquals\": {\n        \"saml:aud\": \"engineers\"\n      }\n    }\n  }]\n}"
-    ObjectStoreTrustPolicyRuleResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TrustPolicyRuleWithContext'
-    PolicyMember:
-      type: object
-      properties:
-        member:
-          description: Reference to the resource the policy is applied to.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        policy:
-          description: Reference to the policy.
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-    ObjectStoreRoleResponse:
-      type: object
-      properties:
-        items:
-          description: A list of object store roles.
-          type: array
-          items:
-            $ref: '#/components/schemas/ObjectStoreRole'
-    ObjectStoreRolePost:
-      type: object
-      properties:
-        max_session_duration:
-          description: 'Maximum session duration in milliseconds.
-
-            If not provided when creating the role, defaults to 1h, minimum is 1h, maximum is 12h.
-
-            '
-          type: integer
-    _builtInNoId:
-      type: object
-      properties:
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    TrustPolicyRuleWithContext:
-      allOf:
-      - $ref: '#/components/schemas/TrustPolicyRule'
-      - $ref: '#/components/schemas/_context'
-    PolicyMemberContextGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/PolicyMemberContextResponse'
-      - $ref: '#/components/schemas/_errorContextResponse'
-    _trustPolicyRuleCondition:
-      description: 'Identity-provider-specific condition that specifies who can assume the role.
+    Member_names:
+      name: member_names
+      in: query
+      description: 'A comma-separated list of member names.
 
         '
-      type: object
-      properties:
-        key:
-          description: 'Key from the context of the role assuming request that will have its
-
-            value compared based on the operator specified in this condition to the
-
-            values provided in this condition.
-
-            '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
           type: string
-          example: saml:sub
-        operator:
-          description: 'Operator specifying the comparison to be done between the values from
-
-            the request context and the values provided in this condition.
-
-            Valid values: `StringEquals`.
-
-            '
-          type: string
-          example: StringEquals
-        values:
-          description: 'Values to be compared with the values in the role assuming request
-
-            context identified by the key. If multiple values are specified, it''s
-
-            sufficient if just one matches.
-
-            '
-          type: array
-          items:
-            type: string
-          example:
-          - something
-          - anything
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

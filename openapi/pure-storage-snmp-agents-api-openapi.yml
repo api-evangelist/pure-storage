@@ -183,58 +183,6 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    SnmpAgentResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SnmpAgent'
-    SnmpAgentMibResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SnmpAgentMib'
-    SnmpAgentMib:
-      type: object
-      properties:
-        mib:
-          description: MIB text.
-          type: string
-          readOnly: true
-    SnmpAgentGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SnmpAgentResponse'
-    SnmpAgentPatch:
-      allOf:
-      - $ref: '#/components/schemas/_builtInResourceNoId'
-      - type: object
-        properties:
-          engine_id:
-            description: 'The administration domain unique name of an SNMP agent.
-
-              '
-            type: string
-            maxLength: 32
-            readOnly: true
-            example: 80009e2205d7c0bd31fef5b87f4f44da
-          v2c:
-            $ref: '#/components/schemas/_snmp_v2c'
-          v3:
-            $ref: '#/components/schemas/_snmp_v3_patch'
-          version:
-            description: 'Version of the SNMP protocol to be used by Purity//FA in communications
-
-              with the specified manager.
-
-              Valid values are `v2c` and `v3`.
-
-              '
-            type: string
-            example: v3
     SnmpAgent:
       allOf:
       - $ref: '#/components/schemas/_builtInResourceNoId'
@@ -262,6 +210,57 @@ components:
               '
             type: string
             example: v3
+    SnmpAgentPatch:
+      allOf:
+      - $ref: '#/components/schemas/_builtInResourceNoId'
+      - type: object
+        properties:
+          engine_id:
+            description: 'The administration domain unique name of an SNMP agent.
+
+              '
+            type: string
+            maxLength: 32
+            readOnly: true
+            example: 80009e2205d7c0bd31fef5b87f4f44da
+          v2c:
+            $ref: '#/components/schemas/_snmp_v2c'
+          v3:
+            $ref: '#/components/schemas/_snmp_v3_patch'
+          version:
+            description: 'Version of the SNMP protocol to be used by Purity//FA in communications
+
+              with the specified manager.
+
+              Valid values are `v2c` and `v3`.
+
+              '
+            type: string
+            example: v3
+    SnmpAgentMibGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SnmpAgentMibResponse'
+    _snmp_v2c:
+      description: 'The v2c configurations of SNMP.
+
+        '
+      type: object
+      properties:
+        community:
+          description: 'Manager community ID under which Purity//FA is to communicate with the specified managers.
+
+            '
+          type: string
+          maxLength: 32
+          example: '****'
+    SnmpAgentMib:
+      type: object
+      properties:
+        mib:
+          description: MIB text.
+          type: string
+          readOnly: true
     _snmp_v3:
       description: 'The v3 configurations of SNMP.
 
@@ -345,10 +344,42 @@ components:
             '
           type: string
           example: User1
-    SnmpAgentMibGetResponse:
+    SnmpAgentGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SnmpAgentMibResponse'
+      - $ref: '#/components/schemas/SnmpAgentResponse'
+    SnmpAgentMibResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnmpAgentMib'
+    _builtInResourceNoId:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
+
+        '
+      type: object
+      properties:
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
     PageInfo:
       type: object
       properties:
@@ -391,112 +422,13 @@ components:
             '
           type: integer
           format: int32
-    _snmp_v2c:
-      description: 'The v2c configurations of SNMP.
-
-        '
+    SnmpAgentResponse:
       type: object
       properties:
-        community:
-          description: 'Manager community ID under which Purity//FA is to communicate with the specified managers.
-
-            '
-          type: string
-          maxLength: 32
-          example: '****'
-    _builtInResourceNoId:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
-
-        settings). Some correspond to a piece of software, like an app, or hardware,
-
-        like a controller. Others are created by the system in response to some event
-
-        (e.g., alerts, audit records).
-
-
-        Typically, a user can''t create, delete or rename a built-in resource. A few
-
-        can be created or deleted, but not renamed because the names are meaningful
-
-        to Purity (e.g., VIFs, file systems, file system snapshots, volume snapshot).
-
-        '
-      type: object
-      properties:
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    SnmpAgent_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          engine_id:
-            description: 'An SNMP agent''s adminstration domain unique name.
-
-              '
-            type: string
-            maxLength: 32
-            readOnly: true
-            example: 80009e2205d7c0bd31fef5b87f4f44da
-          v2c:
-            $ref: '#/components/schemas/_snmp_v2c_2'
-          v3:
-            $ref: '#/components/schemas/_snmp_v3_2'
-          version:
-            description: 'Version of the SNMP protocol to be used by an SNMP manager
-
-              in communications with Purity''s SNMP agent.
-
-              Valid values are `v2c` and `v3`.
-
-              '
-            type: string
-            example: v3
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnmpAgent'
     _snmp_v3_2:
       description: 'The v3 configurations of SNMP.
 
@@ -539,6 +471,46 @@ components:
             '
           type: string
           example: User1
+    SnmpAgent_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          engine_id:
+            description: 'An SNMP agent''s adminstration domain unique name.
+
+              '
+            type: string
+            maxLength: 32
+            readOnly: true
+            example: 80009e2205d7c0bd31fef5b87f4f44da
+          v2c:
+            $ref: '#/components/schemas/_snmp_v2c_2'
+          v3:
+            $ref: '#/components/schemas/_snmp_v3_2'
+          version:
+            description: 'Version of the SNMP protocol to be used by an SNMP manager
+
+              in communications with Purity''s SNMP agent.
+
+              Valid values are `v2c` and `v3`.
+
+              '
+            type: string
+            example: v3
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     _snmp_v2c_2:
       description: 'The v2c configurations of SNMP.
 
@@ -554,18 +526,35 @@ components:
           type: string
           maxLength: 32
           example: '****'
-  parameters:
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
           type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+  parameters:
     Total_item_count:
       name: total_item_count
       in: query
@@ -584,34 +573,6 @@ components:
         '
       schema:
         type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
     Offset:
       name: offset
       in: query
@@ -625,6 +586,27 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     Limit:
       name: limit
       in: query
@@ -644,25 +626,24 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
     Names:
       name: names
       in: query
@@ -686,6 +667,25 @@ components:
         type: array
         items:
           type: string
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     Offset_2:
       name: offset
       in: query
@@ -697,24 +697,6 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Continuation_token:
       name: continuation_token
       in: query
@@ -737,6 +719,24 @@ components:
         '
       schema:
         type: string
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

@@ -651,513 +651,6 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    SoftwareInstallationsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SoftwareInstallation'
-    SoftwareBundleResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SoftwareBundle'
-    SoftwareChecksResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SoftwareCheck'
-    SoftwareBundleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SoftwareBundleResponse'
-    SoftwareInstallationPatch:
-      type: object
-      properties:
-        add_override_checks:
-          description: 'Adds the specified checks to the current list of override checks.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_override_check'
-    SoftwareChecksGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SoftwareChecksResponse'
-    SoftwareInstallationPost:
-      description: Software upgrade attempt.
-      type: object
-      properties:
-        mode:
-          description: 'Mode that the upgrade is in. Valid values are `check-only`, `interactive`, `semi-interactive`,
-
-            and `one-click`.
-
-            The `check_only` mode is deprecated. Use `/software-checks`. In this mode, the upgrade only
-
-            runs pre-upgrade checks and returns.
-
-            In `interactive` mode, the upgrade pauses at several points, at which users must
-
-            enter certain commands to proceed.
-
-            In `semi-interactive` mode, the upgrade pauses if there are any upgrade check failures and
-
-            functions like `one-click` mode otherwise.
-
-            In `one-click` mode, the upgrade proceeds automatically without pausing.
-
-            '
-          type: string
-          example: interactive
-        override_checks:
-          description: 'A list of upgrade checks whose failures are overridden during the upgrade.
-
-            If any optional `args` are provided, they are validated later when the corresponding check
-
-            script runs.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_override_check'
-        upgrade_parameters:
-          description: 'A list of parameters to be sent to the upgrade process. These parameters can be used to
-
-            change the behavior of the upgrade process in specific ways such as enabling or disabling
-
-            features in the target version or changing the attributes of the appliance at upgrade time.
-
-            When there is a need or option to set an upgrade parameter, Pure Storage will provide
-
-            documentation for the specific parameter. If you have been provided documentation
-
-            related to a specific upgrade parameter,
-
-            follow the instructions in the documentation.
-
-            Otherwise, do not set any upgrade parameters.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_upgrade_parameters'
-    _resourceFixedNonUniqueName:
-      description: 'A resource with a non-unique name.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID. The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'Name of the resource. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    SoftwareVersionsResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SoftwareVersion'
-    SoftwareVersionsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SoftwareVersionsResponse'
-    SoftwarePatchesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SoftwarePatch'
-    _upgrade_parameters:
-      type: object
-      properties:
-        name:
-          description: 'The name of the upgrade parameter to be sent to the upgrade process.
-
-            '
-          type: string
-        value:
-          description: 'The value of the upgrade parameter to be sent to the upgrade process.
-
-            '
-          type: string
-          maxLength: 1024
-    SoftwareInstallationStep:
-      allOf:
-      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
-      - $ref: '#/components/schemas/_start_end_time'
-      - description: 'Step needed to complete an upgrade.
-
-          '
-        type: object
-        properties:
-          checks:
-            description: 'A list of checks in this upgrade step.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_softwareInstallationStepsChecks'
-          description:
-            description: 'Detailed description of the step.
-
-              '
-            type: string
-          details:
-            description: 'Detailed result of the step used to diagnose step failures.
-
-              '
-            type: string
-          hop_version:
-            description: The version to which the current hop is upgrading.
-            type: string
-            example: 99.9.9
-          installation:
-            description: 'Referenced `software-installation` to which the step belongs.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          status:
-            description: 'Status of the step. Valid values are `running` and `finished`.
-
-              A status of `running` indicates that the step has not finished.
-
-              A status of `finished` indicates that the check has finished.
-
-              '
-            type: string
-    SoftwareVersion:
-      description: Version candidates for software upgrade.
-      type: object
-      properties:
-        details:
-          description: 'The description of the version.
-
-            '
-          type: string
-        name:
-          description: 'The name of the software.
-
-            '
-          type: string
-          example: Purity//FA
-        release_family:
-          description: 'The major and minor release number of the version.
-
-            '
-          type: string
-          example: 6.2.0
-        upgrade_hops:
-          description: 'The list of software versions the upgrade will go through.
-
-            '
-          type: array
-          items:
-            type: string
-            description: 'A software version in the upgrade path.
-
-              '
-          example:
-          - 6.1.3
-          - 6.2.0
-        version:
-          description: 'The version of the software.
-
-            '
-          type: string
-          example: 6.2.0
-    SoftwareResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Software'
-    SoftwarePatch:
-      allOf:
-      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
-      - description: Software patch to be installed on the array.
-        type: object
-        properties:
-          alert_code:
-            description: 'Alert code for the Software Patch.
-
-              This code is used to uniquely identify the Software Patch.
-
-              '
-            type: integer
-            format: int64
-            example: 5200
-          description:
-            description: The detailed description of the patch.
-            type: string
-          details:
-            description: The detailed reason for the `status`.
-            type: string
-          ha_reduction_required:
-            description: 'If set to `true`, indicates reduction in high availability is required for
-
-              Software Patch installation.
-
-              If set to `false`, indicates such a reduction is not required.
-
-              '
-            type: boolean
-            example: false
-          progress:
-            description: The progress of the software patch installation, displayed in decimal format.
-            type: number
-            format: float
-          status:
-            description: 'The status of the software patch installation.
-
-              Valid values are `available`, `downloaded`, `downloading`, `download_failed`,
-
-              `installing`, `installed`, `failed`, and `not_applicable`.
-
-              A status of `available` indicates that the patch is available for download.
-
-              A status of `downloaded` indicates that the patch has been downloaded and will be installed.
-
-              A status of `downloading` indicates that the patch is currently downloading.
-
-              A status of `download_failed` indicates that the download of the patch failed.
-
-              A status of `installing` indicates that the patch is currently being installed.
-
-              A status of `installed` indicates that the patch has been installed.
-
-              A status of `failed` indicates that the patch failed to be installed.
-
-              A status of `not_applicable` indicates the patch does not need to be installed on the
-
-              array.
-
-              '
-            type: string
-            example: installed
-    _start_end_time:
-      description: A resource with a start time and end time.
-      type: object
-      properties:
-        end_time:
-          description: End time in milliseconds since the UNIX epoch.
-          type: integer
-          format: int64
-          example: 1567026888000
-          x-minimum: 0
-        start_time:
-          description: Start time in milliseconds since the UNIX epoch.
-          type: integer
-          format: int64
-          example: 1567026779000
-          x-minimum: 0
-    SoftwareCheck:
-      allOf:
-      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
-      - $ref: '#/components/schemas/_start_end_time'
-      - description: Software upgrade check task to be run on the array.
-        type: object
-        properties:
-          checks:
-            description: 'A list of checks in this check task.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_softwareChecksChecks'
-          details:
-            description: 'The detailed reason for the `status`.
-
-              '
-            type: string
-          software_name:
-            description: 'The name of the software the upgrade checks will test.
-
-              '
-            type: string
-          software_upgrade_hops:
-            description: 'The list of software versions the upgrade goes through. The upgrade checks
-
-              also test this particular path.
-
-              '
-            type: array
-            items:
-              type: string
-              description: 'A software version in the upgrade path.
-
-                '
-            example:
-            - 6.1.3
-            - 6.2.0
-          software_version:
-            description: 'The version of the software that the upgrade checks will test.
-
-              '
-            type: string
-            example: 6.2.0
-          status:
-            description: 'The status of the check task.
-
-              Valid values are `queued`, `running`, `passed`, and `failed`.
-
-              A status of `queued` indicates that the task is queued to run and is waiting
-
-              for other check tasks to complete.
-
-              A status of `running` indicates that the task is currently running.
-
-              A status of `passed` indicates that all upgrade checks in the task are complete.
-
-              A status of `failed` indicates that at least one upgrade check in the task has failed.
-
-              '
-            type: string
-            example: running
-    SoftwareBundlePost:
-      description: The source of the software bundle.
-      type: object
-      properties:
-        source:
-          description: The source of the software bundle. Accepts HTTP, HTTPS or FTP, and paths.
-          type: string
-          example: ftp://local/upgrade_bundle.sh
-    _softwareChecksChecks:
-      type: object
-      properties:
-        details:
-          description: 'Detailed result of the check used to diagnose check failures.
-
-            '
-          type: string
-        name:
-          description: Name of the upgrade check.
-          type: string
-          example: HostIOCheck
-        status:
-          description: 'Status of the check. Valid values are `running`, `failed`, and `passed`.
-
-            A status of `running` indicates that the check has not finished.
-
-            A status of `failed` indicates that the check has failed.
-
-            A status of `passed` indicates that the check has passed.
-
-            '
-          type: string
-    SoftwareInstallation:
-      allOf:
-      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
-      - $ref: '#/components/schemas/_start_end_time'
-      - description: 'Interactive software upgrade attempt that contains information about the current upgrade
-
-          instance, including the current step, status of the upgrade attempt, etc.
-
-          '
-        type: object
-        properties:
-          current_step_id:
-            description: The `id` of the current step or `null` if the upgrade is not active.
-            type: string
-          details:
-            description: The detailed reason for the `status`.
-            type: string
-          mode:
-            description: 'Mode that the upgrade is in. Valid values are `check-only`, `interactive`,
-
-              `semi-interactive`, and `one-click`.
-
-              The `check_only` mode is deprecated. Use `/software-checks`. In this mode, the upgrade only
-
-              runs pre-upgrade checks and returns.
-
-              In `interactive` mode, the upgrade pauses at several points, at which users must
-
-              enter certain commands to proceed.
-
-              In `semi-interactive` mode, the upgrade pauses if there are any upgrade check failures, and
-
-              functions like `one-click` mode otherwise.
-
-              In `one-click` mode, the upgrade proceeds automatically without pausing.
-
-              '
-            type: string
-            example: interactive
-          override_checks:
-            description: 'A list of upgrade checks whose failure is overridden during the upgrade.
-
-              If any optional `args` are provided, they are validated later when the corresponding
-
-              check script runs.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_override_check'
-          software:
-            description: 'Referenced `software` to which the upgrade belongs.
-
-              '
-            title: Reference
-            allOf:
-            - $ref: '#/components/schemas/_reference'
-          status:
-            description: 'Status of the upgrade. Valid values are `installing`, `paused`, `aborting`,
-
-              `aborted`, and `finished`.
-
-              A status of `installing` indicates that the upgrade is running.
-
-              A status of `paused` indicates that the upgrade is paused and waiting for user input.
-
-              A status of `aborting` indicates that the upgrade is being aborted.
-
-              A status of `aborted` indicates that the upgrade has stopped due to an abort.
-
-              A status of `finished` indicates that the upgrade has finished successfully.
-
-              '
-            type: string
-            example: Installing
-          upgrade_parameters:
-            description: 'A list of parameters to be sent to the upgrade process. These parameters can be used to
-
-              change the behavior of the upgrade process in specific ways such as enabling or disabling
-
-              features in the target version or changing the attributes of the appliance at upgrade time.
-
-              When there is a need or option to set an upgrade parameter, Pure Storage will provide
-
-              documentation for the specific parameter. If you have been provided documentation related
-
-              to a specific upgrade parameter, follow the instructions in the documentation.
-
-              Otherwise, do not set any upgrade parameters.
-
-              '
-            type: array
-            items:
-              $ref: '#/components/schemas/_upgrade_parameters'
     Software:
       allOf:
       - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
@@ -1262,6 +755,63 @@ components:
               '
             type: string
             example: 5.2.3
+    SoftwareChecksResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SoftwareCheck'
+    SoftwareInstallationStep:
+      allOf:
+      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
+      - $ref: '#/components/schemas/_start_end_time'
+      - description: 'Step needed to complete an upgrade.
+
+          '
+        type: object
+        properties:
+          checks:
+            description: 'A list of checks in this upgrade step.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_softwareInstallationStepsChecks'
+          description:
+            description: 'Detailed description of the step.
+
+              '
+            type: string
+          details:
+            description: 'Detailed result of the step used to diagnose step failures.
+
+              '
+            type: string
+          hop_version:
+            description: The version to which the current hop is upgrading.
+            type: string
+            example: 99.9.9
+          installation:
+            description: 'Referenced `software-installation` to which the step belongs.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          status:
+            description: 'Status of the step. Valid values are `running` and `finished`.
+
+              A status of `running` indicates that the step has not finished.
+
+              A status of `finished` indicates that the check has finished.
+
+              '
+            type: string
+    SoftwareVersionsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SoftwareVersionsResponse'
     SoftwareInstallationStepsResponse:
       type: object
       properties:
@@ -1269,6 +819,563 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SoftwareInstallationStep'
+    SoftwareInstallationPost:
+      description: Software upgrade attempt.
+      type: object
+      properties:
+        mode:
+          description: 'Mode that the upgrade is in. Valid values are `check-only`, `interactive`, `semi-interactive`,
+
+            and `one-click`.
+
+            The `check_only` mode is deprecated. Use `/software-checks`. In this mode, the upgrade only
+
+            runs pre-upgrade checks and returns.
+
+            In `interactive` mode, the upgrade pauses at several points, at which users must
+
+            enter certain commands to proceed.
+
+            In `semi-interactive` mode, the upgrade pauses if there are any upgrade check failures and
+
+            functions like `one-click` mode otherwise.
+
+            In `one-click` mode, the upgrade proceeds automatically without pausing.
+
+            '
+          type: string
+          example: interactive
+        override_checks:
+          description: 'A list of upgrade checks whose failures are overridden during the upgrade.
+
+            If any optional `args` are provided, they are validated later when the corresponding check
+
+            script runs.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_override_check'
+        upgrade_parameters:
+          description: 'A list of parameters to be sent to the upgrade process. These parameters can be used to
+
+            change the behavior of the upgrade process in specific ways such as enabling or disabling
+
+            features in the target version or changing the attributes of the appliance at upgrade time.
+
+            When there is a need or option to set an upgrade parameter, Pure Storage will provide
+
+            documentation for the specific parameter. If you have been provided documentation
+
+            related to a specific upgrade parameter,
+
+            follow the instructions in the documentation.
+
+            Otherwise, do not set any upgrade parameters.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_upgrade_parameters'
+    SoftwareBundlePost:
+      description: The source of the software bundle.
+      type: object
+      properties:
+        source:
+          description: The source of the software bundle. Accepts HTTP, HTTPS or FTP, and paths.
+          type: string
+          example: ftp://local/upgrade_bundle.sh
+    SoftwareInstallation:
+      allOf:
+      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
+      - $ref: '#/components/schemas/_start_end_time'
+      - description: 'Interactive software upgrade attempt that contains information about the current upgrade
+
+          instance, including the current step, status of the upgrade attempt, etc.
+
+          '
+        type: object
+        properties:
+          current_step_id:
+            description: The `id` of the current step or `null` if the upgrade is not active.
+            type: string
+          details:
+            description: The detailed reason for the `status`.
+            type: string
+          mode:
+            description: 'Mode that the upgrade is in. Valid values are `check-only`, `interactive`,
+
+              `semi-interactive`, and `one-click`.
+
+              The `check_only` mode is deprecated. Use `/software-checks`. In this mode, the upgrade only
+
+              runs pre-upgrade checks and returns.
+
+              In `interactive` mode, the upgrade pauses at several points, at which users must
+
+              enter certain commands to proceed.
+
+              In `semi-interactive` mode, the upgrade pauses if there are any upgrade check failures, and
+
+              functions like `one-click` mode otherwise.
+
+              In `one-click` mode, the upgrade proceeds automatically without pausing.
+
+              '
+            type: string
+            example: interactive
+          override_checks:
+            description: 'A list of upgrade checks whose failure is overridden during the upgrade.
+
+              If any optional `args` are provided, they are validated later when the corresponding
+
+              check script runs.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_override_check'
+          software:
+            description: 'Referenced `software` to which the upgrade belongs.
+
+              '
+            title: Reference
+            allOf:
+            - $ref: '#/components/schemas/_reference'
+          status:
+            description: 'Status of the upgrade. Valid values are `installing`, `paused`, `aborting`,
+
+              `aborted`, and `finished`.
+
+              A status of `installing` indicates that the upgrade is running.
+
+              A status of `paused` indicates that the upgrade is paused and waiting for user input.
+
+              A status of `aborting` indicates that the upgrade is being aborted.
+
+              A status of `aborted` indicates that the upgrade has stopped due to an abort.
+
+              A status of `finished` indicates that the upgrade has finished successfully.
+
+              '
+            type: string
+            example: Installing
+          upgrade_parameters:
+            description: 'A list of parameters to be sent to the upgrade process. These parameters can be used to
+
+              change the behavior of the upgrade process in specific ways such as enabling or disabling
+
+              features in the target version or changing the attributes of the appliance at upgrade time.
+
+              When there is a need or option to set an upgrade parameter, Pure Storage will provide
+
+              documentation for the specific parameter. If you have been provided documentation related
+
+              to a specific upgrade parameter, follow the instructions in the documentation.
+
+              Otherwise, do not set any upgrade parameters.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_upgrade_parameters'
+    _softwareUpgradePlan:
+      type: object
+      properties:
+        description:
+          description: Description of the upgrade step.
+          type: string
+        hop_version:
+          description: The version to which the step is upgrading.
+          type: string
+          example: 99.9.9
+        step_name:
+          description: Name of the upgrade step.
+          type: string
+          example: Pre-upgrade check
+    SoftwareChecksGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SoftwareChecksResponse'
+    SoftwareResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Software'
+    SoftwareBundleGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SoftwareBundleResponse'
+    SoftwarePost:
+      description: Software to be installed on the array.
+      type: object
+      properties:
+        name:
+          description: 'The name of the software.
+
+            '
+          type: string
+          example: Purity//FA
+        version:
+          description: 'The version of the software.
+
+            '
+          type: string
+          example: 5.2.3
+    _resourceFixedNonUniqueName:
+      description: 'A resource with a non-unique name.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID. The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'Name of the resource. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    SoftwarePatchesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SoftwarePatch'
+    _softwareChecksChecks:
+      type: object
+      properties:
+        details:
+          description: 'Detailed result of the check used to diagnose check failures.
+
+            '
+          type: string
+        name:
+          description: Name of the upgrade check.
+          type: string
+          example: HostIOCheck
+        status:
+          description: 'Status of the check. Valid values are `running`, `failed`, and `passed`.
+
+            A status of `running` indicates that the check has not finished.
+
+            A status of `failed` indicates that the check has failed.
+
+            A status of `passed` indicates that the check has passed.
+
+            '
+          type: string
+    SoftwareInstallationsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SoftwareInstallation'
+    SoftwareGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SoftwareResponse'
+    SoftwareVersion:
+      description: Version candidates for software upgrade.
+      type: object
+      properties:
+        details:
+          description: 'The description of the version.
+
+            '
+          type: string
+        name:
+          description: 'The name of the software.
+
+            '
+          type: string
+          example: Purity//FA
+        release_family:
+          description: 'The major and minor release number of the version.
+
+            '
+          type: string
+          example: 6.2.0
+        upgrade_hops:
+          description: 'The list of software versions the upgrade will go through.
+
+            '
+          type: array
+          items:
+            type: string
+            description: 'A software version in the upgrade path.
+
+              '
+          example:
+          - 6.1.3
+          - 6.2.0
+        version:
+          description: 'The version of the software.
+
+            '
+          type: string
+          example: 6.2.0
+    SoftwareInstallationPatch:
+      type: object
+      properties:
+        add_override_checks:
+          description: 'Adds the specified checks to the current list of override checks.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_override_check'
+    _softwareInstallationStepsChecks:
+      type: object
+      properties:
+        details:
+          description: 'Detailed result of the check used to diagnose check failures.
+
+            '
+          type: string
+        name:
+          description: Name of the upgrade check.
+          type: string
+          example: HostIOCheck
+        overridable:
+          description: 'Whether the check failure can be overridden.
+
+            '
+          type: boolean
+        status:
+          description: 'Status of the check. Valid values are `running`, `failed`, `passed`, and
+
+            `overridden`.
+
+            A status of `running` indicates that the check has not finished.
+
+            A status of `failed` indicates that the check has failed.
+
+            A status of `passed` indicates that the check has passed.
+
+            A status of `overridden` indicates that the check has failed, but the failure has been
+
+            overridden.
+
+            '
+          type: string
+    SoftwareInstallationStepsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SoftwareInstallationStepsResponse'
+    SoftwarePatch:
+      allOf:
+      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
+      - description: Software patch to be installed on the array.
+        type: object
+        properties:
+          alert_code:
+            description: 'Alert code for the Software Patch.
+
+              This code is used to uniquely identify the Software Patch.
+
+              '
+            type: integer
+            format: int64
+            example: 5200
+          description:
+            description: The detailed description of the patch.
+            type: string
+          details:
+            description: The detailed reason for the `status`.
+            type: string
+          ha_reduction_required:
+            description: 'If set to `true`, indicates reduction in high availability is required for
+
+              Software Patch installation.
+
+              If set to `false`, indicates such a reduction is not required.
+
+              '
+            type: boolean
+            example: false
+          progress:
+            description: The progress of the software patch installation, displayed in decimal format.
+            type: number
+            format: float
+          status:
+            description: 'The status of the software patch installation.
+
+              Valid values are `available`, `downloaded`, `downloading`, `download_failed`,
+
+              `installing`, `installed`, `failed`, and `not_applicable`.
+
+              A status of `available` indicates that the patch is available for download.
+
+              A status of `downloaded` indicates that the patch has been downloaded and will be installed.
+
+              A status of `downloading` indicates that the patch is currently downloading.
+
+              A status of `download_failed` indicates that the download of the patch failed.
+
+              A status of `installing` indicates that the patch is currently being installed.
+
+              A status of `installed` indicates that the patch has been installed.
+
+              A status of `failed` indicates that the patch failed to be installed.
+
+              A status of `not_applicable` indicates the patch does not need to be installed on the
+
+              array.
+
+              '
+            type: string
+            example: installed
+    SoftwareCheck:
+      allOf:
+      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
+      - $ref: '#/components/schemas/_start_end_time'
+      - description: Software upgrade check task to be run on the array.
+        type: object
+        properties:
+          checks:
+            description: 'A list of checks in this check task.
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/_softwareChecksChecks'
+          details:
+            description: 'The detailed reason for the `status`.
+
+              '
+            type: string
+          software_name:
+            description: 'The name of the software the upgrade checks will test.
+
+              '
+            type: string
+          software_upgrade_hops:
+            description: 'The list of software versions the upgrade goes through. The upgrade checks
+
+              also test this particular path.
+
+              '
+            type: array
+            items:
+              type: string
+              description: 'A software version in the upgrade path.
+
+                '
+            example:
+            - 6.1.3
+            - 6.2.0
+          software_version:
+            description: 'The version of the software that the upgrade checks will test.
+
+              '
+            type: string
+            example: 6.2.0
+          status:
+            description: 'The status of the check task.
+
+              Valid values are `queued`, `running`, `passed`, and `failed`.
+
+              A status of `queued` indicates that the task is queued to run and is waiting
+
+              for other check tasks to complete.
+
+              A status of `running` indicates that the task is currently running.
+
+              A status of `passed` indicates that all upgrade checks in the task are complete.
+
+              A status of `failed` indicates that at least one upgrade check in the task has failed.
+
+              '
+            type: string
+            example: running
+    SoftwarePatchesGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SoftwarePatchesResponse'
+    SoftwareInstallationsGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SoftwareInstallationsResponse'
+    SoftwareBundle:
+      allOf:
+      - $ref: '#/components/schemas/_builtInRelationship'
+      - description: The software bundle to be installed on the array.
+        type: object
+        properties:
+          bytes_downloaded:
+            description: 'The number of bytes downloaded.
+
+              '
+            type: integer
+            format: int64
+          bytes_total:
+            description: 'The total number of bytes to download.
+
+              '
+            type: integer
+            format: int64
+          created:
+            description: 'The creation time in milliseconds since the UNIX epoch.
+
+              '
+            type: number
+            format: integer
+          details:
+            description: 'The detailed reason for the `status`.
+
+              '
+            type: string
+          download_progress:
+            description: 'The download progress in decimal format.
+
+              '
+            type: number
+            format: float
+          software_name:
+            description: 'The name of the software to be tested by the upgrade checks.
+
+              '
+            type: string
+            example: Purity//FA
+          software_version:
+            description: 'The version of the software to be tested by the upgrade checks.
+
+              '
+            type: string
+            example: 6.2.0
+          source:
+            description: 'The location of the upgrade bundle.
+
+              '
+            type: string
+            example: ftp://local/upgrade_bundle.sh
+          status:
+            description: 'The status of the software bundle.
+
+              Valid values are `downloading`, `failed`, `ready`, and `verifying`.
+
+              A status of `downloading` indicates that the array is downloading the upgrade bundle.
+
+              A status of `failed` indicates that the array has failed to download
+
+              the upgrade bundle.
+
+              A status of `ready` indicates that the upgrade bundle is ready to be installed.
+
+              A status of `verifying` indicates that the array is verifying the upgrade bundle.
+
+              '
+            type: string
+            example: downloading
     _builtInRelationship:
       type: object
       properties:
@@ -1278,10 +1385,62 @@ components:
             '
           type: string
           readOnly: true
-    SoftwareInstallationStepsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SoftwareInstallationStepsResponse'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _start_end_time:
+      description: A resource with a start time and end time.
+      type: object
+      properties:
+        end_time:
+          description: End time in milliseconds since the UNIX epoch.
+          type: integer
+          format: int64
+          example: 1567026888000
+          x-minimum: 0
+        start_time:
+          description: Start time in milliseconds since the UNIX epoch.
+          type: integer
+          format: int64
+          example: 1567026779000
+          x-minimum: 0
+    SoftwareBundleResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SoftwareBundle'
+    _upgrade_parameters:
+      type: object
+      properties:
+        name:
+          description: 'The name of the upgrade parameter to be sent to the upgrade process.
+
+            '
+          type: string
+        value:
+          description: 'The value of the upgrade parameter to be sent to the upgrade process.
+
+            '
+          type: string
+          maxLength: 1024
     PageInfo:
       type: object
       properties:
@@ -1377,116 +1536,24 @@ components:
 
             '
           type: boolean
-    SoftwareBundle:
-      allOf:
-      - $ref: '#/components/schemas/_builtInRelationship'
-      - description: The software bundle to be installed on the array.
-        type: object
-        properties:
-          bytes_downloaded:
-            description: 'The number of bytes downloaded.
-
-              '
-            type: integer
-            format: int64
-          bytes_total:
-            description: 'The total number of bytes to download.
-
-              '
-            type: integer
-            format: int64
-          created:
-            description: 'The creation time in milliseconds since the UNIX epoch.
-
-              '
-            type: number
-            format: integer
-          details:
-            description: 'The detailed reason for the `status`.
-
-              '
-            type: string
-          download_progress:
-            description: 'The download progress in decimal format.
-
-              '
-            type: number
-            format: float
-          software_name:
-            description: 'The name of the software to be tested by the upgrade checks.
-
-              '
-            type: string
-            example: Purity//FA
-          software_version:
-            description: 'The version of the software to be tested by the upgrade checks.
-
-              '
-            type: string
-            example: 6.2.0
-          source:
-            description: 'The location of the upgrade bundle.
-
-              '
-            type: string
-            example: ftp://local/upgrade_bundle.sh
-          status:
-            description: 'The status of the software bundle.
-
-              Valid values are `downloading`, `failed`, `ready`, and `verifying`.
-
-              A status of `downloading` indicates that the array is downloading the upgrade bundle.
-
-              A status of `failed` indicates that the array has failed to download
-
-              the upgrade bundle.
-
-              A status of `ready` indicates that the upgrade bundle is ready to be installed.
-
-              A status of `verifying` indicates that the array is verifying the upgrade bundle.
-
-              '
-            type: string
-            example: downloading
-    _softwareUpgradePlan:
+    SoftwareVersionsResponse:
       type: object
       properties:
-        description:
-          description: Description of the upgrade step.
-          type: string
-        hop_version:
-          description: The version to which the step is upgrading.
-          type: string
-          example: 99.9.9
-        step_name:
-          description: Name of the upgrade step.
-          type: string
-          example: Pre-upgrade check
-    SoftwarePost:
-      description: Software to be installed on the array.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SoftwareVersion'
+    SoftwareBundlePost_2:
+      description: The source location of the software bundle.
       type: object
+      required:
+      - source
       properties:
-        name:
-          description: 'The name of the software.
-
-            '
+        source:
+          description: The source of the software bundle. Accepts HTTP, HTTPS, FTP or SFTP and paths.
           type: string
-          example: Purity//FA
-        version:
-          description: 'The version of the software.
-
-            '
-          type: string
-          example: 5.2.3
-    SoftwarePatchesGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SoftwarePatchesResponse'
-    SoftwareGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SoftwareResponse'
-    _softwareInstallationStepsChecks:
+          example: ftp://local/upgrade_bundle.sh
+    _softwareChecksChecks_2:
       type: object
       properties:
         details:
@@ -1497,16 +1564,9 @@ components:
         name:
           description: Name of the upgrade check.
           type: string
-          example: HostIOCheck
-        overridable:
-          description: 'Whether the check failure can be overridden.
-
-            '
-          type: boolean
+          example: Empty Chassis Check
         status:
-          description: 'Status of the check. Valid values are `running`, `failed`, `passed`, and
-
-            `overridden`.
+          description: 'Status of the check. Valid values are `running`, `failed`, and `passed`.
 
             A status of `running` indicates that the check has not finished.
 
@@ -1514,35 +1574,8 @@ components:
 
             A status of `passed` indicates that the check has passed.
 
-            A status of `overridden` indicates that the check has failed, but the failure has been
-
-            overridden.
-
             '
           type: string
-    SoftwareInstallationsGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SoftwareInstallationsResponse'
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
     SoftwareCheck_2:
       allOf:
       - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
@@ -1606,67 +1639,6 @@ components:
               '
             type: string
             example: running
-    SoftwareBundlePost_2:
-      description: The source location of the software bundle.
-      type: object
-      required:
-      - source
-      properties:
-        source:
-          description: The source of the software bundle. Accepts HTTP, HTTPS, FTP or SFTP and paths.
-          type: string
-          example: ftp://local/upgrade_bundle.sh
-    _softwareChecksChecks_2:
-      type: object
-      properties:
-        details:
-          description: 'Detailed result of the check used to diagnose check failures.
-
-            '
-          type: string
-        name:
-          description: Name of the upgrade check.
-          type: string
-          example: Empty Chassis Check
-        status:
-          description: 'Status of the check. Valid values are `running`, `failed`, and `passed`.
-
-            A status of `running` indicates that the check has not finished.
-
-            A status of `failed` indicates that the check has failed.
-
-            A status of `passed` indicates that the check has passed.
-
-            '
-          type: string
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
     SoftwareBundle_2:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
@@ -1716,39 +1688,45 @@ components:
               '
             type: string
             example: downloading
+    PageInfo_2:
+      type: object
+      properties:
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
+
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
+
+            '
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
   parameters:
-    Sort:
-      name: sort
+    Ids:
+      name: ids
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Software_ids:
-      name: software_ids
-      in: query
-      description: 'A comma-separated list of software IDs.
-
-        '
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
           type: string
-    Software_installation_current_step_idRequired:
-      name: current_step_id
-      in: query
-      description: 'The current step `id` of the installation.
-
-        '
-      required: true
-      schema:
-        type: string
     Total_item_count:
       name: total_item_count
       in: query
@@ -1767,14 +1745,54 @@ components:
         '
       schema:
         type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Versions:
+      name: versions
+      in: query
+      description: 'A comma-separated list of versions.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
 
         '
       schema:
-        type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Filter:
       name: filter
       in: query
@@ -1785,6 +1803,95 @@ components:
         '
       schema:
         type: string
+    Software_installation_command_required:
+      name: command
+      in: query
+      description: 'A user command that interacts with the upgrade. Commands may only be issued when the upgrade
+
+        is paused. Valid values are `continue`, `retry`, and `abort`.
+
+        The `continue` command continues a `paused` upgrade.
+
+        The `retry` command retries the previous step.
+
+        The `abort` command aborts the upgrade.
+
+        '
+      required: true
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Software_ids:
+      name: software_ids
+      in: query
+      description: 'A comma-separated list of software IDs.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Authorization:
       name: Authorization
       in: header
@@ -1793,6 +1900,27 @@ components:
         endpoint (except `/oauth2`, `/login`, and `/logout`)
 
         '
+      schema:
+        type: string
+    Software_names:
+      name: software_names
+      in: query
+      description: 'A comma-separated list of software names.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Software_installation_current_step_idRequired:
+      name: current_step_id
+      in: query
+      description: 'The current step `id` of the installation.
+
+        '
+      required: true
       schema:
         type: string
     Software_versions:
@@ -1832,85 +1960,16 @@ components:
         type: array
         items:
           type: string
-    Software_installation_command_required:
-      name: command
-      in: query
-      description: 'A user command that interacts with the upgrade. Commands may only be issued when the upgrade
-
-        is paused. Valid values are `continue`, `retry`, and `abort`.
-
-        The `continue` command continues a `paused` upgrade.
-
-        The `retry` command retries the previous step.
-
-        The `abort` command aborts the upgrade.
-
-        '
-      required: true
-      schema:
-        type: string
-    Software_names:
-      name: software_names
-      in: query
-      description: 'A comma-separated list of software names.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids:
+    Ids_2:
       name: ids
       in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Versions:
-      name: versions
-      in: query
-      description: 'A comma-separated list of versions.
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -1919,40 +1978,10 @@ components:
         type: array
         items:
           type: string
-    Continuation_token:
-      name: continuation_token
+    Offset_2:
+      name: offset
       in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
+      description: 'The offset of the first resource to return from a collection.
 
         '
       schema:
@@ -1978,35 +2007,6 @@ components:
         type: array
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
           type: string
   securitySchemes:
     AuthorizationHeader:

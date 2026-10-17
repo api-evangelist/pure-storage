@@ -372,51 +372,319 @@ paths:
     - url: http://[array]/
     - url: https://[array]/
 components:
+  parameters:
+    Allow_errors:
+      name: allow_errors
+      in: query
+      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+
+        Any errors will be returned in the `errors` field of the response.
+
+        If set to `false`, the operation will fail if there are any errors.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Total_item_count:
+      name: total_item_count
+      in: query
+      description: 'If set to `true`, the `total_item_count` matching the
+
+        specified query parameters is calculated and returned in
+
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
+
+        '
+      schema:
+        type: boolean
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names_get:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the unique contexts specified.
+
+
+        If specified, each context name must be the name of an array in the same fleet or
+
+        the name of the fleet itself.
+
+
+        If not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Names_required:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique name specified.
+
+        For example, `name01`.
+
+        Enter multiple names in comma-separated format.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Names_required_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
   schemas:
-    _referenceNoId:
+    _fixedReference:
       type: object
       properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
         name:
-          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
 
             '
           type: string
-    _saml2SsoSpCredential:
-      type: object
-      properties:
-        decryption_credential:
-          description: 'The credential used by the service provider to decrypt encrypted SAML
-
-            assertions from the identity provider. The credential is managed by
-
-            the `certificates` endpoint and `purecert` CLI commands.
-
-            '
-          title: ReferenceNoId
-          allOf:
-          - $ref: '#/components/schemas/_referenceNoId'
-        entity_id:
-          description: 'The `Service Provider Entity ID` used for `SAML` authentication. If
-
-            this value is not provided, it is auto-generated by the system. To
-
-            enable `SAML` users to operate across `remote arrays`, all members
-
-            of a fleet must be configured with the same identifier.
-
-            '
-          type: string
-        signing_credential:
-          description: 'The credential used by the service provider to sign SAML requests.
-
-            The credential is managed by the `certificates` endpoint and
-
-            `purecert` CLI commands.
-
-            '
-          title: ReferenceNoId
-          allOf:
-          - $ref: '#/components/schemas/_referenceNoId'
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
     TestResult:
       type: object
       properties:
@@ -473,10 +741,6 @@ components:
             '
           type: string
           example: phonehome
-    Saml2SsoGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/Saml2SsoResponse'
     _resourceFixedNonUniqueName:
       description: 'A resource with a non-unique name.
 
@@ -495,13 +759,118 @@ components:
             '
           type: string
           readOnly: true
-    Saml2SsoResponse:
+    Saml2Sso:
+      allOf:
+      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
+      - description: 'Configuration information for SAML2-based SSO for FlashArray.
+
+          '
+        type: object
+        properties:
+          array_url:
+            description: 'The URL of the array.
+
+              '
+            type: string
+            example: https://myarray.mycompany.com
+          enabled:
+            description: 'If set to `true`, the SAML2 SSO configuration is enabled.
+
+              '
+            type: boolean
+          idp:
+            $ref: '#/components/schemas/_saml2SsoIdp'
+          management:
+            $ref: '#/components/schemas/_saml2SsoManagement'
+          services:
+            description: 'The list of services for which `SAML2 SSO` `authentication` is
+
+              enabled. The default value is `management`, indicating that the
+
+              single sign-on configuration applies to the administrative
+
+              interface of the system.
+
+              '
+            type: array
+            items:
+              type: string
+          sp:
+            $ref: '#/components/schemas/_saml2SsoSp'
+    Saml2SsoPatch:
+      allOf:
+      - $ref: '#/components/schemas/Saml2SsoPost'
+      - type: object
+        properties:
+          enabled:
+            description: 'If set to `true`, the SAML2 SSO configuration is enabled.
+
+              '
+            type: boolean
+    TestResultWithResourceResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/TestResultWithResource'
+    _fixedReferenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+      x-aliases:
+      - _fixedReference
+    _saml2SsoSpCredential:
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Saml2Sso'
+        decryption_credential:
+          description: 'The credential used by the service provider to decrypt encrypted SAML
+
+            assertions from the identity provider. The credential is managed by
+
+            the `certificates` endpoint and `purecert` CLI commands.
+
+            '
+          title: ReferenceNoId
+          allOf:
+          - $ref: '#/components/schemas/_referenceNoId'
+        entity_id:
+          description: 'The `Service Provider Entity ID` used for `SAML` authentication. If
+
+            this value is not provided, it is auto-generated by the system. To
+
+            enable `SAML` users to operate across `remote arrays`, all members
+
+            of a fleet must be configured with the same identifier.
+
+            '
+          type: string
+        signing_credential:
+          description: 'The credential used by the service provider to sign SAML requests.
+
+            The credential is managed by the `certificates` endpoint and
+
+            `purecert` CLI commands.
+
+            '
+          title: ReferenceNoId
+          allOf:
+          - $ref: '#/components/schemas/_referenceNoId'
     _context:
       type: object
       properties:
@@ -535,6 +904,29 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
+    Saml2SsoGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/Saml2SsoResponse'
+    _referenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+    TestResultWithResource:
+      allOf:
+      - $ref: '#/components/schemas/TestResult'
+      - $ref: '#/components/schemas/_context'
+      - type: object
+        properties:
+          resource:
+            description: A reference to the object being tested.
+            title: FixedReferenceNoId
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceNoId'
     _saml2SsoIdp:
       description: 'Properties specific to the identity provider.
 
@@ -576,17 +968,6 @@ components:
 
             '
           type: string
-    TestResultWithResource:
-      allOf:
-      - $ref: '#/components/schemas/TestResult'
-      - $ref: '#/components/schemas/_context'
-      - type: object
-        properties:
-          resource:
-            description: A reference to the object being tested.
-            title: FixedReferenceNoId
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceNoId'
     TestResultWithResourcePatchResponse:
       type: object
       properties:
@@ -594,47 +975,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TestResultWithResource'
-    _fixedReferenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-      x-aliases:
-      - _fixedReference
-    _fixedReference:
+    Saml2SsoResponse:
       type: object
       properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-      x-aliases:
-      - _fixedReferenceWithoutType
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Saml2Sso'
     Saml2SsoPost:
       type: object
       properties:
@@ -655,32 +1002,32 @@ components:
           title: Saml2SsoSpCredential
           allOf:
           - $ref: '#/components/schemas/_saml2SsoSpCredential'
-    _saml2SsoManagement:
-      description: Properties specific to the management service.
-      type: object
-      properties:
-        trust_other_saml_sps_in_fleet:
-          description: 'The configuration that defines the validation strategy for remote
+    _saml2SsoSp:
+      allOf:
+      - $ref: '#/components/schemas/_saml2SsoSpCredential'
+      - description: 'Properties specific to the service provider.
 
-            command execution within fleet deployments. When set to `false`
+          '
+        type: object
+        properties:
+          assertion_consumer_url:
+            description: 'The URL where the identity provider will send its SAML response after authenticating a user.
 
-            (the default), the array enforces a security check to ensure that
+              '
+            type: string
+            example: https://myarray.mycompany.com/login/saml2/sso/myidp
+          entity_id:
+            description: 'A globally unique name for the service provider.
 
-            source and target arrays share identical `SAML` configurations,
+              '
+            type: string
+            example: https://myarray.mycompany.com/saml2/service-provider-metadata/myidp
+          metadata_url:
+            description: 'The URL of the service provider metadata.
 
-            including the same `Identity Provider` and `SP Entity ID`. When set
-
-            to `true`, the array permits remote command execution from other
-
-            fleet members without verifying `SAML` consistency. Maintaining
-
-            this value as `false` ensures a higher security posture by
-
-            restricting execution to verified, consistent environments
-
-            '
-          type: boolean
-          default: false
+              '
+            type: string
+            example: https://myarray.mycompany.com/saml2/service-provider-metadata/myidp
     PageInfo:
       type: object
       properties:
@@ -723,123 +1070,56 @@ components:
             '
           type: integer
           format: int32
-    Saml2Sso:
-      allOf:
-      - $ref: '#/components/schemas/_resourceFixedNonUniqueName'
-      - description: 'Configuration information for SAML2-based SSO for FlashArray.
-
-          '
-        type: object
-        properties:
-          array_url:
-            description: 'The URL of the array.
-
-              '
-            type: string
-            example: https://myarray.mycompany.com
-          enabled:
-            description: 'If set to `true`, the SAML2 SSO configuration is enabled.
-
-              '
-            type: boolean
-          idp:
-            $ref: '#/components/schemas/_saml2SsoIdp'
-          management:
-            $ref: '#/components/schemas/_saml2SsoManagement'
-          services:
-            description: 'The list of services for which `SAML2 SSO` `authentication` is
-
-              enabled. The default value is `management`, indicating that the
-
-              single sign-on configuration applies to the administrative
-
-              interface of the system.
-
-              '
-            type: array
-            items:
-              type: string
-          sp:
-            $ref: '#/components/schemas/_saml2SsoSp'
-    TestResultWithResourceResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/TestResultWithResource'
-    Saml2SsoPatch:
-      allOf:
-      - $ref: '#/components/schemas/Saml2SsoPost'
-      - type: object
-        properties:
-          enabled:
-            description: 'If set to `true`, the SAML2 SSO configuration is enabled.
-
-              '
-            type: boolean
-    _saml2SsoSp:
-      allOf:
-      - $ref: '#/components/schemas/_saml2SsoSpCredential'
-      - description: 'Properties specific to the service provider.
-
-          '
-        type: object
-        properties:
-          assertion_consumer_url:
-            description: 'The URL where the identity provider will send its SAML response after authenticating a user.
-
-              '
-            type: string
-            example: https://myarray.mycompany.com/login/saml2/sso/myidp
-          entity_id:
-            description: 'A globally unique name for the service provider.
-
-              '
-            type: string
-            example: https://myarray.mycompany.com/saml2/service-provider-metadata/myidp
-          metadata_url:
-            description: 'The URL of the service provider metadata.
-
-              '
-            type: string
-            example: https://myarray.mycompany.com/saml2/service-provider-metadata/myidp
-    _saml2SsoSpCredential_2:
+    _saml2SsoManagement:
+      description: Properties specific to the management service.
       type: object
       properties:
-        decryption_credential:
-          description: 'The credential used by the service provider to decrypt encrypted SAML
+        trust_other_saml_sps_in_fleet:
+          description: 'The configuration that defines the validation strategy for remote
 
-            assertions from the identity provider. The credential is managed by
+            command execution within fleet deployments. When set to `false`
 
-            the `certificates` endpoint and `purecert` CLI commands.
+            (the default), the array enforces a security check to ensure that
 
-            '
-          title: ReferenceWritable
-          allOf:
-          - $ref: '#/components/schemas/_referenceWritable'
-        entity_id:
-          description: 'Service Provider Entity ID: If not provided, it will be auto-generated.
+            source and target arrays share identical `SAML` configurations,
 
-            All fleet members must use the same Service Provider Entity ID in order
+            including the same `Identity Provider` and `SP Entity ID`. When set
 
-            to allow SAML users to operate on remote arrays.
+            to `true`, the array permits remote command execution from other
 
-            '
-          type: string
-        signing_credential:
-          description: 'The credential used by the service provider to sign SAML requests.
+            fleet members without verifying `SAML` consistency. Maintaining
 
-            The credential is managed by the `certificates` endpoint and
+            this value as `false` ensures a higher security posture by
 
-            `purecert` CLI commands.
+            restricting execution to verified, consistent environments
 
             '
-          title: ReferenceWritable
-          allOf:
-          - $ref: '#/components/schemas/_referenceWritable'
+          type: boolean
+          default: false
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    TestResultResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestResult_2'
     TestResult_2:
       type: object
       properties:
@@ -887,6 +1167,84 @@ components:
             '
           type: string
           example: phonehome
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    Saml2Sso_2:
+      description: 'Configuration information for SAML2-based SSO for FlashArray.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - $ref: '#/components/schemas/Saml2SsoPost_2'
+    _referenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+    _saml2SsoSpCredential_2:
+      type: object
+      properties:
+        decryption_credential:
+          description: 'The credential used by the service provider to decrypt encrypted SAML
+
+            assertions from the identity provider. The credential is managed by
+
+            the `certificates` endpoint and `purecert` CLI commands.
+
+            '
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
+        entity_id:
+          description: 'Service Provider Entity ID: If not provided, it will be auto-generated.
+
+            All fleet members must use the same Service Provider Entity ID in order
+
+            to allow SAML users to operate on remote arrays.
+
+            '
+          type: string
+        signing_credential:
+          description: 'The credential used by the service provider to sign SAML requests.
+
+            The credential is managed by the `certificates` endpoint and
+
+            `purecert` CLI commands.
+
+            '
+          title: ReferenceWritable
+          allOf:
+          - $ref: '#/components/schemas/_referenceWritable'
     _resource:
       description: 'An ordinary (as opposed to built-in) resource that can be created, named,
 
@@ -914,6 +1272,24 @@ components:
 
             '
           type: string
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
     _saml2SsoIdp_2:
       description: Properties specific to the identity provider.
       type: object
@@ -965,78 +1341,6 @@ components:
           title: ReferenceWritable
           allOf:
           - $ref: '#/components/schemas/_referenceWritable'
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _referenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
     Saml2SsoPost_2:
       type: object
       properties:
@@ -1080,28 +1384,24 @@ components:
             type: string
         sp:
           $ref: '#/components/schemas/_saml2SsoSp_2'
-    _saml2SsoManagement_2:
-      description: Properties specific to the management service.
-      type: object
-      properties:
-        trust_other_saml_sps_in_fleet:
-          description: 'Controls the validation strategy for remote command execution in fleet deployments.
+    _saml2SsoSp_2:
+      allOf:
+      - $ref: '#/components/schemas/_saml2SsoSpCredential_2'
+      - description: Properties specific to the service provider.
+        type: object
+        properties:
+          assertion_consumer_url:
+            description: 'The URL where the identity provider will send its SAML response after authenticating a user.
 
-            When set to `false` (default), the array verifies that both the source and target
-
-            arrays have matching SAML configurations (same Identity Provider and same SP Entity ID)
-
-            before allowing remote command execution. When set to `true`, the array allows remote
-
-            command execution from other arrays in the fleet without verifying SAML configuration
-
-            consistency. For security, it is recommended to keep this set to `false` unless there
-
-            is a specific need to allow remote execution with different SAML configurations.
-
-            '
-          type: boolean
-          default: false
+              '
+            type: string
+            readOnly: true
+            example: https://myarray.mycompany.com/login/saml2/sso/myidp
+          metadata_url:
+            description: The URL of the service provider metadata.
+            type: string
+            readOnly: true
+            example: https://myarray.mycompany.com/saml2/service-provider-metadata/myidp
     PageInfo_2:
       type: object
       properties:
@@ -1130,328 +1430,28 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    Saml2Sso_2:
-      description: 'Configuration information for SAML2-based SSO for FlashArray.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - $ref: '#/components/schemas/Saml2SsoPost_2'
-    TestResultResponse:
+    _saml2SsoManagement_2:
+      description: Properties specific to the management service.
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TestResult_2'
-    _saml2SsoSp_2:
-      allOf:
-      - $ref: '#/components/schemas/_saml2SsoSpCredential_2'
-      - description: Properties specific to the service provider.
-        type: object
-        properties:
-          assertion_consumer_url:
-            description: 'The URL where the identity provider will send its SAML response after authenticating a user.
+        trust_other_saml_sps_in_fleet:
+          description: 'Controls the validation strategy for remote command execution in fleet deployments.
 
-              '
-            type: string
-            readOnly: true
-            example: https://myarray.mycompany.com/login/saml2/sso/myidp
-          metadata_url:
-            description: The URL of the service provider metadata.
-            type: string
-            readOnly: true
-            example: https://myarray.mycompany.com/saml2/service-provider-metadata/myidp
-  parameters:
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Allow_errors:
-      name: allow_errors
-      in: query
-      description: 'If set to `true`, the API will allow the operation to continue even if there are errors.
+            When set to `false` (default), the array verifies that both the source and target
 
-        Any errors will be returned in the `errors` field of the response.
+            arrays have matching SAML configurations (same Identity Provider and same SP Entity ID)
 
-        If set to `false`, the operation will fail if there are any errors.
+            before allowing remote command execution. When set to `true`, the array allows remote
 
-        '
-      schema:
-        type: boolean
-        default: false
-    Names_required:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique name specified.
+            command execution from other arrays in the fleet without verifying SAML configuration
 
-        For example, `name01`.
+            consistency. For security, it is recommended to keep this set to `false` unless there
 
-        Enter multiple names in comma-separated format.
+            is a specific need to allow remote execution with different SAML configurations.
 
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Context_names_get:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the unique contexts specified.
-
-
-        If specified, each context name must be the name of an array in the same fleet or
-
-        the name of the fleet itself.
-
-
-        If not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Sort_2:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Names_required_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
+            '
+          type: boolean
+          default: false
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

@@ -47,25 +47,6 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
     Names:
       name: names
       in: query
@@ -89,6 +70,25 @@ components:
         type: array
         items:
           type: string
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     Offset:
       name: offset
       in: query
@@ -100,24 +100,6 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Ids:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     XRequestId:
       name: X-Request-ID
       in: header
@@ -158,6 +140,24 @@ components:
         '
       schema:
         type: string
+    Ids:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Limit:
       name: limit
       in: query
@@ -178,15 +178,19 @@ components:
         minimum: 0
       example: 10
   schemas:
-    RoleGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/Role'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     _permission:
       type: object
       properties:
@@ -207,29 +211,15 @@ components:
           readOnly: true
           example: file-systems
       x-readOnly: true
-    _builtIn:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
-    Role:
+    RoleGetResponse:
       allOf:
-      - $ref: '#/components/schemas/_builtIn'
+      - $ref: '#/components/schemas/PageInfo'
       - type: object
         properties:
-          permissions:
-            description: A list of permissions that the role can perform.
+          items:
             type: array
             items:
-              $ref: '#/components/schemas/_permission'
+              $ref: '#/components/schemas/Role'
     PageInfo:
       type: object
       properties:
@@ -258,6 +248,16 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
+    Role:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          permissions:
+            description: A list of permissions that the role can perform.
+            type: array
+            items:
+              $ref: '#/components/schemas/_permission'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

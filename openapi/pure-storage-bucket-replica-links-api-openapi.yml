@@ -237,11 +237,27 @@ paths:
     - url: https://api-staging.pure1.purestorage.com/
 components:
   schemas:
-    BucketReplicaLinkGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/_errorContextResponse'
-      - $ref: '#/components/schemas/BucketReplicaLinkResponse'
+    BucketReplicaLinkResponse:
+      type: object
+      properties:
+        items:
+          description: A list of object store bucket replica link objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/BucketReplicaLink'
+        total:
+          description: 'If `total_only` query param is `true`, then it will be a total of
+
+            all records after filtering and no items will be returned.
+
+            If `total_only` is `false`, then it will be a total of all records
+
+            on this page.
+
+            '
+          title: BucketReplicaLink
+          allOf:
+          - $ref: '#/components/schemas/BucketReplicaLink'
     _fixedReferenceNameOnly:
       type: object
       properties:
@@ -249,6 +265,40 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
+    _fixedReference:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are the unique part of the resource''s REST endpoint.
+
+              For example, a reference to a file system would have a
+
+              `resource_type` of `file-systems`.
+
+              '
+            type: string
+            readOnly: true
+    BucketReplicaLinkPost:
+      type: object
+      properties:
+        cascading_enabled:
+          description: 'If set to `true`, objects replicated to this bucket via a replica
+
+            link from another array will also be replicated by this link to
+
+            the remote bucket.
+
+            Defaults to `false`.
+
+            '
+          type: boolean
+        paused:
+          description: Create link in the paused state? Defaults to `false`.
+          type: boolean
     BucketReplicaLink:
       allOf:
       - $ref: '#/components/schemas/_replicaLinkBuiltIn'
@@ -323,27 +373,6 @@ components:
               '
             type: string
             readOnly: true
-    _context:
-      type: object
-      properties:
-        context:
-          description: 'The context in which the operation was performed.
-
-
-            Valid values include a reference to any array which is a member of the same fleet
-
-            or to the fleet itself.
-
-
-            Other parameters provided with the request, such as names of volumes or snapshots,
-
-            are resolved relative to the provided `context`.
-
-            '
-          readOnly: true
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
     _fixedReferenceWithoutType:
       type: object
       properties:
@@ -364,15 +393,6 @@ components:
           type: string
           readOnly: true
       x-readOnly: true
-    _direction:
-      type: string
-      description: 'The direction of replication. Valid values are `inbound` and
-
-        `outbound`.
-
-        '
-      readOnly: true
-      x-read-only: true
     _referenceWithoutType:
       type: object
       properties:
@@ -390,122 +410,15 @@ components:
 
             '
           type: string
-    _errorContextResponseErrors:
-      type: object
-      properties:
-        context:
-          description: 'Contains information relating to the cause of this error,
+    _direction:
+      type: string
+      description: 'The direction of replication. Valid values are `inbound` and
 
-            or the name of the object that was being processed when the error was encountered.
+        `outbound`.
 
-            This may be `null` for more general errors.
-
-            '
-          type: string
-        location_context:
-          description: 'Contains information relating to the context in which the request was executing
-
-            when the error occurred.
-
-            For example, this may be the name of an array in the same fleet.
-
-            This may be `null` for more general errors, or if no explicit `context` parameter
-
-            was provided with the request.
-
-            '
-          title: FixedReference
-          allOf:
-          - $ref: '#/components/schemas/_fixedReference'
-        message:
-          description: A description of the error which occurred.
-          type: string
-          example: Resource does not exist.
-    BucketReplicaLinkPost:
-      type: object
-      properties:
-        cascading_enabled:
-          description: 'If set to `true`, objects replicated to this bucket via a replica
-
-            link from another array will also be replicated by this link to
-
-            the remote bucket.
-
-            Defaults to `false`.
-
-            '
-          type: boolean
-        paused:
-          description: Create link in the paused state? Defaults to `false`.
-          type: boolean
-    _fixedReference:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    _referenceWritable:
-      allOf:
-      - $ref: '#/components/schemas/_referenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
-    _objectBacklog:
-      type: object
-      properties:
-        bytes_count:
-          description: 'The size of the objects in bytes that need to be replicated.
-
-            This does not include the size of custom metadata.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        delete_ops_count:
-          description: 'The number of DELETE operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        other_ops_count:
-          description: 'The number of other operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
-        put_ops_count:
-          description: 'The number of PUT operations that need to be replicated.
-
-            '
-          type: integer
-          format: int64
-          readOnly: true
+        '
+      readOnly: true
+      x-read-only: true
     _replicaLinkBuiltIn:
       allOf:
       - $ref: '#/components/schemas/_builtInRelationship'
@@ -532,6 +445,59 @@ components:
               '
             type: string
             readOnly: true
+    _context:
+      type: object
+      properties:
+        context:
+          description: 'The context in which the operation was performed.
+
+
+            Valid values include a reference to any array which is a member of the same fleet
+
+            or to the fleet itself.
+
+
+            Other parameters provided with the request, such as names of volumes or snapshots,
+
+            are resolved relative to the provided `context`.
+
+            '
+          readOnly: true
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
+    _referenceWritable:
+      allOf:
+      - $ref: '#/components/schemas/_referenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
+    _errorContextResponse:
+      type: object
+      properties:
+        errors:
+          description: The list of errors encountered when attempting to perform an operation.
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_errorContextResponseErrors'
+    BucketReplicaLinkGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/_errorContextResponse'
+      - $ref: '#/components/schemas/BucketReplicaLinkResponse'
     _builtInRelationship:
       type: object
       properties:
@@ -569,133 +535,77 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    _errorContextResponse:
-      type: object
-      properties:
-        errors:
-          description: The list of errors encountered when attempting to perform an operation.
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_errorContextResponseErrors'
-    BucketReplicaLinkResponse:
-      type: object
-      properties:
-        items:
-          description: A list of object store bucket replica link objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/BucketReplicaLink'
-        total:
-          description: 'If `total_only` query param is `true`, then it will be a total of
-
-            all records after filtering and no items will be returned.
-
-            If `total_only` is `false`, then it will be a total of all records
-
-            on this page.
-
-            '
-          title: BucketReplicaLink
-          allOf:
-          - $ref: '#/components/schemas/BucketReplicaLink'
-    BucketReplicaLinkGetResponse_2:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/BucketReplicaLinkResponse_2'
-    _errorErrors:
+    _errorContextResponseErrors:
       type: object
       properties:
         context:
+          description: 'Contains information relating to the cause of this error,
+
+            or the name of the object that was being processed when the error was encountered.
+
+            This may be `null` for more general errors.
+
+            '
           type: string
-          example: Error with ...
+        location_context:
+          description: 'Contains information relating to the context in which the request was executing
+
+            when the error occurred.
+
+            For example, this may be the name of an array in the same fleet.
+
+            This may be `null` for more general errors, or if no explicit `context` parameter
+
+            was provided with the request.
+
+            '
+          title: FixedReference
+          allOf:
+          - $ref: '#/components/schemas/_fixedReference'
         message:
+          description: A description of the error which occurred.
           type: string
-          example: Something was wrong
-    BucketReplicaLink_2:
-      description: A replica link between two buckets.
-      allOf:
-      - $ref: '#/components/schemas/_replicaLink'
-      - description: A replica link between two buckets.
-        type: object
-        properties:
-          members:
-            description: The union of source and target buckets in the replica link.
-            type: array
-            items:
-              $ref: '#/components/schemas/_resourceWithLocation'
-          recovery_point:
-            description: 'Time when the last piece of data was replicated, in milliseconds since
-
-              the UNIX epoch, and the recovery point of the bucket.
-
-              '
-            type: integer
-            format: int64
-            readOnly: true
-            example: 1565034592494
-          sources:
-            description: The source buckets in the replica link.
-            type: array
-            items:
-              $ref: '#/components/schemas/_resourceWithLocation'
-          status_details:
-            description: 'Detailed information about the status of the replica link when it is
-
-              `unhealthy`.
-
-              '
-            type: string
-          targets:
-            description: The target buckets in the replica link.
-            type: array
-            items:
-              $ref: '#/components/schemas/_resourceWithLocation'
-    ErrorNoContext:
+          example: Resource does not exist.
+    _objectBacklog:
       type: object
       properties:
-        message:
-          type: string
-          example: Something was wrong
-    _resourceNoName:
-      description: 'An ordinary (as opposed to built-in) resource that can be created or deleted
+        bytes_count:
+          description: 'The size of the objects in bytes that need to be replicated.
 
-        by the user. This might be a virtual resource (e.g., a volume), or correspond
+            This does not include the size of custom metadata.
 
-        to something in the physical environment, like a host or a server.
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        delete_ops_count:
+          description: 'The number of DELETE operations that need to be replicated.
 
-        '
-      allOf:
-      - $ref: '#/components/schemas/_timeAware'
-      - type: object
-        properties:
-          id:
-            description: A non-modifiable, globally unique ID chosen by the system.
-            type: string
-            readOnly: true
-            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
-    Error:
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        other_ops_count:
+          description: 'The number of other operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+        put_ops_count:
+          description: 'The number of PUT operations that need to be replicated.
+
+            '
+          type: integer
+          format: int64
+          readOnly: true
+    BucketReplicaLinkResponse_2:
       type: object
       properties:
-        errors:
-          description: The list of errors encountered.
+        items:
           type: array
           items:
-            $ref: '#/components/schemas/_errorErrors'
-    _fixedReferenceFqdn:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          fqdn:
-            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
-
-              `null` otherwise.
-
-              '
-            type: string
-            readOnly: true
-            example: example_name.dc1.example.com
+            $ref: '#/components/schemas/BucketReplicaLink_2'
     _fixedReference_2:
       type: object
       properties:
@@ -721,6 +631,15 @@ components:
           readOnly: true
           example: example_resource_type
       x-readOnly: true
+    _errorErrors:
+      type: object
+      properties:
+        context:
+          type: string
+          example: Error with ...
+        message:
+          type: string
+          example: Something was wrong
     _replicaLink:
       allOf:
       - $ref: '#/components/schemas/_resourceNoName'
@@ -762,6 +681,105 @@ components:
               '
             type: string
             example: replicating
+    BucketReplicaLink_2:
+      description: A replica link between two buckets.
+      allOf:
+      - $ref: '#/components/schemas/_replicaLink'
+      - description: A replica link between two buckets.
+        type: object
+        properties:
+          members:
+            description: The union of source and target buckets in the replica link.
+            type: array
+            items:
+              $ref: '#/components/schemas/_resourceWithLocation'
+          recovery_point:
+            description: 'Time when the last piece of data was replicated, in milliseconds since
+
+              the UNIX epoch, and the recovery point of the bucket.
+
+              '
+            type: integer
+            format: int64
+            readOnly: true
+            example: 1565034592494
+          sources:
+            description: The source buckets in the replica link.
+            type: array
+            items:
+              $ref: '#/components/schemas/_resourceWithLocation'
+          status_details:
+            description: 'Detailed information about the status of the replica link when it is
+
+              `unhealthy`.
+
+              '
+            type: string
+          targets:
+            description: The target buckets in the replica link.
+            type: array
+            items:
+              $ref: '#/components/schemas/_resourceWithLocation'
+    _resourceNoName:
+      description: 'An ordinary (as opposed to built-in) resource that can be created or deleted
+
+        by the user. This might be a virtual resource (e.g., a volume), or correspond
+
+        to something in the physical environment, like a host or a server.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_timeAware'
+      - type: object
+        properties:
+          id:
+            description: A non-modifiable, globally unique ID chosen by the system.
+            type: string
+            readOnly: true
+            example: 2a989a09-c851-4d52-9ec6-ab728b1c04db
+    _timeAware:
+      type: object
+      properties:
+        _as_of:
+          description: The freshness of the data (timestamp in millis since epoch).
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1502729489760
+    ErrorNoContext:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something was wrong
+    _resourceWithLocation:
+      description: 'An ordinary resource that exists in one location.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          location:
+            $ref: '#/components/schemas/_fixedReferenceFqdn'
+    _fixedReferenceFqdn:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          fqdn:
+            description: 'The fully qualified domain name of the appliance when `resource_type` is `arrays`,
+
+              `null` otherwise.
+
+              '
+            type: string
+            readOnly: true
+            example: example_name.dc1.example.com
+    BucketReplicaLinkGetResponse_2:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/BucketReplicaLinkResponse_2'
     PageInfo_2:
       type: object
       properties:
@@ -792,52 +810,15 @@ components:
           type: integer
           format: int32
           example: 1
-    _resourceWithLocation:
-      description: 'An ordinary resource that exists in one location.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          location:
-            $ref: '#/components/schemas/_fixedReferenceFqdn'
-    BucketReplicaLinkResponse_2:
+    Error:
       type: object
       properties:
-        items:
+        errors:
+          description: The list of errors encountered.
           type: array
           items:
-            $ref: '#/components/schemas/BucketReplicaLink_2'
-    _timeAware:
-      type: object
-      properties:
-        _as_of:
-          description: The freshness of the data (timestamp in millis since epoch).
-          type: integer
-          format: int64
-          readOnly: true
-          example: 1502729489760
+            $ref: '#/components/schemas/_errorErrors'
   parameters:
-    Sort:
-      name: sort
-      in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
-
-        is appended to the field name).
-
-        NOTE: If you provide a sort you will not get a `continuation_token` in
-
-        the response.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
     Allow_errors:
       name: allow_errors
       in: query
@@ -851,16 +832,16 @@ components:
       schema:
         type: boolean
         default: false
-    Remote_credentials_names:
-      name: remote_credentials_names
+    Remote_credentials_ids:
+      name: remote_credentials_ids
       in: query
-      description: 'A comma-separated list of remote credentials names. If there is not at least
+      description: 'A comma-separated list of remote credentials IDs. If after filtering, there
 
-        one resource that matches each of the elements, then an error is returned.
+        is not at least one resource that matches each of the elements, then an error
 
-        This cannot be provided together with the `remote_credentials_ids` query
+        is returned. This cannot be provided together with the
 
-        parameter.
+        `remote_credentials_names` query parameter.
 
         '
       style: form
@@ -869,14 +850,16 @@ components:
         type: array
         items:
           type: string
-    Remote_ids:
-      name: remote_ids
+    Ids:
+      name: ids
       in: query
-      description: 'A comma-separated list of remote array IDs. If, after filtering, there is not at least one
+      description: 'A comma-separated list of resource IDs.
 
-        resource that matches each of the elements, then an error is returned. This cannot be provided
+        If after filtering, there is not at least one resource that matches
 
-        together with the `remote_names` query parameter.
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form
@@ -885,40 +868,6 @@ components:
         type: array
         items:
           type: string
-    Remote_names:
-      name: remote_names
-      in: query
-      description: 'A comma-separated list of remote array names. If, after filtering, there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This cannot be provided
-
-        together with the `remote_ids` query parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
     Total_only:
       name: total_only
       in: query
@@ -933,57 +882,16 @@ components:
         '
       schema:
         type: boolean
-    Limit:
-      name: limit
+    Remote_credentials_names:
+      name: remote_credentials_names
       in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
+      description: 'A comma-separated list of remote credentials names. If there is not at least
 
-        To return the total number of resources, set `limit=0`.
+        one resource that matches each of the elements, then an error is returned.
 
-        The total number of resources is returned as a `total_item_count` value.
+        This cannot be provided together with the `remote_credentials_ids` query
 
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Context_names:
-      name: context_names
-      in: query
-      description: 'Performs the operation on the context specified.
-
-
-        If specified, the context names must be an array of size 1, and the single element
-
-        must be the name of an array in the same fleet or the name of the fleet itself. If
-
-        not specified, the context will default to the array that received this request.
-
-
-        Other parameters provided with the request, such as names of volumes or snapshots,
-
-        are resolved relative to the provided `context`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Local_bucket_names:
-      name: local_bucket_names
-      in: query
-      description: 'A comma-separated list of local bucket names. If there is not at least one
-
-        resource that matches each of the elements, then an error is returned. This
-
-        cannot be provided together with `local_bucket_ids` query parameter.
+        parameter.
 
         '
       style: form
@@ -1033,6 +941,94 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Remote_names:
+      name: remote_names
+      in: query
+      description: 'A comma-separated list of remote array names. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `remote_ids` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Context_names:
+      name: context_names
+      in: query
+      description: 'Performs the operation on the context specified.
+
+
+        If specified, the context names must be an array of size 1, and the single element
+
+        must be the name of an array in the same fleet or the name of the fleet itself. If
+
+        not specified, the context will default to the array that received this request.
+
+
+        Other parameters provided with the request, such as names of volumes or snapshots,
+
+        are resolved relative to the provided `context`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        NOTE: If you provide a sort you will not get a `continuation_token` in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     Local_bucket_ids:
       name: local_bucket_ids
       in: query
@@ -1051,34 +1047,14 @@ components:
         type: array
         items:
           type: string
-    Ids:
-      name: ids
+    Local_bucket_names:
+      name: local_bucket_names
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'A comma-separated list of local bucket names. If there is not at least one
 
-        If after filtering, there is not at least one resource that matches
+        resource that matches each of the elements, then an error is returned. This
 
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Remote_credentials_ids:
-      name: remote_credentials_ids
-      in: query
-      description: 'A comma-separated list of remote credentials IDs. If after filtering, there
-
-        is not at least one resource that matches each of the elements, then an error
-
-        is returned. This cannot be provided together with the
-
-        `remote_credentials_names` query parameter.
+        cannot be provided together with `local_bucket_ids` query parameter.
 
         '
       style: form
@@ -1109,6 +1085,30 @@ components:
         '
       schema:
         type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Remote_ids:
+      name: remote_ids
+      in: query
+      description: 'A comma-separated list of remote array IDs. If, after filtering, there is not at least one
+
+        resource that matches each of the elements, then an error is returned. This cannot be provided
+
+        together with the `remote_names` query parameter.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Remote_bucket_names:
       name: remote_bucket_names
       in: query
@@ -1151,16 +1151,24 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Sort_2:
-      name: sort
+    Source_ids_plus:
+      name: source_ids
       in: query
-      description: 'Sort the response by the specified fields (in descending order if ''-''
+      description: 'A list of source IDs. Source IDs separated by a `+` indicate that both
 
-        is appended to the field name).
+        sources must be present in each element. Source IDs separated by a `,`
 
-        If you provide a sort you will not get a continuation token in
+        indicate that at least one source must be present in each element.
 
-        the response.
+        If there is not at least one resource that matches each `source_id` element,
+
+        an error is returned.
+
+        Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of source IDs separated by a `+`
+
+        must be entered in the same item cell.
 
         '
       style: form
@@ -1168,26 +1176,19 @@ components:
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Target_ids_plus:
-      name: target_ids
+        x-quoted: true
+      x-quoted: true
+    Ids_2:
+      name: ids
       in: query
-      description: 'A list of target IDs. Target IDs separated by a `+` indicate that both
+      description: 'A comma-separated list of resource IDs.
 
-        targets must be present in each element. Target IDs separated by a `,`
-
-        indicate that at least one target must be present in each element.
-
-        If there is not at least one resource that matches each `target_id` element,
+        If there is not at least one resource that matches each `id` element,
 
         an error is returned.
 
         Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of target IDs separated by a `+`
-
-        must be entered in the same item cell.
 
         '
       style: form
@@ -1226,80 +1227,6 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Filter_2:
-      name: filter
-      in: query
-      description: 'Exclude resources that don''t match the specified criteria.
-
-        Single quotes are required around all strings inside the filters.
-
-        '
-      schema:
-        type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
-
-        '
-      schema:
-        type: string
-    Member_names_plus:
-      name: member_names
-      in: query
-      description: 'A list of member names. Member names separated by a `+` indicate that both
-
-        members must be present in each element. Member names separated by a `,`
-
-        indicate that at least one member must be present in each element.
-
-        If there is not at least one resource that matches each `member_name` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of member names separated by a `+`
-
-        must be entered in the same item cell.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
-    Source_ids_plus:
-      name: source_ids
-      in: query
-      description: 'A list of source IDs. Source IDs separated by a `+` indicate that both
-
-        sources must be present in each element. Source IDs separated by a `,`
-
-        indicate that at least one source must be present in each element.
-
-        If there is not at least one resource that matches each `source_id` element,
-
-        an error is returned.
-
-        Single quotes are required around all strings.
-
-        When using Try it Out in Swagger, a list of source IDs separated by a `+`
-
-        must be entered in the same item cell.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-        x-quoted: true
-      x-quoted: true
     Offset_2:
       name: offset
       in: query
@@ -1310,16 +1237,98 @@ components:
         type: integer
         format: int32
         minimum: 0
-    Ids_2:
-      name: ids
+    Filter_2:
+      name: filter
       in: query
-      description: 'A comma-separated list of resource IDs.
+      description: 'Exclude resources that don''t match the specified criteria.
 
-        If there is not at least one resource that matches each `id` element,
+        Single quotes are required around all strings inside the filters.
+
+        '
+      schema:
+        type: string
+    Limit_2:
+      name: limit
+      in: query
+      description: 'Limit the size of the response to the specified number of resources.
+
+        A limit of 0 can be used to get the number of resources without getting
+
+        all of the resources. It will be returned in the total_item_count field.
+
+        If a client asks for a page size larger than the maximum number, the request
+
+        is still valid. In that case the server just returns the maximum number of
+
+        items, disregarding the client''s page size request. If not specified, defaults
+
+        to 1000.
+
+        '
+      schema:
+        type: integer
+        format: int32
+    Sort_2:
+      name: sort
+      in: query
+      description: 'Sort the response by the specified fields (in descending order if ''-''
+
+        is appended to the field name).
+
+        If you provide a sort you will not get a continuation token in
+
+        the response.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Continuation_token_2:
+      name: continuation_token
+      in: query
+      description: 'An opaque token used to iterate over a collection.
+
+        The token to use on the next request is returned in the
+
+        `continuation_token` field of the result.
+
+        Single quotes are required around all strings.
+
+        '
+      schema:
+        type: string
+        x-quoted: true
+      x-quoted: true
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API endpoint (except `/oauth2`)
+
+        '
+      schema:
+        type: string
+    Target_ids_plus:
+      name: target_ids
+      in: query
+      description: 'A list of target IDs. Target IDs separated by a `+` indicate that both
+
+        targets must be present in each element. Target IDs separated by a `,`
+
+        indicate that at least one target must be present in each element.
+
+        If there is not at least one resource that matches each `target_id` element,
 
         an error is returned.
 
         Single quotes are required around all strings.
+
+        When using Try it Out in Swagger, a list of target IDs separated by a `+`
+
+        must be entered in the same item cell.
 
         '
       style: form
@@ -1358,46 +1367,37 @@ components:
           type: string
         x-quoted: true
       x-quoted: true
-    Continuation_token_2:
-      name: continuation_token
+    Member_names_plus:
+      name: member_names
       in: query
-      description: 'An opaque token used to iterate over a collection.
+      description: 'A list of member names. Member names separated by a `+` indicate that both
 
-        The token to use on the next request is returned in the
+        members must be present in each element. Member names separated by a `,`
 
-        `continuation_token` field of the result.
+        indicate that at least one member must be present in each element.
+
+        If there is not at least one resource that matches each `member_name` element,
+
+        an error is returned.
 
         Single quotes are required around all strings.
 
+        When using Try it Out in Swagger, a list of member names separated by a `+`
+
+        must be entered in the same item cell.
+
         '
+      style: form
+      explode: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
         x-quoted: true
       x-quoted: true
-    Limit_2:
-      name: limit
-      in: query
-      description: 'Limit the size of the response to the specified number of resources.
-
-        A limit of 0 can be used to get the number of resources without getting
-
-        all of the resources. It will be returned in the total_item_count field.
-
-        If a client asks for a page size larger than the maximum number, the request
-
-        is still valid. In that case the server just returns the maximum number of
-
-        items, disregarding the client''s page size request. If not specified, defaults
-
-        to 1000.
-
-        '
-      schema:
-        type: integer
-        format: int32
   responses:
-    Error400:
-      description: BAD REQUEST
+    Error404:
+      description: NOT FOUND
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -1458,8 +1458,19 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorNoContext'
-    Error404:
-      description: NOT FOUND
+    Error403:
+      description: FORBIDDEN
+      headers:
+        X-Request-ID:
+          description: Supplied by client during request or generated by server.
+          schema:
+            type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorNoContext'
+    Error400:
+      description: BAD REQUEST
       headers:
         X-Request-ID:
           description: Supplied by client during request or generated by server.
@@ -1520,17 +1531,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Error403:
-      description: FORBIDDEN
-      headers:
-        X-Request-ID:
-          description: Supplied by client during request or generated by server.
-          schema:
-            type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorNoContext'
   securitySchemes:
     AuthorizationHeader:
       type: apiKey

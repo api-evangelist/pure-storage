@@ -233,18 +233,61 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    _fixedReferenceNoId:
+    SubnetResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subnet'
+    SubnetGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/SubnetResponse'
+    SubnetPatch:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoId'
+      - $ref: '#/components/schemas/SubnetPost'
+    _resourceNoId:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        volume), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
       type: object
       properties:
         name:
-          description: 'The resource name,
+          description: 'A user-specified name.
 
-            such as volume name, pod name, snapshot name, and so on.
+            The name must be locally unique and can be changed.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
+    Subnet:
+      allOf:
+      - $ref: '#/components/schemas/_resourceNoId'
+      - $ref: '#/components/schemas/SubnetPost'
+      - type: object
+        properties:
+          interfaces:
+            description: List of network interfaces associated with this subnet.
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/_fixedReferenceNoId'
+          services:
+            description: The services provided by this subnet, as inherited from all of its interfaces.
+            type: array
+            readOnly: true
+            items:
+              type: string
+              description: 'Valid values are `iscsi`, `management`, `nvme/fc`, `nvme/roce`, and `replication`.
+
+                '
     SubnetPost:
       type: object
       properties:
@@ -285,54 +328,18 @@ components:
           description: VLAN ID number.
           type: integer
           format: int32
-    SubnetGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/SubnetResponse'
-    SubnetPatch:
-      allOf:
-      - $ref: '#/components/schemas/_resourceNoId'
-      - $ref: '#/components/schemas/SubnetPost'
-    Subnet:
-      allOf:
-      - $ref: '#/components/schemas/_resourceNoId'
-      - $ref: '#/components/schemas/SubnetPost'
-      - type: object
-        properties:
-          interfaces:
-            description: List of network interfaces associated with this subnet.
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/_fixedReferenceNoId'
-          services:
-            description: The services provided by this subnet, as inherited from all of its interfaces.
-            type: array
-            readOnly: true
-            items:
-              type: string
-              description: 'Valid values are `iscsi`, `management`, `nvme/fc`, `nvme/roce`, and `replication`.
-
-                '
-    _resourceNoId:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        volume), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
+    _fixedReferenceNoId:
       type: object
       properties:
         name:
-          description: 'A user-specified name.
+          description: 'The resource name,
 
-            The name must be locally unique and can be changed.
+            such as volume name, pod name, snapshot name, and so on.
 
             '
           type: string
+          readOnly: true
+      x-readOnly: true
     PageInfo:
       type: object
       properties:
@@ -375,13 +382,27 @@ components:
             '
           type: integer
           format: int32
-    SubnetResponse:
+    SubnetResponse_2:
       type: object
       properties:
         items:
+          description: A list of subnet objects.
           type: array
           items:
-            $ref: '#/components/schemas/Subnet'
+            $ref: '#/components/schemas/Subnet_2'
+    _builtIn:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
     _fixedReference:
       allOf:
       - $ref: '#/components/schemas/_fixedReferenceWithoutType'
@@ -399,19 +420,39 @@ components:
               '
             type: string
             readOnly: true
-    _builtIn:
+    _reference:
       type: object
       properties:
         id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
 
             '
           type: string
           readOnly: true
-        name:
-          description: Name of the object (e.g., a file system or snapshot).
-          type: string
-          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
     Subnet_2:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
@@ -478,26 +519,6 @@ components:
             description: VLAN ID.
             type: integer
             format: int32
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
     PageInfo_2:
       type: object
       properties:
@@ -526,15 +547,7 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    SubnetResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of subnet objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Subnet_2'
-    _reference:
+    _fixedReferenceWithoutType:
       type: object
       properties:
         id:
@@ -544,59 +557,17 @@ components:
 
             '
           type: string
+          readOnly: true
         name:
-          description: 'The resource name,
+          description: 'The resource name, such as volume name, file system name,
 
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
+            snapshot name, and so on.
 
             '
           type: string
           readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
+      x-readOnly: true
   parameters:
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
-    Total_item_count:
-      name: total_item_count
-      in: query
-      description: 'If set to `true`, the `total_item_count` matching the
-
-        specified query parameters is calculated and returned in
-
-        the response. If set to `false`, the `total_item_count`
-
-        is `null` in the response. This may speed up queries
-
-        where the `total_item_count` is large. If not specified,
-
-        defaults to `false`.
-
-        '
-      schema:
-        type: boolean
     Names:
       name: names
       in: query
@@ -620,6 +591,17 @@ components:
         type: array
         items:
           type: string
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
     Offset:
       name: offset
       in: query
@@ -637,6 +619,26 @@ components:
       name: X-Request-ID
       in: header
       description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
+    Filter:
+      name: filter
+      in: query
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
 
         '
       schema:
@@ -663,26 +665,23 @@ components:
         '
       schema:
         type: string
-    Filter:
-      name: filter
+    Names_required:
+      name: names
       in: query
-      description: 'Narrows down the results to only the response objects
+      description: 'Performs the operation on the unique name specified.
 
-        that satisfy the filter criteria.
+        For example, `name01`.
 
-        '
-      schema:
-        type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
+        Enter multiple names in comma-separated format.
 
         '
+      required: true
+      style: form
+      explode: false
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     Limit:
       name: limit
       in: query
@@ -702,23 +701,24 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Names_required:
-      name: names
+    Total_item_count:
+      name: total_item_count
       in: query
-      description: 'Performs the operation on the unique name specified.
+      description: 'If set to `true`, the `total_item_count` matching the
 
-        For example, `name01`.
+        specified query parameters is calculated and returned in
 
-        Enter multiple names in comma-separated format.
+        the response. If set to `false`, the `total_item_count`
+
+        is `null` in the response. This may speed up queries
+
+        where the `total_item_count` is large. If not specified,
+
+        defaults to `false`.
 
         '
-      required: true
-      style: form
-      explode: false
       schema:
-        type: array
-        items:
-          type: string
+        type: boolean
     Sort_2:
       name: sort
       in: query
@@ -749,6 +749,19 @@ components:
         format: int32
         minimum: 0
       example: 10
+    Names_required_2:
+      name: names
+      in: query
+      description: 'A comma-separated list of resource names.
+
+        '
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
     Ids:
       name: ids
       in: query
@@ -761,19 +774,6 @@ components:
         This cannot be provided together with the `name` or `names` query parameters.
 
         '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Names_required_2:
-      name: names
-      in: query
-      description: 'A comma-separated list of resource names.
-
-        '
-      required: true
       style: form
       explode: false
       schema:

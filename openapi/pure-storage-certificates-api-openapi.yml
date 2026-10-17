@@ -537,42 +537,28 @@ paths:
     - url: https://[array]/
 components:
   schemas:
-    _referenceNoId:
+    _fixedReference:
       type: object
       properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
         name:
-          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
 
             '
           type: string
-    CertificateResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Certificate'
-    CertificateCertificateGroupResponse:
-      type: object
-      properties:
-        items:
-          description: 'A list of certificate and certificate group relationships.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_memberWithType'
-    CertificateSigningRequest:
-      description: 'SSL certificate managed by Purity//FA.
-
-        '
-      type: object
-      properties:
-        certificate_signing_request:
-          description: 'The text of a new certificate signing request.
-
-            '
-          type: string
+          readOnly: true
+      x-readOnly: true
+      x-aliases:
+      - _fixedReferenceWithoutType
     _certificateBase:
       description: SSL certificate managed by Purity.
       type: object
@@ -714,40 +700,61 @@ components:
           format: int64
           readOnly: true
           example: 1524248499
-    CertificateUse:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn'
-      - type: object
-        properties:
-          group:
-            description: 'A reference to the certificate group that is being used, if any, where
+    CertificateSigningRequestPost:
+      description: SSL Certificate managed by Purity//FA.
+      type: object
+      properties:
+        certificate:
+          $ref: '#/components/schemas/_referenceNoId'
+        common_name:
+          description: The common name field listed in the certificate.
+          type: string
+          example: Pure Storage Inc.
+        country:
+          description: Two-letter country (ISO) code listed in the certificate.
+          type: string
+          example: CA
+        email:
+          description: The email field listed in the certificate.
+          type: string
+          example: tcrisp@veridiandynamics.com
+        locality:
+          description: The locality field listed in the certificate.
+          type: string
+          example: Toronto
+        organization:
+          description: The organization field listed in the certificate.
+          type: string
+          example: Veridian Dynamics
+        organizational_unit:
+          description: The organizational unit field listed in the certificate.
+          type: string
+          example: Research & Development
+        state:
+          description: The state/province field listed in the certificate.
+          type: string
+          example: Ontario
+        subject_alternative_names:
+          description: 'The alternative names that are secured by this certificate.
 
-              this certificate is a member of the certificate-group.
+            Alternative names include IP addresses, DNS names, or URIs.
 
-              Returns `null` if the referenced user object is not associated
-
-              with a group and is directly using this certificate.
-
-              '
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
-          use:
-            description: A reference to an object using this certificate.
-            title: FixedReferenceWithType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithType'
+            '
+          type: array
+          items:
+            type: string
+            example: otherdnsname.mydomain.com
+    CertificateResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
     CertificateGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/CertificateResponse'
-    _memberWithType:
-      type: object
-      properties:
-        group:
-          $ref: '#/components/schemas/_referenceWithType'
-        member:
-          $ref: '#/components/schemas/_referenceWithType'
     _fixedReferenceWithType:
       allOf:
       - $ref: '#/components/schemas/_fixedReference'
@@ -767,7 +774,115 @@ components:
             readOnly: true
       x-aliases:
       - _fixedReference
-    _fixedReference:
+    _builtIn:
+      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+
+        settings). Some correspond to a piece of software, like an app, or hardware,
+
+        like a controller. Others are created by the system in response to some event
+
+        (e.g., alerts, audit records).
+
+
+        Typically, a user can''t create, delete or rename a built-in resource. A few
+
+        can be created or deleted, but not renamed because the names are meaningful
+
+        to Purity (e.g., VIFs).
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A locally unique, system-generated name. The name cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+    CertificatePost:
+      allOf:
+      - $ref: '#/components/schemas/_certificateBase'
+      - type: object
+        properties:
+          days:
+            description: 'The number of days that the self-signed certificate is valid. Defaults to 3650.
+
+              This field can only be specified when creating a new self-signed certificate.
+
+              '
+            type: integer
+            format: int32
+            example: 3650
+          key:
+            description: 'The text of the private key.
+
+              This field can only be specified when importing a certificate and key pair.
+
+              '
+            type: string
+          passphrase:
+            description: 'The passphrase used to encrypt `key`.
+
+              This field can only be specified when importing a certificate and key pair.
+
+              '
+            type: string
+    CertificateCertificateGroupResponse:
+      type: object
+      properties:
+        items:
+          description: 'A list of certificate and certificate group relationships.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_memberWithType'
+    CertificateCertificateGroupGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/CertificateCertificateGroupResponse'
+    _referenceNoId:
+      type: object
+      properties:
+        name:
+          description: 'The resource name, such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+    CertificateSigningRequestResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CertificateSigningRequest'
+    _memberWithType:
+      type: object
+      properties:
+        group:
+          $ref: '#/components/schemas/_referenceWithType'
+        member:
+          $ref: '#/components/schemas/_referenceWithType'
+    CertificateSigningRequest:
+      description: 'SSL certificate managed by Purity//FA.
+
+        '
+      type: object
+      properties:
+        certificate_signing_request:
+          description: 'The text of a new certificate signing request.
+
+            '
+          type: string
+    _reference:
       type: object
       properties:
         id:
@@ -777,18 +892,15 @@ components:
 
             '
           type: string
-          readOnly: true
         name:
-          description: 'The resource name, such as volume name, file system name,
+          description: 'The resource name, such as volume name, pod name,
 
             snapshot name, and so on.
 
             '
           type: string
-          readOnly: true
-      x-readOnly: true
       x-aliases:
-      - _fixedReferenceWithoutType
+      - _referenceWithoutType
     _referenceWithType:
       allOf:
       - $ref: '#/components/schemas/_reference'
@@ -851,57 +963,6 @@ components:
             '
           type: integer
           format: int32
-    CertificateSigningRequestResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CertificateSigningRequest'
-    CertificateSigningRequestPost:
-      description: SSL Certificate managed by Purity//FA.
-      type: object
-      properties:
-        certificate:
-          $ref: '#/components/schemas/_referenceNoId'
-        common_name:
-          description: The common name field listed in the certificate.
-          type: string
-          example: Pure Storage Inc.
-        country:
-          description: Two-letter country (ISO) code listed in the certificate.
-          type: string
-          example: CA
-        email:
-          description: The email field listed in the certificate.
-          type: string
-          example: tcrisp@veridiandynamics.com
-        locality:
-          description: The locality field listed in the certificate.
-          type: string
-          example: Toronto
-        organization:
-          description: The organization field listed in the certificate.
-          type: string
-          example: Veridian Dynamics
-        organizational_unit:
-          description: The organizational unit field listed in the certificate.
-          type: string
-          example: Research & Development
-        state:
-          description: The state/province field listed in the certificate.
-          type: string
-          example: Ontario
-        subject_alternative_names:
-          description: 'The alternative names that are secured by this certificate.
-
-            Alternative names include IP addresses, DNS names, or URIs.
-
-            '
-          type: array
-          items:
-            type: string
-            example: otherdnsname.mydomain.com
     CertificateUseGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
@@ -912,137 +973,51 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/CertificateUse'
-    CertificateCertificateGroupGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/CertificateCertificateGroupResponse'
-    CertificatePost:
-      allOf:
-      - $ref: '#/components/schemas/_certificateBase'
-      - type: object
-        properties:
-          days:
-            description: 'The number of days that the self-signed certificate is valid. Defaults to 3650.
-
-              This field can only be specified when creating a new self-signed certificate.
-
-              '
-            type: integer
-            format: int32
-            example: 3650
-          key:
-            description: 'The text of the private key.
-
-              This field can only be specified when importing a certificate and key pair.
-
-              '
-            type: string
-          passphrase:
-            description: 'The passphrase used to encrypt `key`.
-
-              This field can only be specified when importing a certificate and key pair.
-
-              '
-            type: string
     Certificate:
       allOf:
       - $ref: '#/components/schemas/_builtIn'
       - $ref: '#/components/schemas/_certificateBase'
       - type: object
-    _builtIn:
-      description: 'A built-in resource. Many are singletons predefined by Purity (e.g., support
+    CertificateUse:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn'
+      - type: object
+        properties:
+          group:
+            description: 'A reference to the certificate group that is being used, if any, where
 
-        settings). Some correspond to a piece of software, like an app, or hardware,
+              this certificate is a member of the certificate-group.
 
-        like a controller. Others are created by the system in response to some event
+              Returns `null` if the referenced user object is not associated
 
-        (e.g., alerts, audit records).
+              with a group and is directly using this certificate.
 
+              '
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+          use:
+            description: A reference to an object using this certificate.
+            title: FixedReferenceWithType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithType'
+    _fixedReference_2:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
 
-        Typically, a user can''t create, delete or rename a built-in resource. A few
+              Valid values are the unique part of the resource''s REST endpoint.
 
-        can be created or deleted, but not renamed because the names are meaningful
+              For example, a reference to a file system would have a
 
-        to Purity (e.g., VIFs).
+              `resource_type` of `file-systems`.
 
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A locally unique, system-generated name. The name cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-    CertificateResponse_2:
-      type: object
-      properties:
-        items:
-          description: A list of certificate objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/Certificate_2'
-    _fixedReferenceNoResourceType:
-      type: object
-      properties:
-        id:
-          description: 'A non-modifiable, globally unique ID chosen by the system.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-      x-readOnly: true
-    CertificateCertificateGroupResponse_2:
-      type: object
-      properties:
-        items:
-          description: 'A list of certificate and certificate group relationships.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Member'
-    CertificateSigningRequest_2:
-      description: 'SSL certificate managed by Purity.
-
-        '
-      type: object
-      properties:
-        certificate_signing_request:
-          description: 'The text of a new certificate signing request.
-
-            '
-          type: string
+              '
+            type: string
+            readOnly: true
     _certificateBase_2:
       allOf:
       - $ref: '#/components/schemas/_realmsReference'
@@ -1169,182 +1144,6 @@ components:
             format: int64
             readOnly: true
             example: 152424849000
-    _realmsReference:
-      type: object
-      properties:
-        realms:
-          description: 'Reference to the realms this resource belongs to.
-
-            The value is set to empty array when the resource
-
-            lives outside of a realm.
-
-            '
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/_fixedReference_2'
-    CertificateUse_2:
-      allOf:
-      - $ref: '#/components/schemas/_builtIn_2'
-      - type: object
-        properties:
-          group:
-            description: 'A reference to a certificate group that is being used, if any, where
-
-              this certificate is a member of the certificate-group. This field is
-
-              `null` if the referenced use object is not using a group, but is rather
-
-              using this certificate directly.
-
-              '
-            title: FixedReference
-            allOf:
-            - $ref: '#/components/schemas/_fixedReference_2'
-          use:
-            description: A reference to an object using this certificate.
-            title: FixedReferenceWithRemote
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceWithRemote'
-    CertificatePatch:
-      allOf:
-      - $ref: '#/components/schemas/_certificateBase_2'
-      - type: object
-        properties:
-          days:
-            description: 'The number of days that the self-signed certificate is valid. Defaults to 3650.
-
-              This field can only be specified when creating a new self-signed certificate.
-
-              '
-            type: integer
-            format: int32
-            example: 3650
-          passphrase:
-            description: 'The passphrase used to encrypt `private_key`.
-
-              This field can only be specified when importing a certificate and key pair.
-
-              '
-            type: string
-          private_key:
-            description: 'The text of the private key.
-
-              This field can only be specified when importing a certificate and key pair.
-
-              '
-            type: string
-    _fixedReferenceWithoutType:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'The resource name, such as volume name, file system name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-          readOnly: true
-      x-readOnly: true
-    _fixedReference_2:
-      allOf:
-      - $ref: '#/components/schemas/_fixedReferenceWithoutType'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are the unique part of the resource''s REST endpoint.
-
-              For example, a reference to a file system would have a
-
-              `resource_type` of `file-systems`.
-
-              '
-            type: string
-            readOnly: true
-    CertificateCertificateGroupGetResp:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo_2'
-      - $ref: '#/components/schemas/CertificateCertificateGroupResponse_2'
-    PageInfo_2:
-      type: object
-      properties:
-        continuation_token:
-          description: 'Continuation token that can be provided in the `continuation_token` query
-
-            param to get the next page of data.
-
-            If you use the `continuation_token` to page through data you
-
-            are guaranteed to get all items exactly once regardless of
-
-            how items are modified. If an item is added or deleted during
-
-            the pagination then it may or may not be returned.
-
-            The `continuation_token` is generated if the `limit` is less
-
-            than the remaining number of items, and the default sort is used
-
-            (no sort is specified).
-
-            '
-          type: string
-        total_item_count:
-          description: Total number of items after applying `filter` params.
-          type: integer
-          format: int32
-    CertificateSigningRequestResponse_2:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CertificateSigningRequest_2'
-          description: A list of certificate signing request objects.
-    _reference_2:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name,
-
-            such as volume name, pod name, snapshot name, and so on.
-
-            '
-          type: string
-        resource_type:
-          description: 'Type of the object (full name of the endpoint).
-
-            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-            `policies/snapshot`, etc.
-
-            '
-          type: string
-          readOnly: true
-      x-aliases:
-      - _referenceWithFixedType
     CertificateSigningRequestPost_2:
       description: A request to create a CSR for a Purity//FB certificate object.
       type: object
@@ -1404,6 +1203,119 @@ components:
           items:
             type: string
             example: otherdnsname.mydomain.com
+    _fixedReferenceWithRemote:
+      allOf:
+      - $ref: '#/components/schemas/_fixedReference_2'
+      - type: object
+        properties:
+          remote:
+            description: The remote field of the corresponding array connection.
+            title: FixedReferenceNoResourceType
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceNoResourceType'
+    CertificatePatch:
+      allOf:
+      - $ref: '#/components/schemas/_certificateBase_2'
+      - type: object
+        properties:
+          days:
+            description: 'The number of days that the self-signed certificate is valid. Defaults to 3650.
+
+              This field can only be specified when creating a new self-signed certificate.
+
+              '
+            type: integer
+            format: int32
+            example: 3650
+          passphrase:
+            description: 'The passphrase used to encrypt `private_key`.
+
+              This field can only be specified when importing a certificate and key pair.
+
+              '
+            type: string
+          private_key:
+            description: 'The text of the private key.
+
+              This field can only be specified when importing a certificate and key pair.
+
+              '
+            type: string
+    _fixedReferenceWithoutType:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'The resource name, such as volume name, file system name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+          readOnly: true
+      x-readOnly: true
+    CertificateResponse_2:
+      type: object
+      properties:
+        items:
+          description: A list of certificate objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate_2'
+    Member:
+      type: object
+      properties:
+        group:
+          description: 'A reference to a group object that has the referenced member object
+
+            as a member.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference_2'
+        member:
+          description: 'A reference to an object that is a member of the referenced group.
+
+            '
+          title: Reference
+          allOf:
+          - $ref: '#/components/schemas/_reference_2'
+    _builtIn_2:
+      type: object
+      properties:
+        id:
+          description: 'A non-modifiable, globally unique ID chosen by the system.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: Name of the object (e.g., a file system or snapshot).
+          type: string
+          readOnly: true
+    _realmsReference:
+      type: object
+      properties:
+        realms:
+          description: 'Reference to the realms this resource belongs to.
+
+            The value is set to empty array when the resource
+
+            lives outside of a realm.
+
+            '
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/_fixedReference_2'
     CertificatePost_2:
       allOf:
       - $ref: '#/components/schemas/_certificateBase_2'
@@ -1432,22 +1344,73 @@ components:
 
               '
             type: string
-    _fixedReferenceWithRemote:
+    CertificateCertificateGroupGetResp:
       allOf:
-      - $ref: '#/components/schemas/_fixedReference_2'
-      - type: object
-        properties:
-          remote:
-            description: The remote field of the corresponding array connection.
-            title: FixedReferenceNoResourceType
-            allOf:
-            - $ref: '#/components/schemas/_fixedReferenceNoResourceType'
-    Certificate_2:
-      allOf:
-      - description: SSL Certificate managed by Purity.
-      - $ref: '#/components/schemas/_builtIn_2'
-      - $ref: '#/components/schemas/_certificateBase_2'
-    _builtIn_2:
+      - $ref: '#/components/schemas/PageInfo_2'
+      - $ref: '#/components/schemas/CertificateCertificateGroupResponse_2'
+    CertificateCertificateGroupResponse_2:
+      type: object
+      properties:
+        items:
+          description: 'A list of certificate and certificate group relationships.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+    CertificateSigningRequestResponse_2:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CertificateSigningRequest_2'
+          description: A list of certificate signing request objects.
+    CertificateSigningRequest_2:
+      description: 'SSL certificate managed by Purity.
+
+        '
+      type: object
+      properties:
+        certificate_signing_request:
+          description: 'The text of a new certificate signing request.
+
+            '
+          type: string
+    _reference_2:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name,
+
+            such as volume name, pod name, snapshot name, and so on.
+
+            '
+          type: string
+        resource_type:
+          description: 'Type of the object (full name of the endpoint).
+
+            Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+            `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+            `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+            `policies/snapshot`, etc.
+
+            '
+          type: string
+          readOnly: true
+      x-aliases:
+      - _referenceWithFixedType
+    _fixedReferenceNoResourceType:
       type: object
       properties:
         id:
@@ -1457,39 +1420,75 @@ components:
           type: string
           readOnly: true
         name:
-          description: Name of the object (e.g., a file system or snapshot).
           type: string
           readOnly: true
-    Member:
+      x-readOnly: true
+    PageInfo_2:
       type: object
       properties:
-        group:
-          description: 'A reference to a group object that has the referenced member object
+        continuation_token:
+          description: 'Continuation token that can be provided in the `continuation_token` query
 
-            as a member.
+            param to get the next page of data.
+
+            If you use the `continuation_token` to page through data you
+
+            are guaranteed to get all items exactly once regardless of
+
+            how items are modified. If an item is added or deleted during
+
+            the pagination then it may or may not be returned.
+
+            The `continuation_token` is generated if the `limit` is less
+
+            than the remaining number of items, and the default sort is used
+
+            (no sort is specified).
 
             '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference_2'
-        member:
-          description: 'A reference to an object that is a member of the referenced group.
+          type: string
+        total_item_count:
+          description: Total number of items after applying `filter` params.
+          type: integer
+          format: int32
+    Certificate_2:
+      allOf:
+      - description: SSL Certificate managed by Purity.
+      - $ref: '#/components/schemas/_builtIn_2'
+      - $ref: '#/components/schemas/_certificateBase_2'
+    CertificateUse_2:
+      allOf:
+      - $ref: '#/components/schemas/_builtIn_2'
+      - type: object
+        properties:
+          group:
+            description: 'A reference to a certificate group that is being used, if any, where
 
-            '
-          title: Reference
-          allOf:
-          - $ref: '#/components/schemas/_reference_2'
+              this certificate is a member of the certificate-group. This field is
+
+              `null` if the referenced use object is not using a group, but is rather
+
+              using this certificate directly.
+
+              '
+            title: FixedReference
+            allOf:
+            - $ref: '#/components/schemas/_fixedReference_2'
+          use:
+            description: A reference to an object using this certificate.
+            title: FixedReferenceWithRemote
+            allOf:
+            - $ref: '#/components/schemas/_fixedReferenceWithRemote'
   parameters:
-    Sort:
-      name: sort
+    Ids:
+      name: ids
       in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Total_item_count:
       name: total_item_count
@@ -1509,53 +1508,6 @@ components:
         '
       schema:
         type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
-
-        '
-      schema:
-        type: string
-    Filter:
-      name: filter
-      in: query
-      description: 'Narrows down the results to only the response objects
-
-        that satisfy the filter criteria.
-
-        '
-      schema:
-        type: string
-    Authorization:
-      name: Authorization
-      in: header
-      description: 'Access token (in JWT format) required to use any API
-
-        endpoint (except `/oauth2`, `/login`, and `/logout`)
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     Generate_new_key:
       name: generate_new_key
       in: query
@@ -1570,22 +1522,6 @@ components:
         '
       schema:
         type: boolean
-    Certificate_names:
-      name: certificate_names
-      in: query
-      description: 'The names of one or more certificates.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `cert01,cert02`.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
     Certificate_ids:
       name: certificate_ids
       in: query
@@ -1642,15 +1578,45 @@ components:
         format: int32
         minimum: 0
       example: 10
-    Ids:
-      name: ids
+    Filter:
+      name: filter
       in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
+      description: 'Narrows down the results to only the response objects
+
+        that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
       style: form
       explode: false
       schema:
         type: array
         items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
     Certificate_group_ids:
       name: certificate_group_ids
@@ -1692,6 +1658,24 @@ components:
         '
       schema:
         type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
+
+        '
+      schema:
+        type: string
+    Authorization:
+      name: Authorization
+      in: header
+      description: 'Access token (in JWT format) required to use any API
+
+        endpoint (except `/oauth2`, `/login`, and `/logout`)
+
+        '
+      schema:
+        type: string
     Certificate_group_names:
       name: certificate_group_names
       in: query
@@ -1710,6 +1694,51 @@ components:
         type: array
         items:
           type: string
+    Certificate_names:
+      name: certificate_names
+      in: query
+      description: 'The names of one or more certificates.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `cert01,cert02`.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids_2:
+      name: ids
+      in: query
+      description: 'A comma-separated list of resource IDs.
+
+        If after filtering, there is not at least one resource that matches
+
+        each of the elements of `ids`, then an error is returned.
+
+        This cannot be provided together with the `name` or `names` query parameters.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset_2:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Sort_2:
       name: sort
       in: query
@@ -1741,35 +1770,6 @@ components:
         This cannot be provided in conjunction with the `certificate_ids`
 
         parameter.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset_2:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids_2:
-      name: ids
-      in: query
-      description: 'A comma-separated list of resource IDs.
-
-        If after filtering, there is not at least one resource that matches
-
-        each of the elements of `ids`, then an error is returned.
-
-        This cannot be provided together with the `name` or `names` query parameters.
 
         '
       style: form

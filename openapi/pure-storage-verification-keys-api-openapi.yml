@@ -78,6 +78,14 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    VerificationKeyResponse:
+      type: object
+      properties:
+        items:
+          description: A list of verification key objects.
+          type: array
+          items:
+            $ref: '#/components/schemas/VerificationKey'
     VerificationKey:
       type: object
       properties:
@@ -96,12 +104,10 @@ components:
         verification_key:
           description: The text of the verification key.
           type: string
-    VerificationKeyPatch:
-      type: object
-      properties:
-        signed_verification_key:
-          description: The text of the signed verification key.
-          type: string
+    VerificationKeyGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/VerificationKeyResponse'
     PageInfo:
       type: object
       properties:
@@ -130,18 +136,12 @@ components:
           description: Total number of items after applying `filter` params.
           type: integer
           format: int32
-    VerificationKeyResponse:
+    VerificationKeyPatch:
       type: object
       properties:
-        items:
-          description: A list of verification key objects.
-          type: array
-          items:
-            $ref: '#/components/schemas/VerificationKey'
-    VerificationKeyGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/VerificationKeyResponse'
+        signed_verification_key:
+          description: The text of the signed verification key.
+          type: string
   parameters:
     Sort:
       name: sort
@@ -162,17 +162,6 @@ components:
         items:
           pattern: ^[a-z]+(_[a-z]+)*-?
           type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The offset of the first resource to return from a collection.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
     XRequestId:
       name: X-Request-ID
       in: header
@@ -203,6 +192,17 @@ components:
         '
       schema:
         type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The offset of the first resource to return from a collection.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Filter:
       name: filter
       in: query

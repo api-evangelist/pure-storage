@@ -334,6 +334,106 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    VchostEndpointResponse:
+      type: object
+      properties:
+        items:
+          description: 'Returns a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/VchostEndpoint'
+    VchostEndpointPatch:
+      type: object
+      properties:
+        certificates:
+          description: 'The certificate to be presented by the vchost over the configured endpoints.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceNoIdWithType'
+    VchostCertificatePatch:
+      type: object
+      properties:
+        endpoints:
+          description: 'The IPv4 or IPv6 addresses of the endpoints to configure for the vchost, over which the
+
+            configured certificate will be presented.
+
+            '
+          type: array
+          items:
+            type: string
+            example: 1.2.3.4
+    _resource:
+      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
+
+        renamed or deleted by the user. This might be a virtual resource (e.g., a
+
+        file system), or correspond to something in the environment, like a host or a
+
+        server.
+
+        '
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified and cannot refer to another resource.
+
+            '
+          type: string
+          readOnly: true
+        name:
+          description: 'A user-specified name.
+
+            The name must be locally unique and can be changed.
+
+            '
+          type: string
+    _referenceNoIdWithType:
+      allOf:
+      - $ref: '#/components/schemas/_referenceNoId'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values include `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+    VchostCertificatePost:
+      type: object
+      properties:
+        certificate:
+          description: 'The certificate to be presented by the vchost over the configured endpoints.
+
+            '
+          title: ReferenceNoIdWithType
+          allOf:
+          - $ref: '#/components/schemas/_referenceNoIdWithType'
+        endpoints:
+          description: 'The IPv4 or IPv6 addresses of the endpoints to configure for the vchost, over which the
+
+            configured certificate will be presented.
+
+            '
+          type: array
+          items:
+            type: string
+            example: 1.2.3.4
     VchostPatch:
       type: object
       properties:
@@ -343,6 +443,34 @@ components:
             '
           type: string
           example: vchost-b
+    VchostGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/VchostResponse'
+    VchostEndpointGetResponse:
+      allOf:
+      - $ref: '#/components/schemas/PageInfo'
+      - $ref: '#/components/schemas/VchostEndpointResponse'
+    VchostPost:
+      type: object
+      properties:
+        vcuuid:
+          description: 'The vCenter Server uuid of the vchost.
+
+            '
+          type: string
+          example: ddf43502-4e00-405e-b341-e87e7eaa13f6
+    Vchost:
+      allOf:
+      - $ref: '#/components/schemas/_resource'
+      - type: object
+        properties:
+          vcuuid:
+            description: 'The vCenter Server uuid of the vchost.
+
+              '
+            type: string
+            example: ddf43502-4e00-405e-b341-e87e7eaa13f6
     _referenceNoId:
       type: object
       properties:
@@ -351,10 +479,111 @@ components:
 
             '
           type: string
+    VchostEndpointPost:
+      type: object
+      properties:
+        certificates:
+          description: 'The certificate to be presented by the vchost over the configured endpoints.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceNoIdWithType'
+        endpoint:
+          description: 'The IPv4 or IPv6 address of the endpoint.
+
+            '
+          type: string
+          example: 1.2.3.4
+    VchostCertificateResponse:
+      type: object
+      properties:
+        items:
+          description: 'Returns a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/VchostCertificate'
     VchostCertificateGetResponse:
       allOf:
       - $ref: '#/components/schemas/PageInfo'
       - $ref: '#/components/schemas/VchostCertificateResponse'
+    VchostEndpoint:
+      type: object
+      properties:
+        certificates:
+          description: 'The certificate to be presented by the vchost over the configured endpoints.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/_referenceNoIdWithType'
+        endpoint:
+          description: 'The IPv4 or IPv6 address of the endpoint.
+
+            '
+          type: string
+          example: 1.2.3.4
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+          example: 3a668af2-f63a-0110-bf4a-39e911ac6f07
+        is_local:
+          description: Returns true if the vchost endpoint is local to the array, and false otherwise.
+          type: boolean
+        vchost:
+          description: 'The vchost for which this endpoint is to be configured.
+
+            '
+          title: ReferenceWithType
+          allOf:
+          - $ref: '#/components/schemas/_referenceWithType'
+    _reference:
+      type: object
+      properties:
+        id:
+          description: 'A globally unique, system-generated ID.
+
+            The ID cannot be modified.
+
+            '
+          type: string
+        name:
+          description: 'The resource name, such as volume name, pod name,
+
+            snapshot name, and so on.
+
+            '
+          type: string
+      x-aliases:
+      - _referenceWithoutType
+    _referenceWithType:
+      allOf:
+      - $ref: '#/components/schemas/_reference'
+      - type: object
+        properties:
+          resource_type:
+            description: 'Type of the object (full name of the endpoint).
+
+              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
+
+              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
+
+              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
+
+              `policies/snapshot`, etc.
+
+              '
+            type: string
+      x-aliases:
+      - _reference
     VchostCertificate:
       type: object
       properties:
@@ -397,165 +626,6 @@ components:
           title: ReferenceWithType
           allOf:
           - $ref: '#/components/schemas/_referenceWithType'
-    VchostPost:
-      type: object
-      properties:
-        vcuuid:
-          description: 'The vCenter Server uuid of the vchost.
-
-            '
-          type: string
-          example: ddf43502-4e00-405e-b341-e87e7eaa13f6
-    VchostEndpoint:
-      type: object
-      properties:
-        certificates:
-          description: 'The certificate to be presented by the vchost over the configured endpoints.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceNoIdWithType'
-        endpoint:
-          description: 'The IPv4 or IPv6 address of the endpoint.
-
-            '
-          type: string
-          example: 1.2.3.4
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-          example: 3a668af2-f63a-0110-bf4a-39e911ac6f07
-        is_local:
-          description: Returns true if the vchost endpoint is local to the array, and false otherwise.
-          type: boolean
-        vchost:
-          description: 'The vchost for which this endpoint is to be configured.
-
-            '
-          title: ReferenceWithType
-          allOf:
-          - $ref: '#/components/schemas/_referenceWithType'
-    _resource:
-      description: 'An ordinary (as opposed to built-in) resource that can be created, named,
-
-        renamed or deleted by the user. This might be a virtual resource (e.g., a
-
-        file system), or correspond to something in the environment, like a host or a
-
-        server.
-
-        '
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified and cannot refer to another resource.
-
-            '
-          type: string
-          readOnly: true
-        name:
-          description: 'A user-specified name.
-
-            The name must be locally unique and can be changed.
-
-            '
-          type: string
-    Vchost:
-      allOf:
-      - $ref: '#/components/schemas/_resource'
-      - type: object
-        properties:
-          vcuuid:
-            description: 'The vCenter Server uuid of the vchost.
-
-              '
-            type: string
-            example: ddf43502-4e00-405e-b341-e87e7eaa13f6
-    VchostEndpointResponse:
-      type: object
-      properties:
-        items:
-          description: 'Returns a list of all items after filtering.
-
-            If applicable, the values are displayed for each name.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/VchostEndpoint'
-    VchostResponse:
-      type: object
-      properties:
-        items:
-          description: 'Returns a list of all items after filtering.
-
-            If applicable, the values are displayed for each name.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/Vchost'
-    _referenceNoIdWithType:
-      allOf:
-      - $ref: '#/components/schemas/_referenceNoId'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values include `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-    VchostCertificateResponse:
-      type: object
-      properties:
-        items:
-          description: 'Returns a list of all items after filtering.
-
-            If applicable, the values are displayed for each name.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/VchostCertificate'
-    VchostGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/VchostResponse'
-    _referenceWithType:
-      allOf:
-      - $ref: '#/components/schemas/_reference'
-      - type: object
-        properties:
-          resource_type:
-            description: 'Type of the object (full name of the endpoint).
-
-              Valid values are `hosts`, `host-groups`, `network-interfaces`, `pods`,
-
-              `ports`, `pod-replica-links`, `subnets`, `volumes`, `volume-snapshots`,
-
-              `volume-groups`, `directories`, `policies/nfs`, `policies/smb`, and
-
-              `policies/snapshot`, etc.
-
-              '
-            type: string
-      x-aliases:
-      - _reference
     PageInfo:
       type: object
       properties:
@@ -598,100 +668,19 @@ components:
             '
           type: integer
           format: int32
-    VchostEndpointPatch:
+    VchostResponse:
       type: object
       properties:
-        certificates:
-          description: 'The certificate to be presented by the vchost over the configured endpoints.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceNoIdWithType'
-    VchostCertificatePatch:
-      type: object
-      properties:
-        endpoints:
-          description: 'The IPv4 or IPv6 addresses of the endpoints to configure for the vchost, over which the
-
-            configured certificate will be presented.
-
-            '
-          type: array
-          items:
-            type: string
-            example: 1.2.3.4
-    VchostEndpointPost:
-      type: object
-      properties:
-        certificates:
-          description: 'The certificate to be presented by the vchost over the configured endpoints.
-
-            '
-          type: array
-          items:
-            $ref: '#/components/schemas/_referenceNoIdWithType'
-        endpoint:
-          description: 'The IPv4 or IPv6 address of the endpoint.
-
-            '
-          type: string
-          example: 1.2.3.4
-    VchostEndpointGetResponse:
-      allOf:
-      - $ref: '#/components/schemas/PageInfo'
-      - $ref: '#/components/schemas/VchostEndpointResponse'
-    VchostCertificatePost:
-      type: object
-      properties:
-        certificate:
-          description: 'The certificate to be presented by the vchost over the configured endpoints.
-
-            '
-          title: ReferenceNoIdWithType
-          allOf:
-          - $ref: '#/components/schemas/_referenceNoIdWithType'
-        endpoints:
-          description: 'The IPv4 or IPv6 addresses of the endpoints to configure for the vchost, over which the
-
-            configured certificate will be presented.
-
-            '
-          type: array
-          items:
-            type: string
-            example: 1.2.3.4
-    _reference:
-      type: object
-      properties:
-        id:
-          description: 'A globally unique, system-generated ID.
-
-            The ID cannot be modified.
-
-            '
-          type: string
-        name:
-          description: 'The resource name, such as volume name, pod name,
-
-            snapshot name, and so on.
-
-            '
-          type: string
-      x-aliases:
-      - _referenceWithoutType
-  parameters:
-    Sort:
-      name: sort
-      in: query
-      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
         items:
-          pattern: ^[a-z]+(_[a-z]+)*-?
-          type: string
+          description: 'Returns a list of all items after filtering.
+
+            If applicable, the values are displayed for each name.
+
+            '
+          type: array
+          items:
+            $ref: '#/components/schemas/Vchost'
+  parameters:
     Vchost_names:
       name: vchost_names
       in: query
@@ -702,6 +691,16 @@ components:
         For example, `vchost01,vchost02`.
 
         '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Ids:
+      name: ids
+      in: query
+      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
       style: form
       explode: false
       schema:
@@ -740,20 +739,108 @@ components:
         '
       schema:
         type: boolean
-    XRequestId:
-      name: X-Request-ID
-      in: header
-      description: 'Supplied by client during request or generated by server.
+    Names:
+      name: names
+      in: query
+      description: 'Performs the operation on the unique names specified.
+
+        Enter multiple names in comma-separated format.
+
+        For example, `name01,name02`.
+
+
+        If there is not at least one resource that matches
+
+        each of the elements of `names`, then an error is returned,
+
+        except when creating new resources.
+
+        '
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+    Offset:
+      name: offset
+      in: query
+      description: 'The starting position based on the results of the query
+
+        in relation to the full set of response objects returned.
 
         '
       schema:
-        type: string
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
     Filter:
       name: filter
       in: query
       description: 'Narrows down the results to only the response objects
 
         that satisfy the filter criteria.
+
+        '
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      description: 'Limits the size of the response to the specified number of objects on each page.
+
+        To return the total number of resources, set `limit=0`.
+
+        The total number of resources is returned as a `total_item_count` value.
+
+        If the page size requested is larger than the system maximum limit,
+
+        the server returns the maximum limit, disregarding the requested page size.
+
+        '
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+      example: 10
+    Sort:
+      name: sort
+      in: query
+      description: "Sorts the response objects by the specified fields. Sorting can be applied to any field name\n in the response, in ascending order by default, or in descending order by prefixing the\n field name with a minus sign (-). Multiple fields can be specified as a comma-separated\n list (e.g., sort volumes by size descending, then by name ascending). If sort is provided,\n the response will not include a continuation_token.\n"
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          pattern: ^[a-z]+(_[a-z]+)*-?
+          type: string
+    Continuation_token:
+      name: continuation_token
+      in: query
+      description: 'A token used to retrieve the next page of data
+
+        with some consistency guaranteed.
+
+        The token is a Base64 encoded value.
+
+        Set `continuation_token` to the system-generated token taken from the `x-next-token`
+
+        header field of the response.
+
+        A query has reached its last page when the response does not include a token.
+
+        Pagination requires the `limit` and `continuation_token`
+
+        query parameters.
+
+        '
+      schema:
+        type: string
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: 'Supplied by client during request or generated by server.
 
         '
       schema:
@@ -800,90 +887,3 @@ components:
         type: array
         items:
           type: string
-    Names:
-      name: names
-      in: query
-      description: 'Performs the operation on the unique names specified.
-
-        Enter multiple names in comma-separated format.
-
-        For example, `name01,name02`.
-
-
-        If there is not at least one resource that matches
-
-        each of the elements of `names`, then an error is returned,
-
-        except when creating new resources.
-
-        '
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Offset:
-      name: offset
-      in: query
-      description: 'The starting position based on the results of the query
-
-        in relation to the full set of response objects returned.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
-    Ids:
-      name: ids
-      in: query
-      description: "A comma-separated list of unique resource IDs. At least one resource must match\n each specified ID, otherwise an error is returned. This parameter is required\n  if ids or names is not provided, but it cannot be used together with name or names.\n"
-      style: form
-      explode: false
-      schema:
-        type: array
-        items:
-          type: string
-    Continuation_token:
-      name: continuation_token
-      in: query
-      description: 'A token used to retrieve the next page of data
-
-        with some consistency guaranteed.
-
-        The token is a Base64 encoded value.
-
-        Set `continuation_token` to the system-generated token taken from the `x-next-token`
-
-        header field of the response.
-
-        A query has reached its last page when the response does not include a token.
-
-        Pagination requires the `limit` and `continuation_token`
-
-        query parameters.
-
-        '
-      schema:
-        type: string
-    Limit:
-      name: limit
-      in: query
-      description: 'Limits the size of the response to the specified number of objects on each page.
-
-        To return the total number of resources, set `limit=0`.
-
-        The total number of resources is returned as a `total_item_count` value.
-
-        If the page size requested is larger than the system maximum limit,
-
-        the server returns the maximum limit, disregarding the requested page size.
-
-        '
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-      example: 10
